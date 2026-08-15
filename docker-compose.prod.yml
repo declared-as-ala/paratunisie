@@ -5,6 +5,22 @@ networks:
     driver: bridge
   internal:
     driver: bridge
+  # The VPS's existing nginx-proxy-manager (jc21/nginx-proxy-manager,
+  # container "sobitas-npm") is NOT on this compose project — it's on
+  # "sobitas-full-project_sobitas-net" from an unrelated project. Rather than
+  # touching NPM's own container definition (shared infra serving several
+  # other live sites), services that need a public route attach to that
+  # network too so NPM can reach them by container name. Declared external:
+  # this compose project doesn't own or create it.
+  proxy:
+    name: sobitas-full-project_sobitas-net
+    external: true
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
 
 volumes:
   postgres-data-prod:
@@ -20,9 +36,11 @@ services:
       dockerfile: Dockerfile
     container_name: paratunisie-web
     restart: unless-stopped
+    logging: *default-logging
     networks:
       - edge
       - internal
+      - proxy
     ports:
       - "127.0.0.1:3010:3000"
     environment:
@@ -47,11 +65,15 @@ services:
       dockerfile: apps/admin/Dockerfile
     container_name: paratunisie-admin
     restart: unless-stopped
+    logging: *default-logging
     networks:
       - edge
       - internal
+      - proxy
     ports:
-      - "127.0.0.1:3012:3002"
+      # 3012 is already bound by an unrelated bare-metal process on this
+      # shared VPS (not a Docker container) — 3014 avoids the collision.
+      - "127.0.0.1:3014:3002"
     environment:
       - NODE_ENV=production
       - PORT=3002
@@ -74,17 +96,22 @@ services:
       dockerfile: Dockerfile
     container_name: paratunisie-api
     restart: unless-stopped
+    logging: *default-logging
     networks:
       - edge
       - internal
+      - proxy
     ports:
-      - "127.0.0.1:3011:3001"
+      # 3011 is already bound by an unrelated bare-metal process on this
+      # shared VPS (not a Docker container) — 3013 avoids the collision.
+      - "127.0.0.1:3013:3001"
     env_file:
       - .env
     environment:
       NODE_ENV: production
       PORT: 3001
       FRONTEND_URL: ${FRONTEND_URL:-http://paratunisie.com}
+      PUBLIC_API_URL: ${PUBLIC_API_URL:-http://paratunisie.com}
       DATABASE_URL: postgresql://${POSTGRES_USER:-paratunisie}:${POSTGRES_PASSWORD}@paratunisie-postgres:5432/${POSTGRES_DB:-paratunisie}?schema=public
       MEILI_HOST: http://paratunisie-meilisearch:7700
       MEILI_API_KEY: ${MEILI_API_KEY}
@@ -93,7 +120,9 @@ services:
       MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
       MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
       MINIO_USE_SSL: "false"
-      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-http://paratunisie.com/media}
+      # Bucket name kept in the path on purpose (no NPM rewrite needed) — see
+      # DEPLOYMENT.md "Production media routing".
+      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-http://paratunisie.com/paratunisie-media}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
       OPENROUTER_BASE_URL: https://openrouter.ai/api/v1
       OPENROUTER_MODEL: ${OPENROUTER_MODEL:-dots-studio/dots-3-note-preview:free}
@@ -116,6 +145,7 @@ services:
     image: postgres:16-alpine
     container_name: paratunisie-postgres
     restart: unless-stopped
+    logging: *default-logging
     networks:
       - internal
     # Note: No public host port bound (0.0.0.0:5432 omitted for security)
@@ -138,6 +168,7 @@ services:
     image: redis:7-alpine
     container_name: paratunisie-redis
     restart: unless-stopped
+    logging: *default-logging
     networks:
       - internal
     command: ["redis-server", "--appendonly", "yes"]
@@ -154,6 +185,7 @@ services:
     image: getmeili/meilisearch:v1.12
     container_name: paratunisie-meilisearch
     restart: unless-stopped
+    logging: *default-logging
     networks:
       - internal
     # Note: No public host port bound
@@ -175,9 +207,11 @@ services:
     image: minio/minio:latest
     container_name: paratunisie-minio
     restart: unless-stopped
+    logging: *default-logging
     networks:
       - internal
       - edge
+      - proxy
     ports:
       - "127.0.0.1:9000:9000"
       - "127.0.0.1:9001:9001"
