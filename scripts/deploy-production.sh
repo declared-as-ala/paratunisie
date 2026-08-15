@@ -41,6 +41,11 @@ fi
 find "${BACKUP_DIR}" -name "pre-deploy-*.dump" -mtime +14 -delete || true
 
 echo "[2/7] Pulling latest code from GitHub..."
+if [ -n "$(git status --porcelain)" ]; then
+  echo "[DEPLOY ERROR] Uncommitted changes found in ${PROJECT_DIR} — refusing to overwrite. Inspect with 'git status' before deploying manually."
+  git status --porcelain
+  exit 1
+fi
 git fetch origin main
 git reset --hard origin/main
 

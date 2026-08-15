@@ -10,8 +10,40 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  test:
+    name: Test & Build Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install API dependencies
+        working-directory: apps/api
+        run: npm ci
+
+      - name: API tests
+        working-directory: apps/api
+        run: npm test
+
+      - name: API build
+        working-directory: apps/api
+        run: npm run build
+
+      - name: Install storefront dependencies
+        run: npm ci
+
+      - name: Storefront build
+        run: npm run build
+
   deploy:
     name: Deploy to VPS
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Repository
