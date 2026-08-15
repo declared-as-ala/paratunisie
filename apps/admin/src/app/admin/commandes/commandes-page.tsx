@@ -380,13 +380,17 @@ function CommandesInner() {
     fetchOrders();
   }, [ordersRefreshKey]);
 
-  // 2. Fetch Catalog Products from NestJS API for interactive search in drawer
+  // 2. Fetch Catalog Products from NestJS API for interactive search in drawer.
+  // /catalogue/products returns a paginated envelope ({ data, meta }), not a
+  // bare array — checking Array.isArray(data) here was always false, so this
+  // silently fell through to the 5 hardcoded mock products on every load
+  // regardless of whether the real fetch succeeded (D-0035).
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const data = await apiClient.get<typeof catalogProducts>("/catalogue/products");
-        if (Array.isArray(data) && data.length > 0) {
-          setCatalogProducts(data);
+        const res = await apiClient.get<{ data: typeof catalogProducts }>("/catalogue/products?limit=500");
+        if (Array.isArray(res?.data) && res.data.length > 0) {
+          setCatalogProducts(res.data);
           return;
         }
       } catch (err) {

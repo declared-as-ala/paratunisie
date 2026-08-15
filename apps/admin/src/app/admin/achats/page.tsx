@@ -86,8 +86,11 @@ export default function AchatsPage() {
   useEffect(() => {
     loadOrders();
     apiClient.get<ApiSupplier[]>("/suppliers").then(setSuppliers).catch(() => {});
-    apiClient.get<ApiCatalogProduct[]>("/catalogue/products").then((products) => {
-      const opts = products.flatMap((p) =>
+    // /catalogue/products returns a paginated envelope ({ data, meta }), not
+    // a bare array — .flatMap() on the raw response threw (silently swallowed
+    // by the empty .catch below), so this picker was always empty (D-0035).
+    apiClient.get<{ data: ApiCatalogProduct[] }>("/catalogue/products?limit=500").then((res) => {
+      const opts = (res?.data ?? []).flatMap((p) =>
         (p.variants ?? []).map((v) => ({
           variantId: v.id,
           productName: p.name,
