@@ -224,7 +224,7 @@ export function ShopPage({
 
       {/* ── 2. MAIN SHOP AREA: SIDEBAR + PRODUCT GRID ──────────────────────────────── */}
       <main className="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid gap-8 lg:grid-cols-[260px_1fr] items-start">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[260px_1fr] items-start">
           {/* Left Desktop Sidebar Container */}
           <aside className="hidden lg:block sticky top-28 space-y-4 rounded-2xl border border-border/80 bg-white p-5 shadow-xs" aria-label="Filtres produits">
             {controls}

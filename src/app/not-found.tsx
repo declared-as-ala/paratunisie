@@ -9,7 +9,7 @@ export default function NotFound() {
   return (
     <div className="mx-auto flex min-h-[calc(100vh-6rem)] max-w-[1100px] flex-col justify-center px-4 py-16 sm:px-6 lg:px-8">
       <div className="overflow-hidden rounded-[2rem] border border-border bg-surface-alt p-8 shadow-xl shadow-slate-900/5 sm:p-10">
-        <div className="grid gap-10 lg:grid-cols-[auto_minmax(0,380px)] lg:items-center lg:gap-12">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[auto_minmax(0,380px)] lg:items-center lg:gap-12">
           <div className="space-y-6">
             <p className="text-sm font-semibold uppercase tracking-[0.28em] text-primary/90">
               404 — Page introuvable

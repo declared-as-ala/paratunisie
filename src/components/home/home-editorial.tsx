@@ -50,7 +50,7 @@ export function HomeEditorial() {
         <h2 className="max-w-2xl font-serif text-4xl leading-tight font-medium tracking-tight text-ink sm:text-5xl">
           Les gestes de saison
         </h2>
-        <div className="mt-10 grid gap-4 lg:grid-cols-[1.35fr_0.65fr]">
+        <div className="mt-10 grid grid-cols-1 gap-4 lg:grid-cols-[1.35fr_0.65fr]">
           <article className="flex min-h-[26rem] flex-col justify-end rounded-xl bg-brand-blush p-6 sm:p-10">
             <SunMedium className="mb-auto size-8 text-primary" aria-hidden />
             <h3 className="max-w-xl font-serif text-3xl leading-tight font-medium text-ink sm:text-4xl">
@@ -93,7 +93,7 @@ export function HomeEditorial() {
 
       <section className="bg-soft-nude py-20 lg:py-28">
         <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-20">
+          <div className="grid grid-cols-1 gap-10 lg:grid-cols-[0.7fr_1.3fr] lg:gap-20">
             <div>
               <ShieldCheck className="size-9 text-primary" aria-hidden />
               <h2 className="mt-5 font-serif text-4xl leading-tight font-medium tracking-tight text-ink sm:text-5xl">
@@ -136,7 +136,7 @@ export function HomeEditorial() {
       </section>
 
       <section className="mx-auto max-w-[1440px] px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-        <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
           <div>
             <p className="text-sm font-medium tracking-[0.14em] text-primary uppercase">
               Conseils

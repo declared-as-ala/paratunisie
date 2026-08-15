@@ -269,7 +269,7 @@ export function ConcernPLP({
       </div>
 
       {/* Grid */}
-      <div className="mt-6 grid gap-8 lg:grid-cols-[220px_1fr]">
+      <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-[220px_1fr]">
         <aside className="hidden lg:block" aria-label="Filtres">
           <div className="sticky top-28">
             <div className="mb-4 flex items-center justify-between">

@@ -53,7 +53,7 @@ export function ShopSeoContent() {
     <section className="border-t border-border bg-brand-blush/25">
       <div className="mx-auto max-w-[1440px] px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
         {/* ── SEO copy block ─────────────────────────────────────────────── */}
-        <div className="grid gap-10 lg:grid-cols-[1.3fr_1fr] lg:gap-16">
+        <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1.3fr_1fr] lg:gap-16">
           <div className="space-y-5">
             <h2 className="font-serif text-2xl font-bold tracking-tight text-ink sm:text-3xl">
               Votre parapharmacie en ligne en Tunisie

@@ -93,7 +93,7 @@ export default async function ConcernPage({
 
       {/* SEO content */}
       <section className="mx-auto max-w-[1440px] px-4 py-12 sm:px-6 lg:px-8">
-        <div className="grid gap-8 lg:grid-cols-[1fr_1fr]">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_1fr]">
           <div>
             <h2 className="font-serif text-2xl font-medium tracking-tight text-ink sm:text-3xl">
               {concern.name} : notre sélection
