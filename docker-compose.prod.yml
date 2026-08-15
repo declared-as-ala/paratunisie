@@ -34,6 +34,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://paratunisie.com/api/v1}
     container_name: paratunisie-web
     restart: unless-stopped
     logging: *default-logging
@@ -63,6 +65,8 @@ services:
     build:
       context: .
       dockerfile: apps/admin/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://paratunisie.com/api/v1}
     container_name: paratunisie-admin
     restart: unless-stopped
     logging: *default-logging

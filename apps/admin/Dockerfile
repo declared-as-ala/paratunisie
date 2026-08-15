@@ -15,6 +15,11 @@ COPY --from=deps /app/apps/admin/node_modules ./apps/admin/node_modules
 COPY apps/admin ./apps/admin
 COPY packages ./packages
 ENV NEXT_TELEMETRY_DISABLED=1
+# NEXT_PUBLIC_* vars are inlined into the client bundle at build time — a
+# runtime `environment:` entry in docker-compose.prod.yml has no effect on
+# them (D-0034). Must be passed as a build arg instead.
+ARG NEXT_PUBLIC_API_URL
+ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
 RUN npm run build --prefix apps/admin
 
 FROM node:22-alpine AS runner
