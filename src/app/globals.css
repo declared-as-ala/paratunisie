@@ -1,0 +1,286 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* Compile utility classes used inside the shared UI package
+   (packages/ui) so storefront and admin each build their own Tailwind
+   output from the same component sources. */
+@source "../../packages/ui/src";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-fraunces);
+  --font-heading: var(--font-serif);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+
+  /* ParaTunisie brand tokens — DESIGN_SYSTEM.md. Aliases onto the same
+     values as the shadcn-generic names above (background/foreground/card),
+     so components can use either bg-background or bg-surface — one value,
+     two vocabularies, never two sources of truth. */
+  --color-surface: var(--background);
+  --color-surface-alt: var(--card);
+  --color-ink: var(--foreground);
+  --color-ink-muted: var(--muted-foreground);
+  --color-ink-faint: var(--ink-faint);
+  --color-border-strong: var(--border-strong);
+  --color-primary-soft: var(--primary-soft);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-info: var(--info);
+  --color-info-bg: var(--info-bg);
+  --color-brand-champagne: var(--brand-champagne);
+  --color-brand-dusty-rose: var(--brand-dusty-rose);
+  --color-brand-blush: var(--brand-blush);
+  --color-soft-nude: var(--soft-nude);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-success-bg: var(--success-bg);
+  --color-danger-bg: var(--danger-bg);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+
+  /* Motion tokens — DESIGN_SYSTEM.md §Motion. Mirrored in src/lib/motion.ts
+     for JS-driven (Motion) animation — one source of values, two consumers. */
+  --duration-micro: 150ms;
+  --duration-standard: 250ms;
+  --duration-large: 400ms;
+  --ease-out-standard: cubic-bezier(0.16, 1, 0.3, 1); /* enter + exit */
+  --ease-in-out-standard: cubic-bezier(0.77, 0, 0.175, 1); /* on-screen morph, e.g. header shrink */
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1); /* iOS-like, sheets/drawers */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1); /* CSS-only springy feedback (non-gesture) */
+}
+
+:root {
+  /* Surfaces */
+  --background: #fcf8f6; /* warm ivory */
+  --foreground: #2b2326; /* deep cocoa */
+  --card: #ffffff;
+  --card-foreground: #2b2326;
+  --popover: #ffffff;
+  --popover-foreground: #2b2326;
+
+  /* Brand */
+  --primary: #7b2f52; /* deep rose plum */
+  --primary-hover: #5e203c;
+  --primary-soft: #ead2dc;
+  --primary-foreground: #fcf8f6;
+  --brand-dusty-rose: #c98fa8;
+  --brand-blush: #ead2dc;
+  --brand-champagne: #c8a46b;
+
+  /* Secondary / muted / accent (shadcn generic roles, tinted warm) */
+  --secondary: #c98fa8; /* dusty rose */
+  --secondary-foreground: #2b2326;
+  --soft-nude: #f5ece8;
+  --muted: #f5ece8;
+  --muted-foreground: #716268;
+  --accent: #c8a46b; /* champagne gold */
+  --accent-foreground: #2b2326;
+
+  /* State */
+  --destructive: #b3402c;
+  --destructive-foreground: #fbf8f3;
+  --danger: #b3402c;
+  --danger-bg: #fbebe7;
+  --warning: #b56a00;
+  --warning-bg: #fef3e0;
+  --info: #1971c2;
+  --info-bg: #e7f3ff;
+  --success: #2f6f52;
+  --success-foreground: #fbf8f3;
+  --success-bg: #eaf3ee;
+
+  /* Structure */
+  --border: #e7d9d5;
+  --border-strong: #d4c4bf;
+  --input: #e7d9d5;
+  --ring: #c98fa8;
+  --radius: 0.5rem;
+
+  /* Text scale */
+  --ink-faint: #a89a9f;
+}
+
+.dark {
+  --background: #251c20;
+  --foreground: #fcf8f6;
+  --card: #32252b;
+  --card-foreground: #fcf8f6;
+  --popover: #32252b;
+  --popover-foreground: #fcf8f6;
+
+  --primary: #e0acc0;
+  --primary-hover: #efc8d7;
+  --primary-soft: #6a4555;
+  --primary-foreground: #2b2326;
+  --brand-dusty-rose: #c98fa8;
+  --brand-blush: #6a4555;
+  --brand-champagne: #d8b980;
+
+  --secondary: #49343d;
+  --secondary-foreground: #fcf8f6;
+  --soft-nude: #34272d;
+  --muted: #49343d;
+  --muted-foreground: #cbbbc1;
+  --accent: #5a3b49;
+  --accent-foreground: #fcf8f6;
+
+  --destructive: #d97158;
+  --destructive-foreground: #251c20;
+  --danger: #d97158;
+  --danger-bg: #3a241f;
+  --warning: #e2a55e;
+  --warning-bg: #3a2d17;
+  --info: #6ea8dc;
+  --info-bg: #1a2c42;
+  --success: #78a58b;
+  --success-foreground: #251c20;
+  --success-bg: #1e332a;
+
+  --border: rgba(252, 248, 246, 0.14);
+  --border-strong: rgba(252, 248, 246, 0.22);
+  --input: rgba(252, 248, 246, 0.18);
+  --ring: #c98fa8;
+
+  /* Text scale */
+  --ink-faint: #8d7d83;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+@layer utilities {
+  .font-tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@keyframes heroFloat {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-20px) scale(1.05); }
+}
+
+@keyframes heroParticle {
+  0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+  25% { transform: translateY(-12px) translateX(6px); opacity: 0.6; }
+  50% { transform: translateY(-8px) translateX(-4px); opacity: 0.4; }
+  75% { transform: translateY(-16px) translateX(3px); opacity: 0.5; }
+}
+
+@keyframes heroShimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes logoFloat {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-12px) scale(1.04);
+    opacity: 0.95;
+  }
+}
+
+@layer utilities {
+  .font-tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .logo-bounce {
+    animation: logoFloat 5s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  /* Slim premium scrollbar for filter option lists (Shop sidebar). */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-strong) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: var(--border-strong);
+    border-radius: 999px;
+  }
+
+  /* Custom range input thumb — used by the Shop price filter. */
+  .range-slider {
+    background-color: var(--border);
+  }
+  .range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    size-adjust: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: var(--primary);
+    border: 3px solid var(--background);
+    box-shadow: 0 1px 4px rgba(43, 35, 38, 0.25);
+    cursor: pointer;
+  }
+  .range-slider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: var(--primary);
+    border: 3px solid var(--background);
+    box-shadow: 0 1px 4px rgba(43, 35, 38, 0.25);
+    cursor: pointer;
+  }
+  .range-slider::-moz-range-track {
+    background: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

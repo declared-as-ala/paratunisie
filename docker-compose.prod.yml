@@ -1,0 +1,194 @@
+name: paratunisie-prod
+
+networks:
+  edge:
+    driver: bridge
+  internal:
+    driver: bridge
+
+volumes:
+  postgres-data-prod:
+  minio-data-prod:
+  meilisearch-data-prod:
+  redis-data-prod:
+
+services:
+  # ── Storefront Web App ────────────────────────────────────────────────
+  paratunisie-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: paratunisie-web
+    restart: unless-stopped
+    networks:
+      - edge
+      - internal
+    ports:
+      - "127.0.0.1:3010:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - API_URL=http://paratunisie-api:3001/api/v1
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://paratunisie.com/api/v1}
+    depends_on:
+      paratunisie-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ── Admin Dashboard App ──────────────────────────────────────────────
+  paratunisie-admin:
+    build:
+      context: .
+      dockerfile: apps/admin/Dockerfile
+    container_name: paratunisie-admin
+    restart: unless-stopped
+    networks:
+      - edge
+      - internal
+    ports:
+      - "127.0.0.1:3012:3002"
+    environment:
+      - NODE_ENV=production
+      - PORT=3002
+      - API_URL=http://paratunisie-api:3001/api/v1
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://paratunisie.com/api/v1}
+    depends_on:
+      paratunisie-api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3002/admin || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ── NestJS API Service ────────────────────────────────────────────────
+  paratunisie-api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: paratunisie-api
+    restart: unless-stopped
+    networks:
+      - edge
+      - internal
+    ports:
+      - "127.0.0.1:3011:3001"
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      FRONTEND_URL: ${FRONTEND_URL:-http://paratunisie.com}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-paratunisie}:${POSTGRES_PASSWORD}@paratunisie-postgres:5432/${POSTGRES_DB:-paratunisie}?schema=public
+      MEILI_HOST: http://paratunisie-meilisearch:7700
+      MEILI_API_KEY: ${MEILI_API_KEY}
+      MINIO_ENDPOINT: paratunisie-minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: ${MINIO_ROOT_USER}
+      MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      MINIO_USE_SSL: "false"
+      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-http://paratunisie.com/media}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
+      OPENROUTER_BASE_URL: https://openrouter.ai/api/v1
+      OPENROUTER_MODEL: ${OPENROUTER_MODEL:-dots-studio/dots-3-note-preview:free}
+      AI_PROVIDER: openrouter
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET}
+    depends_on:
+      paratunisie-postgres:
+        condition: service_healthy
+      paratunisie-redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3001/api/v1/catalogue/brands || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ── PostgreSQL Database (Private Internal Service) ────────────────────
+  paratunisie-postgres:
+    image: postgres:16-alpine
+    container_name: paratunisie-postgres
+    restart: unless-stopped
+    networks:
+      - internal
+    # Note: No public host port bound (0.0.0.0:5432 omitted for security)
+    ports:
+      - "127.0.0.1:5433:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-paratunisie}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-paratunisie}
+    volumes:
+      - postgres-data-prod:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-paratunisie} -d ${POSTGRES_DB:-paratunisie}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── Redis Cache Service ───────────────────────────────────────────────
+  paratunisie-redis:
+    image: redis:7-alpine
+    container_name: paratunisie-redis
+    restart: unless-stopped
+    networks:
+      - internal
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis-data-prod:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # ── Meilisearch Search Engine (Private Internal Service) ──────────────
+  paratunisie-meilisearch:
+    image: getmeili/meilisearch:v1.12
+    container_name: paratunisie-meilisearch
+    restart: unless-stopped
+    networks:
+      - internal
+    # Note: No public host port bound
+    ports:
+      - "127.0.0.1:7700:7700"
+    environment:
+      MEILI_MASTER_KEY: ${MEILI_API_KEY}
+      MEILI_ENV: production
+    volumes:
+      - meilisearch-data-prod:/meili_data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:7700/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  # ── MinIO Object Storage Service ──────────────────────────────────────
+  paratunisie-minio:
+    image: minio/minio:latest
+    container_name: paratunisie-minio
+    restart: unless-stopped
+    networks:
+      - internal
+      - edge
+    ports:
+      - "127.0.0.1:9000:9000"
+      - "127.0.0.1:9001:9001"
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio-data-prod:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 15s
+      timeout: 5s
+      retries: 10

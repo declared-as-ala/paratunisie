@@ -1,0 +1,15 @@
+{
+  "name": "tunisiepara-scraper",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Public catalog scraper for TunisiePara",
+  "main": "tunisiepara_full_scraper.js",
+  "scripts": {
+    "test20": "node tunisiepara_full_scraper.js --max-products=20 --download-images",
+    "scrape": "node tunisiepara_full_scraper.js --download-images"
+  },
+  "dependencies": {
+    "axios": "^1.19.0",
+    "cheerio": "^1.2.0"
+  }
+}

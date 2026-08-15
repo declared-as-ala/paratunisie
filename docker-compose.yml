@@ -1,0 +1,188 @@
+name: paratunisie
+
+networks:
+  edge:
+    driver: bridge
+  internal:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  minio-data:
+  meilisearch-data:
+
+services:
+  # ── Edge (public-facing) ─────────────────────────────────────────────
+  paratunisie-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: paratunisie-web
+    restart: unless-stopped
+    networks:
+      - edge
+      - internal
+    ports:
+      - "3000:3000"
+    environment:
+      - API_URL=http://paratunisie-api:3001/api/v1
+      - NEXT_PUBLIC_API_URL=http://localhost:3001/api/v1
+    depends_on:
+      - paratunisie-api
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/ || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  paratunisie-admin:
+    build:
+      context: .
+      dockerfile: apps/admin/Dockerfile
+    container_name: paratunisie-admin
+    restart: unless-stopped
+    networks:
+      - edge
+      - internal
+    ports:
+      - "3002:3002"
+    environment:
+      - API_URL=http://paratunisie-api:3001/api/v1
+      - NEXT_PUBLIC_API_URL=http://localhost:3001/api/v1
+    depends_on:
+      - paratunisie-api
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3002/admin || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  # ── API (edge + internal: serves edge apps, reaches data services) ──
+  paratunisie-api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+    container_name: paratunisie-api
+    restart: unless-stopped
+    networks:
+      - edge
+      - internal
+    ports:
+      - "3001:3001"
+    # The Dockerfile never COPYs .env into the image (by design — secrets
+    # shouldn't be baked into an image layer), so every runtime var the
+    # container needs must come from here. env_file loads apps/api/.env
+    # wholesale (GROQ_API_KEY, SMS/MAIL config, etc.) so a new var added
+    # there doesn't also need to be hand-duplicated below; the explicit
+    # `environment:` keys still take precedence for the ones that must
+    # differ between host-side dev and the container (internal hostnames).
+    env_file:
+      - ./apps/api/.env
+    environment:
+      PORT: 3001
+      FRONTEND_URL: http://localhost:3000
+      DATABASE_URL: postgresql://paratunisie:paratunisie_dev_password@paratunisie-postgres:5432/paratunisie?schema=public
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET:-dev-only-insecure-secret-change-me}
+      SEED_STAFF_PASSWORD: ${SEED_STAFF_PASSWORD:-ParaTunisie2026!}
+      MEILI_HOST: http://paratunisie-meilisearch:7700
+      MEILI_API_KEY: paratunisie_dev_meili_key
+    depends_on:
+      paratunisie-postgres:
+        condition: service_healthy
+      paratunisie-redis:
+        condition: service_started
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3001/api/v1/catalogue/brands || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ── Internal data services ───────────────────────────────────────────
+  # Postgres, MinIO, and Meilisearch expose a host port for local tooling
+  # (npm run dev, Prisma Studio, direct Meilisearch queries during search
+  # indexing work) — Redis is the only one that stays internal-only, since
+  # nothing outside the API needs to reach it (D-0020).
+  paratunisie-postgres:
+    image: postgres:16-alpine
+    container_name: paratunisie-postgres
+    restart: unless-stopped
+    networks:
+      - internal
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: paratunisie
+      POSTGRES_PASSWORD: paratunisie_dev_password
+      POSTGRES_DB: paratunisie
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U paratunisie -d paratunisie"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  paratunisie-redis:
+    image: redis:7-alpine
+    container_name: paratunisie-redis
+    restart: unless-stopped
+    networks:
+      - internal
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  paratunisie-meilisearch:
+    image: getmeili/meilisearch:v1.12
+    container_name: paratunisie-meilisearch
+    restart: unless-stopped
+    networks:
+      - internal
+    ports:
+      - "7700:7700"
+    environment:
+      MEILI_MASTER_KEY: paratunisie_dev_meili_key
+      MEILI_ENV: development
+    volumes:
+      - meilisearch-data:/meili_data
+    healthcheck:
+      # CMD (exec array) form never invokes a shell, so the "|| exit 1" here
+      # was previously passed to wget as literal arguments (not interpreted
+      # as shell syntax) — the healthcheck failed unconditionally regardless
+      # of real service health. CMD-SHELL fixes that (matches the pattern
+      # already used correctly elsewhere in this file, e.g. paratunisie-web).
+      # 127.0.0.1, not localhost — inside this image, "localhost" resolves
+      # to the IPv6 loopback first and Meilisearch isn't reachable there,
+      # so wget got "Connection refused" even though the service was fine
+      # (every other healthcheck in this file already uses 127.0.0.1).
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:7700/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+
+  paratunisie-minio:
+    image: minio/minio:latest
+    container_name: paratunisie-minio
+    restart: unless-stopped
+    networks:
+      - internal
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: ["server", "/data", "--console-address", ":9001"]
+    environment:
+      MINIO_ROOT_USER: paratunisie_dev
+      MINIO_ROOT_PASSWORD: paratunisie_dev_secret
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 15s
+      timeout: 5s
+      retries: 10

@@ -1,0 +1,395 @@
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
+import { OrderStatus } from "@prisma/client";
+import { PrismaService } from "../prisma/prisma.service";
+import { InventoryService } from "../inventory/inventory.service";
+import { isValidTransition, getAllowedTransitions } from "./order-status";
+
+// Fallback data for local dev before a Postgres connection exists — getAllOrders/
+// createOrder try Prisma first and only fall back here on failure. Not used by
+// updateOrderStatus, which is Prisma-only (see D-0024): a status change has real
+// inventory side effects, so it must operate on a real order or fail loudly.
+export const seededOrders = [
+  {
+    id: "53384",
+    createdAt: new Date().toISOString(),
+    gouvernorat: "Bizerte",
+    fullAddress: "JARJOUNA BALADIYET WED ROMEN",
+    totalMillimes: 58900,
+    status: "CONFIRMEE",
+    user: { name: "RAED Y", phone: "27578505", email: "raed@email.tn", orders: [1, 2] },
+    items: [
+      {
+        product: { name: "Anthelios Fluide Invisible SPF50+" },
+        quantity: 1,
+        priceMillimes: 58900,
+      },
+    ],
+  },
+  {
+    id: "53383",
+    createdAt: new Date(Date.now() - 3600000).toISOString(),
+    gouvernorat: "Tunis",
+    fullAddress: "Avenue Habib Bourguiba, Le Kram",
+    totalMillimes: 36900,
+    status: "EN_ATTENTE",
+    user: { name: "Amira Ben Salah", phone: "22765421", email: "amira@email.tn", orders: [1] },
+    items: [
+      {
+        product: { name: "Sensibio H2O 500ml" },
+        quantity: 1,
+        priceMillimes: 36900,
+      },
+    ],
+  },
+  {
+    id: "53381",
+    createdAt: new Date(Date.now() - 7200000).toISOString(),
+    gouvernorat: "Sfax",
+    fullAddress: "Route de Teniour Km 3",
+    totalMillimes: 42500,
+    status: "TENTATIVE_CONTACT",
+    user: { name: "Mohamed Karoui", phone: "29522746", email: "mohamed@email.tn", orders: [1] },
+    items: [
+      {
+        product: { name: "Crème Hydratante Visage CeraVe" },
+        quantity: 1,
+        priceMillimes: 42500,
+      },
+    ],
+  },
+  {
+    id: "53380",
+    createdAt: new Date(Date.now() - 10800000).toISOString(),
+    gouvernorat: "Sousse",
+    fullAddress: "Kantaoui Center",
+    totalMillimes: 91000,
+    status: "ANNULEE",
+    user: { name: "Fatma Slimani", phone: "28694036", email: "fatma@email.tn", orders: [1] },
+    items: [
+      {
+        product: { name: "Liftactiv Sérum Vitamine C Vichy" },
+        quantity: 1,
+        priceMillimes: 91000,
+      },
+    ],
+  },
+];
+
+import { NotificationsService } from "../notifications/notifications.service";
+import { NotificationType } from "@prisma/client";
+
+@Injectable()
+export class OrdersService {
+  constructor(
+    private prisma: PrismaService,
+    private inventoryService: InventoryService,
+    private notificationsService: NotificationsService,
+  ) {}
+
+  async getAllOrders() {
+    try {
+      const orders = await this.prisma.order.findMany({
+        include: {
+          user: true,
+          items: {
+            include: {
+              product: true,
+              productVariant: true,
+            },
+          },
+          shipment: true,
+          payment: true,
+        },
+        orderBy: { createdAt: "desc" },
+      });
+      // Empty is a real database state. Falling back here made deleted orders
+      // reappear after refresh when the final real row was removed.
+      return orders;
+    } catch {}
+    return seededOrders;
+  }
+
+  async createOrder(data: {
+    userId?: string;
+    email?: string;
+    phone?: string;
+    firstName?: string;
+    lastName?: string;
+    gouvernorat: string;
+    fullAddress: string;
+    deliveryNote?: string;
+    items: { productId?: string; productVariantId?: string; quantity: number; priceMillimes: number }[];
+  }) {
+    const totalMillimes = (data.items || []).reduce(
+      (sum, item) => sum + item.priceMillimes * item.quantity,
+      0,
+    );
+
+    // 1. Resolve User
+    let targetUser: any = null;
+    if (data.userId) {
+      targetUser = await this.prisma.user.findUnique({ where: { id: data.userId } }).catch(() => null);
+    }
+    if (!targetUser && (data.email || data.phone)) {
+      const email = data.email || `customer-${Date.now()}@paratunisie.tn`;
+      const name = `${data.firstName || ""} ${data.lastName || ""}`.trim() || "Client Storefront";
+      const phone = data.phone || null;
+
+      targetUser = await this.prisma.user.findFirst({
+        where: { OR: [{ email }, ...(phone ? [{ phone }] : [])] },
+      }).catch(() => null);
+
+      if (!targetUser) {
+        targetUser = await this.prisma.user.create({
+          data: {
+            email,
+            name,
+            phone,
+            password: "checkout_guest",
+          },
+        }).catch(() => null);
+      } else if (phone || name) {
+        targetUser = await this.prisma.user.update({
+          where: { id: targetUser.id },
+          data: {
+            phone: phone || targetUser.phone,
+            name: name || targetUser.name,
+          },
+        }).catch(() => targetUser);
+      }
+    }
+
+    // Fallback user if DB operations fail
+    if (!targetUser) {
+      targetUser = await this.prisma.user.findFirst().catch(() => null);
+    }
+    if (!targetUser) {
+      targetUser = await this.prisma.user.create({
+        data: {
+          email: "client.storefront@paratunisie.tn",
+          name: "Client Storefront",
+          phone: "27578505",
+          password: "checkout_guest",
+        },
+      });
+    }
+
+    // 2. Resolve items to real Product & ProductVariant records. A cart line
+    // that doesn't resolve to a real row is a real error (stale localStorage
+    // cart referencing a deleted/renamed product, tampered payload, etc.) —
+    // it must reject with a clear message, never silently substitute a
+    // different, unrelated real product just to avoid an FK failure. Doing
+    // that would create an order for a product the customer never chose,
+    // with no error and no trace of the mismatch.
+    const createItemInputs: { productId: string; productVariantId: string; quantity: number; priceMillimes: number }[] = [];
+
+    for (const item of data.items || []) {
+      let pId = item.productId;
+      let vId = item.productVariantId;
+
+      if (vId) {
+        const variant = await this.prisma.productVariant.findUnique({ where: { id: vId } });
+        if (!variant) {
+          throw new BadRequestException(`Variante de produit introuvable (${vId}). Veuillez actualiser votre panier.`);
+        }
+        pId = variant.productId;
+      } else if (pId) {
+        const prod = await this.prisma.product.findUnique({ where: { id: pId }, include: { variants: true } });
+        if (!prod) {
+          throw new BadRequestException(`Produit introuvable (${pId}). Veuillez actualiser votre panier.`);
+        }
+        if (prod.variants.length === 0) {
+          throw new BadRequestException(`Le produit "${prod.name}" n'a plus de variante disponible.`);
+        }
+        vId = prod.variants[0].id;
+      } else {
+        throw new BadRequestException("Chaque article de la commande doit référencer un produit réel.");
+      }
+
+      createItemInputs.push({
+        productId: pId,
+        productVariantId: vId,
+        quantity: item.quantity,
+        priceMillimes: item.priceMillimes,
+      });
+    }
+
+    try {
+      const createdOrder = await this.prisma.order.create({
+        data: {
+          userId: targetUser.id,
+          totalMillimes,
+          gouvernorat: data.gouvernorat,
+          fullAddress: data.fullAddress,
+          deliveryNote: data.deliveryNote,
+          items: {
+            create: createItemInputs,
+          },
+          payment: { create: { method: "cod", amount: totalMillimes, status: "pending" } },
+          shipment: { create: { carrier: "Standard", status: "pending" } },
+        },
+        include: { items: true, payment: true, shipment: true, user: true },
+      });
+
+      // 3. Trigger Post-transaction ORDER_CREATED Notification (SMS & Email)
+      this.notificationsService
+        .processOrderNotifications(createdOrder.id, NotificationType.ORDER_CREATED)
+        .catch((err) => console.error(`[OrdersService] Notification error for ${createdOrder.id}:`, err));
+
+      return createdOrder;
+    } catch (err: any) {
+      // Never mask a real write failure with a fabricated success object —
+      // that previously let the customer see "Commande confirmée" for an
+      // order that was never persisted, while the merchant's real order
+      // list (Prisma-backed) never saw it at all. A failed order creation
+      // is a real error the client must see as one.
+      console.error("[OrdersService] Failed to create order in DB:", err);
+      throw new InternalServerErrorException(
+        "La commande n'a pas pu être enregistrée. Veuillez réessayer dans un instant.",
+      );
+    }
+  }
+
+  // Canonical order-counts source (fixes sidebar badge vs Commandes header
+  // drift — both now read this same query instead of independently deriving
+  // totals). One groupBy, real OrderStatus enum values only — "abandoned"/
+  // "deleted" are honestly 0 today since no real status represents either;
+  // they're not fabricated buckets, just not reachable yet.
+  async getOrderCounts() {
+    const grouped = await this.prisma.order.groupBy({
+      by: ["status"],
+      _count: true,
+    });
+
+    const byStatus = Object.fromEntries(
+      Object.values(OrderStatus).map((status) => [status, 0]),
+    ) as Record<OrderStatus, number>;
+    for (const row of grouped) {
+      byStatus[row.status] = row._count;
+    }
+
+    const total = grouped.reduce((sum, row) => sum + row._count, 0);
+
+    return {
+      total,
+      normal: total,
+      abandoned: 0,
+      deleted: 0,
+      byStatus,
+    };
+  }
+
+  async getOrdersByUser(userId: string) {
+    return seededOrders.filter((o) => o.user?.email.includes(userId));
+  }
+
+  async getOrderById(orderId: string) {
+    return seededOrders.find((o) => o.id === orderId) || seededOrders[0];
+  }
+
+  async deleteOrder(orderId: string) {
+    const order = await this.prisma.order.findUnique({ where: { id: orderId }, select: { id: true } });
+    if (!order) throw new NotFoundException("Commande introuvable");
+
+    await this.prisma.$transaction([
+      this.prisma.payment.deleteMany({ where: { orderId } }),
+      this.prisma.shipment.deleteMany({ where: { orderId } }),
+      this.prisma.order.delete({ where: { id: orderId } }),
+    ]);
+    return { id: orderId, deleted: true };
+  }
+
+  async bulkDeleteOrders(ids: string[]) {
+    const uniqueIds = [...new Set(ids.map((id) => id.trim()).filter(Boolean))];
+    if (uniqueIds.length === 0) throw new BadRequestException("Aucune commande sélectionnée");
+
+    const existing = await this.prisma.order.findMany({
+      where: { id: { in: uniqueIds } },
+      select: { id: true },
+    });
+    if (existing.length !== uniqueIds.length) {
+      throw new NotFoundException("Une ou plusieurs commandes sélectionnées sont introuvables");
+    }
+
+    const result = await this.prisma.$transaction(async (tx) => {
+      await tx.payment.deleteMany({ where: { orderId: { in: uniqueIds } } });
+      await tx.shipment.deleteMany({ where: { orderId: { in: uniqueIds } } });
+      return tx.order.deleteMany({ where: { id: { in: uniqueIds } } });
+    });
+    return { count: result.count, deleted: true };
+  }
+
+  // Guarded transition (D-0024) — validates against REQUIREMENTS.md §A.2's allowed
+  // transitions, writes an OrderStatusHistory row, and triggers the matching
+  // inventory hook (reserve on CONFIRMEE, sell on LIVREE, release on terminal
+  // cancellation-like states). Operates on real Prisma data only — a status
+  // change has real inventory consequences, so a missing order is a real 404,
+  // not a silent fallback to mock data.
+  async updateOrderStatus(orderId: string, toStatus: OrderStatus, staffId: string, note?: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: { items: true },
+    });
+    if (!order) throw new NotFoundException("Commande introuvable");
+
+    if (!isValidTransition(order.status, toStatus)) {
+      const allowed = getAllowedTransitions(order.status);
+      throw new BadRequestException(
+        `Transition ${order.status} → ${toStatus} non autorisée. Transitions possibles : ${
+          allowed.length > 0 ? allowed.join(", ") : "aucune (statut terminal)"
+        }.`,
+      );
+    }
+
+    const [updated] = await this.prisma.$transaction([
+      this.prisma.order.update({ where: { id: orderId }, data: { status: toStatus } }),
+      this.prisma.orderStatusHistory.create({
+        data: { orderId, fromStatus: order.status, toStatus, staffId, note },
+      }),
+    ]);
+
+    const items = order.items.map((item) => ({
+      variantId: item.productVariantId,
+      quantity: item.quantity,
+    }));
+
+    if (toStatus === OrderStatus.CONFIRMEE) {
+      await this.inventoryService.reserveForOrder(orderId, items, staffId);
+      await this.snapshotItemCosts(order.items);
+      this.notificationsService.processOrderNotifications(orderId, NotificationType.ORDER_CONFIRMED).catch(() => {});
+    } else if (toStatus === OrderStatus.EXPEDIEE) {
+      this.notificationsService.processOrderNotifications(orderId, NotificationType.ORDER_SHIPPED).catch(() => {});
+    } else if (toStatus === OrderStatus.LIVREE) {
+      await this.inventoryService.sellForOrder(orderId, items, staffId);
+    } else if (
+      toStatus === OrderStatus.ANNULEE ||
+      toStatus === OrderStatus.REFUSEE ||
+      toStatus === OrderStatus.RETOURNEE
+    ) {
+      await this.inventoryService.releaseReservationForOrder(orderId, items, staffId);
+      if (toStatus === OrderStatus.ANNULEE) {
+        this.notificationsService.processOrderNotifications(orderId, NotificationType.ORDER_CANCELLED).catch(() => {});
+      }
+    }
+
+    return updated;
+  }
+
+  // Cost snapshot at confirmation (REQUIREMENTS.md §4 profitability decision):
+  // freezes each item's weighted-average acquisition cost the moment an order
+  // becomes CONFIRMEE, so later PurchasePriceHistory changes never retroactively
+  // move an already-confirmed order's profitability. Skips items that already
+  // have a snapshot (defensive — CONFIRMEE is only reachable once per the state
+  // machine, but never silently overwrite a real snapshot if this ever re-runs).
+  private async snapshotItemCosts(items: { id: string; productVariantId: string; unitCostMillimes: number | null }[]) {
+    for (const item of items) {
+      if (item.unitCostMillimes !== null) continue;
+      const cost = await this.inventoryService.getWeightedAverageCost(item.productVariantId);
+      if (cost === null) continue;
+      await this.prisma.orderItem.update({
+        where: { id: item.id },
+        data: { unitCostMillimes: cost, costIsEstimated: false },
+      });
+    }
+  }
+}

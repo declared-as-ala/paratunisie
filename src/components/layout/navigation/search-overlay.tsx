@@ -1,0 +1,433 @@
+"use client";
+
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { ArrowRight, Clock3, Loader2, Search, X, Sparkles, BookOpen, Tag, Award } from "lucide-react";
+import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { productCategories, formatPrice, type ProductSummary } from "@/lib/data/products";
+import { articles } from "@/lib/data/articles";
+import { popularSearches } from "@/lib/data/navigation";
+import { logMerchandisingEvent } from "@/lib/telemetry";
+import { fetchBrands, fetchPaginatedProducts } from "@/lib/api/client";
+
+const RECENT_SEARCHES_KEY = "paratunisie-recent-searches";
+
+function normalize(value: string) {
+  return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+export function SearchOverlay() {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const router = useRouter();
+  const [value, setValue] = useState("");
+  const [recent, setRecent] = useState<string[]>([]);
+
+  // Real catalogue data — the autocomplete previously filtered a 16-item
+  // hardcoded mock array, so most real products (out of ~9,700) silently
+  // showed "no results" here even though the same query worked fine on
+  // /shop, which queries the real API. Brands loaded once (827 real rows,
+  // trivial to filter client-side); products are searched live per query
+  // since the catalogue is far too large to hold client-side.
+  const [liveProducts, setLiveProducts] = useState<ProductSummary[]>([]);
+  const [isSearchingProducts, setIsSearchingProducts] = useState(false);
+  const [allBrands, setAllBrands] = useState<{ name: string; slug: string }[]>([]);
+
+  useEffect(() => {
+    fetchBrands().then(setAllBrands);
+  }, []);
+
+  useEffect(() => {
+    const query = value.trim();
+    if (!query) {
+      setLiveProducts([]);
+      setIsSearchingProducts(false);
+      return;
+    }
+    setIsSearchingProducts(true);
+    const timeout = setTimeout(async () => {
+      const res = await fetchPaginatedProducts({ search: query, limit: 4 });
+      setLiveProducts(res.products);
+      setIsSearchingProducts(false);
+    }, 300);
+    return () => clearTimeout(timeout);
+  }, [value]);
+
+  // Structured search results
+  const searchResults = useMemo(() => {
+    const query = normalize(value.trim());
+    if (!query) {
+      return {
+        productsList: [],
+        brandsList: [],
+        categoriesList: [],
+        concernsList: [],
+        articlesList: [],
+      };
+    }
+
+    const matchedBrands = allBrands
+      .filter((b) => normalize(b.name).includes(query))
+      .slice(0, 3);
+
+    const matchedCategories = productCategories
+      .filter((c) => normalize(c).includes(query))
+      .slice(0, 3);
+
+    const concernsMap: Record<string, string> = {
+      acne: "Imperfections & Acné",
+      sensible: "Peau Sensible",
+      taches: "Taches & Éclat",
+      solaire: "Protection Solaire",
+      seche: "Peau Sèche",
+      antiage: "Anti-Âge",
+      cheveux: "Chute de Cheveux",
+    };
+
+    const matchedConcerns = Object.entries(concernsMap)
+      .filter(([k, label]) => normalize(`${k} ${label}`).includes(query))
+      .map(([k, label]) => ({ key: k, label }))
+      .slice(0, 3);
+
+    const matchedArticles = articles
+      .filter((a) => normalize(`${a.title} ${a.excerpt} ${a.category}`).includes(query))
+      .slice(0, 2);
+
+    return {
+      productsList: liveProducts,
+      brandsList: matchedBrands,
+      categoriesList: matchedCategories,
+      concernsList: matchedConcerns,
+      articlesList: matchedArticles,
+    };
+  }, [value, liveProducts, allBrands]);
+
+  function openSearch() {
+    try {
+      setRecent(JSON.parse(localStorage.getItem(RECENT_SEARCHES_KEY) ?? "[]").slice(0, 4));
+    } catch {
+      setRecent([]);
+    }
+    dialogRef.current?.showModal();
+  }
+
+  function remember(term: string) {
+    const next = [term, ...recent.filter((item) => item !== term)].slice(0, 4);
+    setRecent(next);
+    localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(next));
+  }
+
+  function goToShop(term: string) {
+    const clean = term.trim();
+    if (!clean) return;
+    remember(clean);
+    logMerchandisingEvent("search_autocomplete_click", { query: clean });
+    dialogRef.current?.close();
+    router.push(`/shop?q=${encodeURIComponent(clean)}`);
+  }
+
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    goToShop(value);
+  }
+
+  const hasResults =
+    searchResults.productsList.length > 0 ||
+    searchResults.brandsList.length > 0 ||
+    searchResults.categoriesList.length > 0 ||
+    searchResults.concernsList.length > 0 ||
+    searchResults.articlesList.length > 0;
+
+  const showEmpty = value.trim().length > 1 && !hasResults && !isSearchingProducts;
+
+  return (
+    <>
+      {/* Prominent Header Search Trigger Bar */}
+      <div
+        onClick={openSearch}
+        className="group flex flex-1 items-center gap-2 rounded-full border border-border bg-soft-nude/40 px-3.5 py-1.5 sm:py-2 text-xs font-medium text-ink-muted hover:border-primary/50 hover:bg-white hover:shadow-xs transition-all cursor-pointer w-full min-w-0"
+      >
+        <Search className="size-4 text-primary shrink-0 transition-transform group-hover:scale-110" aria-hidden />
+        <span className="truncate text-[0.75rem] sm:text-xs">Rechercher un produit, une marque, un besoin…</span>
+        <span className="ml-auto rounded-full bg-white px-2 py-0.5 text-[0.625rem] font-bold text-ink-faint border border-border shrink-0 hidden lg:inline-block">
+          Rechercher
+        </span>
+      </div>
+
+      {/* Search Autocomplete Dialog Modal */}
+      <dialog
+        ref={dialogRef}
+        className="top-0 m-0 h-dvh max-h-none w-full max-w-none bg-transparent p-0 backdrop:bg-ink/40 backdrop:backdrop-blur-[2px] open:animate-in open:fade-in open:duration-[var(--duration-micro)]"
+        onClick={(event) => {
+          if (event.target === dialogRef.current) dialogRef.current?.close();
+        }}
+        onClose={() => setValue("")}
+        aria-label="Rechercher un produit"
+      >
+        <div className="mx-auto max-h-[88dvh] w-full max-w-3xl overflow-y-auto bg-surface-alt px-4 pt-6 pb-8 shadow-xl sm:rounded-b-2xl sm:px-8 sm:pt-8">
+          <form onSubmit={submit} role="search">
+            <label htmlFor="global-search" className="sr-only">
+              Rechercher un produit, une marque ou un besoin
+            </label>
+            <div className="flex items-center gap-2 border-b border-border pb-3">
+              <Search className="size-5 shrink-0 text-primary" aria-hidden />
+              <Input
+                id="global-search"
+                autoFocus
+                value={value}
+                onChange={(event) => setValue(event.target.value)}
+                placeholder="Ex: CeraVe, SPF50, Peau sèche, Routine…"
+                autoComplete="off"
+                className="h-11 flex-1 border-none bg-transparent text-base shadow-none focus-visible:ring-0"
+              />
+              {value && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-lg"
+                  aria-label="Effacer la recherche"
+                  onClick={() => setValue("")}
+                >
+                  <X />
+                </Button>
+              )}
+              <Button
+                type="submit"
+                size="lg"
+                disabled={!value.trim()}
+                className="hidden sm:inline-flex rounded-xl"
+              >
+                Rechercher
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon-lg"
+                aria-label="Fermer la recherche"
+                onClick={() => dialogRef.current?.close()}
+              >
+                <X />
+              </Button>
+            </div>
+          </form>
+
+          {isSearchingProducts && (
+            <p className="mt-3 flex items-center gap-1.5 text-xs text-ink-muted">
+              <Loader2 size={13} className="animate-spin" aria-hidden />
+              Recherche en cours…
+            </p>
+          )}
+
+          {/* Structured Search Autocomplete Results */}
+          {value.trim() ? (
+            <div className="mt-5 space-y-6">
+              {/* Products Section */}
+              {searchResults.productsList.length > 0 && (
+                <div>
+                  <p className="text-[0.6875rem] font-bold tracking-[0.14em] text-primary uppercase mb-2 flex items-center gap-1.5">
+                    <Sparkles size={13} /> Produits ({searchResults.productsList.length})
+                  </p>
+                  <div className="divide-y divide-border/60 rounded-xl border border-border/70 bg-white overflow-hidden">
+                    {searchResults.productsList.map((product) => (
+                      <Link
+                        key={product.id}
+                        href={`/produits/${product.slug}`}
+                        onClick={() => {
+                          remember(product.name);
+                          dialogRef.current?.close();
+                        }}
+                        className="group flex items-center justify-between gap-3 p-3 hover:bg-soft-nude/40 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          {/* eslint-disable-next-line @next/next/no-img-element */}
+                          <img
+                            src={product.image}
+                            alt={product.name}
+                            className="h-11 w-11 rounded-lg object-cover border border-border bg-soft-nude"
+                          />
+                          <div>
+                            <p className="text-[0.65rem] font-bold text-primary uppercase">{product.brand}</p>
+                            <p className="text-xs font-bold text-ink group-hover:text-primary transition-colors line-clamp-1">
+                              {product.name}
+                            </p>
+                            <p className="text-[0.625rem] text-ink-muted line-clamp-1">{product.benefit}</p>
+                          </div>
+                        </div>
+                        <span className="text-xs font-extrabold text-ink font-tabular shrink-0">
+                          {formatPrice(product.priceMillimes)}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Brands & Categories & Concerns Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* Brands */}
+                {searchResults.brandsList.length > 0 && (
+                  <div>
+                    <p className="text-[0.6875rem] font-bold tracking-[0.14em] text-primary uppercase mb-2 flex items-center gap-1.5">
+                      <Award size={13} /> Marques
+                    </p>
+                    <div className="space-y-1.5">
+                      {searchResults.brandsList.map((b) => (
+                        <Link
+                          key={b.slug}
+                          href={`/marques/${b.slug}`}
+                          onClick={() => dialogRef.current?.close()}
+                          className="block rounded-lg border border-border/60 bg-white p-2.5 hover:border-primary/40 hover:bg-primary/5 transition-all text-xs font-bold text-ink"
+                        >
+                          {b.name}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Categories */}
+                {searchResults.categoriesList.length > 0 && (
+                  <div>
+                    <p className="text-[0.6875rem] font-bold tracking-[0.14em] text-primary uppercase mb-2 flex items-center gap-1.5">
+                      <Tag size={13} /> Catégories
+                    </p>
+                    <div className="space-y-1.5">
+                      {searchResults.categoriesList.map((c) => (
+                        <Link
+                          key={c}
+                          href={`/shop?categorie=${encodeURIComponent(c.toLowerCase())}`}
+                          onClick={() => dialogRef.current?.close()}
+                          className="block rounded-lg border border-border/60 bg-white p-2.5 hover:border-primary/40 hover:bg-primary/5 transition-all text-xs font-bold text-ink"
+                        >
+                          {c}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Concerns */}
+                {searchResults.concernsList.length > 0 && (
+                  <div>
+                    <p className="text-[0.6875rem] font-bold tracking-[0.14em] text-primary uppercase mb-2 flex items-center gap-1.5">
+                      <Sparkles size={13} /> Besoins & Soins
+                    </p>
+                    <div className="space-y-1.5">
+                      {searchResults.concernsList.map((c) => (
+                        <Link
+                          key={c.key}
+                          href={`/shop?preoccupation=${c.key}`}
+                          onClick={() => dialogRef.current?.close()}
+                          className="block rounded-lg border border-border/60 bg-white p-2.5 hover:border-primary/40 hover:bg-primary/5 transition-all text-xs font-bold text-ink"
+                        >
+                          {c.label}
+                        </Link>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Articles / Advice */}
+              {searchResults.articlesList.length > 0 && (
+                <div>
+                  <p className="text-[0.6875rem] font-bold tracking-[0.14em] text-primary uppercase mb-2 flex items-center gap-1.5">
+                    <BookOpen size={13} /> Conseils Pharmaceutiques
+                  </p>
+                  <div className="space-y-2">
+                    {searchResults.articlesList.map((a) => (
+                      <Link
+                        key={a.slug}
+                        href={`/conseils/${a.slug}`}
+                        onClick={() => dialogRef.current?.close()}
+                        className="group flex items-center justify-between rounded-xl border border-border bg-white p-3 hover:border-primary/40 transition-colors"
+                      >
+                        <div>
+                          <p className="text-[0.65rem] font-bold text-primary">{a.category}</p>
+                          <p className="text-xs font-bold text-ink group-hover:text-primary transition-colors">
+                            {a.title}
+                          </p>
+                        </div>
+                        <ArrowRight size={14} className="text-ink-muted group-hover:translate-x-1 transition-transform" />
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* All results button */}
+              <button
+                type="button"
+                onClick={() => goToShop(value)}
+                className="mt-4 flex min-h-11 w-full items-center justify-between rounded-xl bg-primary px-4 text-xs font-bold text-white hover:bg-primary-hover transition-colors"
+              >
+                <span>Voir tous les résultats pour « {value.trim()} »</span>
+                <ArrowRight className="size-4" />
+              </button>
+
+              {showEmpty && (
+                <div className="rounded-2xl bg-soft-nude/60 p-6 text-center border border-border">
+                  <h2 className="font-serif text-xl font-medium text-ink">Aucun résultat immédiat</h2>
+                  <p className="mt-2 text-xs text-ink-muted">
+                    Vérifiez l’orthographe ou explorez l&apos;une des catégories ci-dessous.
+                  </p>
+                  <div className="mt-4 flex flex-wrap justify-center gap-2">
+                    {productCategories.map((category) => (
+                      <button
+                        key={category}
+                        type="button"
+                        onClick={() => goToShop(category)}
+                        className="rounded-full border border-border bg-white px-3.5 py-1.5 text-xs font-bold text-ink hover:border-primary hover:text-primary transition-colors"
+                      >
+                        {category}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="mt-6 grid gap-6 sm:grid-cols-2">
+              {recent.length > 0 && (
+                <div>
+                  <p className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-ink-muted">
+                    <Clock3 className="size-3.5 text-primary" /> Searches Récentes
+                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {recent.map((term) => (
+                      <button
+                        key={term}
+                        type="button"
+                        onClick={() => setValue(term)}
+                        className="rounded-full border border-border bg-white px-3.5 py-1.5 text-xs font-medium hover:border-primary hover:text-primary transition-colors"
+                      >
+                        {term}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              <div>
+                <p className="text-xs font-bold uppercase tracking-wider text-ink-muted">Searches Populaire</p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {popularSearches.map((term) => (
+                    <button
+                      key={term}
+                      type="button"
+                      onClick={() => setValue(term)}
+                      className="rounded-full border border-border bg-white px-3.5 py-1.5 text-xs font-medium hover:border-primary hover:text-primary transition-colors"
+                    >
+                      {term}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </dialog>
+    </>
+  );
+}

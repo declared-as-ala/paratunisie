@@ -1,0 +1,122 @@
+import { Controller, Get, Post, Patch, Delete, Param, Query, Body, UseGuards } from "@nestjs/common";
+import { CatalogueService } from "./catalogue.service";
+import { AdminAuthGuard } from "../admin-auth/guards/admin-auth.guard";
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsString } from "class-validator";
+
+class BulkDeleteProductsDto {
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(100)
+  @IsString({ each: true })
+  ids!: string[];
+}
+
+@Controller("catalogue")
+export class CatalogueController {
+  constructor(private readonly catalogueService: CatalogueService) {}
+
+  @Get("products")
+  async getProducts(
+    @Query("page") page?: number,
+    @Query("limit") limit?: number,
+    @Query("search") search?: string,
+    @Query("q") q?: string,
+    @Query("brand") brand?: string,
+    @Query("category") category?: string,
+    @Query("concern") concern?: string,
+    @Query("status") status?: string,
+    @Query("sort") sort?: string,
+  ) {
+    return this.catalogueService.findAllProducts({
+      page,
+      limit,
+      search: search || q,
+      brand,
+      category,
+      concern,
+      status,
+      sort,
+    });
+  }
+
+  @Get("products/:slug")
+  async getProduct(@Param("slug") slug: string) {
+    return this.catalogueService.findProductBySlug(slug);
+  }
+
+  @Delete("products/:id")
+  @UseGuards(AdminAuthGuard)
+  async deleteProduct(@Param("id") id: string) {
+    return this.catalogueService.deleteProduct(id);
+  }
+
+  @Post("products/bulk-delete")
+  @UseGuards(AdminAuthGuard)
+  async bulkDeleteProducts(@Body() dto: BulkDeleteProductsDto) {
+    return this.catalogueService.bulkDeleteProducts(dto.ids);
+  }
+
+  @Get("brands")
+  async getBrands() {
+    return this.catalogueService.findAllBrands();
+  }
+
+  @Get("brands/:slug")
+  async getBrand(@Param("slug") slug: string) {
+    return this.catalogueService.findBrandBySlug(slug);
+  }
+
+  @Post("brands")
+  @UseGuards(AdminAuthGuard)
+  async createBrand(@Body() body: any) {
+    return this.catalogueService.createBrand(body);
+  }
+
+  @Patch("brands/:id")
+  @UseGuards(AdminAuthGuard)
+  async updateBrand(@Param("id") id: string, @Body() body: any) {
+    return this.catalogueService.updateBrand(id, body);
+  }
+
+  @Delete("brands/:id")
+  @UseGuards(AdminAuthGuard)
+  async deleteBrand(@Param("id") id: string) {
+    return this.catalogueService.deleteBrand(id);
+  }
+
+  @Post("brands/bulk-delete")
+  @UseGuards(AdminAuthGuard)
+  async bulkDeleteBrands(@Body("ids") ids: string[]) {
+    return this.catalogueService.bulkDeleteBrands(ids);
+  }
+
+  @Get("categories")
+  async getCategories() {
+    return this.catalogueService.findAllCategories();
+  }
+
+  @Post("categories")
+  async createCategory(@Body() body: any) {
+    return this.catalogueService.createCategory(body);
+  }
+
+  @Patch("categories/:id")
+  async updateCategory(@Param("id") id: string, @Body() body: any) {
+    return this.catalogueService.updateCategory(id, body);
+  }
+
+  @Delete("categories/:id")
+  async deleteCategory(@Param("id") id: string) {
+    return this.catalogueService.deleteCategory(id);
+  }
+
+  @Post("categories/bulk-delete")
+  async bulkDeleteCategories(@Body("ids") ids: string[]) {
+    return this.catalogueService.bulkDeleteCategories(ids);
+  }
+
+  @Get("concerns")
+  async getConcerns() {
+    return this.catalogueService.findAllConcerns();
+  }
+}
