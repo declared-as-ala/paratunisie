@@ -35,7 +35,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://paratunisie.com/api/v1}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://paratunisie.com/api/v1}
     container_name: paratunisie-web
     restart: unless-stopped
     logging: *default-logging
@@ -49,7 +49,7 @@ services:
       - NODE_ENV=production
       - PORT=3000
       - API_URL=http://paratunisie-api:3001/api/v1
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://paratunisie.com/api/v1}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://paratunisie.com/api/v1}
     depends_on:
       paratunisie-api:
         condition: service_healthy
@@ -66,7 +66,7 @@ services:
       context: .
       dockerfile: apps/admin/Dockerfile
       args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://paratunisie.com/api/v1}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://paratunisie.com/api/v1}
     container_name: paratunisie-admin
     restart: unless-stopped
     logging: *default-logging
@@ -82,7 +82,7 @@ services:
       - NODE_ENV=production
       - PORT=3002
       - API_URL=http://paratunisie-api:3001/api/v1
-      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://paratunisie.com/api/v1}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-https://paratunisie.com/api/v1}
     depends_on:
       paratunisie-api:
         condition: service_healthy
@@ -114,8 +114,8 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3001
-      FRONTEND_URL: ${FRONTEND_URL:-http://paratunisie.com}
-      PUBLIC_API_URL: ${PUBLIC_API_URL:-http://paratunisie.com}
+      FRONTEND_URL: ${FRONTEND_URL:-https://paratunisie.com}
+      PUBLIC_API_URL: ${PUBLIC_API_URL:-https://paratunisie.com}
       DATABASE_URL: postgresql://${POSTGRES_USER:-paratunisie}:${POSTGRES_PASSWORD}@paratunisie-postgres:5432/${POSTGRES_DB:-paratunisie}?schema=public
       MEILI_HOST: http://paratunisie-meilisearch:7700
       MEILI_API_KEY: ${MEILI_API_KEY}
@@ -126,7 +126,7 @@ services:
       MINIO_USE_SSL: "false"
       # Bucket name kept in the path on purpose (no NPM rewrite needed) — see
       # DEPLOYMENT.md "Production media routing".
-      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-http://paratunisie.com/paratunisie-media}
+      MINIO_PUBLIC_URL: ${MINIO_PUBLIC_URL:-https://paratunisie.com/paratunisie-media}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY}
       OPENROUTER_BASE_URL: https://openrouter.ai/api/v1
       OPENROUTER_MODEL: ${OPENROUTER_MODEL:-dots-studio/dots-3-note-preview:free}
