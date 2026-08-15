@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { SlidersHorizontal, X, ChevronLeft, ChevronRight, Filter, ShoppingBag, ShieldCheck, Truck, CreditCard, ChevronDown, Search } from "lucide-react";
+import { SlidersHorizontal, X, ChevronLeft, ChevronRight, ShoppingBag, ChevronDown, Search } from "lucide-react";
 import { useMemo, useState, useEffect, useTransition } from "react";
 
 import { ProductCard } from "@/components/product/product-card";
@@ -148,66 +148,6 @@ export function ShopPage({
             <p className="mt-3 max-w-xl text-xs sm:text-sm text-ink-muted leading-relaxed">
               Découvrez des milliers de soins pour prendre soin de vous. Recherchez facilement par produit, marque ou besoin.
             </p>
-
-            {/* ── PROMINENT SEARCH BAR ─────────────────────────────────────── */}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                updateParams({ q: searchValue.trim() || null, page: null });
-              }}
-              className="mt-5 max-w-xl relative"
-            >
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-primary size-5" />
-              <input
-                type="text"
-                value={searchValue}
-                onChange={(e) => {
-                  setSearchValue(e.target.value);
-                  updateParams({ q: e.target.value.trim() || null, page: null });
-                }}
-                placeholder="Rechercher un produit, une marque, un besoin (ex: CeraVe, Solaire, Acné)..."
-                className="w-full h-12 rounded-2xl border border-border/90 bg-white pl-12 pr-10 text-xs sm:text-sm font-medium text-ink shadow-sm placeholder:text-ink-muted/70 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-              />
-              {searchValue && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchValue("");
-                    updateParams({ q: null, page: null });
-                  }}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink p-1"
-                >
-                  <X className="size-4" />
-                </button>
-              )}
-            </form>
-
-            {/* 3 Reassurance Badges Pills */}
-            <div className="mt-6 flex flex-wrap gap-3">
-              <div className="flex items-center gap-2 rounded-2xl bg-white border border-border/80 px-3.5 py-2 shadow-2xs text-xs font-semibold text-ink">
-                <ShieldCheck className="size-4 text-primary shrink-0" />
-                <div>
-                  <span className="font-bold text-ink block">Produits authentiques</span>
-                  <span className="text-[0.65rem] text-ink-muted">Sélection rigoureuse</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 rounded-2xl bg-white border border-border/80 px-3.5 py-2 shadow-2xs text-xs font-semibold text-ink">
-                <Truck className="size-4 text-primary shrink-0" />
-                <div>
-                  <span className="font-bold text-ink block">Livraison partout en Tunisie</span>
-                  <span className="text-[0.65rem] text-ink-muted">Rapide et sécurisée</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 rounded-2xl bg-white border border-border/80 px-3.5 py-2 shadow-2xs text-xs font-semibold text-ink">
-                <CreditCard className="size-4 text-primary shrink-0" />
-                <div>
-                  <span className="font-bold text-ink block">Paiement à la livraison</span>
-                  <span className="text-[0.65rem] text-ink-muted">Simple et fiable</span>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Right Side Podium Product Image */}
@@ -232,6 +172,46 @@ export function ShopPage({
 
           {/* Right Product Grid Column */}
           <section aria-label="Produits">
+            {/* Search — directly at the top of the results it filters,
+                instead of buried in the hero banner above. */}
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                updateParams({ q: searchValue.trim() || null, page: null });
+              }}
+              role="search"
+              className="relative mb-5"
+            >
+              <Search className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-primary" aria-hidden />
+              <label htmlFor="shop-search" className="sr-only">
+                Rechercher un produit, une marque, un besoin
+              </label>
+              <input
+                id="shop-search"
+                type="text"
+                value={searchValue}
+                onChange={(e) => {
+                  setSearchValue(e.target.value);
+                  updateParams({ q: e.target.value.trim() || null, page: null });
+                }}
+                placeholder="Rechercher un produit, une marque, un besoin (ex: CeraVe, Solaire, Acné)..."
+                className="h-12 w-full rounded-2xl border border-border/90 bg-white pl-12 pr-10 text-xs font-medium text-ink shadow-sm transition-all placeholder:text-ink-muted/70 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
+              />
+              {searchValue && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSearchValue("");
+                    updateParams({ q: null, page: null });
+                  }}
+                  aria-label="Effacer la recherche"
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-ink-muted hover:text-ink"
+                >
+                  <X className="size-4" />
+                </button>
+              )}
+            </form>
+
             {/* Header Summary & Sort Options */}
             <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
               <div>
@@ -344,15 +324,15 @@ export function ShopPage({
 
                 {/* ── Numeric Pagination ─────────────────────────────────── */}
                 {totalPages > 1 && (
-                  <nav aria-label="Pagination" className="mt-12 flex justify-center items-center gap-2">
+                  <nav aria-label="Pagination" className="mt-12 flex flex-wrap justify-center items-center gap-2">
                     <Button
                       variant="outline"
                       size="sm"
                       disabled={currentPage <= 1}
                       onClick={() => goToPage(currentPage - 1)}
-                      className="rounded-xl text-xs font-bold gap-1"
+                      className="rounded-xl text-xs font-bold gap-1 px-2.5 sm:px-3"
                     >
-                      <ChevronLeft size={14} /> Précédent
+                      <ChevronLeft size={14} /> <span className="hidden sm:inline">Précédent</span>
                     </Button>
 
                     <div className="flex items-center gap-1">
@@ -372,7 +352,7 @@ export function ShopPage({
                             key={pNum}
                             type="button"
                             onClick={() => goToPage(pNum)}
-                            className={`h-9 min-w-9 rounded-xl text-xs font-bold transition-all ${
+                            className={`size-8 sm:h-9 sm:min-w-9 sm:size-auto rounded-xl text-xs font-bold transition-all ${
                               currentPage === pNum
                                 ? "bg-primary text-white shadow-2xs font-extrabold"
                                 : "bg-white border border-border text-ink hover:bg-soft-nude"
@@ -382,12 +362,12 @@ export function ShopPage({
                           </button>
                         );
                       })}
-                      {totalPages > 5 && <span className="text-ink-muted px-1">...</span>}
+                      {totalPages > 5 && <span className="text-ink-muted px-0.5 sm:px-1">...</span>}
                       {totalPages > 5 && (
                         <button
                           type="button"
                           onClick={() => goToPage(totalPages)}
-                          className="h-9 min-w-9 rounded-xl text-xs font-bold bg-white border border-border text-ink hover:bg-soft-nude"
+                          className="size-8 sm:h-9 sm:min-w-9 sm:size-auto rounded-xl text-xs font-bold bg-white border border-border text-ink hover:bg-soft-nude"
                         >
                           {totalPages}
                         </button>
@@ -399,9 +379,9 @@ export function ShopPage({
                       size="sm"
                       disabled={currentPage >= totalPages}
                       onClick={() => goToPage(currentPage + 1)}
-                      className="rounded-xl text-xs font-bold gap-1"
+                      className="rounded-xl text-xs font-bold gap-1 px-2.5 sm:px-3"
                     >
-                      Suivant <ChevronRight size={14} />
+                      <span className="hidden sm:inline">Suivant</span> <ChevronRight size={14} />
                     </Button>
                   </nav>
                 )}

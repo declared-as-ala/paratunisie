@@ -144,17 +144,18 @@ export function SearchOverlay() {
 
   return (
     <>
-      {/* Prominent Header Search Trigger Bar */}
-      <div
+      {/* Full-Width Header Search Trigger Bar */}
+      <button
+        type="button"
         onClick={openSearch}
-        className="group flex flex-1 items-center gap-2 rounded-full border border-border bg-soft-nude/40 px-3.5 py-1.5 sm:py-2 text-xs font-medium text-ink-muted hover:border-primary/50 hover:bg-white hover:shadow-xs transition-all cursor-pointer w-full min-w-0"
+        className="group flex w-full min-w-0 items-center gap-2.5 rounded-2xl border border-border bg-soft-nude/40 px-4 py-3 text-left text-sm font-medium text-ink-muted transition-all hover:border-primary/50 hover:bg-white hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
       >
-        <Search className="size-4 text-primary shrink-0 transition-transform group-hover:scale-110" aria-hidden />
-        <span className="truncate text-[0.75rem] sm:text-xs">Rechercher un produit, une marque, un besoin…</span>
-        <span className="ml-auto rounded-full bg-white px-2 py-0.5 text-[0.625rem] font-bold text-ink-faint border border-border shrink-0 hidden lg:inline-block">
+        <Search className="size-5 shrink-0 text-primary transition-transform group-hover:scale-110" aria-hidden />
+        <span className="truncate text-xs sm:text-sm">Rechercher un produit, une marque, un besoin…</span>
+        <span className="ml-auto hidden shrink-0 rounded-full border border-border bg-white px-2.5 py-1 text-[0.625rem] font-bold text-ink-faint lg:inline-block">
           Rechercher
         </span>
-      </div>
+      </button>
 
       {/* Search Autocomplete Dialog Modal */}
       <dialog

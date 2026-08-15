@@ -142,7 +142,10 @@ export function CheckoutPage() {
     );
   }
 
-  const inputClass = "mt-1.5 h-10 w-full rounded-lg border border-border bg-background px-3 text-sm text-ink placeholder:text-ink-muted/50 transition-colors focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none aria-invalid:border-destructive sm:h-11";
+  {/* h-11 (44px) at every breakpoint, not just sm: and up — mobile touch
+      targets need the 44px minimum at least as much as desktop (CLAUDE.md
+      §5), so shrinking below that on the smallest screens was backwards. */}
+  const inputClass = "mt-1.5 h-11 w-full rounded-lg border border-border bg-background px-3 text-sm text-ink placeholder:text-ink-muted/50 transition-colors focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none aria-invalid:border-destructive";
 
   return (
     <div className="mx-auto max-w-[1440px] px-4 pb-8 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-12">
@@ -224,7 +227,7 @@ export function CheckoutPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-[1fr_380px] lg:gap-8"
+        className="mt-6 grid grid-cols-1 gap-6 lg:mt-8 lg:grid-cols-[1fr_380px] lg:gap-8"
       >
         <div className="space-y-5 sm:space-y-6">
           {/* Contact */}
@@ -343,7 +346,6 @@ export function CheckoutPage() {
             <div className="mt-3 flex items-center justify-between rounded-xl border border-border bg-surface-alt p-3 sm:mt-4 sm:p-4">
               <div>
                 <p className="text-sm font-medium text-ink">Aramex</p>
-                <p className="text-xs text-ink-muted">3–5 jours ouvrables</p>
               </div>
               <p className="font-tabular text-sm font-semibold text-ink">
                 {cart.hasFreeDelivery ? (
