@@ -7,6 +7,7 @@ import { useMemo, useState, useTransition } from "react";
 
 import { ProductCard } from "@/components/product/product-card";
 import { FilterControls, type ShopFilters } from "@/components/shop/filter-controls";
+import { SearchOverlay } from "@/components/layout/navigation/search-overlay";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { type ProductSummary } from "@/lib/data/products";
@@ -131,36 +132,60 @@ export function ShopPage({
   }
 
   return (
-    <div className="bg-[#FAF7F5] min-h-screen text-ink pb-16 lg:pb-0">
-      {/* ── 1. COMPACT HERO BANNER ───────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-[#FAF3F0] via-[#FDFBF9] to-[#F7ECE8] border-b border-border/60">
-        <div className="mx-auto max-w-[1440px] px-4 py-5 sm:px-6 lg:px-8 lg:py-8 flex flex-col lg:flex-row items-center justify-between gap-4">
-          <div>
-            <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-ink leading-tight">
-              Toute la parapharmacie, au même endroit
-            </h1>
-            <p className="mt-1.5 max-w-xl text-xs sm:text-sm text-ink-muted leading-relaxed">
-              Découvrez notre sélection de soins certifiés 100% authentiques. Livraison en 24h à 48h partout en Tunisie.
-            </p>
-          </div>
-
-          {/* Quick category shortcut pills */}
-          <div className="flex flex-wrap items-center gap-1.5 shrink-0">
-            {["Visage", "Solaire", "Cheveux", "Bébé & Maman", "Besoins"].map((cat) => (
-              <Link
-                key={cat}
-                href={`/shop?category=${encodeURIComponent(cat.toLowerCase())}`}
-                className="rounded-full bg-white/90 border border-border/70 px-3 py-1 text-[0.725rem] font-bold text-ink hover:border-primary hover:text-primary transition-all shadow-2xs"
-              >
-                {cat}
-              </Link>
-            ))}
-          </div>
+    <div className="bg-[#FAF7F5] min-h-screen text-ink pb-24 lg:pb-8">
+      {/* ── 1. DIRECT COMPACT CATALOG HEADER ─────────────────────────── */}
+      <section className="bg-gradient-to-r from-[#FAF3F0] via-[#FDFBF9] to-[#F7ECE8] border-b border-border/60">
+        <div className="mx-auto max-w-[1440px] px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
+          <h1 className="font-serif text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-ink uppercase">
+            Boutique — Parapharmacie en Tunisie
+          </h1>
+          <p className="mt-1 text-xs text-ink-muted">
+            Affichage {(currentPage - 1) * PAGE_SIZE + 1}–{Math.min(currentPage * PAGE_SIZE, totalProductsCount)} sur {totalProductsCount.toLocaleString("fr-FR")} produits disponibles
+          </p>
         </div>
       </section>
 
       {/* ── 2. MAIN SHOP AREA: SIDEBAR + PRODUCT GRID ──────────────────────────────── */}
-      <main className="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8">
+      <main className="mx-auto max-w-[1440px] px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
+        {/* Single Mobile Catalog Search Input */}
+        <div className="mb-4 sm:hidden">
+          <SearchOverlay variant="full" />
+        </div>
+
+        {/* Mobile Control Row: Sort Select (65%) + Filter Button (35%) */}
+        <div className="grid grid-cols-[1.8fr_1fr] gap-2.5 mb-5 sm:hidden">
+          <select
+            aria-label="Trier par"
+            value={sort}
+            onChange={(event) =>
+              updateParams({
+                sort: event.target.value === "recommended" ? null : event.target.value,
+                page: null,
+              })
+            }
+            className="h-11 rounded-2xl border border-border/80 bg-white px-3 text-xs font-bold text-ink focus:outline-none focus:border-primary shadow-2xs cursor-pointer"
+          >
+            <option value="recommended">Popularité</option>
+            <option value="price-asc">Prix croissant</option>
+            <option value="price-desc">Prix décroissant</option>
+            <option value="name">Nom (A → Z)</option>
+          </select>
+
+          <Button
+            variant="outline"
+            className="h-11 rounded-2xl border-border/80 bg-white font-bold text-xs gap-1.5 shadow-2xs text-ink hover:bg-soft-nude"
+            onClick={() => setFilterOpen(true)}
+          >
+            <SlidersHorizontal size={15} className="text-primary" />
+            <span>Filtres</span>
+            {activeCount > 0 && (
+              <span className="rounded-full bg-primary px-1.5 py-0.2 text-[0.625rem] text-white font-extrabold">
+                {activeCount}
+              </span>
+            )}
+          </Button>
+        </div>
+
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-[250px_1fr] items-start">
           {/* Left Desktop Sidebar Container */}
           <aside className="hidden lg:block sticky top-28 space-y-4 rounded-2xl border border-border/80 bg-white p-5 shadow-2xs" aria-label="Filtres produits">
@@ -180,30 +205,19 @@ export function ShopPage({
 
           {/* Right Product Grid Column */}
           <section aria-label="Produits">
-            {/* Header Summary, Search Status & Sort Toolbar */}
-            <div className="mb-5 rounded-2xl border border-border/70 bg-white p-3.5 sm:p-4 shadow-2xs">
+            {/* Desktop Header Summary & Sort Toolbar */}
+            <div className="hidden sm:block mb-5 rounded-2xl border border-border/70 bg-white p-4 shadow-2xs">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <span className="font-tabular text-sm sm:text-base font-extrabold text-ink">
+                  <span className="font-tabular text-base font-extrabold text-ink">
                     {totalProductsCount.toLocaleString("fr-FR")}
                   </span>
-                  <span className="text-xs font-semibold text-ink-muted">produits disponibles</span>
-
-                  {/* Mobile Filter Button trigger in toolbar */}
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="lg:hidden rounded-xl font-bold text-xs gap-1.5 border-border ml-2 h-8.5"
-                    onClick={() => setFilterOpen(true)}
-                  >
-                    <SlidersHorizontal size={13} className="text-primary" />
-                    Filtrer {activeCount > 0 && <span className="rounded-full bg-primary px-1.5 py-0.2 text-[0.65rem] text-white font-extrabold">{activeCount}</span>}
-                  </Button>
+                  <span className="text-xs font-semibold text-ink-muted">produits au catalogue</span>
                 </div>
 
-                {/* Sort Selector */}
+                {/* Desktop Sort Selector */}
                 <div className="flex items-center gap-2 ml-auto">
-                  <span className="hidden sm:inline text-xs font-semibold text-ink-muted">Trier par :</span>
+                  <span className="text-xs font-semibold text-ink-muted">Trier par :</span>
                   <select
                     aria-label="Trier par"
                     value={sort}
@@ -213,9 +227,9 @@ export function ShopPage({
                         page: null,
                       })
                     }
-                    className="h-9 rounded-xl border border-border bg-soft-nude/40 px-3 text-xs font-bold text-ink focus:outline-none focus:border-primary cursor-pointer transition-colors"
+                    className="h-9.5 rounded-xl border border-border bg-soft-nude/40 px-3 text-xs font-bold text-ink focus:outline-none focus:border-primary cursor-pointer transition-colors"
                   >
-                    <option value="recommended">Nos recommandations</option>
+                    <option value="recommended">Popularité</option>
                     <option value="price-asc">Prix croissant</option>
                     <option value="price-desc">Prix décroissant</option>
                     <option value="name">Nom (A → Z)</option>
@@ -275,9 +289,9 @@ export function ShopPage({
               )}
             </div>
 
-            {/* Products Grid */}
+            {/* Products Grid — 1 column on mobile (horizontal cards), 2-5 columns on desktop */}
             {isPending ? (
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                 {Array.from({ length: 10 }).map((_, idx) => (
                   <div key={idx} className="animate-pulse rounded-2xl border border-border bg-white p-3.5 space-y-3">
                     <div className="aspect-square rounded-xl bg-soft-nude/70 w-full" />
@@ -289,7 +303,7 @@ export function ShopPage({
               </div>
             ) : products.length > 0 ? (
               <>
-                <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                   {products.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}

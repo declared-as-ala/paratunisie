@@ -1,111 +1,169 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, Phone, ShoppingBag, User } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Heart, Phone, ShoppingBag, User, MessageCircle, MapPin } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useScrolled } from "@/hooks/use-scrolled";
 import { useCart } from "@/hooks/use-cart";
+import { useWishlist } from "@/hooks/use-wishlist";
 import { useCartDrawer } from "@/hooks/use-cart-drawer";
 import { Logo } from "@/components/layout/logo";
-import { MegaMenu } from "@/components/layout/navigation/mega-menu";
 import { SearchOverlay } from "@/components/layout/navigation/search-overlay";
 import { CartDrawer } from "@/components/cart/cart-drawer";
 import { phoneHref, phoneNumber } from "@/lib/contact";
 
-const ANNOUNCEMENTS = [
-  "Livraison offerte dès 99 DT",
-  "Produits 100% authentiques garantis",
-  "Expédition sous 24h/48h partout en Tunisie",
+const DESKTOP_NAV_ITEMS = [
+  { label: "Accueil", href: "/" },
+  { label: "Boutique", href: "/shop" },
+  { label: "Marques", href: "/marques" },
+  { label: "Visage", href: "/shop?category=visage" },
+  { label: "Corps", href: "/shop?category=corps" },
+  { label: "Cheveux", href: "/shop?category=cheveux" },
+  { label: "Bébé & Maman", href: "/shop?category=bebe-maman" },
+  { label: "Conseils", href: "/conseils" },
 ];
 
 export function SiteHeader() {
+  const pathname = usePathname();
   const scrolled = useScrolled();
   const { itemCount } = useCart();
+  const { count: wishlistCount } = useWishlist();
   const { setOpen: setCartOpen } = useCartDrawer();
 
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md shadow-2xs">
-      {/* Top Announcement Bar */}
+      {/* ── ROW 1: Thin Announcement & Contact Bar ────────────────────── */}
       <div className="bg-primary text-primary-foreground">
         <div className="mx-auto flex h-7 sm:h-8 max-w-[1440px] items-center justify-between gap-4 px-4 text-[0.6875rem] sm:text-xs font-medium tracking-wide">
           <div className="flex min-w-0 items-center gap-4 overflow-hidden">
-            <span className="truncate">{ANNOUNCEMENTS[0]}</span>
-            <span className="hidden md:inline truncate">{ANNOUNCEMENTS[1]}</span>
-            <span className="hidden lg:inline truncate">{ANNOUNCEMENTS[2]}</span>
+            <a href={phoneHref} className="flex shrink-0 items-center gap-1 hover:underline">
+              <Phone size={11} aria-hidden />
+              <span>{phoneNumber}</span>
+            </a>
+            <span className="hidden md:inline opacity-60">|</span>
+            <a
+              href="https://wa.me/21627612500"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden md:flex shrink-0 items-center gap-1 text-emerald-300 hover:underline"
+            >
+              <MessageCircle size={11} aria-hidden />
+              <span>WhatsApp</span>
+            </a>
+            <span className="hidden lg:inline opacity-60">|</span>
+            <span className="hidden lg:flex items-center gap-1 opacity-90">
+              <MapPin size={11} aria-hidden />
+              <span>Livraison partout en Tunisie</span>
+            </span>
           </div>
-          <a href={phoneHref} className="flex shrink-0 items-center gap-1.5 font-bold hover:underline">
-            <Phone size={12} className="shrink-0" aria-hidden />
-            <span className="whitespace-nowrap">{phoneNumber}</span>
-          </a>
+
+          <div className="flex shrink-0 items-center gap-2 font-bold">
+            <span>Livraison offerte dès 99 DT</span>
+          </div>
         </div>
       </div>
 
-      {/* Main Header Bar: Logo + Inline Search + Actions */}
+      {/* ── ROW 2: Main Header Bar (Logo + Large Search + Actions) ───── */}
       <div className="border-b border-border/70">
         <div
-          className={`mx-auto flex max-w-[1440px] items-center justify-between gap-3 sm:gap-6 px-4 sm:px-6 lg:px-8 transition-[padding] duration-200 ${
-            scrolled ? "py-1.5" : "py-2 sm:py-2.5"
+          className={`mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 transition-[padding] duration-200 ${
+            scrolled ? "py-1.5" : "py-2 sm:py-3"
           }`}
         >
-          {/* Logo */}
+          {/* Left: ParaTunisie Logo */}
           <Link href="/" aria-label="ParaTunisie — Accueil" className="shrink-0">
             <Logo />
           </Link>
 
-          {/* Desktop Search Bar (Inline in main row on lg+) */}
-          <div className="hidden lg:block flex-1 max-w-md mx-4">
-            <SearchOverlay variant="compact" />
+          {/* Center: Large Search Field (Desktop lg+) */}
+          <div className="hidden lg:block flex-1 max-w-2xl mx-4">
+            <SearchOverlay variant="full" />
           </div>
 
-          {/* Actions: Search icon (mobile), Wishlist, Account, Cart */}
-          <div className="flex items-center gap-1 shrink-0">
-            {/* Mobile Search Icon Trigger */}
+          {/* Right: Actions Icons with Labels (Compte, Favoris, Panier) */}
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+            {/* Mobile Search Trigger Icon */}
             <div className="lg:hidden">
               <SearchOverlay variant="icon" />
             </div>
 
-            <Button
-              variant="ghost"
-              size="icon-lg"
-              aria-label="Favoris"
-              className="hidden sm:inline-flex text-ink hover:text-primary"
-              render={<Link href="/favoris" />}
-            >
-              <Heart size={18} />
-            </Button>
-
-            <Button
-              variant="ghost"
-              size="icon-lg"
+            {/* Compte */}
+            <Link
+              href="/compte"
               aria-label="Mon compte"
-              className="hidden sm:inline-flex text-ink hover:text-primary"
-              render={<Link href="/compte" />}
+              className="hidden sm:flex flex-col items-center justify-center text-ink hover:text-primary transition-colors group p-1"
             >
-              <User size={18} />
-            </Button>
+              <User size={20} className="group-hover:scale-105 transition-transform" />
+              <span className="text-[0.6875rem] font-medium mt-0.5">Compte</span>
+            </Link>
 
-            <Button
-              variant="ghost"
-              size="icon-lg"
-              aria-label={`Panier${itemCount > 0 ? ` — ${itemCount} article${itemCount === 1 ? "" : "s"}` : ""}`}
-              onClick={() => setCartOpen(true)}
-              className="relative text-ink hover:text-primary"
+            {/* Favoris */}
+            <Link
+              href="/favoris"
+              aria-label="Favoris"
+              className="hidden sm:flex flex-col items-center justify-center text-ink hover:text-primary transition-colors group relative p-1"
             >
-              <ShoppingBag size={18} />
-              {itemCount > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex size-4.5 items-center justify-center rounded-full bg-primary text-[0.6rem] font-bold text-primary-foreground shadow-2xs">
-                  {itemCount}
-                </span>
-              )}
-            </Button>
+              <div className="relative">
+                <Heart size={20} className="group-hover:scale-105 transition-transform" />
+                {wishlistCount > 0 && (
+                  <span className="absolute -right-2 -top-1.5 flex size-4 items-center justify-center rounded-full bg-primary text-[0.55rem] font-extrabold text-white">
+                    {wishlistCount}
+                  </span>
+                )}
+              </div>
+              <span className="text-[0.6875rem] font-medium mt-0.5">Favoris</span>
+            </Link>
+
+            {/* Panier Button / Trigger */}
+            <button
+              type="button"
+              onClick={() => setCartOpen(true)}
+              aria-label={`Panier${itemCount > 0 ? ` — ${itemCount} article${itemCount === 1 ? "" : "s"}` : ""}`}
+              className="flex flex-col items-center justify-center text-ink hover:text-primary transition-colors group relative p-1"
+            >
+              <div className="relative">
+                <ShoppingBag size={20} className="group-hover:scale-105 transition-transform" />
+                {itemCount > 0 && (
+                  <span className="absolute -right-2 -top-1.5 flex size-4.5 items-center justify-center rounded-full bg-primary text-[0.6rem] font-bold text-white shadow-2xs">
+                    {itemCount}
+                  </span>
+                )}
+              </div>
+              <span className="hidden sm:inline text-[0.6875rem] font-medium mt-0.5">Panier</span>
+            </button>
           </div>
         </div>
 
-        {/* Category Navigation Bar (MegaMenu) - Desktop Only */}
+        {/* ── ROW 3: Desktop Navigation Links Row (lg+) ───────────────── */}
         <div className="hidden lg:block border-t border-border/50 bg-soft-nude/30">
-          <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 flex items-center justify-center py-0.5">
-            <MegaMenu />
+          <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
+            <nav className="flex items-center justify-center gap-1 py-1 text-xs font-bold text-ink">
+              {DESKTOP_NAV_ITEMS.map((item) => {
+                const active =
+                  item.href === "/shop"
+                    ? pathname === "/shop" || pathname.startsWith("/shop/")
+                    : item.href === "/"
+                      ? pathname === "/"
+                      : pathname.startsWith(item.href);
+
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={`relative px-4 py-2 rounded-lg transition-colors hover:bg-white/80 hover:text-primary ${
+                      active ? "text-primary font-extrabold" : "text-ink/80"
+                    }`}
+                  >
+                    <span>{item.label}</span>
+                    {active && (
+                      <span className="absolute bottom-0.5 inset-x-4 h-0.5 rounded-full bg-primary" />
+                    )}
+                  </Link>
+                );
+              })}
+            </nav>
           </div>
         </div>
       </div>
@@ -114,4 +172,5 @@ export function SiteHeader() {
     </header>
   );
 }
+
 

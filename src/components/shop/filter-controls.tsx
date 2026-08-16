@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useDeferredValue } from "react";
 import { Search, ChevronDown, ChevronUp, RefreshCw, X } from "lucide-react";
 
 export type ShopFilters = {
@@ -54,6 +54,14 @@ export function FilterControls({
     setCollapsed((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
+  const deferredCategorySearch = useDeferredValue(categorySearch);
+  const deferredBrandSearch = useDeferredValue(brandSearch);
+  const [brandLimit, setBrandLimit] = useState(12);
+
+  // Fast Set lookups for selected filter items
+  const selectedBrandsSet = useMemo(() => new Set(filters.brands), [filters.brands]);
+  const selectedCategoriesSet = useMemo(() => new Set(filters.categories), [filters.categories]);
+
   // Filter out brand names from categories list
   const cleanCategories = useMemo(() => {
     return categories.filter((cat) => {
@@ -64,17 +72,25 @@ export function FilterControls({
 
   // Search filter applied to categories
   const filteredCategories = useMemo(() => {
-    if (!categorySearch.trim()) return cleanCategories;
-    const q = categorySearch.toLowerCase().trim();
+    if (!deferredCategorySearch.trim()) return cleanCategories;
+    const q = deferredCategorySearch.toLowerCase().trim();
     return cleanCategories.filter((cat) => cat.toLowerCase().includes(q));
-  }, [cleanCategories, categorySearch]);
+  }, [cleanCategories, deferredCategorySearch]);
 
   // Search filter applied to brands
   const filteredBrands = useMemo(() => {
-    if (!brandSearch.trim()) return brands;
-    const q = brandSearch.toLowerCase().trim();
+    if (!deferredBrandSearch.trim()) return brands;
+    const q = deferredBrandSearch.toLowerCase().trim();
     return brands.filter((b) => b.toLowerCase().includes(q));
-  }, [brands, brandSearch]);
+  }, [brands, deferredBrandSearch]);
+
+  // Paginated/capped brand rendering list to keep DOM nodes lightweight
+  const visibleBrands = useMemo(() => {
+    if (deferredBrandSearch.trim()) {
+      return filteredBrands.slice(0, 30);
+    }
+    return filteredBrands.slice(0, brandLimit);
+  }, [filteredBrands, deferredBrandSearch, brandLimit]);
 
   return (
     <div className="space-y-5 text-xs text-ink">
@@ -119,8 +135,7 @@ export function FilterControls({
 
             <div className="max-h-[220px] overflow-y-auto pr-1 space-y-1 scrollbar-thin">
               {filteredCategories.map((cat, idx) => {
-                const isChecked = filters.categories.includes(cat);
-                // Real or derived counts for high visual fidelity matching photo
+                const isChecked = selectedCategoriesSet.has(cat);
                 const mockCounts = [4321, 2114, 1246, 656, 642, 304, 68];
                 const countDisplay = mockCounts[idx % mockCounts.length];
 
@@ -189,8 +204,8 @@ export function FilterControls({
             </div>
 
             <div className="max-h-[220px] overflow-y-auto pr-1 space-y-1 scrollbar-thin">
-              {(showAllBrands || brandSearch ? filteredBrands : filteredBrands.slice(0, 7)).map((brand, idx) => {
-                const isChecked = filters.brands.includes(brand);
+              {visibleBrands.map((brand, idx) => {
+                const isChecked = selectedBrandsSet.has(brand);
                 const mockCounts = [692, 623, 512, 451, 423, 398, 362];
                 const countDisplay = mockCounts[idx % mockCounts.length];
 
@@ -216,13 +231,13 @@ export function FilterControls({
               })}
             </div>
 
-            {filteredBrands.length > 7 && !brandSearch && (
+            {filteredBrands.length > visibleBrands.length && !brandSearch && (
               <button
                 type="button"
-                onClick={() => setShowAllBrands(!showAllBrands)}
+                onClick={() => setBrandLimit((prev) => prev + 20)}
                 className="text-[0.7rem] font-bold text-primary hover:underline pt-1 block"
               >
-                {showAllBrands ? "Réduire les marques" : "Voir toutes les marques"}
+                Voir plus de marques (+{filteredBrands.length - visibleBrands.length})
               </button>
             )}
           </div>
