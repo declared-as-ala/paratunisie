@@ -4,7 +4,7 @@ export function Logo({ className }: { className?: string }) {
       <img
         src="/assets/logo.png"
         alt="ParaTunisie"
-        className="h-12 sm:h-14 md:h-16 lg:h-18 w-auto object-contain transition-all"
+        className="h-16 sm:h-20 md:h-24 lg:h-28 w-auto object-contain transition-all"
       />
       <span className="sr-only">ParaTunisie</span>
     </span>
