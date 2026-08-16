@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { SlidersHorizontal, X, ChevronLeft, ChevronRight, ShoppingBag, ChevronDown, Search } from "lucide-react";
-import { useMemo, useState, useEffect, useTransition } from "react";
+import { SlidersHorizontal, X, ChevronLeft, ChevronRight, ShoppingBag, ChevronDown } from "lucide-react";
+import { useMemo, useState, useTransition } from "react";
 
 import { ProductCard } from "@/components/product/product-card";
 import { FilterControls, type ShopFilters } from "@/components/shop/filter-controls";

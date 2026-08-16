@@ -42,11 +42,7 @@ export function SearchOverlay({
 
   useEffect(() => {
     const query = value.trim();
-    if (!query) {
-      setLiveProducts([]);
-      setIsSearchingProducts(false);
-      return;
-    }
+    if (!query) return;
     setIsSearchingProducts(true);
     const timeout = setTimeout(async () => {
       const res = await fetchPaginatedProducts({ search: query, limit: 5 });
@@ -55,6 +51,9 @@ export function SearchOverlay({
     }, 250);
     return () => clearTimeout(timeout);
   }, [value]);
+
+  const activeProducts = value.trim() ? liveProducts : [];
+  const activeSearching = value.trim() ? isSearchingProducts : false;
 
   // Structured search results
   const searchResults = useMemo(() => {
@@ -97,13 +96,13 @@ export function SearchOverlay({
       .slice(0, 2);
 
     return {
-      productsList: liveProducts,
+      productsList: activeProducts,
       brandsList: matchedBrands,
       categoriesList: matchedCategories,
       concernsList: matchedConcerns,
       articlesList: matchedArticles,
     };
-  }, [value, liveProducts, allBrands]);
+  }, [value, activeProducts, allBrands]);
 
   function openSearch() {
     try {
@@ -235,7 +234,7 @@ export function SearchOverlay({
             </div>
           </form>
 
-          {isSearchingProducts && (
+          {activeSearching && (
             <p className="mt-3 flex items-center gap-1.5 text-xs text-ink-muted">
               <Loader2 size={13} className="animate-spin" aria-hidden />
               Recherche en cours…

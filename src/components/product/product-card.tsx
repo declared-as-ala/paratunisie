@@ -11,16 +11,18 @@ import { formatPrice, type ProductSummary } from "@/lib/data/products";
 
 export function ProductCard({ product }: { product: ProductSummary }) {
   const [imgSrc, setImgSrc] = useState(product.image || "/assets/product-tube.webp");
+  const [prevImage, setPrevImage] = useState(product.image);
   const { isWishlisted, toggle } = useWishlist();
   const saved = isWishlisted(product.id);
   const { addItem, isInCart } = useCart();
   const added = isInCart(product.id);
   const [loading, setLoading] = useState(false);
 
-  // Sync state whenever product prop changes
-  useEffect(() => {
+  // Sync image state whenever product image prop changes
+  if (prevImage !== product.image) {
+    setPrevImage(product.image);
     setImgSrc(product.image || "/assets/product-tube.webp");
-  }, [product.id, product.image]);
+  }
 
   const handleAdd = useCallback(() => {
     setLoading(true);
