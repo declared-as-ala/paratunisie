@@ -67,11 +67,6 @@ export function ShopPage({
   };
   const query = searchParams.get("q")?.trim() ?? "";
   const sort = searchParams.get("sort") ?? "recommended";
-  const [searchValue, setSearchValue] = useState(query);
-
-  useEffect(() => {
-    setSearchValue(query);
-  }, [query]);
 
   const hasPriceFilter = filters.maxPrice < 100;
 
@@ -105,7 +100,6 @@ export function ShopPage({
   }
 
   function clearAllFilters() {
-    setSearchValue("");
     startTransition(() => {
       router.replace(pathname, { scroll: false });
     });
@@ -133,180 +127,159 @@ export function ShopPage({
 
   function goToPage(newPage: number) {
     updateParams({ page: newPage > 1 ? String(newPage) : null });
-    window.scrollTo({ top: 400, behavior: "smooth" });
+    window.scrollTo({ top: 300, behavior: "smooth" });
   }
 
   return (
-    <div className="bg-[#FAF7F5] min-h-screen text-ink">
-      {/* ── 1. TOP HERO BANNER WITH SEARCH BAR ────────────────────────── */}
+    <div className="bg-[#FAF7F5] min-h-screen text-ink pb-16 lg:pb-0">
+      {/* ── 1. COMPACT HERO BANNER ───────────────────────────────────── */}
       <section className="relative overflow-hidden bg-gradient-to-r from-[#FAF3F0] via-[#FDFBF9] to-[#F7ECE8] border-b border-border/60">
-        <div className="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-8 lg:py-12 grid grid-cols-1 lg:grid-cols-[1.3fr_1fr] items-center gap-8">
+        <div className="mx-auto max-w-[1440px] px-4 py-5 sm:px-6 lg:px-8 lg:py-8 flex flex-col lg:flex-row items-center justify-between gap-4">
           <div>
-            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-ink leading-tight">
-              Toute la parapharmacie,<br />au même endroit
+            <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-ink leading-tight">
+              Toute la parapharmacie, au même endroit
             </h1>
-            <p className="mt-3 max-w-xl text-xs sm:text-sm text-ink-muted leading-relaxed">
-              Découvrez des milliers de soins pour prendre soin de vous. Recherchez facilement par produit, marque ou besoin.
+            <p className="mt-1.5 max-w-xl text-xs sm:text-sm text-ink-muted leading-relaxed">
+              Découvrez notre sélection de soins certifiés 100% authentiques. Livraison en 24h à 48h partout en Tunisie.
             </p>
           </div>
 
-          {/* Right Side Podium Product Image */}
-          <div className="hidden lg:flex justify-end relative">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/assets/shop-hero-banner.png"
-              alt="ParaTunisie Produits Parapharmacie"
-              className="max-h-[290px] w-auto rounded-2xl object-cover drop-shadow-lg border border-border/40"
-            />
+          {/* Quick category shortcut pills */}
+          <div className="flex flex-wrap items-center gap-1.5 shrink-0">
+            {["Visage", "Solaire", "Cheveux", "Bébé & Maman", "Besoins"].map((cat) => (
+              <Link
+                key={cat}
+                href={`/shop?category=${encodeURIComponent(cat.toLowerCase())}`}
+                className="rounded-full bg-white/90 border border-border/70 px-3 py-1 text-[0.725rem] font-bold text-ink hover:border-primary hover:text-primary transition-all shadow-2xs"
+              >
+                {cat}
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
       {/* ── 2. MAIN SHOP AREA: SIDEBAR + PRODUCT GRID ──────────────────────────────── */}
-      <main className="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[260px_1fr] items-start">
+      <main className="mx-auto max-w-[1440px] px-4 py-6 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[250px_1fr] items-start">
           {/* Left Desktop Sidebar Container */}
-          <aside className="hidden lg:block sticky top-28 space-y-4 rounded-2xl border border-border/80 bg-white p-5 shadow-xs" aria-label="Filtres produits">
+          <aside className="hidden lg:block sticky top-28 space-y-4 rounded-2xl border border-border/80 bg-white p-5 shadow-2xs" aria-label="Filtres produits">
+            <div className="flex items-center justify-between border-b border-border/70 pb-3 mb-2">
+              <span className="font-serif text-sm font-bold text-ink flex items-center gap-2">
+                <SlidersHorizontal size={15} className="text-primary" />
+                Filtres
+              </span>
+              {activeCount > 0 && (
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[0.6875rem] font-bold text-primary border border-primary/20">
+                  {activeCount} actif{activeCount > 1 ? "s" : ""}
+                </span>
+              )}
+            </div>
             {controls}
           </aside>
 
           {/* Right Product Grid Column */}
           <section aria-label="Produits">
-            {/* Search — directly at the top of the results it filters,
-                instead of buried in the hero banner above. */}
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                updateParams({ q: searchValue.trim() || null, page: null });
-              }}
-              role="search"
-              className="relative mb-5"
-            >
-              <Search className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-primary" aria-hidden />
-              <label htmlFor="shop-search" className="sr-only">
-                Rechercher un produit, une marque, un besoin
-              </label>
-              <input
-                id="shop-search"
-                type="text"
-                value={searchValue}
-                onChange={(e) => {
-                  setSearchValue(e.target.value);
-                  updateParams({ q: e.target.value.trim() || null, page: null });
-                }}
-                placeholder="Rechercher un produit, une marque, un besoin (ex: CeraVe, Solaire, Acné)..."
-                className="h-12 w-full rounded-2xl border border-border/90 bg-white pl-12 pr-10 text-xs font-medium text-ink shadow-sm transition-all placeholder:text-ink-muted/70 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 sm:text-sm"
-              />
-              {searchValue && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setSearchValue("");
-                    updateParams({ q: null, page: null });
-                  }}
-                  aria-label="Effacer la recherche"
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 text-ink-muted hover:text-ink"
-                >
-                  <X className="size-4" />
-                </button>
-              )}
-            </form>
+            {/* Header Summary, Search Status & Sort Toolbar */}
+            <div className="mb-5 rounded-2xl border border-border/70 bg-white p-3.5 sm:p-4 shadow-2xs">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="font-tabular text-sm sm:text-base font-extrabold text-ink">
+                    {totalProductsCount.toLocaleString("fr-FR")}
+                  </span>
+                  <span className="text-xs font-semibold text-ink-muted">produits disponibles</span>
 
-            {/* Header Summary & Sort Options */}
-            <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
-              <div>
-                <h2 className="font-serif text-2xl font-bold text-ink">
-                  {totalProductsCount.toLocaleString("fr-FR")} produits
-                </h2>
-                <p className="text-xs text-ink-muted mt-0.5">
-                  {query ? (
-                    <span>Résultats pour la recherche <strong>« {query} »</strong></span>
-                  ) : (
-                    "Trouvez votre soin idéal parmi notre sélection."
+                  {/* Mobile Filter Button trigger in toolbar */}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="lg:hidden rounded-xl font-bold text-xs gap-1.5 border-border ml-2 h-8.5"
+                    onClick={() => setFilterOpen(true)}
+                  >
+                    <SlidersHorizontal size={13} className="text-primary" />
+                    Filtrer {activeCount > 0 && <span className="rounded-full bg-primary px-1.5 py-0.2 text-[0.65rem] text-white font-extrabold">{activeCount}</span>}
+                  </Button>
+                </div>
+
+                {/* Sort Selector */}
+                <div className="flex items-center gap-2 ml-auto">
+                  <span className="hidden sm:inline text-xs font-semibold text-ink-muted">Trier par :</span>
+                  <select
+                    aria-label="Trier par"
+                    value={sort}
+                    onChange={(event) =>
+                      updateParams({
+                        sort: event.target.value === "recommended" ? null : event.target.value,
+                        page: null,
+                      })
+                    }
+                    className="h-9 rounded-xl border border-border bg-soft-nude/40 px-3 text-xs font-bold text-ink focus:outline-none focus:border-primary cursor-pointer transition-colors"
+                  >
+                    <option value="recommended">Nos recommandations</option>
+                    <option value="price-asc">Prix croissant</option>
+                    <option value="price-desc">Prix décroissant</option>
+                    <option value="name">Nom (A → Z)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Active Filter Chips & Search Term Indicator */}
+              {(activeCount > 0 || query) && (
+                <div className="mt-3 flex flex-wrap items-center gap-2 pt-2.5 border-t border-border/50">
+                  {query && (
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 text-primary px-3 py-1 text-xs font-bold border border-primary/20">
+                      Recherche : « {query} »
+                      <button
+                        type="button"
+                        onClick={() => updateParams({ q: null, page: null })}
+                        className="hover:text-rose-600 transition-colors"
+                        aria-label="Effacer la recherche"
+                      >
+                        <X size={12} />
+                      </button>
+                    </span>
                   )}
-                </p>
 
-                {/* Active Filter Chips */}
-                {(activeCount > 0 || query) && (
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    {query && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2.5 py-1 text-[0.7rem] font-bold border border-primary/20">
-                        Recherche : « {query} »
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSearchValue("");
-                            updateParams({ q: null, page: null });
-                          }}
-                          className="hover:text-rose-600"
-                        >
-                          <X size={12} />
-                        </button>
-                      </span>
-                    )}
-
-                    {filters.categories.map((cat) => (
-                      <span
-                        key={cat}
-                        className="inline-flex items-center gap-1 rounded-full bg-soft-nude px-2.5 py-1 text-[0.7rem] font-bold text-ink border border-border/60"
-                      >
-                        {cat}
-                        <button type="button" onClick={() => removeFilterChip("categories", cat)} className="hover:text-rose-600">
-                          <X size={12} />
-                        </button>
-                      </span>
-                    ))}
-
-                    {filters.brands.map((b) => (
-                      <span
-                        key={b}
-                        className="inline-flex items-center gap-1 rounded-full bg-soft-nude px-2.5 py-1 text-[0.7rem] font-bold text-ink border border-border/60"
-                      >
-                        {b}
-                        <button type="button" onClick={() => removeFilterChip("brands", b)} className="hover:text-rose-600">
-                          <X size={12} />
-                        </button>
-                      </span>
-                    ))}
-
-                    <button
-                      type="button"
-                      onClick={clearAllFilters}
-                      className="text-xs font-bold text-primary hover:underline ml-1"
+                  {filters.categories.map((cat) => (
+                    <span
+                      key={cat}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-soft-nude px-2.5 py-1 text-xs font-bold text-ink border border-border/70"
                     >
-                      Effacer tous les filtres
-                    </button>
-                  </div>
-                )}
-              </div>
+                      {cat}
+                      <button type="button" onClick={() => removeFilterChip("categories", cat)} className="hover:text-rose-600 transition-colors">
+                        <X size={12} />
+                      </button>
+                    </span>
+                  ))}
 
-              {/* Sort Selector */}
-              <div className="flex items-center gap-2 ml-auto">
-                <span className="text-xs font-semibold text-ink-muted">Trier par :</span>
-                <select
-                  aria-label="Trier par"
-                  value={sort}
-                  onChange={(event) =>
-                    updateParams({
-                      sort: event.target.value === "recommended" ? null : event.target.value,
-                      page: null,
-                    })
-                  }
-                  className="h-10 rounded-xl border border-border bg-white px-3 text-xs font-bold text-ink focus:outline-none cursor-pointer"
-                >
-                  <option value="recommended">Nos recommandations</option>
-                  <option value="price-asc">Prix croissant</option>
-                  <option value="price-desc">Prix décroissant</option>
-                  <option value="name">Nom (A → Z)</option>
-                </select>
-              </div>
+                  {filters.brands.map((b) => (
+                    <span
+                      key={b}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-soft-nude px-2.5 py-1 text-xs font-bold text-ink border border-border/70"
+                    >
+                      {b}
+                      <button type="button" onClick={() => removeFilterChip("brands", b)} className="hover:text-rose-600 transition-colors">
+                        <X size={12} />
+                      </button>
+                    </span>
+                  ))}
+
+                  <button
+                    type="button"
+                    onClick={clearAllFilters}
+                    className="text-xs font-bold text-primary hover:underline ml-1"
+                  >
+                    Effacer tout
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* Products Grid */}
             {isPending ? (
-              <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
-                {Array.from({ length: 8 }).map((_, idx) => (
-                  <div key={idx} className="animate-pulse rounded-2xl border border-border bg-white p-4 space-y-3">
+              <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                {Array.from({ length: 10 }).map((_, idx) => (
+                  <div key={idx} className="animate-pulse rounded-2xl border border-border bg-white p-3.5 space-y-3">
                     <div className="aspect-square rounded-xl bg-soft-nude/70 w-full" />
                     <div className="h-3 bg-soft-nude rounded w-1/3" />
                     <div className="h-4 bg-soft-nude rounded w-3/4" />
@@ -316,13 +289,13 @@ export function ShopPage({
               </div>
             ) : products.length > 0 ? (
               <>
-                <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                   {products.map((product) => (
                     <ProductCard key={product.id} product={product} />
                   ))}
                 </div>
 
-                {/* ── Numeric Pagination ─────────────────────────────────── */}
+                {/* Numeric Pagination */}
                 {totalPages > 1 && (
                   <nav aria-label="Pagination" className="mt-12 flex flex-wrap justify-center items-center gap-2">
                     <Button
@@ -330,7 +303,7 @@ export function ShopPage({
                       size="sm"
                       disabled={currentPage <= 1}
                       onClick={() => goToPage(currentPage - 1)}
-                      className="rounded-xl text-xs font-bold gap-1 px-2.5 sm:px-3"
+                      className="rounded-xl text-xs font-bold gap-1 px-3 border-border"
                     >
                       <ChevronLeft size={14} /> <span className="hidden sm:inline">Précédent</span>
                     </Button>
@@ -362,7 +335,7 @@ export function ShopPage({
                           </button>
                         );
                       })}
-                      {totalPages > 5 && <span className="text-ink-muted px-0.5 sm:px-1">...</span>}
+                      {totalPages > 5 && <span className="text-ink-muted px-1">...</span>}
                       {totalPages > 5 && (
                         <button
                           type="button"
@@ -379,7 +352,7 @@ export function ShopPage({
                       size="sm"
                       disabled={currentPage >= totalPages}
                       onClick={() => goToPage(currentPage + 1)}
-                      className="rounded-xl text-xs font-bold gap-1 px-2.5 sm:px-3"
+                      className="rounded-xl text-xs font-bold gap-1 px-3 border-border"
                     >
                       <span className="hidden sm:inline">Suivant</span> <ChevronRight size={14} />
                     </Button>
@@ -391,15 +364,15 @@ export function ShopPage({
                 <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-soft-nude text-ink-muted mb-4">
                   <ShoppingBag size={28} />
                 </div>
-                <h2 className="font-serif text-2xl font-bold text-ink">Aucun soin ne correspond à vos critères</h2>
-                <p className="mx-auto mt-2 max-w-md text-xs leading-6 text-ink-muted">
+                <h2 className="font-serif text-xl sm:text-2xl font-bold text-ink">Aucun soin ne correspond à vos critères</h2>
+                <p className="mx-auto mt-2 max-w-md text-xs sm:text-sm leading-6 text-ink-muted">
                   {query ? (
                     <span>Aucun résultat trouvé pour « {query} ». Essayez d&apos;autres mots-clés.</span>
                   ) : (
                     "Essayez d'élargir votre recherche ou de supprimer quelques filtres pour découvrir notre sélection."
                   )}
                 </p>
-                <Button size="lg" className="mt-6 rounded-xl font-bold" onClick={clearAllFilters}>
+                <Button size="lg" className="mt-6 rounded-xl font-bold bg-primary text-white" onClick={clearAllFilters}>
                   Effacer tous les filtres
                 </Button>
               </div>
@@ -408,16 +381,16 @@ export function ShopPage({
         </div>
 
         {/* ── 3. BOTTOM FAQ & SEO BANNER ─────────────────────────────────── */}
-        <section className="mt-16 rounded-3xl border border-border/80 bg-[#FAF1EE] p-6 sm:p-10 lg:p-12">
+        <section className="mt-14 rounded-3xl border border-border/80 bg-[#FAF1EE] p-6 sm:p-10 lg:p-12">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
             {/* Left SEO Column */}
             <div>
-              <h3 className="font-serif text-2xl font-bold text-ink">Votre parapharmacie en ligne en Tunisie</h3>
-              <p className="mt-3 text-xs leading-6 text-ink-muted">
+              <h3 className="font-serif text-xl sm:text-2xl font-bold text-ink">Votre parapharmacie en ligne en Tunisie</h3>
+              <p className="mt-3 text-xs sm:text-sm leading-6 text-ink-muted">
                 ParaTunisie est votre destination beauté et bien-être de confiance. Nous sélectionnons pour vous des produits de <strong>parapharmacie authentiques</strong> au meilleur prix, livrés rapidement partout en Tunisie.
               </p>
-              <p className="mt-2 text-xs leading-6 text-ink-muted">
-                Soins visage, corps, cheveux, hygiène, solaire, bébé ou compléments : retrouvez toutes vos marques préférées et profitez d&apos;une expérience d&apos;achat simple, sécurisée et agréable.
+              <p className="mt-2 text-xs sm:text-sm leading-6 text-ink-muted">
+                Soins visage, corps, cheveux, hygiène, solaire, bébé ou compléments : retrouvez toutes vos marques préférées et profitez d&apos;une expérience d&apos;achat simple et agréable.
               </p>
 
               {/* Tag Pills */}
@@ -432,7 +405,7 @@ export function ShopPage({
 
             {/* Right Accordion FAQ Column */}
             <div>
-              <h3 className="font-serif text-2xl font-bold text-ink mb-4">Questions fréquentes</h3>
+              <h3 className="font-serif text-xl sm:text-2xl font-bold text-ink mb-4">Questions fréquentes</h3>
               <div className="space-y-2">
                 {FAQ_ITEMS.map((faq, idx) => {
                   const isOpen = openFaq === idx;
@@ -441,13 +414,13 @@ export function ShopPage({
                       <button
                         type="button"
                         onClick={() => setOpenFaq(isOpen ? null : idx)}
-                        className="w-full flex items-center justify-between p-3.5 text-xs font-bold text-ink text-left"
+                        className="w-full flex items-center justify-between p-3.5 text-xs sm:text-sm font-bold text-ink text-left"
                       >
                         <span>{faq.q}</span>
                         <ChevronDown size={14} className={`text-ink-muted transition-transform ${isOpen ? "rotate-180" : ""}`} />
                       </button>
                       {isOpen && (
-                        <div className="px-3.5 pb-3.5 text-xs leading-5 text-ink-muted border-t border-border/40 pt-2">
+                        <div className="px-3.5 pb-3.5 text-xs sm:text-sm leading-5 text-ink-muted border-t border-border/40 pt-2">
                           {faq.a}
                         </div>
                       )}
@@ -460,22 +433,26 @@ export function ShopPage({
         </section>
       </main>
 
-      {/* Mobile Sticky Action Controls */}
-      <div className="fixed inset-x-0 bottom-0 z-30 flex items-center justify-between border-t border-border bg-white/95 p-3 backdrop-blur-md lg:hidden shadow-2xl">
+      {/* Floating Filter Button on Mobile (Positioned comfortably above bottom navigation bar) */}
+      <div className="fixed bottom-[calc(4.25rem+env(safe-area-inset-bottom))] end-4 z-30 lg:hidden">
         <Button
-          variant="outline"
           size="lg"
-          className="flex-1 font-bold rounded-xl gap-2 shadow-xs border-border"
+          className="rounded-full font-bold shadow-lg bg-primary text-white gap-2 px-5 py-3 border border-white/20"
           onClick={() => setFilterOpen(true)}
         >
-          <SlidersHorizontal size={16} className="text-primary" />
-          Filtres {activeCount > 0 && <span className="rounded-full bg-primary px-2 py-0.5 text-xs text-white">{activeCount}</span>}
+          <SlidersHorizontal size={16} />
+          <span>Filtrer</span>
+          {activeCount > 0 && (
+            <span className="rounded-full bg-white text-primary px-2 py-0.5 text-xs font-extrabold">
+              {activeCount}
+            </span>
+          )}
         </Button>
       </div>
 
       {/* Mobile Filter Sheet */}
       <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
-        <SheetContent side="bottom" className="max-h-[90dvh] rounded-t-3xl p-0">
+        <SheetContent side="bottom" className="max-h-[88dvh] rounded-t-3xl p-0">
           <SheetHeader className="border-b border-border px-5 py-4 pe-14">
             <SheetTitle className="text-lg font-serif font-bold text-ink flex items-center gap-2">
               <SlidersHorizontal size={18} className="text-primary" />
@@ -486,12 +463,12 @@ export function ShopPage({
             </SheetDescription>
           </SheetHeader>
           <div className="overflow-y-auto px-5 py-4 pb-28">{controls}</div>
-          <div className="absolute inset-x-0 bottom-0 flex gap-3 border-t border-border bg-white p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-lg">
+          <div className="absolute inset-x-0 bottom-0 flex gap-3 border-t border-border bg-white p-4 shadow-lg">
             <Button variant="outline" size="lg" className="flex-1 rounded-xl font-bold" onClick={clearAllFilters}>
               Effacer tout
             </Button>
             <Button size="lg" className="flex-2 rounded-xl font-bold bg-primary text-white" onClick={() => setFilterOpen(false)}>
-              Voir {totalProductsCount.toLocaleString("fr-FR")} produits
+              Afficher {totalProductsCount.toLocaleString("fr-FR")} produits
             </Button>
           </div>
         </SheetContent>
@@ -499,3 +476,4 @@ export function ShopPage({
     </div>
   );
 }
+

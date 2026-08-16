@@ -4,9 +4,10 @@ export function Logo({ className }: { className?: string }) {
       <img
         src="/assets/logo.png"
         alt="ParaTunisie"
-        className="h-32 w-auto rounded-[1.25rem] object-contain logo-bounce"
+        className="h-9 sm:h-11 w-auto rounded-lg object-contain"
       />
       <span className="sr-only">ParaTunisie</span>
     </span>
   );
 }
+

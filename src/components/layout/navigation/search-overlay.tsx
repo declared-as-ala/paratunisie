@@ -19,18 +19,19 @@ function normalize(value: string) {
   return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
-export function SearchOverlay() {
+export function SearchOverlay({
+  variant = "full",
+  className = "",
+}: {
+  variant?: "full" | "compact" | "icon";
+  className?: string;
+}) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const router = useRouter();
   const [value, setValue] = useState("");
   const [recent, setRecent] = useState<string[]>([]);
 
-  // Real catalogue data — the autocomplete previously filtered a 16-item
-  // hardcoded mock array, so most real products (out of ~9,700) silently
-  // showed "no results" here even though the same query worked fine on
-  // /shop, which queries the real API. Brands loaded once (827 real rows,
-  // trivial to filter client-side); products are searched live per query
-  // since the catalogue is far too large to hold client-side.
+  // Real catalogue data — fetched live per query
   const [liveProducts, setLiveProducts] = useState<ProductSummary[]>([]);
   const [isSearchingProducts, setIsSearchingProducts] = useState(false);
   const [allBrands, setAllBrands] = useState<{ name: string; slug: string }[]>([]);
@@ -48,10 +49,10 @@ export function SearchOverlay() {
     }
     setIsSearchingProducts(true);
     const timeout = setTimeout(async () => {
-      const res = await fetchPaginatedProducts({ search: query, limit: 4 });
+      const res = await fetchPaginatedProducts({ search: query, limit: 5 });
       setLiveProducts(res.products);
       setIsSearchingProducts(false);
-    }, 300);
+    }, 250);
     return () => clearTimeout(timeout);
   }, [value]);
 
@@ -70,11 +71,11 @@ export function SearchOverlay() {
 
     const matchedBrands = allBrands
       .filter((b) => normalize(b.name).includes(query))
-      .slice(0, 3);
+      .slice(0, 4);
 
     const matchedCategories = productCategories
       .filter((c) => normalize(c).includes(query))
-      .slice(0, 3);
+      .slice(0, 4);
 
     const concernsMap: Record<string, string> = {
       acne: "Imperfections & Acné",
@@ -106,7 +107,7 @@ export function SearchOverlay() {
 
   function openSearch() {
     try {
-      setRecent(JSON.parse(localStorage.getItem(RECENT_SEARCHES_KEY) ?? "[]").slice(0, 4));
+      setRecent(JSON.parse(localStorage.getItem(RECENT_SEARCHES_KEY) ?? "[]").slice(0, 5));
     } catch {
       setRecent([]);
     }
@@ -114,7 +115,7 @@ export function SearchOverlay() {
   }
 
   function remember(term: string) {
-    const next = [term, ...recent.filter((item) => item !== term)].slice(0, 4);
+    const next = [term, ...recent.filter((item) => item !== term)].slice(0, 5);
     setRecent(next);
     localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(next));
   }
@@ -144,73 +145,93 @@ export function SearchOverlay() {
 
   return (
     <>
-      {/* Full-Width Header Search Trigger Bar */}
-      <button
-        type="button"
-        onClick={openSearch}
-        className="group flex w-full min-w-0 items-center gap-2.5 rounded-2xl border border-border bg-soft-nude/40 px-4 py-3 text-left text-sm font-medium text-ink-muted transition-all hover:border-primary/50 hover:bg-white hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50"
-      >
-        <Search className="size-5 shrink-0 text-primary transition-transform group-hover:scale-110" aria-hidden />
-        <span className="truncate text-xs sm:text-sm">Rechercher un produit, une marque, un besoin…</span>
-        <span className="ml-auto hidden shrink-0 rounded-full border border-border bg-white px-2.5 py-1 text-[0.625rem] font-bold text-ink-faint lg:inline-block">
-          Rechercher
-        </span>
-      </button>
+      {/* Trigger Button based on Variant */}
+      {variant === "icon" ? (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-lg"
+          aria-label="Rechercher un produit"
+          onClick={openSearch}
+          className={`text-ink hover:text-primary ${className}`}
+        >
+          <Search size={20} />
+        </Button>
+      ) : variant === "compact" ? (
+        <button
+          type="button"
+          onClick={openSearch}
+          className={`group flex h-10 min-w-0 flex-1 items-center gap-2 rounded-full border border-border/80 bg-soft-nude/50 px-3.5 text-left text-xs text-ink-muted transition-all hover:border-primary/40 hover:bg-white hover:shadow-2xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${className}`}
+        >
+          <Search className="size-4 shrink-0 text-primary transition-transform group-hover:scale-110" aria-hidden />
+          <span className="truncate">Rechercher un soin, marque, besoin…</span>
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={openSearch}
+          className={`group flex w-full min-w-0 items-center gap-2.5 rounded-2xl border border-border bg-soft-nude/40 px-4 py-2.5 text-left text-sm font-medium text-ink-muted transition-all hover:border-primary/50 hover:bg-white hover:shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50 ${className}`}
+        >
+          <Search className="size-4.5 shrink-0 text-primary transition-transform group-hover:scale-110" aria-hidden />
+          <span className="truncate text-xs sm:text-sm">Rechercher un produit, une marque, un besoin…</span>
+          <span className="ml-auto hidden shrink-0 rounded-full border border-border bg-white px-2.5 py-0.5 text-[0.625rem] font-bold text-ink-faint lg:inline-block">
+            Rechercher
+          </span>
+        </button>
+      )}
 
       {/* Search Autocomplete Dialog Modal */}
       <dialog
         ref={dialogRef}
-        className="top-0 m-0 h-dvh max-h-none w-full max-w-none bg-transparent p-0 backdrop:bg-ink/40 backdrop:backdrop-blur-[2px] open:animate-in open:fade-in open:duration-[var(--duration-micro)]"
+        className="fixed inset-0 z-50 m-0 h-dvh max-h-none w-full max-w-none bg-transparent p-0 backdrop:bg-ink/40 backdrop:backdrop-blur-xs open:animate-in open:fade-in open:duration-150"
         onClick={(event) => {
           if (event.target === dialogRef.current) dialogRef.current?.close();
         }}
         onClose={() => setValue("")}
         aria-label="Rechercher un produit"
       >
-        <div className="mx-auto max-h-[88dvh] w-full max-w-3xl overflow-y-auto bg-surface-alt px-4 pt-6 pb-8 shadow-xl sm:rounded-b-2xl sm:px-8 sm:pt-8">
+        <div className="mx-auto mt-4 max-h-[85dvh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-border/80 bg-white p-5 shadow-2xl sm:mt-12 sm:p-7">
           <form onSubmit={submit} role="search">
             <label htmlFor="global-search" className="sr-only">
               Rechercher un produit, une marque ou un besoin
             </label>
-            <div className="flex items-center gap-2 border-b border-border pb-3">
+            <div className="flex items-center gap-2.5 border-b border-border/80 pb-3">
               <Search className="size-5 shrink-0 text-primary" aria-hidden />
               <Input
                 id="global-search"
                 autoFocus
                 value={value}
                 onChange={(event) => setValue(event.target.value)}
-                placeholder="Ex: CeraVe, SPF50, Peau sèche, Routine…"
+                placeholder="Ex: CeraVe, SPF50, Acné, Sérum..."
                 autoComplete="off"
-                className="h-11 flex-1 border-none bg-transparent text-base shadow-none focus-visible:ring-0"
+                className="h-10 flex-1 border-none bg-transparent text-sm sm:text-base font-medium shadow-none focus-visible:ring-0 placeholder:text-ink-muted/60"
               />
               {value && (
-                <Button
+                <button
                   type="button"
-                  variant="ghost"
-                  size="icon-lg"
                   aria-label="Effacer la recherche"
                   onClick={() => setValue("")}
+                  className="p-1.5 text-ink-muted hover:text-ink transition-colors"
                 >
-                  <X />
-                </Button>
+                  <X className="size-4" />
+                </button>
               )}
               <Button
                 type="submit"
-                size="lg"
+                size="sm"
                 disabled={!value.trim()}
-                className="hidden sm:inline-flex rounded-xl"
+                className="hidden sm:inline-flex rounded-xl font-bold bg-primary text-white text-xs px-4"
               >
                 Rechercher
               </Button>
-              <Button
+              <button
                 type="button"
-                variant="ghost"
-                size="icon-lg"
                 aria-label="Fermer la recherche"
                 onClick={() => dialogRef.current?.close()}
+                className="p-1.5 text-ink-muted hover:text-ink transition-colors"
               >
-                <X />
-              </Button>
+                <X className="size-5" />
+              </button>
             </div>
           </form>
 
