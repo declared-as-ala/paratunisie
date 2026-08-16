@@ -3,14 +3,9 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 
 import { BrandProducts } from "@/components/marques/brand-products";
-import { brands, getBrandBySlug } from "@/lib/data/brands";
-import { fetchProducts } from "@/lib/api/client";
+import { fetchBrandBySlug, fetchProducts } from "@/lib/api/client";
 
 const SITE_URL = "https://paratunisie.com";
-
-export function generateStaticParams() {
-  return brands.map((brand) => ({ slug: brand.slug }));
-}
 
 export async function generateMetadata({
   params,
@@ -18,24 +13,34 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const brand = getBrandBySlug(slug);
+  const brand = await fetchBrandBySlug(slug);
   if (!brand) return {};
 
-  const title = `${brand.name} — ParaTunisie`;
+  // Admin SEO overrides take priority — same pattern as the product page,
+  // and the same bug: these fields already existed on the Brand model and
+  // in the admin editor, but no public page ever read them back.
+  const title = brand.seoTitle || `${brand.name} Tunisie — Produits authentiques | ParaTunisie`;
+  const description =
+    brand.seoDescription ||
+    brand.shortDescription ||
+    brand.description ||
+    `Découvrez tous les produits ${brand.name} disponibles en Tunisie sur ParaTunisie : prix, disponibilité et livraison partout dans le pays.`;
+
   return {
     title,
-    description: brand.description,
-    alternates: { canonical: `/marques/${brand.slug}` },
+    description,
+    alternates: { canonical: brand.canonicalUrl || `/marques/${brand.slug}` },
+    robots: brand.indexable === false ? { index: false, follow: true } : undefined,
     openGraph: {
       type: "website",
       title,
-      description: brand.description,
+      description,
       url: `/marques/${brand.slug}`,
     },
     twitter: {
       card: "summary_large_image",
       title,
-      description: brand.description,
+      description,
     },
   };
 }
@@ -46,10 +51,9 @@ export default async function BrandPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const brand = getBrandBySlug(slug);
+  const brand = await fetchBrandBySlug(slug);
   if (!brand) notFound();
 
-  /* Fetch brand products from the API */
   const brandProducts = await fetchProducts({ brand: brand.slug });
 
   const breadcrumbJsonLd = {
@@ -61,6 +65,11 @@ export default async function BrandPage({
       { "@type": "ListItem", position: 3, name: brand.name, item: `${SITE_URL}/marques/${brand.slug}` },
     ],
   };
+
+  const introText =
+    brand.description ||
+    brand.shortDescription ||
+    `Découvrez la sélection ${brand.name} disponible en Tunisie : produits authentiques, prix et livraison partout dans le pays.`;
 
   return (
     <>
@@ -80,14 +89,16 @@ export default async function BrandPage({
         </nav>
 
         <header>
-          <p className="text-xs font-semibold tracking-[0.14em] text-primary uppercase sm:text-sm">
-            {brand.tagline}
-          </p>
+          {brand.tagline && (
+            <p className="text-xs font-semibold tracking-[0.14em] text-primary uppercase sm:text-sm">
+              {brand.tagline}
+            </p>
+          )}
           <h1 className="mt-2 font-serif text-3xl font-medium tracking-tight text-ink sm:text-4xl lg:text-5xl">
             {brand.name}
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ink-muted sm:text-base">
-            {brand.description}
+            {introText}
           </p>
         </header>
 

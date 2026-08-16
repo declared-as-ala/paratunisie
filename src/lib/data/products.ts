@@ -27,6 +27,15 @@ export type ProductSummary = {
    * value for consistency but aren't used to build a face AM/PM routine.
    */
   routineTime: ("AM" | "PM")[];
+  /** Real aggregate stock across variants — drives Product schema `availability`, never hardcoded.
+   * Optional so the local mock catalogue (dev/offline fallback only) doesn't need every entry
+   * updated; API-backed products always set it via transformProduct(). */
+  inStock?: boolean;
+  /** Admin-set overrides (SEO editor) — take priority over auto-generated metadata when present. */
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  canonicalUrl?: string | null;
+  indexable?: boolean;
 };
 
 const productImages = {

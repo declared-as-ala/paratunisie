@@ -30,24 +30,29 @@ export async function generateMetadata({
   const product = await fetchProductBySlug(slug);
   if (!product) return {};
 
-  const title = `${product.name} — ${product.brand}`;
+  // Admin SEO overrides (product-drawer's SEO editor) take priority over the
+  // auto-generated fallback — this is the only thing that made setting them
+  // in admin actually do anything on the live page.
+  const title = product.seoTitle || `${product.name} — ${product.brand}`;
+  const description = product.seoDescription || product.description;
   const fullImgUrl = absoluteImageUrl(product.image);
 
   return {
     title,
-    description: product.description,
-    alternates: { canonical: `/produits/${product.slug}` },
+    description,
+    alternates: { canonical: product.canonicalUrl || `/produits/${product.slug}` },
+    robots: product.indexable === false ? { index: false, follow: true } : undefined,
     openGraph: {
       type: "website",
       title,
-      description: product.description,
+      description,
       url: `/produits/${product.slug}`,
       images: [{ url: fullImgUrl, width: 1200, height: 1500, alt: `${product.name} de ${product.brand}` }],
     },
     twitter: {
       card: "summary_large_image",
       title,
-      description: product.description,
+      description,
       images: [fullImgUrl],
     },
   };
@@ -87,7 +92,7 @@ export default async function ProductPage({
       url: `${SITE_URL}/produits/${product.slug}`,
       priceCurrency: "TND",
       price: (product.priceMillimes / 1000).toFixed(3),
-      availability: "https://schema.org/InStock",
+      availability: product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       itemCondition: "https://schema.org/NewCondition",
     },
     ...(rating.count > 0 ? {

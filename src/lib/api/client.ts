@@ -65,6 +65,10 @@ export type RawProduct = {
   category: RawCategory;
   variants: RawVariant[];
   concerns?: RawConcern[];
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  canonicalUrl?: string | null;
+  indexable?: boolean;
 };
 
 /* ─── Transform: Prisma → ProductSummary ────────────────────────────── */
@@ -90,6 +94,11 @@ function transformProduct(raw: RawProduct): ProductSummary {
     usage: raw.usage || "",
     sizes,
     routineTime: parseJsonStringArray(raw.routineTime) as ("AM" | "PM")[],
+    inStock: (raw.variants || []).reduce((sum, v) => sum + (v.stock || 0), 0) > 0,
+    seoTitle: raw.seoTitle ?? null,
+    seoDescription: raw.seoDescription ?? null,
+    canonicalUrl: raw.canonicalUrl ?? null,
+    indexable: raw.indexable !== false,
   };
 }
 
@@ -334,7 +343,19 @@ export async function fetchBrands(): Promise<{ name: string; slug: string }[]> {
   return brandSet.map((name) => ({ name, slug: name.toLowerCase().replace(/\s+/g, "-") }));
 }
 
-export async function fetchBrandBySlug(slug: string): Promise<{ name: string; slug: string; tagline?: string; description?: string } | null> {
+export type BrandDetail = {
+  name: string;
+  slug: string;
+  tagline?: string | null;
+  shortDescription?: string | null;
+  description?: string | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  canonicalUrl?: string | null;
+  indexable?: boolean;
+};
+
+export async function fetchBrandBySlug(slug: string): Promise<BrandDetail | null> {
   return apiFetch(`/catalogue/brands/${slug}`);
 }
 

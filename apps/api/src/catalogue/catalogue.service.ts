@@ -531,4 +531,22 @@ export class CatalogueService {
       include: { brand: true, category: true, variants: true, images: true },
     });
   }
+
+  /** Minimal slug + lastmod projection for sitemap.xml — see controller comment. */
+  async getSitemapData() {
+    const [products, brands, categories] = await Promise.all([
+      this.prisma.product.findMany({
+        where: { publishState: "PUBLISHED" },
+        select: { slug: true, updatedAt: true },
+      }),
+      this.prisma.brand.findMany({
+        where: { status: "ACTIVE" },
+        select: { slug: true },
+      }),
+      this.prisma.category.findMany({
+        select: { slug: true },
+      }),
+    ]);
+    return { products, brands, categories };
+  }
 }

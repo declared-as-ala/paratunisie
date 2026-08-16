@@ -119,4 +119,13 @@ export class CatalogueController {
   async getConcerns() {
     return this.catalogueService.findAllConcerns();
   }
+
+  // Lean, unpaginated projection for the storefront's sitemap.xml generator —
+  // deliberately not the same endpoint as GET /products (which is paginated
+  // and returns full product payloads); pulling ~9,700 rows through that
+  // would mean ~100 round-trips just to list slugs.
+  @Get("sitemap-data")
+  async getSitemapData() {
+    return this.catalogueService.getSitemapData();
+  }
 }
