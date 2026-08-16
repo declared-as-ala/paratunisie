@@ -19,7 +19,7 @@ export async function generateMetadata({
   // Admin SEO overrides take priority — same pattern as the product page,
   // and the same bug: these fields already existed on the Brand model and
   // in the admin editor, but no public page ever read them back.
-  const title = brand.seoTitle || `${brand.name} Tunisie — Produits authentiques | ParaTunisie`;
+  const title = brand.seoTitle || `${brand.name} Tunisie — Produits authentiques`;
   const description =
     brand.seoDescription ||
     brand.shortDescription ||
