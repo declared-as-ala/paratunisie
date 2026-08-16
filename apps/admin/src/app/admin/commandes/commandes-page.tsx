@@ -298,6 +298,7 @@ function CommandesInner() {
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [catalogProducts, setCatalogProducts] = useState<CatalogProduct[]>([]);
   const [productSearchQuery, setProductSearchQuery] = useState("");
+  const [productSearchLoading, setProductSearchLoading] = useState(false);
 
   const [activeTab, setActiveTab] = useState<"NORMAL" | "ABANDONNEES" | "SUPPRIMEES">("NORMAL");
   const [search, setSearch] = useState("");
@@ -380,112 +381,36 @@ function CommandesInner() {
     fetchOrders();
   }, [ordersRefreshKey]);
 
-  // 2. Fetch Catalog Products from NestJS API for interactive search in drawer.
-  // /catalogue/products returns a paginated envelope ({ data, meta }), not a
-  // bare array — checking Array.isArray(data) here was always false, so this
-  // silently fell through to the 5 hardcoded mock products on every load
-  // regardless of whether the real fetch succeeded (D-0035).
+  // 2. Real-time catalog search for the drawer's product picker — same
+  // Meilisearch-backed search the storefront uses (via /catalogue/products'
+  // `search` param), not a client-side filter over one fixed batch. A fixed
+  // batch (even a large one) can never cover the full ~9,700-product catalog,
+  // so admins searching for something outside that batch always got "no
+  // results" for products that genuinely exist (D-0036). Debounced like the
+  // storefront's own search-as-you-type.
   useEffect(() => {
-    async function fetchProducts() {
+    let cancelled = false;
+    setProductSearchLoading(true);
+    const timeout = setTimeout(async () => {
       try {
-        const res = await apiClient.get<{ data: typeof catalogProducts }>("/catalogue/products?limit=500");
-        if (Array.isArray(res?.data) && res.data.length > 0) {
-          setCatalogProducts(res.data);
-          return;
-        }
+        const q = productSearchQuery.trim();
+        const url = q
+          ? `/catalogue/products?search=${encodeURIComponent(q)}&limit=50`
+          : "/catalogue/products?limit=50";
+        const res = await apiClient.get<{ data: CatalogProduct[] }>(url);
+        if (!cancelled) setCatalogProducts(Array.isArray(res?.data) ? res.data : []);
       } catch (err) {
-        console.warn("Could not fetch catalog products from NestJS API", err);
+        console.warn("Could not search catalog products from NestJS API", err);
+        if (!cancelled) setCatalogProducts([]);
+      } finally {
+        if (!cancelled) setProductSearchLoading(false);
       }
-      // Fallback Catalog Products matching client side products with images
-      setCatalogProducts([
-        {
-          id: "p01",
-          name: "Anthelios Fluide Invisible SPF50+",
-          brand: { name: "La Roche-Posay" },
-          image: "/assets/product-tube.webp",
-          variants: [{ id: "v01", label: "50 ml", priceMillimes: 58900 }],
-        },
-        {
-          id: "p02",
-          name: "Sensibio H2O 500ml",
-          brand: { name: "Bioderma" },
-          image: "/assets/product-micellar.webp",
-          variants: [{ id: "v02", label: "500 ml", priceMillimes: 36900 }],
-        },
-        {
-          id: "p03",
-          name: "Crème Hydratante Visage CeraVe",
-          brand: { name: "CeraVe" },
-          image: "/assets/product-jar.webp",
-          variants: [{ id: "v03", label: "52 ml", priceMillimes: 42500 }],
-        },
-        {
-          id: "p04",
-          name: "Liftactiv Sérum Vitamine C Vichy",
-          brand: { name: "Vichy" },
-          image: "/assets/product-serum.webp",
-          variants: [{ id: "v04", label: "20 ml", priceMillimes: 91000 }],
-        },
-        {
-          id: "p05",
-          name: "Cleanance Gel Nettoyant Avène",
-          brand: { name: "Avène" },
-          image: "/assets/product-micellar.webp",
-          variants: [{ id: "v05", label: "200 ml", priceMillimes: 39500 }],
-        },
-        {
-          id: "p06",
-          name: "Eau Thermale Gel-Crème",
-          brand: { name: "Uriage" },
-          image: "/assets/product-jar.webp",
-          variants: [{ id: "v06", label: "40 ml", priceMillimes: 48900 }],
-        },
-        {
-          id: "p07",
-          name: "Sebiaclear Sérum SVR",
-          brand: { name: "SVR" },
-          image: "/assets/product-serum.webp",
-          variants: [{ id: "v07", label: "30 ml", priceMillimes: 64900 }],
-        },
-        {
-          id: "p08",
-          name: "Huile Prodigieuse Nuxe",
-          brand: { name: "Nuxe" },
-          image: "/assets/product-serum.webp",
-          variants: [{ id: "v08", label: "100 ml", priceMillimes: 79500 }],
-        },
-        {
-          id: "p09",
-          name: "DermoPure Fluide Matifiant Eucerin",
-          brand: { name: "Eucerin" },
-          image: "/assets/product-tube.webp",
-          variants: [{ id: "v09", label: "50 ml", priceMillimes: 55900 }],
-        },
-        {
-          id: "p10",
-          name: "Anaphase+ Shampooing Ducray",
-          brand: { name: "Ducray" },
-          image: "/assets/product-tube.webp",
-          variants: [{ id: "v10", label: "200 ml", priceMillimes: 46500 }],
-        },
-        {
-          id: "p11",
-          name: "Atoderm Gel Douche Bioderma",
-          brand: { name: "Bioderma" },
-          image: "/assets/product-micellar.webp",
-          variants: [{ id: "v11", label: "500 ml", priceMillimes: 44900 }],
-        },
-        {
-          id: "p12",
-          name: "Cicaplast Baume B5+ La Roche-Posay",
-          brand: { name: "La Roche-Posay" },
-          image: "/assets/product-tube.webp",
-          variants: [{ id: "v12", label: "40 ml", priceMillimes: 34900 }],
-        },
-      ]);
-    }
-    fetchProducts();
-  }, []);
+    }, 300);
+    return () => {
+      cancelled = true;
+      clearTimeout(timeout);
+    };
+  }, [productSearchQuery]);
 
   // Direct component state for immediate drawer reactivity
   const [activeDrawer, setActiveDrawer] = useState<{ mode: "edit" | "view"; orderId: string } | null>(() => {
@@ -654,17 +579,6 @@ function CommandesInner() {
       toast("error", error instanceof ApiError ? error.message : "Impossible de supprimer la commande");
     }
   }, [deleteTarget, toast]);
-
-  // Filtered Products search inside Drawer
-  const searchedProducts = useMemo(() => {
-    if (!productSearchQuery.trim()) return catalogProducts;
-    const q = productSearchQuery.toLowerCase();
-    return catalogProducts.filter(
-      (p) =>
-        p.name.toLowerCase().includes(q) ||
-        (p.brand?.name && p.brand.name.toLowerCase().includes(q))
-    );
-  }, [catalogProducts, productSearchQuery]);
 
   // Add Product to Current Order
   const handleAddProductToOrder = useCallback(
@@ -1336,12 +1250,16 @@ function CommandesInner() {
 
                 {/* Search Results Dropdown List */}
                 <div className="rounded-xl border border-slate-200 bg-white shadow-xs overflow-hidden max-h-60 overflow-y-auto divide-y divide-slate-100">
-                  {searchedProducts.length === 0 ? (
+                  {productSearchLoading ? (
+                    <div className="p-3 text-xs text-slate-500 font-medium text-center">
+                      Recherche en cours…
+                    </div>
+                  ) : catalogProducts.length === 0 ? (
                     <div className="p-3 text-xs text-slate-500 font-medium text-center">
                       Aucun produit trouvé
                     </div>
                   ) : (
-                    searchedProducts.map((product) => {
+                    catalogProducts.map((product) => {
                       const price = product.variants?.[0]?.priceMillimes
                         ? Math.round(product.variants[0].priceMillimes / 1000)
                         : 35;
