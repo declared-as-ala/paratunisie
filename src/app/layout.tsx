@@ -28,6 +28,9 @@ export const metadata: Metadata = {
   description:
     "Parapharmacie en ligne premium en Tunisie : soins visage, cheveux, solaire et bébé, conseils d'experts et livraison partout en Tunisie.",
   alternates: { canonical: "/" },
+  verification: {
+    google: "6Rz8hRY9p1DAcNo9GsEkcKkZxxTY0pFEu4iuHN7mZQM",
+  },
   openGraph: {
     type: "website",
     locale: "fr_TN",
