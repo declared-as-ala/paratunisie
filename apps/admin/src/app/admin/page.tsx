@@ -110,7 +110,7 @@ const ALERT_STYLE: Record<string, { bg: string; iconBg: string; iconColor: strin
 /* ─── Main Component ───────────────────────────────────────────────────── */
 
 export default function AdminDashboard() {
-  const [timeRange, setTimeRange] = useState<DashboardPeriod>("today");
+  const [timeRange, setTimeRange] = useState<DashboardPeriod>("30d");
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [overview, setOverview] = useState<DashboardOverview | null>(null);
   const [recentOrders, setRecentOrders] = useState<RecentOrderRow[]>([]);
@@ -193,6 +193,25 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6 pb-8">
+      {/* Explicit Error State Banner */}
+      {loadError && (
+        <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-rose-700 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <AlertTriangle size={18} className="shrink-0 text-rose-600" />
+            <div>
+              <p className="text-xs font-bold">Erreur de chargement du tableau de bord</p>
+              <p className="text-xs">{loadError}</p>
+            </div>
+          </div>
+          <button
+            onClick={() => loadData(timeRange)}
+            className="rounded-lg bg-rose-600 text-white px-3 py-1.5 text-xs font-semibold hover:bg-rose-700 transition-colors"
+          >
+            Réessayer
+          </button>
+        </div>
+      )}
+
       {/* Top Header & Actions */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>

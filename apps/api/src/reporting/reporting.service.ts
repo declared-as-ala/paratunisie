@@ -19,24 +19,46 @@ const SHIPPED_OR_BEYOND: OrderStatus[] = [
   OrderStatus.ECHEC_LIVRAISON,
   OrderStatus.RETOURNEE,
 ];
-const REVENUE_EXCLUDED: OrderStatus[] = [OrderStatus.ANNULEE, OrderStatus.REFUSEE];
+const REVENUE_EXCLUDED: OrderStatus[] = [
+  OrderStatus.ANNULEE,
+  OrderStatus.REFUSEE,
+  OrderStatus.RETOURNEE,
+];
 
 function periodStart(period: DashboardPeriod): Date {
   const now = new Date();
+  // Tunisia timezone is UTC+1 (Africa/Tunis)
+  const tunisNow = new Date(now.getTime() + 60 * 60 * 1000);
   switch (period) {
     case "today": {
-      const start = new Date(now);
-      start.setHours(0, 0, 0, 0);
-      return start;
+      const startTunis = new Date(tunisNow);
+      startTunis.setUTCHours(0, 0, 0, 0);
+      return new Date(startTunis.getTime() - 60 * 60 * 1000);
     }
-    case "7d":
-      return new Date(now.getTime() - 1000 * 60 * 60 * 24 * 7);
-    case "30d":
-      return new Date(now.getTime() - 1000 * 60 * 60 * 24 * 30);
-    case "3mo":
-      return new Date(now.getTime() - 1000 * 60 * 60 * 24 * 90);
-    case "12mo":
-      return new Date(now.getTime() - 1000 * 60 * 60 * 24 * 365);
+    case "7d": {
+      const startTunis = new Date(tunisNow);
+      startTunis.setUTCHours(0, 0, 0, 0);
+      startTunis.setUTCDate(startTunis.getUTCDate() - 6);
+      return new Date(startTunis.getTime() - 60 * 60 * 1000);
+    }
+    case "30d": {
+      const startTunis = new Date(tunisNow);
+      startTunis.setUTCHours(0, 0, 0, 0);
+      startTunis.setUTCDate(startTunis.getUTCDate() - 29);
+      return new Date(startTunis.getTime() - 60 * 60 * 1000);
+    }
+    case "3mo": {
+      const startTunis = new Date(tunisNow);
+      startTunis.setUTCHours(0, 0, 0, 0);
+      startTunis.setUTCDate(startTunis.getUTCDate() - 89);
+      return new Date(startTunis.getTime() - 60 * 60 * 1000);
+    }
+    case "12mo": {
+      const startTunis = new Date(tunisNow);
+      startTunis.setUTCHours(0, 0, 0, 0);
+      startTunis.setUTCDate(startTunis.getUTCDate() - 364);
+      return new Date(startTunis.getTime() - 60 * 60 * 1000);
+    }
   }
 }
 
@@ -68,10 +90,10 @@ export class ReportingService {
     const deliveredCount = statusCounts.LIVREE ?? 0;
     const tauxConfirmation = orderCount > 0 ? (confirmedCount / orderCount) * 100 : 0;
     const tauxLivraison = shippedCount > 0 ? (deliveredCount / shippedCount) * 100 : 0;
-    const tauxAnnulation = orderCount > 0 ? ((statusCounts.ANNULEE ?? 0) / orderCount) * 100 : 0;
-    const tauxRetour = orderCount > 0 ? ((statusCounts.RETOURNEE ?? 0) / orderCount) * 100 : 0;
+    const tauxAnnulation = orderCount > 0 ? (((statusCounts.ANNULEE ?? 0) + (statusCounts.REFUSEE ?? 0)) / orderCount) * 100 : 0;
+    const tauxRetour = orderCount > 0 ? (((statusCounts.RETOURNEE ?? 0) + (statusCounts.ECHEC_LIVRAISON ?? 0)) / orderCount) * 100 : 0;
 
-    const { margeBrute, marginCoverageItems, totalItems } = this.computeMargin(revenueOrders);
+    const { margeBrute, marginCoverageItems, totalItems } = await this.computeMargin(revenueOrders);
 
     return {
       period,
@@ -89,7 +111,7 @@ export class ReportingService {
       },
       statusCounts,
       funnel: this.buildFunnel(orderCount, confirmedCount, shippedCount, deliveredCount),
-      salesChart: this.buildDailySeries(revenueOrders),
+      salesChart: await this.buildDailySeries(revenueOrders, period, since),
       topProducts: await this.getTopProducts(revenueOrders),
       customerKpis: await this.getCustomerKpis(orders, since),
       alerts: await this.getAlerts(),
@@ -112,15 +134,28 @@ export class ReportingService {
     ];
   }
 
-  private computeMargin(orders: { items: { quantity: number; priceMillimes: number; unitCostMillimes: number | null }[] }[]) {
+  private async computeMargin(orders: { items: { productVariantId: string; quantity: number; priceMillimes: number; unitCostMillimes: number | null }[] }[]) {
     let margeBrute = 0;
     let marginCoverageItems = 0;
     let totalItems = 0;
+
+    const variantCostCache = new Map<string, number | null>();
+
     for (const order of orders) {
       for (const item of order.items) {
         totalItems += 1;
-        if (item.unitCostMillimes !== null) {
-          margeBrute += (item.priceMillimes - item.unitCostMillimes) * item.quantity;
+        let cost = item.unitCostMillimes;
+
+        if (cost === null && item.productVariantId) {
+          if (!variantCostCache.has(item.productVariantId)) {
+            const fallbackCost = await this.inventoryService.getWeightedAverageCost(item.productVariantId);
+            variantCostCache.set(item.productVariantId, fallbackCost);
+          }
+          cost = variantCostCache.get(item.productVariantId) ?? null;
+        }
+
+        if (cost !== null) {
+          margeBrute += (item.priceMillimes - cost) * item.quantity;
           marginCoverageItems += 1;
         }
       }
@@ -128,34 +163,72 @@ export class ReportingService {
     return { margeBrute, marginCoverageItems, totalItems };
   }
 
-  private buildDailySeries(orders: { createdAt: Date; totalMillimes: number; items: { quantity: number; priceMillimes: number; unitCostMillimes: number | null }[] }[]) {
+  private async buildDailySeries(
+    orders: { createdAt: Date; totalMillimes: number; items: { productVariantId: string; quantity: number; priceMillimes: number; unitCostMillimes: number | null }[] }[],
+    period: DashboardPeriod,
+    since: Date,
+  ) {
     const byDay = new Map<string, { caMillimes: number; margeMillimes: number; orderCount: number }>();
+    const variantCostCache = new Map<string, number | null>();
+
+    const now = new Date();
+    const curr = new Date(since);
+    while (curr <= now || curr.toISOString().slice(0, 10) === now.toISOString().slice(0, 10)) {
+      const key = curr.toISOString().slice(0, 10);
+      if (!byDay.has(key)) {
+        byDay.set(key, { caMillimes: 0, margeMillimes: 0, orderCount: 0 });
+      }
+      curr.setUTCDate(curr.getUTCDate() + 1);
+    }
+
     for (const order of orders) {
       const key = order.createdAt.toISOString().slice(0, 10);
       const entry = byDay.get(key) ?? { caMillimes: 0, margeMillimes: 0, orderCount: 0 };
       entry.caMillimes += order.totalMillimes;
       entry.orderCount += 1;
+
       for (const item of order.items) {
-        if (item.unitCostMillimes !== null) {
-          entry.margeMillimes += (item.priceMillimes - item.unitCostMillimes) * item.quantity;
+        let cost = item.unitCostMillimes;
+        if (cost === null && item.productVariantId) {
+          if (!variantCostCache.has(item.productVariantId)) {
+            const fallbackCost = await this.inventoryService.getWeightedAverageCost(item.productVariantId);
+            variantCostCache.set(item.productVariantId, fallbackCost);
+          }
+          cost = variantCostCache.get(item.productVariantId) ?? null;
+        }
+        if (cost !== null) {
+          entry.margeMillimes += (item.priceMillimes - cost) * item.quantity;
         }
       }
       byDay.set(key, entry);
     }
+
     return Array.from(byDay.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([date, values]) => ({ date, ...values }));
   }
 
-  private async getTopProducts(orders: { items: { productId: string; quantity: number; priceMillimes: number; unitCostMillimes: number | null }[] }[]) {
+  private async getTopProducts(orders: { items: { productId: string; productVariantId: string; quantity: number; priceMillimes: number; unitCostMillimes: number | null }[] }[]) {
     const byProduct = new Map<string, { units: number; revenueMillimes: number; margeMillimes: number; hasCost: boolean }>();
+    const variantCostCache = new Map<string, number | null>();
+
     for (const order of orders) {
       for (const item of order.items) {
         const entry = byProduct.get(item.productId) ?? { units: 0, revenueMillimes: 0, margeMillimes: 0, hasCost: false };
         entry.units += item.quantity;
         entry.revenueMillimes += item.priceMillimes * item.quantity;
-        if (item.unitCostMillimes !== null) {
-          entry.margeMillimes += (item.priceMillimes - item.unitCostMillimes) * item.quantity;
+
+        let cost = item.unitCostMillimes;
+        if (cost === null && item.productVariantId) {
+          if (!variantCostCache.has(item.productVariantId)) {
+            const fallbackCost = await this.inventoryService.getWeightedAverageCost(item.productVariantId);
+            variantCostCache.set(item.productVariantId, fallbackCost);
+          }
+          cost = variantCostCache.get(item.productVariantId) ?? null;
+        }
+
+        if (cost !== null) {
+          entry.margeMillimes += (item.priceMillimes - cost) * item.quantity;
           entry.hasCost = true;
         }
         byProduct.set(item.productId, entry);
