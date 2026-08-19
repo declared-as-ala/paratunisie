@@ -221,6 +221,15 @@ select.field-input {
   100% { transform: scale(0.95); opacity: 0; }
 }
 
+@keyframes dashboard-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-dashboard-shimmer {
+  animation: dashboard-shimmer 1.6s ease-in-out infinite;
+}
+
 /* ─── Reduced motion ───────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {

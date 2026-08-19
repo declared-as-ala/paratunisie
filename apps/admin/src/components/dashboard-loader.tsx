@@ -5,11 +5,13 @@ import { useState } from "react";
 
 interface DashboardLoaderProps {
   label?: string;
+  sublabel?: string;
   className?: string;
 }
 
 export function DashboardLoader({
-  label = "Chargement du tableau de bord...",
+  label = "Chargement de votre espace",
+  sublabel = "Préparation des données du tableau de bord",
   className = "",
 }: DashboardLoaderProps) {
   const [imgError, setImgError] = useState(false);
@@ -17,53 +19,73 @@ export function DashboardLoader({
   return (
     <div
       role="status"
-      aria-label={label}
-      className={`flex flex-col items-center justify-center min-h-[60vh] py-12 px-4 transition-all duration-300 ${className}`}
+      aria-live="polite"
+      className={`relative flex min-h-[calc(100vh-8rem)] w-full flex-col items-center justify-center py-16 px-4 select-none ${className}`}
     >
-      <div className="relative flex items-center justify-center mb-6">
-        {/* Soft Glowing Ring Animation */}
+      {/* Background Soft Subtle Radial Glow */}
+      <div
+        className="pointer-events-none absolute inset-0 flex items-center justify-center overflow-hidden"
+        aria-hidden="true"
+      >
         <div
-          className="absolute -inset-4 rounded-full bg-primary/10 blur-xl animate-pulse motion-reduce:animate-none"
-          aria-hidden="true"
+          className="h-[420px] w-[420px] rounded-full blur-3xl opacity-60"
+          style={{
+            background: "radial-gradient(circle at center, rgba(123, 47, 82, 0.07) 0%, transparent 60%)",
+          }}
         />
+      </div>
 
-        {/* Outer Rotating/Pulse Accent Border */}
-        <div
-          className="absolute -inset-2 rounded-2xl border border-primary/20 bg-primary/5 animate-pulse motion-reduce:animate-none"
-          aria-hidden="true"
-        />
+      <div className="relative z-10 flex flex-col items-center text-center">
+        {/* Clean Logo Display (140-160px width, clean without thick square box) */}
+        <div className="relative mb-8 flex items-center justify-center">
+          {/* Subtle Soft Burgundy Glow behind logo */}
+          <div
+            className="absolute h-20 w-44 rounded-full bg-primary/10 blur-2xl animate-pulse motion-reduce:animate-none"
+            aria-hidden="true"
+          />
 
-        {/* Logo Container */}
-        <div className="relative z-10 flex h-20 w-20 items-center justify-center rounded-2xl bg-surface-alt border border-border p-3 shadow-md transition-transform motion-reduce:transform-none">
           {!imgError ? (
-            <Image
-              src="/assets/logo.png"
-              alt="ParaTunisie"
-              width={64}
-              height={64}
-              className="object-contain animate-pulse motion-reduce:animate-none"
-              onError={() => setImgError(true)}
-              priority
-            />
+            <div className="relative h-12 w-36 sm:h-14 sm:w-44 transition-all duration-300">
+              <Image
+                src="/assets/logo.png"
+                alt="ParaTunisie"
+                fill
+                sizes="(max-width: 640px) 144px, 176px"
+                className="object-contain"
+                onError={() => setImgError(true)}
+                priority
+              />
+            </div>
           ) : (
-            <div className="flex flex-col items-center justify-center">
-              <span className="text-lg font-black tracking-tight text-primary">PT</span>
-              <span className="text-[0.625rem] font-bold uppercase tracking-widest text-ink-muted">ParaTunisie</span>
+            <div className="flex items-center gap-3">
+              <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-xs font-black tracking-tight text-white shadow-sm">
+                PT
+              </div>
+              <div className="flex flex-col text-left">
+                <span className="text-xl font-bold tracking-tight text-ink">ParaTunisie</span>
+                <span className="text-[0.625rem] font-bold uppercase tracking-[0.2em] text-accent">Admin</span>
+              </div>
             </div>
           )}
         </div>
+
+        {/* Refined Thin Indeterminate Loading Line (192px width, 3px height) */}
+        <div className="mb-5 h-[3px] w-48 sm:w-56 overflow-hidden rounded-full bg-border/40 p-0 relative">
+          <div
+            className="absolute inset-y-0 w-1/2 rounded-full bg-primary animate-dashboard-shimmer motion-reduce:animate-none"
+          />
+        </div>
+
+        {/* Typography Hierarchy */}
+        <h2 className="text-base sm:text-lg font-semibold tracking-tight text-ink">
+          {label}
+        </h2>
+        <p className="mt-1.5 text-xs sm:text-sm font-medium text-ink-muted">
+          {sublabel}
+        </p>
       </div>
 
-      {/* Loading Text & Status Dots */}
-      <div className="flex items-center gap-2 text-sm font-semibold text-ink-muted">
-        <span>{label}</span>
-        <span className="flex items-center gap-1" aria-hidden="true">
-          <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce motion-reduce:animate-none [animation-delay:-0.3s]" />
-          <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce motion-reduce:animate-none [animation-delay:-0.15s]" />
-          <span className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce motion-reduce:animate-none" />
-        </span>
-      </div>
-      <span className="sr-only">{label}</span>
+      <span className="sr-only">{label}. {sublabel}</span>
     </div>
   );
 }
