@@ -22,6 +22,7 @@ import Link from "next/link";
 import { Sparkline } from "@/components/sparkline";
 import { DashboardChart, type DashboardChartDataPoint } from "@/components/dashboard-chart";
 import { apiClient, ApiError } from "@/lib/api-client";
+import { DashboardLoader } from "@/components/dashboard-loader";
 import { formatCurrency, formatPercent } from "@/lib/utils";
 import { onOrdersChanged } from "@/lib/order-events";
 
@@ -111,6 +112,7 @@ const ALERT_STYLE: Record<string, { bg: string; iconBg: string; iconColor: strin
 
 export default function AdminDashboard() {
   const [timeRange, setTimeRange] = useState<DashboardPeriod>("30d");
+  const [initialLoading, setInitialLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [overview, setOverview] = useState<DashboardOverview | null>(null);
   const [recentOrders, setRecentOrders] = useState<RecentOrderRow[]>([]);
@@ -159,6 +161,7 @@ export default function AdminDashboard() {
       setLoadError(err instanceof ApiError ? err.message : "Impossible de charger le tableau de bord");
     } finally {
       setIsRefreshing(false);
+      setInitialLoading(false);
     }
   }, []);
 
@@ -191,15 +194,39 @@ export default function AdminDashboard() {
 
   const periodLabelMap: Record<DashboardPeriod, string> = { today: "Aujourd'hui", "7d": "7 derniers jours", "30d": "30 derniers jours" };
 
+  if (initialLoading && !overview && !loadError) {
+    return <DashboardLoader label="Chargement du tableau de bord..." />;
+  }
+
+  if (loadError && !overview) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 text-center space-y-4">
+        <div className="h-12 w-12 rounded-full bg-rose-500/10 text-rose-600 flex items-center justify-center">
+          <AlertTriangle size={24} />
+        </div>
+        <div>
+          <h2 className="text-base font-bold text-ink">Impossible de charger le tableau de bord</h2>
+          <p className="text-xs text-ink-muted mt-1 max-w-sm">{loadError}</p>
+        </div>
+        <button
+          onClick={() => loadData(timeRange)}
+          className="rounded-xl bg-primary text-white px-4 py-2 text-xs font-semibold hover:bg-primary/90 transition-all active:scale-[0.98]"
+        >
+          Réessayer
+        </button>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-6 pb-8">
+    <div className={`space-y-6 pb-8 transition-opacity duration-300 ${isRefreshing ? "opacity-75" : "opacity-100"}`}>
       {/* Explicit Error State Banner */}
       {loadError && (
         <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-rose-700 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <AlertTriangle size={18} className="shrink-0 text-rose-600" />
             <div>
-              <p className="text-xs font-bold">Erreur de chargement du tableau de bord</p>
+              <p className="text-xs font-bold">Erreur lors de l'actualisation</p>
               <p className="text-xs">{loadError}</p>
             </div>
           </div>
@@ -233,10 +260,11 @@ export default function AdminDashboard() {
             {(["today", "7d", "30d"] as const).map((range) => (
               <button
                 key={range}
+                disabled={isRefreshing}
                 onClick={() => setTimeRange(range)}
                 className={`rounded-lg px-2.5 py-1 text-xs font-medium transition-all ${
                   timeRange === range ? "bg-primary text-white font-semibold shadow-xs" : "text-ink-muted hover:text-ink"
-                }`}
+                } ${isRefreshing ? "cursor-not-allowed opacity-80" : ""}`}
               >
                 {range === "today" ? "Aujourd'hui" : range === "7d" ? "7 Jours" : "30 Jours"}
               </button>
@@ -245,6 +273,7 @@ export default function AdminDashboard() {
 
           {/* Refresh Button */}
           <button
+            disabled={isRefreshing}
             onClick={() => {
               loadData(timeRange);
               loadProfitabilitySummary();
