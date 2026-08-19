@@ -89,28 +89,44 @@ export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
   };
 
   return (
-    <div>
+    <div className="w-full max-w-full min-w-0">
       <Link
         href={`/marques/${product.brand.toLowerCase().replace(/\s+/g, "-")}`}
-        className="text-xs font-semibold tracking-[0.14em] text-primary uppercase hover:underline"
+        className="text-[0.6875rem] sm:text-xs font-semibold tracking-[0.14em] text-primary uppercase hover:underline"
       >
         {product.brand}
       </Link>
-      <h1 className="mt-2 font-serif text-3xl font-medium tracking-tight text-ink sm:text-4xl">
+      <h1 className="mt-1 sm:mt-2 font-serif text-xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-ink leading-snug">
         {product.name}
       </h1>
-      <p className="mt-2 text-base leading-6 text-ink-muted">{product.benefit}</p>
+      <p className="mt-1.5 sm:mt-2 text-xs sm:text-base leading-relaxed text-ink-muted">{product.benefit}</p>
 
-      <p className="font-tabular mt-5 text-2xl font-semibold text-ink">
+      {/* Stock + Delivery indicators */}
+      <div className="mt-2.5 sm:mt-3 flex flex-wrap items-center gap-2">
+        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[0.6875rem] font-semibold border ${
+          product.inStock
+            ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-700"
+            : "bg-rose-500/10 border-rose-500/20 text-rose-700"
+        }`}>
+          <span className={`h-1.5 w-1.5 rounded-full ${product.inStock ? "bg-emerald-500" : "bg-rose-500"}`} />
+          {product.inStock ? "En stock" : "Rupture de stock"}
+        </span>
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[0.6875rem] font-semibold bg-blue-500/10 border border-blue-500/20 text-blue-700">
+          <Truck className="size-3" />
+          Livraison 24–48h
+        </span>
+      </div>
+
+      <p className="font-tabular mt-3 sm:mt-5 text-xl sm:text-2xl font-bold text-ink">
         {formatPrice(selected.priceMillimes)}
       </p>
 
       {product.sizes.length > 1 && (
-        <div className="mt-6">
-          <p className="text-sm font-medium text-ink" id="size-label">
+        <div className="mt-4 sm:mt-6">
+          <p className="text-xs sm:text-sm font-medium text-ink" id="size-label">
             Format
           </p>
-          <div role="radiogroup" aria-labelledby="size-label" className="mt-2 flex flex-wrap gap-2">
+          <div role="radiogroup" aria-labelledby="size-label" className="mt-1.5 flex flex-wrap gap-2">
             {product.sizes.map((size, index) => (
               <button
                 key={size.label}
@@ -118,7 +134,7 @@ export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
                 role="radio"
                 aria-checked={index === sizeIndex}
                 onClick={() => setSizeIndex(index)}
-                className={`min-h-11 rounded-lg border px-4 text-sm font-medium transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none ${
+                className={`min-h-10 sm:min-h-11 rounded-lg border px-3 sm:px-4 text-xs sm:text-sm font-medium transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none ${
                   index === sizeIndex
                     ? "border-primary bg-primary text-primary-foreground"
                     : "border-border text-ink hover:border-primary hover:text-primary"
@@ -131,8 +147,8 @@ export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
         </div>
       )}
 
-      <div className="mt-6 flex items-center gap-3">
-        <p className="text-sm font-medium text-ink" id="quantity-label">
+      <div className="mt-4 sm:mt-6 flex items-center gap-3">
+        <p className="text-xs sm:text-sm font-medium text-ink" id="quantity-label">
           Quantité
         </p>
         <div className="flex items-center rounded-lg border border-border bg-white">
@@ -140,36 +156,36 @@ export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
             type="button"
             aria-label="Diminuer la quantité"
             onClick={() => setQuantity((current) => Math.max(1, current - 1))}
-            className="flex size-11 items-center justify-center text-ink-muted transition-transform duration-100 hover:text-ink focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none active:scale-90"
+            className="flex size-9 sm:size-11 items-center justify-center text-ink-muted transition-transform duration-100 hover:text-ink focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none active:scale-90"
           >
-            <Minus className="size-4" aria-hidden />
+            <Minus className="size-3.5 sm:size-4" aria-hidden />
           </button>
-          <span aria-labelledby="quantity-label" className="font-tabular w-8 text-center text-sm font-bold text-ink">
+          <span aria-labelledby="quantity-label" className="font-tabular w-8 text-center text-xs sm:text-sm font-bold text-ink">
             {quantity}
           </span>
           <button
             type="button"
             aria-label="Augmenter la quantité"
             onClick={() => setQuantity((current) => current + 1)}
-            className="flex size-11 items-center justify-center text-ink-muted transition-transform duration-100 hover:text-ink focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none active:scale-90"
+            className="flex size-9 sm:size-11 items-center justify-center text-ink-muted transition-transform duration-100 hover:text-ink focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none active:scale-90"
           >
-            <Plus className="size-4" aria-hidden />
+            <Plus className="size-3.5 sm:size-4" aria-hidden />
           </button>
         </div>
       </div>
 
-      {/* Main Desktop/Tablet Purchase Buttons: Stacked Vertically */}
-      <div className="mt-7 hidden flex-col gap-3 max-w-md sm:flex">
-        {/* 1. Ajouter au panier */}
-        <div className="flex items-center gap-3">
+      {/* Main Flow Purchase Buttons (Stacked Vertically) */}
+      <div className="mt-5 sm:mt-7 flex flex-col gap-2.5 sm:gap-3 max-w-md">
+        {/* 1. Ajouter au panier & Favorite */}
+        <div className="flex items-center gap-2.5 sm:gap-3">
           <Button
             type="button"
             size="lg"
             variant={added ? "secondary" : "default"}
             onClick={handleAdd}
-            className="flex-1 rounded-xl font-bold py-6 text-base shadow-xs"
+            className="flex-1 rounded-xl font-bold py-3.5 sm:py-6 text-xs sm:text-base shadow-xs h-11 sm:h-13"
           >
-            {added ? <Check /> : <ShoppingBag className="size-5" />}
+            {added ? <Check className="size-4 sm:size-5" /> : <ShoppingBag className="size-4 sm:size-5" />}
             {added ? "Ajouté au panier" : "Ajouter au panier"}
           </Button>
 
@@ -180,65 +196,65 @@ export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
             aria-label={saved ? "Retirer des favoris" : "Ajouter aux favoris"}
             aria-pressed={saved}
             onClick={() => setSaved((current) => !current)}
-            className="rounded-xl h-13 w-13 shrink-0"
+            className="rounded-xl h-11 w-11 sm:h-13 sm:w-13 shrink-0"
           >
             <Heart className={saved ? "fill-primary text-primary" : ""} />
           </Button>
         </div>
 
-        {/* 2. Acheter maintenant (Directly under Ajouter au panier) */}
+        {/* 2. Acheter maintenant */}
         <Button
           type="button"
           size="lg"
           onClick={() => setQuickOrderOpen(true)}
-          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl py-6 text-base gap-2 shadow-md transition-all active:scale-[0.98]"
+          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl py-3.5 sm:py-6 text-xs sm:text-base gap-2 shadow-md transition-all active:scale-[0.98] h-11 sm:h-13"
         >
-          <Zap size={20} className="fill-white" />
+          <Zap size={18} className="fill-white" />
           Acheter maintenant · {formatPrice(selected.priceMillimes * quantity)}
         </Button>
       </div>
 
-      <ul className="mt-8 space-y-3 border-t border-border pt-6">
+      <ul className="mt-6 sm:mt-8 space-y-2.5 sm:space-y-3 border-t border-border pt-4 sm:pt-6">
         {reassurance.map(({ icon: Icon, label }) => (
-          <li key={label} className="flex items-center gap-3 text-sm text-ink">
-            <Icon className="size-4.5 shrink-0 text-primary" aria-hidden />
+          <li key={label} className="flex items-center gap-2.5 text-xs sm:text-sm text-ink">
+            <Icon className="size-4 shrink-0 text-primary" aria-hidden />
             {label}
           </li>
         ))}
       </ul>
 
-      {/* Mobile Sticky Action Bar: Stacked Vertically */}
-      <div className="fixed inset-x-0 bottom-0 z-40 flex flex-col gap-2 border-t border-border bg-white/95 p-3 backdrop-blur-md sm:hidden shadow-2xl">
+      {/* Mobile Sticky Purchase Action Bar Positioned ABOVE Mobile Navigation Bar */}
+      <div className="fixed inset-x-0 bottom-[calc(56px+env(safe-area-inset-bottom))] z-40 flex flex-col gap-1.5 border-t border-border/80 bg-white/95 p-2.5 backdrop-blur-md lg:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
         <div className="flex items-center gap-2">
           <Button
             type="button"
             variant="outline"
-            size="icon-lg"
+            size="icon"
             aria-label={saved ? "Retirer des favoris" : "Ajouter aux favoris"}
             aria-pressed={saved}
             onClick={() => setSaved((current) => !current)}
-            className="shrink-0 rounded-xl"
+            className="shrink-0 rounded-xl h-10 w-10 border-border"
           >
-            <Heart className={saved ? "fill-primary text-primary" : ""} />
+            <Heart className={saved ? "fill-primary text-primary size-4" : "size-4"} />
           </Button>
           <Button
             type="button"
             size="lg"
             variant={added ? "secondary" : "default"}
             onClick={handleAdd}
-            className="flex-1 text-xs font-bold rounded-xl h-11"
+            className="flex-1 text-xs font-bold rounded-xl h-10 gap-1.5"
           >
             {added ? <Check className="size-4" /> : <ShoppingBag className="size-4" />}
-            {added ? "Ajouté au panier" : "Ajouter au panier"}
+            {added ? "Ajouté" : "Ajouter au panier"}
           </Button>
         </div>
         <Button
           type="button"
           size="lg"
           onClick={() => setQuickOrderOpen(true)}
-          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs gap-1.5 rounded-xl h-11 shadow-sm"
+          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs gap-1.5 rounded-xl h-10 shadow-sm"
         >
-          <Zap size={15} className="fill-white" />
+          <Zap size={14} className="fill-white" />
           Acheter maintenant · {formatPrice(selected.priceMillimes * quantity)}
         </Button>
       </div>
