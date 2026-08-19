@@ -21,9 +21,9 @@ export function ProductRail({
         {description && (
           <p className="mt-2 max-w-xl text-sm leading-6 text-ink-muted">{description}</p>
         )}
-        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 xl:grid-cols-4">
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-5 md:grid-cols-3 xl:grid-cols-4">
           {products.map((product) => (
-            <ProductCard key={product.id} product={product} variant="home" />
+            <ProductCard key={product.id} product={product} variant="shop" />
           ))}
         </div>
       </div>

@@ -31,10 +31,10 @@ export function HomeBestSellers({ items }: { items?: ProductSummary[] }) {
           </Link>
         </div>
 
-        {/* Hero Product Grid: 4 spacious cards desktop, 1 column mobile */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6">
+        {/* Hero Product Grid: 4 spacious cards desktop, 2 columns mobile */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {displayProducts.map((product) => (
-            <ProductCard key={product.id} product={product} variant="home" />
+            <ProductCard key={product.id} product={product} variant="shop" />
           ))}
         </div>
 

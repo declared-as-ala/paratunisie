@@ -53,8 +53,9 @@ docker compose -f ${COMPOSE_FILE} run --rm paratunisie-api npx prisma migrate de
 echo "[5/7] Starting services with Docker Compose..."
 docker compose -f ${COMPOSE_FILE} up -d --remove-orphans
 
-echo "[6/7] Removing unused Docker images safely..."
+echo "[6/7] Removing unused Docker images safely & reloading proxy DNS cache..."
 docker image prune -f || true
+docker exec sobitas-npm nginx -s reload || true
 
 echo "[7/7] Running health checks..."
 MAX_RETRIES=12
