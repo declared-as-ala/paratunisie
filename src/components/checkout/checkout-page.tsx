@@ -22,8 +22,7 @@ const ARAMEX_DELIVERY_PRICE = 10_000; // 10 DT in millimes
 type CheckoutFormData = {
   email: string;
   phone: string;
-  firstName: string;
-  lastName: string;
+  fullName: string;
   governorat: string;
   address: string;
   notes: string;
@@ -42,8 +41,7 @@ export function CheckoutPage() {
   const [form, setForm] = useState<CheckoutFormData>({
     email: "",
     phone: "",
-    firstName: "",
-    lastName: "",
+    fullName: "",
     governorat: "",
     address: "",
     notes: "",
@@ -54,20 +52,19 @@ export function CheckoutPage() {
 
   const emailRef = useRef<HTMLInputElement>(null);
   const phoneRef = useRef<HTMLInputElement>(null);
-  const firstNameRef = useRef<HTMLInputElement>(null);
-  const lastNameRef = useRef<HTMLInputElement>(null);
+  const fullNameRef = useRef<HTMLInputElement>(null);
   const governoratRef = useRef<HTMLSelectElement>(null);
   const addressRef = useRef<HTMLInputElement>(null);
 
   function validate(data: CheckoutFormData): FormErrors {
     const errs: FormErrors = {};
 
-    if (!data.email.trim()) {
-      errs.email = "L'adresse email est obligatoire.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim())) {
+    // Email is OPTIONAL: only validate format if user entered something
+    if (data.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email.trim())) {
       errs.email = "Veuillez saisir une adresse email valide.";
     }
 
+    // Phone is MANDATORY (8 digits in Tunisia)
     const cleanPhone = data.phone.replace(/\s+/g, "");
     if (!cleanPhone) {
       errs.phone = "Le numéro de téléphone est obligatoire.";
@@ -75,10 +72,20 @@ export function CheckoutPage() {
       errs.phone = "Saisissez un numéro tunisien à 8 chiffres (ex: 20 123 456).";
     }
 
-    if (!data.firstName.trim()) errs.firstName = "Le prénom est obligatoire.";
-    if (!data.lastName.trim()) errs.lastName = "Le nom est obligatoire.";
-    if (!data.governorat) errs.governorat = "Veuillez choisir un gouvernorat.";
-    if (!data.address.trim()) errs.address = "L'adresse complète est obligatoire.";
+    // Full Name is MANDATORY
+    if (!data.fullName.trim()) {
+      errs.fullName = "Le nom et prénom sont obligatoires.";
+    }
+
+    // Governorate is MANDATORY
+    if (!data.governorat) {
+      errs.governorat = "Veuillez choisir un gouvernorat.";
+    }
+
+    // Address is MANDATORY
+    if (!data.address.trim()) {
+      errs.address = "L'adresse complète est obligatoire.";
+    }
 
     return errs;
   }
@@ -106,8 +113,7 @@ export function CheckoutPage() {
     const allTouched = {
       email: true,
       phone: true,
-      firstName: true,
-      lastName: true,
+      fullName: true,
       governorat: true,
       address: true,
       notes: true,
@@ -119,23 +125,27 @@ export function CheckoutPage() {
 
     if (Object.keys(validationErrors).length > 0) {
       // Focus first error field
-      if (validationErrors.email && emailRef.current) emailRef.current.focus();
+      if (validationErrors.fullName && fullNameRef.current) fullNameRef.current.focus();
       else if (validationErrors.phone && phoneRef.current) phoneRef.current.focus();
-      else if (validationErrors.firstName && firstNameRef.current) firstNameRef.current.focus();
-      else if (validationErrors.lastName && lastNameRef.current) lastNameRef.current.focus();
       else if (validationErrors.governorat && governoratRef.current) governoratRef.current.focus();
       else if (validationErrors.address && addressRef.current) addressRef.current.focus();
+      else if (validationErrors.email && emailRef.current) emailRef.current.focus();
       return;
     }
 
     setSubmitting(true);
 
+    // Split fullName into firstName and lastName for API backend compatibility
+    const nameParts = form.fullName.trim().split(/\s+/);
+    const firstName = nameParts[0] || form.fullName.trim();
+    const lastName = nameParts.slice(1).join(" ") || ".";
+
     try {
       const payload = {
-        email: form.email,
+        email: form.email.trim() || undefined,
         phone: form.phone,
-        firstName: form.firstName,
-        lastName: form.lastName,
+        firstName,
+        lastName,
         gouvernorat: form.governorat,
         fullAddress: form.address,
         deliveryNote: form.notes,
@@ -198,7 +208,7 @@ export function CheckoutPage() {
           Référence : #{orderNumber}
         </p>
         <p className="mt-3 max-w-md text-xs sm:text-sm text-ink-muted leading-relaxed">
-          Merci <strong className="text-ink">{form.firstName} {form.lastName}</strong> ! Votre commande a bien été enregistrée. Notre service client vous contactera par téléphone pour valider l&apos;expédition.
+          Merci <strong className="text-ink">{form.fullName}</strong> ! Votre commande a bien été enregistrée. Notre service client vous contactera par téléphone pour valider l&apos;expédition.
         </p>
         <div className="mt-3 flex items-center gap-2 text-xs font-semibold text-ink bg-soft-nude/60 px-3.5 py-2 rounded-xl border border-border">
           <Wallet size={16} className="text-primary" />
@@ -346,29 +356,28 @@ export function CheckoutPage() {
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="sm:col-span-2">
-                <label htmlFor="checkout-email" className="block text-xs sm:text-sm font-semibold text-ink mb-1">
-                  Adresse email <span className="text-primary">*</span>
+                <label htmlFor="checkout-fullname" className="block text-xs sm:text-sm font-semibold text-ink mb-1">
+                  Nom et prénom <span className="text-primary">*</span>
                 </label>
                 <input
-                  ref={emailRef}
-                  id="checkout-email"
-                  type="email"
-                  inputMode="email"
+                  ref={fullNameRef}
+                  id="checkout-fullname"
+                  type="text"
                   required
-                  autoComplete="email"
-                  value={form.email}
-                  onChange={(e) => updateField("email", e.target.value)}
-                  onBlur={() => handleBlur("email")}
-                  placeholder="votre.email@domaine.com"
+                  autoComplete="name"
+                  value={form.fullName}
+                  onChange={(e) => updateField("fullName", e.target.value)}
+                  onBlur={() => handleBlur("fullName")}
+                  placeholder="Ex: Mohamed Ben Ali"
                   className={`${baseInputClass} ${
-                    touched.email && errors.email
+                    touched.fullName && errors.fullName
                       ? "border-rose-500 focus:ring-2 focus:ring-rose-200"
                       : "border-border focus:border-primary focus:ring-2 focus:ring-primary/10"
                   }`}
                 />
-                {touched.email && errors.email && (
+                {touched.fullName && errors.fullName && (
                   <p className="mt-1 text-[0.6875rem] font-semibold text-rose-600 flex items-center gap-1">
-                    <AlertCircle size={12} /> {errors.email}
+                    <AlertCircle size={12} /> {errors.fullName}
                   </p>
                 )}
               </div>
@@ -401,6 +410,33 @@ export function CheckoutPage() {
                   </p>
                 )}
               </div>
+
+              <div className="sm:col-span-2">
+                <label htmlFor="checkout-email" className="block text-xs sm:text-sm font-semibold text-ink mb-1">
+                  Adresse email <span className="text-ink-muted font-normal">(Optionnel)</span>
+                </label>
+                <input
+                  ref={emailRef}
+                  id="checkout-email"
+                  type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  value={form.email}
+                  onChange={(e) => updateField("email", e.target.value)}
+                  onBlur={() => handleBlur("email")}
+                  placeholder="votre.email@domaine.com (optionnel)"
+                  className={`${baseInputClass} ${
+                    touched.email && errors.email
+                      ? "border-rose-500 focus:ring-2 focus:ring-rose-200"
+                      : "border-border focus:border-primary focus:ring-2 focus:ring-primary/10"
+                  }`}
+                />
+                {touched.email && errors.email && (
+                  <p className="mt-1 text-[0.6875rem] font-semibold text-rose-600 flex items-center gap-1">
+                    <AlertCircle size={12} /> {errors.email}
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
@@ -412,61 +448,7 @@ export function CheckoutPage() {
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label htmlFor="checkout-firstname" className="block text-xs sm:text-sm font-semibold text-ink mb-1">
-                  Prénom <span className="text-primary">*</span>
-                </label>
-                <input
-                  ref={firstNameRef}
-                  id="checkout-firstname"
-                  type="text"
-                  required
-                  autoComplete="given-name"
-                  value={form.firstName}
-                  onChange={(e) => updateField("firstName", e.target.value)}
-                  onBlur={() => handleBlur("firstName")}
-                  placeholder="Ex: Mohamed"
-                  className={`${baseInputClass} ${
-                    touched.firstName && errors.firstName
-                      ? "border-rose-500 focus:ring-2 focus:ring-rose-200"
-                      : "border-border focus:border-primary focus:ring-2 focus:ring-primary/10"
-                  }`}
-                />
-                {touched.firstName && errors.firstName && (
-                  <p className="mt-1 text-[0.6875rem] font-semibold text-rose-600 flex items-center gap-1">
-                    <AlertCircle size={12} /> {errors.firstName}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label htmlFor="checkout-lastname" className="block text-xs sm:text-sm font-semibold text-ink mb-1">
-                  Nom <span className="text-primary">*</span>
-                </label>
-                <input
-                  ref={lastNameRef}
-                  id="checkout-lastname"
-                  type="text"
-                  required
-                  autoComplete="family-name"
-                  value={form.lastName}
-                  onChange={(e) => updateField("lastName", e.target.value)}
-                  onBlur={() => handleBlur("lastName")}
-                  placeholder="Ex: Ben Ali"
-                  className={`${baseInputClass} ${
-                    touched.lastName && errors.lastName
-                      ? "border-rose-500 focus:ring-2 focus:ring-rose-200"
-                      : "border-border focus:border-primary focus:ring-2 focus:ring-primary/10"
-                  }`}
-                />
-                {touched.lastName && errors.lastName && (
-                  <p className="mt-1 text-[0.6875rem] font-semibold text-rose-600 flex items-center gap-1">
-                    <AlertCircle size={12} /> {errors.lastName}
-                  </p>
-                )}
-              </div>
-
-              <div>
+              <div className="sm:col-span-2">
                 <label htmlFor="checkout-governorate" className="block text-xs sm:text-sm font-semibold text-ink mb-1">
                   Gouvernorat <span className="text-primary">*</span>
                 </label>
