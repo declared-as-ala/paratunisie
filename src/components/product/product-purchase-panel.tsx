@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { BadgeCheck, Check, Heart, Minus, Plus, Truck, Wallet, Zap, X, ShoppingBag, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,25 @@ export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [orderSuccess, setOrderSuccess] = useState<{ id: string; name: string; phone: string } | null>(null);
+
+  // IntersectionObserver State for Mobile Sticky Bar (only visible when inline buttons scroll out of view)
+  const inlineBuyRef = useRef<HTMLDivElement>(null);
+  const [showStickyBar, setShowStickyBar] = useState(false);
+
+  useEffect(() => {
+    const element = inlineBuyRef.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setShowStickyBar(!entry.isIntersecting);
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
 
   // Form State
   const [fullName, setFullName] = useState("");
@@ -174,8 +193,8 @@ export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
         </div>
       </div>
 
-      {/* Main Flow Purchase Buttons (Stacked Vertically) */}
-      <div className="mt-5 sm:mt-7 flex flex-col gap-2.5 sm:gap-3 max-w-md">
+      {/* Main Flow Purchase Buttons (Observed by IntersectionObserver) */}
+      <div ref={inlineBuyRef} className="mt-5 sm:mt-7 flex flex-col gap-2.5 sm:gap-3 max-w-md">
         {/* 1. Ajouter au panier & Favorite */}
         <div className="flex items-center gap-2.5 sm:gap-3">
           <Button
@@ -223,8 +242,14 @@ export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
         ))}
       </ul>
 
-      {/* Mobile Sticky Purchase Action Bar Positioned ABOVE Mobile Navigation Bar */}
-      <div className="fixed inset-x-0 bottom-[calc(56px+env(safe-area-inset-bottom))] z-40 flex flex-col gap-1.5 border-t border-border/80 bg-white/95 p-2.5 backdrop-blur-md lg:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+      {/* Mobile Sticky Purchase Action Bar — ONLY visible when inline buttons scroll OUT of view */}
+      <div
+        className={`fixed inset-x-0 bottom-[calc(56px+env(safe-area-inset-bottom))] z-40 flex flex-col gap-1.5 border-t border-border/80 bg-white/95 p-2.5 backdrop-blur-md lg:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.1)] transition-all duration-300 ${
+          showStickyBar
+            ? "translate-y-0 opacity-100 pointer-events-auto"
+            : "translate-y-full opacity-0 pointer-events-none"
+        }`}
+      >
         <div className="flex items-center gap-2">
           <Button
             type="button"
