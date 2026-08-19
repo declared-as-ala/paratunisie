@@ -32,7 +32,7 @@ export function HomeNewArrivals({ items }: { items?: ProductSummary[] }) {
         <div className="flex overflow-x-auto gap-4 snap-x scrollbar-none pb-4 pt-1 -mx-4 px-4 sm:mx-0 sm:px-0">
           {displayProducts.map((product) => (
             <div key={product.id} className="w-[240px] sm:w-[270px] shrink-0 snap-start">
-              <ProductCard product={product} />
+              <ProductCard product={product} variant="shop" />
             </div>
           ))}
         </div>

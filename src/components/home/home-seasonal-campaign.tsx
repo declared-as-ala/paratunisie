@@ -61,7 +61,7 @@ export function HomeSeasonalCampaign() {
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {seasonalProducts.map((p) => (
-                <ProductCard key={p.id} product={p} />
+                <ProductCard key={p.id} product={p} variant="home" />
               ))}
             </div>
           </div>

@@ -289,9 +289,9 @@ export function ShopPage({
               )}
             </div>
 
-            {/* Products Grid — 1 column on mobile (horizontal cards), 2-5 columns on desktop */}
+            {/* Products Grid — 2 columns on mobile (compact vertical cards), 2-5 columns on desktop */}
             {isPending ? (
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                 {Array.from({ length: 10 }).map((_, idx) => (
                   <div key={idx} className="animate-pulse rounded-2xl border border-border bg-white p-3.5 space-y-3">
                     <div className="aspect-square rounded-xl bg-soft-nude/70 w-full" />
@@ -303,9 +303,9 @@ export function ShopPage({
               </div>
             ) : products.length > 0 ? (
               <>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+                <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
                   {products.map((product) => (
-                    <ProductCard key={product.id} product={product} />
+                    <ProductCard key={product.id} product={product} variant="shop" />
                   ))}
                 </div>
 

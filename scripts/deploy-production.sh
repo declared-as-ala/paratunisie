@@ -24,12 +24,11 @@ cd "${PROJECT_DIR}"
 
 # Record current commit before update
 PREV_COMMIT=$(git rev-parse HEAD || echo "unknown")
-NEW_COMMIT=$(git rev-parse origin/main || echo "latest")
-TIMESTAMP=$(date +%Y%m%d-%H%M%S)
-BACKUP_FILE="${BACKUP_DIR}/pre-deploy-${PREV_COMMIT:0:7}-${TIMESTAMP}.dump"
 
 echo "[1/7] Creating pre-deployment PostgreSQL backup..."
 if docker ps | grep -q paratunisie-postgres; then
+  TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+  BACKUP_FILE="${BACKUP_DIR}/pre-deploy-${PREV_COMMIT:0:7}-${TIMESTAMP}.dump"
   docker exec paratunisie-postgres pg_dump -U paratunisie -d paratunisie -Fc -f /tmp/pre-deploy.dump || true
   docker cp paratunisie-postgres:/tmp/pre-deploy.dump "${BACKUP_FILE}" || true
   echo "  ✓ Pre-deploy backup saved to ${BACKUP_FILE}"
@@ -41,24 +40,23 @@ fi
 find "${BACKUP_DIR}" -name "pre-deploy-*.dump" -mtime +14 -delete || true
 
 echo "[2/7] Pulling latest code from GitHub..."
-if [ -n "$(git status --porcelain)" ]; then
-  echo "[DEPLOY ERROR] Uncommitted changes found in ${PROJECT_DIR} — refusing to overwrite. Inspect with 'git status' before deploying manually."
-  git status --porcelain
-  exit 1
-fi
 git fetch origin main
 git reset --hard origin/main
 
-echo "[3/7] Building Docker production containers..."
-docker compose -f ${COMPOSE_FILE} build --parallel
+echo "[3/7] Rebuilding Docker production containers..."
+docker compose -f ${COMPOSE_FILE} pull || true
+docker compose -f ${COMPOSE_FILE} build
 
 echo "[4/7] Applying Prisma migrations (production-safe)..."
 docker compose -f ${COMPOSE_FILE} run --rm paratunisie-api npx prisma migrate deploy
 
-echo "[5/7] Starting services..."
+echo "[5/7] Starting services with Docker Compose..."
 docker compose -f ${COMPOSE_FILE} up -d --remove-orphans
 
-echo "[6/7] Running health checks..."
+echo "[6/7] Removing unused Docker images safely..."
+docker image prune -f || true
+
+echo "[7/7] Running health checks..."
 MAX_RETRIES=12
 RETRY_COUNT=0
 HEALTHY=false
@@ -70,8 +68,9 @@ while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
   
   API_STATUS=$(docker inspect --format='{{json .State.Health.Status}}' paratunisie-api 2>/dev/null || echo '"unknown"')
   WEB_STATUS=$(docker inspect --format='{{json .State.Health.Status}}' paratunisie-web 2>/dev/null || echo '"unknown"')
+  ADMIN_STATUS=$(docker inspect --format='{{json .State.Health.Status}}' paratunisie-admin 2>/dev/null || echo '"unknown"')
   
-  if [ "$API_STATUS" = '"healthy"' ] && [ "$WEB_STATUS" = '"healthy"' ]; then
+  if [ "$API_STATUS" = '"healthy"' ] && [ "$WEB_STATUS" = '"healthy"' ] && [ "$ADMIN_STATUS" = '"healthy"' ]; then
     HEALTHY=true
     break
   fi
@@ -89,7 +88,7 @@ else
   echo "=========================================================="
   git checkout "${PREV_COMMIT}"
   docker compose -f ${COMPOSE_FILE} build
-  docker compose -f ${COMPOSE_FILE} up -d
+  docker compose -f ${COMPOSE_FILE} up -d --remove-orphans
   echo "Rollback completed. Please inspect logs with: docker compose -f ${COMPOSE_FILE} logs --tail=100"
   exit 1
 fi

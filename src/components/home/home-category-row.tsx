@@ -37,10 +37,10 @@ export function HomeCategoryRow({
           </Link>
         </div>
 
-        {/* Product Grid: 5 columns on desktop, 4 on laptop, 2-3 on tablet, 2 on mobile */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-5">
+        {/* Product Grid: 5 columns on desktop, 4 on laptop, 3 on tablet, 1 on mobile */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-5">
           {row.products.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product.id} product={product} variant="home" />
           ))}
         </div>
       </div>
