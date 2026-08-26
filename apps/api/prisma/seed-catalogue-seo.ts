@@ -1,11 +1,18 @@
 import { PrismaClient } from "@prisma/client";
-import { CatalogueSeoService, SeoEntityType } from "../src/catalogue/catalogue-seo.service";
 import * as fs from "fs";
 import * as path from "path";
 
+type SeoEntityType = "product" | "category" | "brand";
+
+// The production image keeps compiled files in dist/, while local development
+// runs this script against TypeScript sources.
+const { CatalogueSeoService } = fs.existsSync(path.resolve(process.cwd(), "dist/catalogue/catalogue-seo.service.js"))
+  ? require("../dist/catalogue/catalogue-seo.service")
+  : require("../src/catalogue/catalogue-seo.service");
+
 const prisma = new PrismaClient();
 
-async function seedType(service: CatalogueSeoService, type: SeoEntityType, mode: "missing" | "all" = "missing") {
+async function seedType(service: InstanceType<typeof CatalogueSeoService>, type: SeoEntityType, mode: "missing" | "all" = "missing") {
   let cursor: string | undefined;
   const totals = { processed: 0, succeeded: 0, failed: 0 };
   do {
