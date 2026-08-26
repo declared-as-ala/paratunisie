@@ -16,6 +16,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { MarqueDrawer, type BrandModel } from "@/components/marque-drawer";
+import { BulkSeoGenerator } from "@/components/bulk-seo-generator";
 import { ConfirmModal } from "@/components/confirm-modal";
 import { useToast } from "@/components/toast";
 import { apiClient, ApiError } from "@/lib/api-client";
@@ -172,6 +173,7 @@ export default function MarquesAdminPage() {
         </button>
       </div>
 
+      <BulkSeoGenerator type="brand" label="toutes les marques" />
       <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-xs">
         <div className="relative min-w-[240px] max-w-md flex-1">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />

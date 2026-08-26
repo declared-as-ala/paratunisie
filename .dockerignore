@@ -16,6 +16,9 @@
 # database files
 **/*.db
 **/*.db-journal
+backups/
+backups
+
 
 # misc
 .git

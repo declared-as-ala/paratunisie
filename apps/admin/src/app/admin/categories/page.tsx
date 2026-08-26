@@ -17,9 +17,10 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { CategoryDrawer, type CategoryModel } from "@/components/category-drawer";
+import { BulkSeoGenerator } from "@/components/bulk-seo-generator";
 import { ConfirmModal } from "@/components/confirm-modal";
 import { useToast } from "@/components/toast";
-import { apiClient } from "@/lib/api-client";
+import { apiClient, resolveMediaUrl } from "@/lib/api-client";
 
 /* ─── Initial mock category tree dataset matching shop ───────────────── */
 
@@ -136,6 +137,19 @@ export default function CategoriesAdminPage() {
               slug: sub.slug,
               productCount: sub._count?.products ?? 0,
             })),
+            seoTitle: c.seoTitle,
+            seoDescription: c.seoDescription,
+            seoH1: c.seoH1,
+            seoIntro: c.seoIntro,
+            seoContent: c.seoContent,
+            seoKeywords: c.seoKeywords,
+            canonicalUrl: c.canonicalUrl,
+            ogTitle: c.ogTitle,
+            ogDescription: c.ogDescription,
+            ogImage: c.ogImage,
+            imageAlt: c.imageAlt,
+            indexable: c.indexable,
+            followLinks: c.followLinks,
           }));
           setCategories(mapped);
           // Default expand top 3 parent categories
@@ -213,17 +227,28 @@ export default function CategoriesAdminPage() {
   }, []);
 
   const handleSaveCategory = useCallback(
-    (cat: CategoryModel) => {
+    async (cat: CategoryModel) => {
+      const isNew = cat.id === "NEW-CATEGORY";
+      const savedFromApi = isNew
+        ? await apiClient.post<CategoryModel>("/catalogue/categories", cat)
+        : await apiClient.patch<CategoryModel>(`/catalogue/categories/${cat.id}`, cat);
+      const saved: CategoryModel = {
+        ...cat,
+        ...savedFromApi,
+        productCount: cat.productCount ?? 0,
+        subcategoriesCount: cat.subcategoriesCount ?? 0,
+        subcategories: cat.subcategories ?? [],
+      };
       setCategories((prev) => {
-        const idx = prev.findIndex((c) => c.id === cat.id);
+        const idx = prev.findIndex((c) => c.id === saved.id);
         if (idx >= 0) {
           const next = [...prev];
-          next[idx] = cat;
+          next[idx] = saved;
           return next;
         }
-        return [...prev, cat];
+        return [...prev, saved];
       });
-      toast("success", `Catégorie « ${cat.name} » enregistrée`);
+      toast("success", `Catégorie « ${saved.name} » enregistrée`);
       setDrawerOpen(false);
       setEditingCategory(null);
     },
@@ -295,6 +320,7 @@ export default function CategoriesAdminPage() {
       </div>
 
       {/* ── Filter Bar & View Toggle ─────────────────────────────────── */}
+      <BulkSeoGenerator type="category" label="toutes les catégories" />
       <div className="rounded-2xl bg-white p-3.5 shadow-xs border border-slate-200/80 flex items-center justify-between gap-3 flex-wrap">
         <div className="relative flex-1 min-w-[240px] max-w-md">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -367,7 +393,7 @@ export default function CategoriesAdminPage() {
                     </button>
                     <div className="h-10 w-10 rounded-xl bg-white border border-slate-200 p-1 flex items-center justify-center shrink-0 shadow-xs">
                       {cat.image ? (
-                        <img src={cat.image} alt={cat.name} className="h-full w-full object-contain" />
+                        <img src={resolveMediaUrl(cat.image)} alt={cat.name} className="h-full w-full object-contain" />
                       ) : (
                         <Tags size={20} className="text-[#E11D48]" />
                       )}
@@ -464,7 +490,7 @@ export default function CategoriesAdminPage() {
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-xl bg-white border border-slate-200 p-1 flex items-center justify-center shrink-0 shadow-xs">
                           {c.image ? (
-                            <img src={c.image} alt={c.name} className="h-full w-full object-contain" />
+                            <img src={resolveMediaUrl(c.image)} alt={c.name} className="h-full w-full object-contain" />
                           ) : (
                             <Tags size={20} className="text-[#E11D48]" />
                           )}
@@ -529,6 +555,7 @@ export default function CategoriesAdminPage() {
 
       {/* ── Category Drawer Component ────────────────────────────────── */}
       <CategoryDrawer
+        key={editingCategory?.id ?? "new-category"}
         open={drawerOpen}
         category={editingCategory}
         parentCategories={parentOptions}

@@ -20,6 +20,7 @@ import {
 type CategoryData = {
   slug: string;
   name: string;
+  h1?: string;
   eyebrow?: string;
   description: string;
   subcategories: Array<{ slug: string; name: string }>;
@@ -317,7 +318,7 @@ export function CategoryPLP({
       {/* Intro */}
       <header>
         {category.eyebrow && <p className="text-xs font-semibold tracking-[0.14em] text-primary uppercase sm:text-sm">{category.eyebrow}</p>}
-        <h1 className="mt-1.5 font-serif text-3xl font-medium tracking-tight text-ink sm:text-4xl lg:text-5xl">{category.name}</h1>
+        <h1 className="mt-1.5 font-serif text-3xl font-medium tracking-tight text-ink sm:text-4xl lg:text-5xl">{category.h1 || category.name}</h1>
         <p className="mt-2.5 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base">{category.description}</p>
       </header>
 

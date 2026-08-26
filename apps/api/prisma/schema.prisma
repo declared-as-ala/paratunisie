@@ -49,7 +49,7 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  profile  CustomerProfile?
+  profile   CustomerProfile?
   addresses Address[]
   orders    Order[]
   wishlist  WishlistItem[]
@@ -69,36 +69,49 @@ model CustomerProfile {
 }
 
 model Address {
-  id        String  @id @default(cuid())
-  userId    String
-  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  label     String?
+  id          String  @id @default(cuid())
+  userId      String
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  label       String?
   gouvernorat String
   fullAddress String
-  isDefault Boolean @default(false)
+  isDefault   Boolean @default(false)
 }
 
 // ─── Catalogue ───────────────────────────────────────────────────────
 
 model Brand {
-  id               String   @id @default(cuid())
-  name             String   @unique
-  slug             String   @unique
+  id               String    @id @default(cuid())
+  name             String    @unique
+  slug             String    @unique
   tagline          String?
   shortDescription String?
   description      String?
   image            String?
   heroImage        String?
   mobileHeroImage  String?
-  featured         Boolean  @default(false)
-  status           String   @default("ACTIVE")
+  featured         Boolean   @default(false)
+  status           String    @default("ACTIVE")
   origin           String?
   universe         String?
-  specialties      String   @default("[]")
+  specialties      String    @default("[]")
   seoTitle         String?
   seoDescription   String?
+  seoH1            String?
+  seoIntro         String?
+  seoContent       String?
+  seoKeywords      String    @default("[]")
   canonicalUrl     String?
-  indexable        Boolean  @default(true)
+  ogTitle          String?
+  ogDescription    String?
+  ogImage          String?
+  imageAlt         String?
+  indexable        Boolean   @default(true)
+  followLinks      Boolean   @default(true)
+  seoIsCustom      Boolean   @default(false)
+  seoGeneratedAt   DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   products      Product[]
   articleBrands ArticleBrand[]
@@ -121,9 +134,21 @@ model Category {
   status           String     @default("ACTIVE")
   seoTitle         String?
   seoDescription   String?
+  seoH1            String?
+  seoIntro         String?
   canonicalUrl     String?
   indexable        Boolean    @default(true)
   seoContent       String?
+  seoKeywords      String     @default("[]")
+  ogTitle          String?
+  ogDescription    String?
+  ogImage          String?
+  imageAlt         String?
+  followLinks      Boolean    @default(true)
+  seoIsCustom      Boolean    @default(false)
+  seoGeneratedAt   DateTime?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
 
   products         Product[]
   categoryMappings CategoryMapping[]
@@ -139,38 +164,50 @@ model Concern {
 }
 
 model Product {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  name        String
-  benefit     String
-  description String
-  usage       String
-  image       String
-  brandId     String
-  brand       Brand    @relation(fields: [brandId], references: [id])
-  categoryId  String
-  category    Category @relation(fields: [categoryId], references: [id])
-  skinTypes       String   @default("[]")
-  routineTime     String   @default("[]")
+  id              String              @id @default(cuid())
+  slug            String              @unique
+  name            String
+  benefit         String
+  description     String
+  usage           String
+  image           String
+  brandId         String
+  brand           Brand               @relation(fields: [brandId], references: [id])
+  categoryId      String
+  category        Category            @relation(fields: [categoryId], references: [id])
+  skinTypes       String              @default("[]")
+  routineTime     String              @default("[]")
   seoTitle        String?
   seoDescription  String?
-  seoKeywords     String   @default("[]")
-  seoFaq          String   @default("[]")
-  seoScore        Int      @default(0)
+  seoH1           String?
+  seoIntro        String?
+  seoContent      String?
+  seoKeywords     String              @default("[]")
+  seoFaq          String              @default("[]")
+  seoScore        Int                 @default(0)
+  canonicalUrl    String?
+  ogTitle         String?
+  ogDescription   String?
+  ogImage         String?
+  imageAlt        String?
+  indexable       Boolean             @default(true)
+  followLinks     Boolean             @default(true)
+  seoIsCustom     Boolean             @default(false)
+  seoGeneratedAt  DateTime?
   publishState    ProductPublishState @default(DRAFT)
-  manualOverrides String   @default("[]")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  manualOverrides String              @default("[]")
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
 
-  variants        ProductVariant[]
-  concerns        Concern[]
-  images          ProductImage[]
-  wishlistItems   WishlistItem[]
-  orderItems      OrderItem[]
-  reviews         Review[]
-  routineItems    RoutineItem[]
-  articleProducts ArticleProduct[]
-  importedProduct ImportedProduct?
+  variants         ProductVariant[]
+  concerns         Concern[]
+  images           ProductImage[]
+  wishlistItems    WishlistItem[]
+  orderItems       OrderItem[]
+  reviews          Review[]
+  routineItems     RoutineItem[]
+  articleProducts  ArticleProduct[]
+  importedProduct  ImportedProduct?
   competitorPrices CompetitorPrice[]
 
   @@index([brandId])
@@ -180,14 +217,21 @@ model Product {
   @@index([name])
 }
 
+model SeoRedirect {
+  id        String   @id @default(cuid())
+  oldPath   String   @unique
+  newPath   String
+  createdAt DateTime @default(now())
+}
+
 model ProductVariant {
-  id           String  @id @default(cuid())
-  productId    String
-  product      Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-  label        String
+  id            String  @id @default(cuid())
+  productId     String
+  product       Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  label         String
   priceMillimes Int
-  sku          String?
-  stock        Int     @default(0)
+  sku           String?
+  stock         Int     @default(0)
 
   orderItems           OrderItem[]
   inventoryItems       InventoryItem[]
@@ -261,15 +305,15 @@ model OrderStatusHistory {
 }
 
 model OrderItem {
-  id              String         @id @default(cuid())
-  orderId         String
-  order           Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
-  productId       String
-  product         Product        @relation(fields: [productId], references: [id])
+  id               String         @id @default(cuid())
+  orderId          String
+  order            Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId        String
+  product          Product        @relation(fields: [productId], references: [id])
   productVariantId String
-  productVariant  ProductVariant @relation(fields: [productVariantId], references: [id])
-  quantity        Int
-  priceMillimes   Int
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
+  quantity         Int
+  priceMillimes    Int
   // Snapshot of acquisition cost at order time (weighted-average, D-0017) — never
   // recomputed retroactively, so historical margin reports stay accurate. Nullable:
   // orders placed before the costing service existed have no snapshot.
@@ -278,7 +322,7 @@ model OrderItem {
   // rather than captured live at the CONFIRMEE transition — surfaced in the
   // profitability UI so historical figures are never presented as exact when
   // they're a best-effort estimate (REQUIREMENTS.md §4 profitability decision).
-  costIsEstimated Boolean @default(false)
+  costIsEstimated  Boolean        @default(false)
 }
 
 model Payment {
@@ -343,23 +387,23 @@ model Review {
 }
 
 model LoyaltyAccount {
-  id      String @id @default(cuid())
-  userId  String @unique
-  user    User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tier    String @default("Bronze")
-  points  Int    @default(0)
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tier   String @default("Bronze")
+  points Int    @default(0)
 
   transactions LoyaltyTransaction[]
 }
 
 model LoyaltyTransaction {
-  id             String   @id @default(cuid())
-  accountId      String
-  account        LoyaltyAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  points         Int
-  type           String
-  description    String?
-  createdAt      DateTime @default(now())
+  id          String         @id @default(cuid())
+  accountId   String
+  account     LoyaltyAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  points      Int
+  type        String
+  description String?
+  createdAt   DateTime       @default(now())
 }
 
 // ─── Personalization ─────────────────────────────────────────────────
@@ -386,14 +430,14 @@ model Routine {
 }
 
 model RoutineItem {
-  id         String  @id @default(cuid())
-  routineId  String
-  routine    Routine @relation(fields: [routineId], references: [id], onDelete: Cascade)
-  productId  String
-  product    Product @relation(fields: [productId], references: [id])
-  slot       String
-  reason     String?
-  position   Int
+  id        String  @id @default(cuid())
+  routineId String
+  routine   Routine @relation(fields: [routineId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  slot      String
+  reason    String?
+  position  Int
 }
 
 // Structured cosmetic-observation output only — the raw uploaded image is
@@ -444,11 +488,11 @@ model DiagnosticMessage {
   id             String                 @id @default(cuid())
   conversationId String
   conversation   DiagnosticConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
-  role           String                 // "user" | "assistant" | "system"
+  role           String // "user" | "assistant" | "system"
   content        String
-  quickReplies   String?                // JSON string array e.g. ["Peau sèche", "Peau mixte"]
-  recommendation String?                // JSON string payload referencing validated DB product IDs
-  metadata       String?                // JSON metadata (tokens, durationMs, model, provider)
+  quickReplies   String? // JSON string array e.g. ["Peau sèche", "Peau mixte"]
+  recommendation String? // JSON string payload referencing validated DB product IDs
+  metadata       String? // JSON metadata (tokens, durationMs, model, provider)
   createdAt      DateTime               @default(now())
 
   @@index([conversationId])
@@ -457,7 +501,7 @@ model DiagnosticMessage {
 // Admin-manageable questionnaire — no code change needed to add/reorder/
 // disable a question (CLAUDE.md §47/§48).
 model DiagnosticQuestion {
-  id       String   @id @default(cuid())
+  id       String  @id @default(cuid())
   domain   String // SKIN | HAIR
   key      String // e.g. "skinType", "concerns", "budget"
   label    String
@@ -491,20 +535,20 @@ model DiagnosticOption {
 // resultJson is only ever product IDs drawn from that request's candidate
 // set (validated again against Postgres before ever reaching the frontend).
 model DiagnosticAiRequest {
-  id             String   @id @default(cuid())
-  profileHash    String
-  candidateHash  String
-  provider       String
-  model          String
-  promptVersion  String
-  inputTokens    Int      @default(0)
-  outputTokens   Int      @default(0)
-  estimatedCostUsd Float  @default(0.0)
-  durationMs     Int      @default(0)
-  status         String // "SUCCESS" | "FAILED" | "CACHED" | "FALLBACK_RULES"
-  error          String?
-  resultJson     String?
-  createdAt      DateTime @default(now())
+  id               String   @id @default(cuid())
+  profileHash      String
+  candidateHash    String
+  provider         String
+  model            String
+  promptVersion    String
+  inputTokens      Int      @default(0)
+  outputTokens     Int      @default(0)
+  estimatedCostUsd Float    @default(0.0)
+  durationMs       Int      @default(0)
+  status           String // "SUCCESS" | "FAILED" | "CACHED" | "FALLBACK_RULES"
+  error            String?
+  resultJson       String?
+  createdAt        DateTime @default(now())
 
   @@index([profileHash, candidateHash, provider, model, promptVersion])
 }
@@ -682,16 +726,16 @@ enum StockMovementType {
 
 // Append-only audit trail — never edited or deleted (DATA_MODEL.md).
 model StockMovement {
-  id                  String            @id @default(cuid())
-  inventoryItemId     String
-  inventoryItem       InventoryItem     @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
-  type                StockMovementType
-  quantity            Int
-  reference           String?
-  performedByStaffId  String?
-  performedByStaff    StaffUser?        @relation(fields: [performedByStaffId], references: [id])
-  note                String?
-  createdAt           DateTime          @default(now())
+  id                 String            @id @default(cuid())
+  inventoryItemId    String
+  inventoryItem      InventoryItem     @relation(fields: [inventoryItemId], references: [id], onDelete: Cascade)
+  type               StockMovementType
+  quantity           Int
+  reference          String?
+  performedByStaffId String?
+  performedByStaff   StaffUser?        @relation(fields: [performedByStaffId], references: [id])
+  note               String?
+  createdAt          DateTime          @default(now())
 }
 
 model Batch {
@@ -747,14 +791,14 @@ model SupplierProduct {
 // Append-only — acquisition cost is a time series, never a single overwritten
 // field (D-0017/REQUIREMENTS.md §E). POST-only in the API; no update/delete endpoint.
 model PurchasePriceHistory {
-  id                    String   @id @default(cuid())
+  id                    String         @id @default(cuid())
   variantId             String
   variant               ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
   supplierId            String
-  supplier              Supplier @relation(fields: [supplierId], references: [id])
+  supplier              Supplier       @relation(fields: [supplierId], references: [id])
   purchasePriceMillimes Int
-  effectiveFrom         DateTime @default(now())
-  createdAt             DateTime @default(now())
+  effectiveFrom         DateTime       @default(now())
+  createdAt             DateTime       @default(now())
 
   batches Batch[]
 }
@@ -809,14 +853,14 @@ enum ProductPublishState {
 }
 
 model ImportProvider {
-  id          String   @id @default(cuid())
-  code        String   @unique
-  name        String
-  baseUrl     String
-  isActive    Boolean  @default(true)
-  configJson  String   @default("{}")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String   @id @default(cuid())
+  code       String   @unique
+  name       String
+  baseUrl    String
+  isActive   Boolean  @default(true)
+  configJson String   @default("{}")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   importRuns       ImportRun[]
   importedProducts ImportedProduct[]
@@ -826,46 +870,46 @@ model ImportProvider {
 }
 
 model ImportRun {
-  id              String       @id @default(cuid())
+  id              String         @id @default(cuid())
   providerId      String
   provider        ImportProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  status          ImportStatus @default(PENDING)
-  dryRun          Boolean      @default(false)
-  discoveredCount Int          @default(0)
-  importedCount   Int          @default(0)
-  updatedCount    Int          @default(0)
-  ignoredCount    Int          @default(0)
-  failedCount     Int          @default(0)
-  startedAt       DateTime     @default(now())
+  status          ImportStatus   @default(PENDING)
+  dryRun          Boolean        @default(false)
+  discoveredCount Int            @default(0)
+  importedCount   Int            @default(0)
+  updatedCount    Int            @default(0)
+  ignoredCount    Int            @default(0)
+  failedCount     Int            @default(0)
+  startedAt       DateTime       @default(now())
   finishedAt      DateTime?
-  logsJson        String       @default("[]")
+  logsJson        String         @default("[]")
 }
 
 model ImportedProduct {
-  id              String       @id @default(cuid())
-  providerId      String
-  provider        ImportProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  externalId      String
-  sourceUrl       String
-  sourceTitle     String
-  sourceCategory  String?
-  sourceBrand     String?
-  sourcePrice     Int?
-  sourceOldPrice  Int?
-  sourceData      String       @default("{}")
-  status          ImportStatus @default(DISCOVERED)
-  seoStatus       SeoStatus    @default(NOT_GENERATED)
-  seoScore        Int          @default(0)
-  factsHash       String?
+  id               String         @id @default(cuid())
+  providerId       String
+  provider         ImportProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  externalId       String
+  sourceUrl        String
+  sourceTitle      String
+  sourceCategory   String?
+  sourceBrand      String?
+  sourcePrice      Int?
+  sourceOldPrice   Int?
+  sourceData       String         @default("{}")
+  status           ImportStatus   @default(DISCOVERED)
+  seoStatus        SeoStatus      @default(NOT_GENERATED)
+  seoScore         Int            @default(0)
+  factsHash        String?
   seoPromptVersion String?
-  similarityFlag  Boolean      @default(false)
-  productId       String?      @unique
-  product         Product?     @relation(fields: [productId], references: [id], onDelete: SetNull)
-  scrapedAt       DateTime     @default(now())
-  lastCheckedAt   DateTime     @updatedAt
+  similarityFlag   Boolean        @default(false)
+  productId        String?        @unique
+  product          Product?       @relation(fields: [productId], references: [id], onDelete: SetNull)
+  scrapedAt        DateTime       @default(now())
+  lastCheckedAt    DateTime       @updatedAt
 
-  errors          ImportError[]
-  seoLogs         SeoGenerationLog[]
+  errors  ImportError[]
+  seoLogs SeoGenerationLog[]
 
   @@unique([providerId, externalId])
   @@index([providerId, sourceUrl])
@@ -897,17 +941,17 @@ model BrandMapping {
 }
 
 model CompetitorPrice {
-  id            String         @id @default(cuid())
-  providerId    String
-  provider      ImportProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  productId     String
-  product       Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
-  priceMillimes Int
+  id               String         @id @default(cuid())
+  providerId       String
+  provider         ImportProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  productId        String
+  product          Product        @relation(fields: [productId], references: [id], onDelete: Cascade)
+  priceMillimes    Int
   oldPriceMillimes Int?
-  currency      String         @default("TND")
-  checkedAt     DateTime       @default(now())
+  currency         String         @default("TND")
+  checkedAt        DateTime       @default(now())
 
-  history       CompetitorPriceHistory[]
+  history CompetitorPriceHistory[]
 
   @@unique([providerId, productId])
 }
@@ -935,35 +979,34 @@ model ImportError {
   createdAt         DateTime         @default(now())
 }
 
-
 model PurchaseOrderLine {
-  id               String        @id @default(cuid())
+  id               String         @id @default(cuid())
   purchaseOrderId  String
-  purchaseOrder    PurchaseOrder @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  purchaseOrder    PurchaseOrder  @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
   variantId        String
   variant          ProductVariant @relation(fields: [variantId], references: [id])
   quantity         Int
   unitCostMillimes Int
-  quantityReceived Int           @default(0)
+  quantityReceived Int            @default(0)
 }
 
 model SeoGenerationLog {
-  id                String          @id @default(cuid())
+  id                String           @id @default(cuid())
   importedProductId String?
   importedProduct   ImportedProduct? @relation(fields: [importedProductId], references: [id], onDelete: Cascade)
-  provider          String          // "local" | "openai"
-  model             String          // "local-engine-v1" | "gpt-4o-mini"
-  promptVersion     String          // "v1"
+  provider          String // "local" | "openai"
+  model             String // "local-engine-v1" | "gpt-4o-mini"
+  promptVersion     String // "v1"
   factsHash         String
-  inputTokens       Int             @default(0)
-  outputTokens      Int             @default(0)
-  totalTokens       Int             @default(0)
-  estimatedCostUsd  Float           @default(0.0)
-  durationMs        Int             @default(0)
-  status            String          // "SUCCESS" | "FAILED" | "CACHED"
+  inputTokens       Int              @default(0)
+  outputTokens      Int              @default(0)
+  totalTokens       Int              @default(0)
+  estimatedCostUsd  Float            @default(0.0)
+  durationMs        Int              @default(0)
+  status            String // "SUCCESS" | "FAILED" | "CACHED"
   error             String?
   createdContent    String?
-  createdAt         DateTime        @default(now())
+  createdAt         DateTime         @default(now())
 
   @@index([factsHash, provider, model, promptVersion])
 }

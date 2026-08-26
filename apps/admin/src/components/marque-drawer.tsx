@@ -27,6 +27,13 @@ export interface BrandModel {
   indexable?: boolean;
   ogTitle?: string;
   ogDescription?: string;
+  seoH1?: string;
+  seoIntro?: string;
+  seoContent?: string;
+  seoKeywords?: string | string[];
+  ogImage?: string;
+  imageAlt?: string;
+  followLinks?: boolean;
 }
 
 interface MarqueDrawerProps {
@@ -370,8 +377,18 @@ export function MarqueDrawer({ open, brand, onClose, onSave }: MarqueDrawerProps
                 indexable: form.indexable,
                 ogTitle: form.ogTitle,
                 ogDescription: form.ogDescription,
+                seoH1: form.seoH1,
+                seoIntro: form.seoIntro,
+                seoContent: form.seoContent,
+                seoKeywords: form.seoKeywords,
+                ogImage: form.ogImage,
+                imageAlt: form.imageAlt,
+                followLinks: form.followLinks,
               }}
-              slug={`marques/${form.slug}`}
+              slug={form.slug}
+              entityType="brand"
+              entityId={form.id}
+              pathPrefix="/marques"
               entityName={form.name || "Marque"}
               onChange={(seo) => updateForm(seo)}
             />

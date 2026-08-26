@@ -101,7 +101,18 @@ export interface Product {
   slug?: string;
   seoTitle?: string;
   metaDescription?: string;
+  seoDescription?: string;
+  seoH1?: string;
+  seoIntro?: string;
+  seoContent?: string;
+  seoKeywords?: string | string[];
+  canonicalUrl?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  imageAlt?: string;
   indexable?: boolean;
+  followLinks?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

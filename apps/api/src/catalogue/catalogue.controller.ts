@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Patch, Delete, Param, Query, Body, UseGuards } from "@nestjs/common";
 import { CatalogueService } from "./catalogue.service";
+import { CatalogueSeoService, SeoEntityType } from "./catalogue-seo.service";
 import { AdminAuthGuard } from "../admin-auth/guards/admin-auth.guard";
 import { ArrayMaxSize, ArrayMinSize, IsArray, IsString } from "class-validator";
 
@@ -13,7 +14,10 @@ class BulkDeleteProductsDto {
 
 @Controller("catalogue")
 export class CatalogueController {
-  constructor(private readonly catalogueService: CatalogueService) {}
+  constructor(
+    private readonly catalogueService: CatalogueService,
+    private readonly catalogueSeoService: CatalogueSeoService,
+  ) {}
 
   @Get("products")
   async getProducts(
@@ -42,6 +46,18 @@ export class CatalogueController {
   @Get("products/:slug")
   async getProduct(@Param("slug") slug: string) {
     return this.catalogueService.findProductBySlug(slug);
+  }
+
+  @Post("products")
+  @UseGuards(AdminAuthGuard)
+  async createProduct(@Body() body: any) {
+    return this.catalogueService.createProduct(body);
+  }
+
+  @Patch("products/:id")
+  @UseGuards(AdminAuthGuard)
+  async updateProduct(@Param("id") id: string, @Body() body: any) {
+    return this.catalogueService.updateProduct(id, body);
   }
 
   @Delete("products/:id")
@@ -95,22 +111,31 @@ export class CatalogueController {
     return this.catalogueService.findAllCategories();
   }
 
+  @Get("categories/:slug")
+  async getCategory(@Param("slug") slug: string) {
+    return this.catalogueService.findCategoryBySlug(slug);
+  }
+
   @Post("categories")
+  @UseGuards(AdminAuthGuard)
   async createCategory(@Body() body: any) {
     return this.catalogueService.createCategory(body);
   }
 
   @Patch("categories/:id")
+  @UseGuards(AdminAuthGuard)
   async updateCategory(@Param("id") id: string, @Body() body: any) {
     return this.catalogueService.updateCategory(id, body);
   }
 
   @Delete("categories/:id")
+  @UseGuards(AdminAuthGuard)
   async deleteCategory(@Param("id") id: string) {
     return this.catalogueService.deleteCategory(id);
   }
 
   @Post("categories/bulk-delete")
+  @UseGuards(AdminAuthGuard)
   async bulkDeleteCategories(@Body("ids") ids: string[]) {
     return this.catalogueService.bulkDeleteCategories(ids);
   }
@@ -127,5 +152,28 @@ export class CatalogueController {
   @Get("sitemap-data")
   async getSitemapData() {
     return this.catalogueService.getSitemapData();
+  }
+
+  @Get("seo/redirect")
+  async resolveRedirect(@Query("path") path: string) {
+    return this.catalogueService.resolveRedirect(path);
+  }
+
+  @Post("seo/generate/:type/:id")
+  @UseGuards(AdminAuthGuard)
+  async generateSeo(@Param("type") type: SeoEntityType, @Param("id") id: string, @Body("save") save?: boolean) {
+    return this.catalogueSeoService.generateOne(type, id, save !== false);
+  }
+
+  @Post("seo/generate-bulk")
+  @UseGuards(AdminAuthGuard)
+  async generateSeoBulk(@Body() body: { type: SeoEntityType; mode?: "missing" | "all"; cursor?: string; limit?: number }) {
+    return this.catalogueSeoService.generateBulk(body.type, body.mode, body.cursor, body.limit);
+  }
+
+  @Get("seo/report")
+  @UseGuards(AdminAuthGuard)
+  async getSeoReport() {
+    return this.catalogueSeoService.report();
   }
 }

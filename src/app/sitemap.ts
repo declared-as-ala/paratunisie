@@ -11,8 +11,8 @@ function apiBase() {
 
 type SitemapData = {
   products: { slug: string; updatedAt: string }[];
-  brands: { slug: string }[];
-  categories: { slug: string }[];
+  brands: { slug: string; updatedAt?: string }[];
+  categories: { slug: string; updatedAt?: string }[];
 };
 
 async function fetchSitemapData(): Promise<SitemapData | null> {
@@ -60,8 +60,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/fidelite`, changeFrequency: "monthly", priority: 0.3 },
   ];
 
-  const categoryUrls: MetadataRoute.Sitemap = getAllCategorySlugs().map((slug) => ({
-    url: `${SITE_URL}/${slug}`,
+  const categorySource: { slug: string; updatedAt?: string }[] = data?.categories?.length ? data.categories : getAllCategorySlugs().map((slug) => ({ slug }));
+  const categoryUrls: MetadataRoute.Sitemap = categorySource.map((category) => ({
+    url: `${SITE_URL}/${category.slug}`,
+    lastModified: category.updatedAt ? new Date(category.updatedAt) : undefined,
     changeFrequency: "daily",
     priority: 0.8,
   }));
@@ -74,6 +76,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const brandUrls: MetadataRoute.Sitemap = (data?.brands ?? []).map((b) => ({
     url: `${SITE_URL}/marques/${b.slug}`,
+    lastModified: b.updatedAt ? new Date(b.updatedAt) : undefined,
     changeFrequency: "weekly",
     priority: 0.6,
   }));

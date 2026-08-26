@@ -1,11 +1,8 @@
 import { products, type ProductSummary } from "@/lib/data/products";
 
-/* ─── Category Types ─────────────────────────────────────────────── */
-
 export type Subcategory = {
   slug: string;
   name: string;
-  /** Filter predicate — products matching this subcategory */
   match: (product: ProductSummary) => boolean;
 };
 
@@ -21,158 +18,362 @@ export type Category = {
   name: string;
   eyebrow?: string;
   description: string;
-  /** Short SEO-optimized intro (2-4 sentences) for the category page */
   seoIntro: string;
   subcategories: Subcategory[];
   concerns: Concern[];
-  /** Products belonging to this category */
   products: ProductSummary[];
 };
 
-/* ─── Helpers ────────────────────────────────────────────────────── */
-
-function inCategory(categoryName: string) {
-  return (p: ProductSummary) => p.category === categoryName;
-}
-
-function hasConcern(concern: string) {
-  return (p: ProductSummary) => p.concerns.includes(concern);
-}
-
-function and(...predicates: Array<(p: ProductSummary) => boolean>) {
-  return (p: ProductSummary) => predicates.every((fn) => fn(p));
-}
-
-/* ─── Categories ─────────────────────────────────────────────────── */
-
 export const categories: Category[] = [
   {
-    slug: "visage",
-    name: "Soin du Visage",
-    eyebrow: "Soins visage",
-    description:
-      "Nettoyants, sérums, hydratants et soins ciblés pour chaque type de peau. Des formules dermatologiques éprouvées, adaptées aux besoins du quotidien.",
-    seoIntro:
-      "Découvrez notre sélection de soins visage : nettoyants doux, sérums concentrés, hydratants et protection solaire. Chaque produit est choisi pour son efficacité, sa tolérance et son adaptabilité aux peaux sensibles, grasses, sèches ou mixtes.",
-    subcategories: [
-      { slug: "nettoyants", name: "Nettoyants", match: and(inCategory("Visage"), hasConcern("Peau sensible")) },
-      { slug: "serums", name: "Sérums", match: (p) => p.category === "Visage" && p.name.toLowerCase().includes("sérum") },
-      { slug: "hydratants", name: "Hydratants", match: and(inCategory("Visage"), (p) => p.name.toLowerCase().includes("hydrat") || p.name.toLowerCase().includes("crème") || p.name.toLowerCase().includes("gel-crème") || p.name.toLowerCase().includes("fluide")) },
-      { slug: "anti-imperfections", name: "Anti-imperfections", match: and(inCategory("Visage"), hasConcern("Imperfections")) },
-      { slug: "anti-age", name: "Anti-âge", match: and(inCategory("Visage"), hasConcern("Premiers signes de l'âge")) },
+    "slug": "creatine",
+    "name": "Créatine",
+    "eyebrow": "Force & Puissance",
+    "description": "Créatines monohydrates micronisées pures pour augmenter la force et le volume musculaire.",
+    "seoIntro": "Découvrez notre sélection de créatines monohydrates en poudre et gélules en Tunisie. Idéales pour optimiser vos performances, votre force explosive et accélérer votre développement musculaire.",
+    "subcategories": [
+      {
+        "slug": "tous",
+        "name": "Tous les produits"
+      }
     ],
-    concerns: [
-      { slug: "imperfections", name: "Acné & imperfections", match: hasConcern("Imperfections") },
-      { slug: "taches-eclat", name: "Taches & éclat", match: hasConcern("Taches & éclat") },
-      { slug: "peau-sensible", name: "Peau sensible", match: hasConcern("Peau sensible") },
-      { slug: "peau-seche", name: "Peau sèche", match: hasConcern("Peau sèche") },
-      { slug: "anti-age", name: "Premiers signes de l'âge", match: hasConcern("Premiers signes de l'âge") },
-    ],
-    products: products.filter(inCategory("Visage")),
+    "concerns": [
+      {
+        "slug": "creatine",
+        "name": "Créatine"
+      }
+    ]
   },
   {
-    slug: "corps",
-    name: "Soin du Corps",
-    eyebrow: "Soins corps",
-    description:
-      "Gels douche, baumes nourrissants et soins corporels pour toute la famille. Des textures pensées pour le confort quotidien de la peau.",
-    seoIntro:
-      "Explorez nos soins corporels : gels douche surgras, baumes réparateurs, huiles sèches et soins hydratants pour le corps. Des formules douces, adaptées aux peaux sèches, sensibles ou normales, pour un confort visible au quotidien.",
-    subcategories: [
-      { slug: "gels-douche", name: "Gels douche", match: and(inCategory("Corps"), (p) => p.name.toLowerCase().includes("gel douche")) },
-      { slug: "baumes", name: "Baumes & soins", match: and(inCategory("Corps"), (p) => p.name.toLowerCase().includes("baume") || p.name.toLowerCase().includes("huile")) },
+    "slug": "whey-proteine",
+    "name": "Whey Protéine",
+    "eyebrow": "Construction Musculaire",
+    "description": "Protéines de lactosérum de haute qualité pour la prise de muscle sec et la récupération.",
+    "seoIntro": "Sélection des meilleures whey protéines en Tunisie : concentrées, isolats et formules anaboliques pour nourrir vos fibres musculaires après l'effort.",
+    "subcategories": [
+      {
+        "slug": "tous",
+        "name": "Tous les produits"
+      }
     ],
-    concerns: [
-      { slug: "peau-seche", name: "Peau sèche", match: hasConcern("Peau sèche") },
-      { slug: "peau-sensible", name: "Peau sensible", match: hasConcern("Peau sensible") },
-    ],
-    products: products.filter(inCategory("Corps")),
+    "concerns": [
+      {
+        "slug": "whey-proteine",
+        "name": "Whey Protéine"
+      }
+    ]
   },
   {
-    slug: "cheveux",
-    name: "Soin des Cheveux",
-    eyebrow: "Soins capillaires",
-    description:
-      "Shampooings, soins et traitements pour tous les types de cheveux. Expertise dermocosmétique pour un cuir chevelu sain et des cheveux en pleine santé.",
-    seoIntro:
-      "Trouvez le shampooing et le soin capillaire adaptés à vos besoins : anti-chute, hydratation, purification du cuir chevelu ou protection des cheveux colorés. Des formules développées avec une approche dermatologique pour des résultats visibles.",
-    subcategories: [
-      { slug: "anti-chute", name: "Anti-chute", match: and(inCategory("Cheveux"), hasConcern("Chute de cheveux")) },
+    "slug": "gainers-proteines",
+    "name": "Gainers",
+    "eyebrow": "Prise de Masse",
+    "description": "Formules riches en protéines et glucides complexes pour une prise de masse rapide et efficace.",
+    "seoIntro": "Nos gainers caloriques et protéinés aident les profils ectomorphes et sportifs à prendre du poids et développer leur masse musculaire de manière équilibrée.",
+    "subcategories": [
+      {
+        "slug": "tous",
+        "name": "Tous les produits"
+      }
     ],
-    concerns: [
-      { slug: "chute-cheveux", name: "Chute de cheveux", match: hasConcern("Chute de cheveux") },
+    "concerns": [
+      {
+        "slug": "gainers-proteines",
+        "name": "Gainers"
+      }
+    ]
+  },
+  {
+    "slug": "pre-workout",
+    "name": "Pre-Workout",
+    "eyebrow": "Énergie & Focus",
+    "description": "Boosters d'entraînement puissants pour l'énergie, la congestion et la concentration.",
+    "seoIntro": "Boostez vos séances d'entraînement avec notre sélection de pre-workouts puissants contenant caféine, bêta-alanine et précurseurs d'oxyde nitrique.",
+    "subcategories": [
+      {
+        "slug": "tous",
+        "name": "Tous les produits"
+      }
     ],
-    products: products.filter(inCategory("Cheveux")),
+    "concerns": [
+      {
+        "slug": "pre-workout",
+        "name": "Pre-Workout"
+      }
+    ]
   },
   {
-    slug: "solaire",
-    name: "Protection Solaire",
-    eyebrow: "Solaires",
-    description:
-      "Protection solaire haute protection pour le visage et le corps. Formules invisibles, résistantes à l'eau et adaptées à chaque type de peau.",
-    seoIntro:
-      "Choisissez votre écran solaire parmi notre sélection de protections haute performance : fluide invisible, lait protecteur, stick pour zones sensibles. Des filtres avancés, une tolérance optimale et un fini invisible pour une protection quotidienne sous le soleil tunisien.",
-    subcategories: [
-      { slug: "visage", name: "Visage", match: and(inCategory("Solaire"), (p) => p.name.toLowerCase().includes("visage") || p.name.toLowerCase().includes("fluide")) },
-      { slug: "corps", name: "Corps", match: and(inCategory("Solaire"), (p) => !p.name.toLowerCase().includes("visage") && !p.name.toLowerCase().includes("fluide")) },
+    "slug": "bcaa",
+    "name": "BCAA",
+    "eyebrow": "Acides Aminés",
+    "description": "Acides aminés branchés (Leucine, Isoleucine, Valine) pour préserver le muscle et récupérer.",
+    "seoIntro": "Les BCAA sont essentiels pour stopper le catabolisme musculaire et favoriser une récupération rapide pendant et après vos séances de sport.",
+    "subcategories": [
+      {
+        "slug": "tous",
+        "name": "Tous les produits"
+      }
     ],
-    concerns: [
-      { slug: "protection-solaire", name: "Protection solaire", match: hasConcern("Protection solaire") },
-      { slug: "anti-age", name: "Anti-photovieillissement", match: hasConcern("Premiers signes de l'âge") },
+    "concerns": [
+      {
+        "slug": "bcaa",
+        "name": "BCAA"
+      }
+    ]
+  },
+  {
+    "slug": "eaa",
+    "name": "EAA",
+    "eyebrow": "Acides Aminés Essentiels",
+    "description": "Le profil complet des 9 acides aminés essentiels pour la synthèse des protéines.",
+    "seoIntro": "Les acides aminés essentiels (EAA) soutiennent la synthèse musculaire maximale et l'hydratation cellulaire durant l'effort.",
+    "subcategories": [
+      {
+        "slug": "tous",
+        "name": "Tous les produits"
+      }
     ],
-    products: products.filter(inCategory("Solaire")),
+    "concerns": [
+      {
+        "slug": "eaa",
+        "name": "EAA"
+      }
+    ]
   },
   {
-    slug: "hygiene",
-    name: "Hygiène",
-    eyebrow: "Hygiène quotidienne",
-    description:
-      "Gels hydro-alcooliques, déodorants, soins buccaux et produits d'hygiène quotidienne. Des formules douces et efficaces pour toute la famille.",
-    seoIntro:
-      "Retrouvez nos produits d'hygiène quotidienne : gels nettoyants, déodorants dermatologiques, soins buccaux et accessoires d'hygiène. Des marques de confiance, formulées pour respecter la peau tout en assurant une protection efficace au quotidien.",
-    subcategories: [],
-    concerns: [],
-    products: [],
+    "slug": "beta-alanine",
+    "name": "Beta-Alanine",
+    "eyebrow": "Endurance Musculaire",
+    "description": "Acide aminé précurseur de la carnosine pour repousser la fatigue musculaire.",
+    "seoIntro": "La bêta-alanine permet de retarder l'apparition de l'acide lactique et d'améliorer l'endurance musculaire lors d'efforts intenses.",
+    "subcategories": [
+      {
+        "slug": "tous",
+        "name": "Tous les produits"
+      }
+    ],
+    "concerns": [
+      {
+        "slug": "beta-alanine",
+        "name": "Beta-Alanine"
+      }
+    ]
   },
   {
-    slug: "complements",
-    name: "Compléments Alimentaires",
-    eyebrow: "Compléments",
-    description:
-      "Vitamines, minéraux, probiotiques et compléments alimentaires pour soutenir votre santé au quotidien. Des formules de qualité, issues de marques reconnues.",
-    seoIntro:
-      "Découvrez notre sélection de compléments alimentaires : vitamines, oméga-3, probiotiques, fer, magnésium et cure renforçante. Des produits soigneusement choisis pour compléter votre alimentation et soutenir votre bien-être au quotidien.",
-    subcategories: [],
-    concerns: [],
-    products: [],
+    "slug": "citrulline",
+    "name": "Citrulline",
+    "eyebrow": "Vasodilatation & Congestion",
+    "description": "Précurseur d'oxyde nitrique pour une vascularité et une congestion exceptionnelles.",
+    "seoIntro": "La citrulline et l'arginine améliorent le flux sanguin, l'oxygénation des muscles et la congestion lors des séances d'entraînement.",
+    "subcategories": [
+      {
+        "slug": "tous",
+        "name": "Tous les produits"
+      }
+    ],
+    "concerns": [
+      {
+        "slug": "citrulline",
+        "name": "Citrulline"
+      }
+    ]
   },
   {
-    slug: "homme",
-    name: "Soin Homme",
-    eyebrow: "Soins hommes",
-    description:
-      "Soins visage, anti-âge et hygiène spécialement formulés pour les besoins de la peau masculine. Des textures légères, des formules efficaces.",
-    seoIntro:
-      "Explorez nos soins homme : hydratants non grasses, après-rasage apaisants, anti-âge ciblés et shampooings spécialisés. La peau masculine a des besoins spécifiques — nos marques dermatologiques y répondent avec des formules adaptées.",
-    subcategories: [],
-    concerns: [],
-    products: [],
+    "slug": "vitamines",
+    "name": "Vitamines",
+    "eyebrow": "Vitalité & Immunité",
+    "description": "Vitamines C, D3+K2 et complexes multivitaminés complets pour la vitalité quotidienne.",
+    "seoIntro": "Découvrez notre gamme de vitamines essentielles pour renforcer votre système immunitaire, combattre la fatigue et soutenir votre métabolisme.",
+    "subcategories": [
+      {
+        "slug": "tous",
+        "name": "Tous les produits"
+      }
+    ],
+    "concerns": [
+      {
+        "slug": "vitamines",
+        "name": "Vitamines"
+      }
+    ]
   },
   {
-    slug: "bebe-maman",
-    name: "Bébé & Maman",
-    eyebrow: "Bébé & maman",
-    description:
-      "Soins doux pour bébé et_future maman : crèmes change, bains, huiles et soins du corps. Des formules testées, sans parabènes, adaptées aux peaux les plus délicates.",
-    seoIntro:
-      "Trouvez les soins essentiels pour bébé et la future maman : crèmes anti-érythème, huiles de bain, laits corporels et soins post-naissance. Des marques de confiance, formulées avec une tolérance maximale pour les peaux les plus sensibles.",
-    subcategories: [],
-    concerns: [],
-    products: [],
+    "slug": "zinc",
+    "name": "Zinc",
+    "eyebrow": "Minéraux Essentiels",
+    "description": "Soutien immunitaire, équilibre hormonal et santé de la peau et des ongles.",
+    "seoIntro": "Le zinc est un oligo-élément capital participant à plus de 300 réactions enzymatiques, au maintien du taux de testostérone et à l'immunité.",
+    "subcategories": [
+      {
+        "slug": "tous",
+        "name": "Tous les produits"
+      }
+    ],
+    "concerns": [
+      {
+        "slug": "zinc",
+        "name": "Zinc"
+      }
+    ]
   },
-];
-
-/* ─── Lookup Helpers ─────────────────────────────────────────────── */
+  {
+    "slug": "magnesium",
+    "name": "Magnésium",
+    "eyebrow": "Équilibre Nerveux & Musculaire",
+    "description": "Magnésium avec Vitamine B6 pour réduire le stress, les crampes et la fatigue.",
+    "seoIntro": "Indispensable pour la contraction musculaire et la relaxation du système nerveux, le magnésium combat la fatigue et le surmenage.",
+    "subcategories": [
+      {
+        "slug": "tous",
+        "name": "Tous les produits"
+      }
+    ],
+    "concerns": [
+      {
+        "slug": "magnesium",
+        "name": "Magnésium"
+      }
+    ]
+  },
+  {
+    "slug": "omega-3",
+    "name": "Omega 3",
+    "eyebrow": "Acides Gras Essentiels",
+    "description": "Huiles de poisson hautement concentrées en EPA & DHA pour le cœur et les articulations.",
+    "seoIntro": "Les oméga-3 favorisent la santé cardiovasculaire, réduisent les inflammations articulaires et soutiennent les fonctions cérébrales.",
+    "subcategories": [
+      {
+        "slug": "tous",
+        "name": "Tous les produits"
+      }
+    ],
+    "concerns": [
+      {
+        "slug": "omega-3",
+        "name": "Omega 3"
+      }
+    ]
+  },
+  {
+    "slug": "ashwagandha",
+    "name": "Ashwagandha",
+    "eyebrow": "Plante Adaptogène",
+    "description": "Extrait naturel pour réguler le cortisol, réduire le stress et booster la vitalité.",
+    "seoIntro": "L'ashwagandha est une plante adaptogène ancestrale qui aide l'organisme à résister au stress physique et mental et améliore la qualité du sommeil.",
+    "subcategories": [
+      {
+        "slug": "tous",
+        "name": "Tous les produits"
+      }
+    ],
+    "concerns": [
+      {
+        "slug": "ashwagandha",
+        "name": "Ashwagandha"
+      }
+    ]
+  },
+  {
+    "slug": "boosters-hormonaux",
+    "name": "Boosters",
+    "eyebrow": "Vitalité & Tonus",
+    "description": "Formules avancées à base de plantes et minéraux pour stimuler le tonus masculin.",
+    "seoIntro": "Nos boosters soutiennent la production naturelle de testostérone, la vigueur et les performances physiques des athlètes.",
+    "subcategories": [
+      {
+        "slug": "tous",
+        "name": "Tous les produits"
+      }
+    ],
+    "concerns": [
+      {
+        "slug": "boosters-hormonaux",
+        "name": "Boosters"
+      }
+    ]
+  },
+  {
+    "slug": "l-carnitine",
+    "name": "L-Carnitine",
+    "eyebrow": "Énergie & Définition",
+    "description": "Transporteur d'acides gras vers les cellules pour la production d'énergie à l'effort.",
+    "seoIntro": "La L-Carnitine aide à mobiliser les graisses stockées pour les convertir en énergie disponible pendant vos entraînements cardio et fitness.",
+    "subcategories": [
+      {
+        "slug": "tous",
+        "name": "Tous les produits"
+      }
+    ],
+    "concerns": [
+      {
+        "slug": "l-carnitine",
+        "name": "L-Carnitine"
+      }
+    ]
+  },
+  {
+    "slug": "bruleurs-de-graisse",
+    "name": "Brûleurs de Graisse",
+    "eyebrow": "Sèche & Métabolisme",
+    "description": "Formules thermogéniques concentrées pour accélérer la combustion des calories.",
+    "seoIntro": "Nos brûleurs de graisse vous accompagnent dans vos périodes de sèche et de perte de poids en stimulant votre métabolisme de base.",
+    "subcategories": [
+      {
+        "slug": "tous",
+        "name": "Tous les produits"
+      }
+    ],
+    "concerns": [
+      {
+        "slug": "bruleurs-de-graisse",
+        "name": "Brûleurs de Graisse"
+      }
+    ]
+  },
+  {
+    "slug": "accessoires",
+    "name": "Accessoires",
+    "eyebrow": "Équipement & Matériel",
+    "description": "Shakers, gants de musculation, ceintures lombaires et sangles de tirage pour optimiser vos performances à la salle.",
+    "seoIntro": "Notre gamme d'accessoires de musculation inclut des shakers sans BPA, gants haute résistance, ceintures lombaires professionnelles, sangles de tirage et tout l'équipement nécessaire pour performer à la salle. Livraison rapide 24-48h partout en Tunisie. Paiement à la livraison disponible.",
+    "subcategories": [
+      {
+        "slug": "tous",
+        "name": "Tous les produits"
+      },
+      {
+        "slug": "shakers",
+        "name": "Shakers & Bouteilles"
+      },
+      {
+        "slug": "protection",
+        "name": "Gants & Protection"
+      },
+      {
+        "slug": "ceintures",
+        "name": "Ceintures & Soutien"
+      },
+      {
+        "slug": "sangles",
+        "name": "Sangles & Straps"
+      }
+    ],
+    "concerns": [
+      {
+        "slug": "accessoires",
+        "name": "Accessoires Musculation"
+      }
+    ]
+  }
+].map((cat) => ({
+  ...cat,
+  subcategories: [
+    { slug: "tous", name: "Tous les produits", match: () => true },
+  ],
+  concerns: [
+    { slug: cat.slug, name: cat.name, match: (p: ProductSummary) => p.category.toLowerCase() === cat.name.toLowerCase() },
+  ],
+  products: products.filter((p) => p.category.toLowerCase() === cat.name.toLowerCase()),
+}));
 
 export function getCategoryBySlug(slug: string): Category | undefined {
   return categories.find((c) => c.slug === slug);
@@ -182,27 +383,11 @@ export function getAllCategorySlugs(): string[] {
   return categories.map((c) => c.slug);
 }
 
-/** All unique concerns across categories */
-export function getAllConcerns(): Array<{ slug: string; name: string; categorySlug: string }> {
-  return categories.flatMap((c) =>
-    c.concerns.map((concern) => ({
-      ...concern,
-      categorySlug: c.slug,
-    })),
-  );
-}
-
-/** All unique brands for a set of products */
 export function getBrandsForProducts(productList: ProductSummary[]): string[] {
-  return [...new Set(productList.map((p) => p.brand))].sort();
+  return Array.from(new Set(productList.map((p) => p.brand))).sort();
 }
 
-/** All unique concerns for a set of products */
-export function getConcernsForProducts(productList: ProductSummary[]): string[] {
-  return [...new Set(productList.flatMap((p) => p.concerns))].sort();
-}
-
-/** All unique skin types for a set of products */
 export function getSkinTypesForProducts(productList: ProductSummary[]): string[] {
-  return [...new Set(productList.flatMap((p) => p.skinTypes))].sort();
+  return Array.from(new Set(productList.flatMap((p) => p.skinTypes))).sort();
 }
+

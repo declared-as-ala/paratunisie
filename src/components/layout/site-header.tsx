@@ -11,19 +11,9 @@ import { useWishlist } from "@/hooks/use-wishlist";
 import { useCartDrawer } from "@/hooks/use-cart-drawer";
 import { Logo } from "@/components/layout/logo";
 import { SearchOverlay } from "@/components/layout/navigation/search-overlay";
+import { MegaMenu } from "@/components/layout/navigation/mega-menu";
 import { CartDrawer } from "@/components/cart/cart-drawer";
 import { phoneHref, phoneNumber } from "@/lib/contact";
-
-const DESKTOP_NAV_ITEMS = [
-  { label: "Accueil", href: "/" },
-  { label: "Boutique", href: "/shop" },
-  { label: "Marques", href: "/marques" },
-  { label: "Visage", href: "/shop?category=visage" },
-  { label: "Corps", href: "/shop?category=corps" },
-  { label: "Cheveux", href: "/shop?category=cheveux" },
-  { label: "Bébé & Maman", href: "/shop?category=bebe-maman" },
-  { label: "Conseils", href: "/conseils" },
-];
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -136,33 +126,11 @@ export function SiteHeader() {
           </div>
         </div>
 
-        {/* ── ROW 3: Desktop Navigation Links Row (lg+) ───────────────── */}
+        {/* ── ROW 3: Desktop Mega Menu Navigation (lg+) ───────────────── */}
         <div className="hidden lg:block border-t border-border/50 bg-soft-nude/30">
           <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-            <nav className="flex items-center justify-center gap-1 py-1 text-xs font-bold text-ink">
-              {DESKTOP_NAV_ITEMS.map((item) => {
-                const active =
-                  item.href === "/shop"
-                    ? pathname === "/shop" || pathname.startsWith("/shop/")
-                    : item.href === "/"
-                      ? pathname === "/"
-                      : pathname.startsWith(item.href);
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`relative px-4 py-2 rounded-lg transition-colors hover:bg-white/80 hover:text-primary ${
-                      active ? "text-primary font-extrabold" : "text-ink/80"
-                    }`}
-                  >
-                    <span>{item.label}</span>
-                    {active && (
-                      <span className="absolute bottom-0.5 inset-x-4 h-0.5 rounded-full bg-primary" />
-                    )}
-                  </Link>
-                );
-              })}
+            <nav className="flex items-center justify-center py-1">
+              <MegaMenu />
             </nav>
           </div>
         </div>

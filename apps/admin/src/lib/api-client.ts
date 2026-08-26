@@ -5,6 +5,23 @@ function getApiBaseUrl() {
   return process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
 }
 
+export function resolveMediaUrl(value?: string | null, fallback = "/assets/product-tube.webp") {
+  if (!value) return fallback;
+  if (/^(?:https?:)?\/\//i.test(value) || /^(?:data|blob):/i.test(value)) return value;
+  if (!/^\/?uploads\//i.test(value)) return value;
+
+  const publicApiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+  try {
+    const baseOrigin = new URL(
+      publicApiUrl,
+      typeof window !== "undefined" ? window.location.origin : "http://localhost:3001",
+    ).origin;
+    return `${baseOrigin}/${value.replace(/^\/+/, "")}`;
+  } catch {
+    return value;
+  }
+}
+
 export class ApiError extends Error {
   constructor(
     message: string,

@@ -116,7 +116,7 @@ export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
         {product.brand}
       </Link>
       <h1 className="mt-1 sm:mt-2 font-serif text-xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-ink leading-snug">
-        {product.name}
+        {product.seoH1 || product.name}
       </h1>
       <p className="mt-1.5 sm:mt-2 text-xs sm:text-base leading-relaxed text-ink-muted">{product.benefit}</p>
 

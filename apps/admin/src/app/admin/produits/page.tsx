@@ -14,9 +14,10 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { ProductDrawer } from "@/components/product-drawer";
+import { BulkSeoGenerator } from "@/components/bulk-seo-generator";
 import { ConfirmModal } from "@/components/confirm-modal";
 import { useToast } from "@/components/toast";
-import { apiClient } from "@/lib/api-client";
+import { apiClient, resolveMediaUrl } from "@/lib/api-client";
 import type { Product, Supplier, PurchasePriceHistory } from "@/lib/types";
 
 /* ─── Real products matching http://localhost:3000/shop ──────────────── */
@@ -316,10 +317,28 @@ export default function ProduitsPage() {
           category: p.category?.name || "Visage",
           price: p.variants?.[0]?.priceMillimes ? p.variants[0].priceMillimes / 1000 : 0,
           costPrice: 0,
-          sku: p.slug?.toUpperCase() || `SKU-${i}`,
+          sku: p.variants?.[0]?.sku || p.slug?.toUpperCase() || `SKU-${i}`,
           stock: p.variants?.[0]?.stock ?? 50,
-          status: p.status || "ACTIVE",
+          status: p.publishState === "PUBLISHED" ? "ACTIVE" : p.publishState === "NOINDEX" ? "ARCHIVED" : "DRAFT",
           image: p.image || "/assets/product-tube.webp",
+          slug: p.slug,
+          shortDescription: p.benefit,
+          description: p.description,
+          usage: p.usage,
+          seoTitle: p.seoTitle,
+          seoDescription: p.seoDescription,
+          metaDescription: p.seoDescription,
+          seoH1: p.seoH1,
+          seoIntro: p.seoIntro,
+          seoContent: p.seoContent,
+          seoKeywords: p.seoKeywords,
+          canonicalUrl: p.canonicalUrl,
+          ogTitle: p.ogTitle,
+          ogDescription: p.ogDescription,
+          ogImage: p.ogImage,
+          imageAlt: p.imageAlt,
+          indexable: p.indexable,
+          followLinks: p.followLinks,
         }));
 
         setProducts(mapped);
@@ -420,12 +439,16 @@ export default function ProduitsPage() {
   }, [selectedIds, toast]);
 
   const handleSave = useCallback(
-    (product: Product) => {
+    async (product: Product) => {
+      const savedRaw = editingProduct
+        ? await apiClient.patch<any>(`/catalogue/products/${product.id}`, product)
+        : await apiClient.post<any>("/catalogue/products", product);
+      const saved = { ...product, id: savedRaw.id || product.id };
       if (editingProduct) {
-        setProducts((prev) => prev.map((p) => (p.id === product.id ? { ...p, ...product } : p)));
+        setProducts((prev) => prev.map((p) => (p.id === product.id ? { ...p, ...saved } : p)));
         toast("success", `Produit « ${product.name} » mis à jour`);
       } else {
-        const newP = { ...product, id: `p${Date.now()}`, image: "/assets/product-tube.webp" };
+        const newP = { ...saved, image: saved.image || "/assets/product-tube.webp" };
         setProducts((prev) => [newP, ...prev]);
         toast("success", `Produit « ${product.name} » créé avec succès`);
       }
@@ -499,6 +522,7 @@ export default function ProduitsPage() {
       </div>
 
       {/* ── Filter Bar matching Commandes ────────────────────────────── */}
+      <BulkSeoGenerator type="product" label="tous les produits" />
       <div className="rounded-2xl bg-white p-3.5 shadow-xs border border-slate-200/80 flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 min-w-[240px] max-w-md">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -627,7 +651,7 @@ export default function ProduitsPage() {
                       <div className="flex items-center gap-3">
                         <div className="h-16 w-16 rounded-xl bg-white border border-slate-200 p-1 flex items-center justify-center shrink-0 shadow-xs overflow-hidden">
                           <img
-                            src={product.image || "/assets/product-tube.webp"}
+                            src={resolveMediaUrl(product.image)}
                             alt={product.name}
                             className="h-full w-full object-contain"
                             onError={(e) => {

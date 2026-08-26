@@ -1,149 +1,162 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ShieldCheck, Truck, CreditCard } from "lucide-react";
-
-import { HeroVisual } from "./hero-visual";
-
-const REVEAL =
-  "transition-[opacity,transform] duration-[var(--duration-large)] ease-[var(--ease-out-standard)] starting:opacity-0 starting:translate-y-3";
-
-function HeroCopy({ mobileOverlay = false }: { mobileOverlay?: boolean }) {
-  return (
-    <div className={mobileOverlay ? "max-w-md" : "max-w-xl"}>
-      <div
-        className={`mb-4 inline-flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold backdrop-blur-sm ${
-          mobileOverlay
-            ? "border-white/25 bg-white/15 text-white"
-            : "border-primary/15 bg-primary/10 text-primary"
-        }`}
-      >
-        <span
-          className={`h-1.5 w-1.5 rounded-full ${
-            mobileOverlay ? "bg-brand-champagne" : "animate-pulse bg-primary"
-          }`}
-        />
-        Le soin dermatologique en toute confiance
-      </div>
-
-      <h1
-        className={`font-serif text-3xl font-medium leading-[1.08] tracking-tight sm:text-4xl md:text-5xl lg:text-6xl ${
-          mobileOverlay ? "text-white drop-shadow-sm" : "text-ink md:text-primary"
-        } ${REVEAL}`}
-      >
-        Votre routine beauté
-        <br className="hidden sm:inline" />
-        {" "}commence par le{" "}
-        <span
-          className={`relative inline-block ${
-            mobileOverlay ? "text-[#f2d7a8]" : "text-primary"
-          }`}
-        >
-          bon conseil
-          <span
-            className="absolute -bottom-1 left-0 h-[3px] w-full origin-left rounded-full bg-brand-champagne"
-            style={{
-              animation: "heroShimmer 3s ease-in-out infinite",
-              backgroundSize: "200% 100%",
-              backgroundImage:
-                "linear-gradient(90deg, transparent 0%, rgba(200,164,107,0.8) 50%, transparent 100%)",
-            }}
-            aria-hidden="true"
-          />
-        </span>
-        .
-      </h1>
-
-      <p
-        className={`mt-4 max-w-lg text-sm leading-relaxed sm:text-base ${
-          mobileOverlay ? "text-white/85" : "text-ink-muted"
-        } delay-[80ms] ${REVEAL}`}
-      >
-        Découvrez une sélection experte de soins 100% authentiques, adaptés à votre peau, vos besoins et votre budget.
-      </p>
-
-      <div className={`mt-7 flex flex-col gap-3 sm:flex-row delay-[160ms] ${REVEAL}`}>
-        <Link
-          href="/shop"
-          className={`group inline-flex min-h-12 items-center justify-center gap-2 rounded-xl px-7 py-3 text-sm font-bold transition-all duration-[var(--duration-standard)] active:scale-[0.97] ${
-            mobileOverlay
-              ? "bg-white text-primary shadow-lg shadow-black/10 hover:bg-soft-nude"
-              : "bg-primary text-primary-foreground hover:bg-primary-hover hover:shadow-lg hover:shadow-primary/20"
-          }`}
-        >
-          Découvrir tous les produits
-          <ArrowRight
-            className="size-4 transition-transform duration-[var(--duration-standard)] group-hover:translate-x-1"
-            aria-hidden
-          />
-        </Link>
-      </div>
-
-      {!mobileOverlay && (
-        <div className={`mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-semibold text-ink-muted delay-[200ms] ${REVEAL}`}>
-          <span className="flex items-center gap-1.5">
-            <ShieldCheck size={15} className="shrink-0 text-emerald-600" />
-            Produits 100% authentiques
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Truck size={15} className="shrink-0 text-emerald-600" />
-            Livraison partout en Tunisie
-          </span>
-          <span className="flex items-center gap-1.5">
-            <CreditCard size={15} className="shrink-0 text-emerald-600" />
-            Paiement à la livraison
-          </span>
-        </div>
-      )}
-    </div>
-  );
-}
+import { ArrowRight, ShieldCheck, Truck, CreditCard, Sparkles, ChevronDown, Zap } from "lucide-react";
 
 export function HomeHero() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(motionQuery.matches);
+
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    motionQuery.addEventListener("change", handler);
+    return () => motionQuery.removeEventListener("change", handler);
+  }, []);
+
+  useEffect(() => {
+    if (prefersReducedMotion && videoRef.current) {
+      videoRef.current.pause();
+    }
+  }, [prefersReducedMotion]);
+
+  const scrollToContent = () => {
+    const target = document.getElementById("homepage-content");
+    if (target) {
+      target.scrollIntoView({ behavior: "smooth" });
+    }
+  };
+
   return (
-    <section className="border-b border-border/50 bg-soft-nude/60">
-      {/* Mobile: image-led hero with copy anchored safely near the bottom. */}
-      <div className="p-3 sm:p-5 md:hidden">
-        <div className="relative min-h-[42rem] w-full overflow-hidden rounded-[1.5rem] border border-border/70 bg-primary shadow-sm sm:min-h-[44rem]">
-          <Image
-            src="/assets/hero-cinematic-poster.webp"
-            alt="Composition de soins dermatologiques ParaTunisie"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-[68%_center]"
-          />
-          <div
-            className="absolute inset-0 bg-[linear-gradient(180deg,rgba(43,35,38,0.02)_18%,rgba(43,35,38,0.18)_48%,rgba(43,35,38,0.88)_100%)]"
+    <section
+      data-testid="cinematic-hero"
+      className="relative w-full min-h-[88vh] sm:min-h-[94vh] flex items-end overflow-hidden bg-black text-white"
+    >
+      {/* ── 1. Hero Background Video & Poster ──────────────────────────── */}
+      <div className="absolute inset-0 size-full overflow-hidden select-none">
+        {/* Base Poster Image */}
+        <Image
+          src="/assets/hero-poster.webp"
+          alt="ParaTunisie — Parapharmacie et Nutrition sportive en Tunisie"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[58%_center] sm:object-[56%_center] lg:object-[58%_center] transition-opacity duration-700"
+        />
+
+        {/* HTML5 Autoplay Video */}
+        {!prefersReducedMotion && (
+          <video
+            ref={videoRef}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            poster="/assets/hero-poster.webp"
             aria-hidden="true"
-          />
-          <div className="absolute inset-x-0 bottom-0 z-10 px-5 pb-7 pt-28 sm:px-8 sm:pb-9">
-            <HeroCopy mobileOverlay />
+            className="absolute inset-0 size-full object-cover object-[58%_center] sm:object-[56%_center] lg:object-[58%_center] pointer-events-none"
+          >
+            <source src="/assets/hero-video-optimized.mp4" type="video/mp4" />
+            <source
+              src="/assets/hf_20260826_190907_af0b25d6-4401-4b39-8132-c86ed8c156f1.mp4"
+              type="video/mp4"
+            />
+          </video>
+        )}
+      </div>
+
+      {/* ── 2. Cinematic Luxury Gradient Overlays (IOMA Paris Style) ─────── */}
+      {/* Lightened overlays — show more of the video */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/55 via-black/15 to-transparent"
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,transparent_30%,rgba(0,0,0,0.35)_85%)]"
+      />
+
+      {/* ── 3. Foreground Content (Anchored Bottom-Left) ────────────────── */}
+      <div className="relative mx-auto w-full max-w-[1440px] px-4 md:px-8 lg:px-12 pb-14 sm:pb-20 pt-28 sm:pt-36 z-10">
+        <div className="max-w-3xl">
+          {/* Eyebrow Pill */}
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-white/20 bg-white/10 backdrop-blur-md text-[11px] uppercase tracking-[0.2em] text-white/90 font-medium mb-4">
+            <span className="inline-block size-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399] animate-pulse" />
+            <span>ParaTunisie — Nutrition Sportive &amp; Santé</span>
+          </div>
+
+          {/* Main Display Headline */}
+          <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.08] tracking-tight text-white drop-shadow-[0_4px_25px_rgba(0,0,0,0.85)]">
+            Votre bien-être,
+            <br />
+            <span className="text-white font-normal italic">et votre performance.</span>
+          </h1>
+
+          {/* Subtitle */}
+          <p className="mt-4 max-w-xl text-sm sm:text-base md:text-lg leading-relaxed text-white/90 font-light drop-shadow-md">
+            Parapharmacie d&apos;élite, soins dermatologiques haute tolérance, vitamines certifiées et nutrition sportive 100% authentique sélectionnées pour vos exigences quotidiennes en Tunisie.
+          </p>
+
+          {/* Dual CTAs */}
+          <div className="mt-8 flex flex-wrap items-center gap-3.5 sm:gap-4">
+            {/* Primary CTA */}
+            <Link
+              href="/shop"
+              className="group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-[#8B3B62] hover:bg-[#a64775] text-white uppercase tracking-widest font-semibold shadow-[0_4px_25px_rgba(139,59,98,0.5)] transition-all hover:scale-[1.02] active:scale-[0.98] px-6 py-3.5 text-xs sm:text-sm gap-2"
+            >
+              <Sparkles size={16} className="text-white" />
+              <span>Découvrir nos produits</span>
+            </Link>
+
+            {/* Secondary CTA */}
+            <Link
+              href="/creatine"
+              className="group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-white/40 bg-black/40 backdrop-blur-sm text-white uppercase tracking-widest hover:bg-white/20 hover:text-white font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] px-6 py-3.5 text-xs sm:text-sm gap-2"
+            >
+              <Zap size={15} className="text-brand-champagne" />
+              <span>Nutrition sportive</span>
+            </Link>
+          </div>
+
+          {/* Trust Strip */}
+          <div className="mt-10 pt-6 border-t border-white/15 grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-xl text-xs text-white/85">
+            <div className="flex items-center gap-2">
+              <ShieldCheck size={16} className="text-emerald-400 shrink-0" />
+              <span>100% Authentiques</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Truck size={16} className="text-emerald-400 shrink-0" />
+              <span>Livraison 24-48h Tunisie</span>
+            </div>
+            <div className="hidden sm:flex items-center gap-2">
+              <CreditCard size={16} className="text-emerald-400 shrink-0" />
+              <span>Paiement à la livraison</span>
+            </div>
           </div>
         </div>
-
-        <div className="flex flex-wrap justify-center gap-x-4 gap-y-2 px-3 py-4 text-[0.6875rem] font-semibold text-ink-muted">
-          <span className="flex items-center gap-1.5">
-            <ShieldCheck size={14} className="text-emerald-600" />
-            100% authentiques
-          </span>
-          <span className="flex items-center gap-1.5">
-            <Truck size={14} className="text-emerald-600" />
-            Livraison en Tunisie
-          </span>
-          <span className="flex items-center gap-1.5">
-            <CreditCard size={14} className="text-emerald-600" />
-            Paiement à la livraison
-          </span>
-        </div>
       </div>
 
-      {/* Desktop view */}
-      <div className="relative isolate hidden overflow-hidden py-12 md:block lg:py-20">
-        <HeroVisual />
-        <div className="relative z-10 mx-auto flex max-w-[1440px] items-center px-8 lg:px-12 xl:px-20">
-          <HeroCopy />
+      {/* ── 4. Scroll Down Floating Indicator (Bottom-Right) ───────────── */}
+      <button
+        type="button"
+        onClick={scrollToContent}
+        aria-label="Découvrir les compléments et soins"
+        className="absolute bottom-5 end-4 sm:end-12 z-20 flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-white/70 hover:text-white transition-colors cursor-pointer group"
+      >
+        <span className="hidden sm:inline font-medium">Découvrir les soins</span>
+        <div className="size-8 rounded-full border border-white/25 bg-white/10 flex items-center justify-center group-hover:border-white/50 group-hover:bg-white/20 transition-all shadow-sm">
+          <ChevronDown size={16} className="text-white group-hover:translate-y-0.5 transition-transform" />
         </div>
-      </div>
+      </button>
     </section>
   );
 }

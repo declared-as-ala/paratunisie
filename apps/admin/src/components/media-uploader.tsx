@@ -3,6 +3,7 @@
 import { useState, useRef, useCallback } from "react";
 import Image from "next/image";
 import { Upload, X, RefreshCw, CheckCircle2, AlertCircle } from "lucide-react";
+import { resolveMediaUrl } from "@/lib/api-client";
 
 interface MediaUploaderProps {
   label: string;
@@ -99,7 +100,7 @@ export function MediaUploader({
           <div
             className={`relative rounded-xl border border-slate-200 bg-slate-50 overflow-hidden shadow-xs group flex items-center justify-center ${aspectClasses}`}
           >
-            <Image src={value} alt={altText || label} fill unoptimized className="object-contain p-1" />
+            <Image src={resolveMediaUrl(value)} alt={altText || label} fill unoptimized className="object-contain p-1" />
             <div className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
               <button
                 type="button"

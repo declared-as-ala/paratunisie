@@ -45,6 +45,7 @@ async function getPublishedArticles(): Promise<Article[]> {
   try {
     const res = await fetch(`${API_URL}/content/articles?status=PUBLISHED`, {
       next: { revalidate: 300 }, // 5 min cache
+      signal: AbortSignal.timeout(1000),
     });
     if (!res.ok) throw new Error("API error");
     const data = await res.json();

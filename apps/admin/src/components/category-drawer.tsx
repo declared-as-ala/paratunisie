@@ -26,6 +26,14 @@ export interface CategoryModel {
   canonicalUrl?: string;
   indexable?: boolean;
   seoContent?: string;
+  seoH1?: string;
+  seoIntro?: string;
+  seoKeywords?: string | string[];
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
+  imageAlt?: string;
+  followLinks?: boolean;
 }
 
 interface CategoryDrawerProps {
@@ -295,8 +303,18 @@ export function CategoryDrawer({
                 canonicalUrl: form.canonicalUrl,
                 indexable: form.indexable,
                 seoContent: form.seoContent,
+                seoH1: form.seoH1 || form.h1Title,
+                seoIntro: form.seoIntro,
+                seoKeywords: form.seoKeywords,
+                ogTitle: form.ogTitle,
+                ogDescription: form.ogDescription,
+                ogImage: form.ogImage,
+                imageAlt: form.imageAlt,
+                followLinks: form.followLinks,
               }}
               slug={form.slug}
+              entityType="category"
+              entityId={form.id}
               entityName={form.name || "Catégorie"}
               onChange={(seo) => updateForm(seo)}
             />

@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import Link from "next/link";
 import { Suspense } from "react";
 
 import { CategoryPLP } from "@/components/category/category-plp";
 import { categories, getCategoryBySlug } from "@/lib/data/categories";
-import { fetchProducts } from "@/lib/api/client";
+import { fetchCategoryBySlug, fetchProducts, fetchSeoRedirect } from "@/lib/api/client";
 
 const SITE_URL = "https://paratunisie.com";
 
@@ -19,20 +19,24 @@ export async function generateMetadata({
   params: Promise<{ category: string }>;
 }): Promise<Metadata> {
   const { category: slug } = await params;
-  const cat = getCategoryBySlug(slug);
+  const cat = await fetchCategoryBySlug(slug);
   if (!cat) return {};
 
-  const title = `${cat.name} — ParaTunisie`;
+  const title = cat.seoTitle || `${cat.name} en Tunisie | ParaTunisie`;
+  const description = cat.seoDescription || cat.seoIntro || cat.shortDescription || cat.description || `Découvrez ${cat.name} en Tunisie sur ParaTunisie.`;
   return {
-    title,
-    description: cat.seoIntro,
-    alternates: { canonical: `/${cat.slug}` },
+    title: { absolute: title },
+    description,
+    alternates: { canonical: cat.canonicalUrl || `/${cat.slug}` },
+    robots: { index: cat.indexable !== false, follow: cat.followLinks !== false },
     openGraph: {
       type: "website",
-      title,
-      description: cat.seoIntro,
-      url: `/${cat.slug}`,
+      title: cat.ogTitle || title,
+      description: cat.ogDescription || description,
+      url: cat.canonicalUrl || `/${cat.slug}`,
+      images: cat.ogImage ? [{ url: cat.ogImage, alt: cat.imageAlt || cat.name }] : undefined,
     },
+    twitter: { card: "summary_large_image", title: cat.ogTitle || title, description: cat.ogDescription || description, images: cat.ogImage ? [cat.ogImage] : undefined },
   };
 }
 
@@ -44,8 +48,13 @@ export default async function CategoryPage({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { category: slug } = await params;
-  const cat = getCategoryBySlug(slug);
-  if (!cat) notFound();
+  const [localCat, dbCat] = [getCategoryBySlug(slug), await fetchCategoryBySlug(slug)];
+  if (!localCat && !dbCat) {
+    const redirect = await fetchSeoRedirect(`/${slug}`);
+    if (redirect) permanentRedirect(redirect);
+    notFound();
+  }
+  const cat = localCat || { slug: dbCat!.slug, name: dbCat!.name, eyebrow: dbCat!.parent?.name, description: dbCat!.seoIntro || dbCat!.shortDescription || dbCat!.description || "", seoIntro: dbCat!.seoIntro || "", subcategories: [], concerns: [] };
 
   const params_ = await searchParams;
 
@@ -67,6 +76,7 @@ export default async function CategoryPage({
   const categoryData = {
     slug: cat.slug,
     name: cat.name,
+    h1: dbCat?.seoH1 || cat.name,
     eyebrow: cat.eyebrow,
     description: cat.description,
     subcategories: cat.subcategories.map((s) => ({ slug: s.slug, name: s.name })),
@@ -114,14 +124,7 @@ export default async function CategoryPage({
             <h2 className="font-serif text-2xl font-medium tracking-tight text-ink sm:text-3xl">
               {cat.name} : notre sélection
             </h2>
-            <p className="mt-4 max-w-prose text-sm leading-relaxed text-muted-foreground">
-              {cat.seoIntro}
-            </p>
-            <p className="mt-3 max-w-prose text-sm leading-relaxed text-muted-foreground">
-              Chaque produit est sélectionné par nos experts pour son efficacité prouvée,
-              sa tolérance dermatologique et sa qualité de formulation. Retrouvez les marques
-              que nous aimons et faisez-vous conseiller pour trouver les soins adaptés à vos besoins.
-            </p>
+            <p className="mt-4 max-w-prose whitespace-pre-line text-sm leading-relaxed text-muted-foreground">{dbCat?.seoContent || cat.seoIntro}</p>
           </div>
           <div>
             <h3 className="text-sm font-semibold text-ink">Explorez aussi</h3>

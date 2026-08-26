@@ -22,16 +22,16 @@ RUN apk add --no-cache openssl \
     && adduser --system --uid 1001 nodejs
 # Full node_modules (incl. devDeps) kept on purpose: the dev startup flow
 # runs `prisma migrate deploy` + `prisma db seed` (ts-node) at container start.
-COPY --from=deps /app/node_modules ./node_modules
+COPY --chown=nodejs:nodejs --from=deps /app/node_modules ./node_modules
 # Copy generated Prisma client (overrides the pre-generate version in deps node_modules) —
 # generated once at build time; the startup command must not regenerate it, since COPY
 # runs as root and the nodejs user has no write access to node_modules afterward.
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/package.json ./package.json
-RUN chown -R nodejs:nodejs /app
+COPY --chown=nodejs:nodejs --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --chown=nodejs:nodejs --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
+COPY --chown=nodejs:nodejs --from=builder /app/dist ./dist
+COPY --chown=nodejs:nodejs --from=builder /app/prisma ./prisma
+COPY --chown=nodejs:nodejs --from=builder /app/public ./public
+COPY --chown=nodejs:nodejs --from=builder /app/package.json ./package.json
 USER nodejs
 EXPOSE 3001
 CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]

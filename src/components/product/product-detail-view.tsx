@@ -45,7 +45,7 @@ export function ProductDetailView({
         </nav>
 
         <div className="mt-3 sm:mt-6 grid gap-5 sm:gap-8 lg:grid-cols-2 lg:gap-12 xl:gap-16">
-          <ProductGallery image={product.image} alt={`${product.name} de ${product.brand}`} />
+          <ProductGallery image={product.image} alt={product.imageAlt || `${product.name} de ${product.brand}`} />
           <ProductPurchasePanel product={product} />
         </div>
 

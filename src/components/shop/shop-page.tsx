@@ -81,6 +81,22 @@ export function ShopPage({
     [availableCategories, products]
   );
 
+  const categoryCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    products.forEach((p) => {
+      if (p.category) counts[p.category] = (counts[p.category] || 0) + 1;
+    });
+    return counts;
+  }, [products]);
+
+  const brandCounts = useMemo(() => {
+    const counts: Record<string, number> = {};
+    products.forEach((p) => {
+      if (p.brand) counts[p.brand] = (counts[p.brand] || 0) + 1;
+    });
+    return counts;
+  }, [products]);
+
   function updateParams(changes: Record<string, string | null>) {
     const next = new URLSearchParams(searchParams.toString());
     Object.entries(changes).forEach(([key, value]) => (value ? next.set(key, value) : next.delete(key)));
@@ -119,6 +135,8 @@ export function ShopPage({
       filters={filters}
       brands={allBrands}
       categories={allCategories}
+      categoryCounts={categoryCounts}
+      brandCounts={brandCounts}
       concerns={[]}
       onToggle={toggleFilter}
       onMaxPriceChange={(value) => updateParams({ maxPrice: value < 100 ? String(value) : null, page: null })}

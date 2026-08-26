@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import Link from "next/link";
 
 import { BrandProducts } from "@/components/marques/brand-products";
-import { fetchBrandBySlug, fetchProducts } from "@/lib/api/client";
+import { fetchBrandBySlug, fetchProducts, fetchSeoRedirect } from "@/lib/api/client";
 
 const SITE_URL = "https://paratunisie.com";
 
@@ -27,20 +27,22 @@ export async function generateMetadata({
     `Découvrez tous les produits ${brand.name} disponibles en Tunisie sur ParaTunisie : prix, disponibilité et livraison partout dans le pays.`;
 
   return {
-    title,
+    title: { absolute: title },
     description,
     alternates: { canonical: brand.canonicalUrl || `/marques/${brand.slug}` },
-    robots: brand.indexable === false ? { index: false, follow: true } : undefined,
+    robots: { index: brand.indexable !== false, follow: brand.followLinks !== false },
     openGraph: {
       type: "website",
-      title,
-      description,
-      url: `/marques/${brand.slug}`,
+      title: brand.ogTitle || title,
+      description: brand.ogDescription || description,
+      url: brand.canonicalUrl || `/marques/${brand.slug}`,
+      images: brand.ogImage ? [{ url: brand.ogImage, alt: brand.imageAlt || brand.name }] : undefined,
     },
     twitter: {
       card: "summary_large_image",
-      title,
-      description,
+      title: brand.ogTitle || title,
+      description: brand.ogDescription || description,
+      images: brand.ogImage ? [brand.ogImage] : undefined,
     },
   };
 }
@@ -52,7 +54,11 @@ export default async function BrandPage({
 }) {
   const { slug } = await params;
   const brand = await fetchBrandBySlug(slug);
-  if (!brand) notFound();
+  if (!brand) {
+    const redirect = await fetchSeoRedirect(`/marques/${slug}`);
+    if (redirect) permanentRedirect(redirect);
+    notFound();
+  }
 
   const brandProducts = await fetchProducts({ brand: brand.slug });
 
@@ -95,7 +101,7 @@ export default async function BrandPage({
             </p>
           )}
           <h1 className="mt-2 font-serif text-3xl font-medium tracking-tight text-ink sm:text-4xl lg:text-5xl">
-            {brand.name}
+            {brand.seoH1 || brand.name}
           </h1>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ink-muted sm:text-base">
             {introText}
@@ -103,6 +109,7 @@ export default async function BrandPage({
         </header>
 
         <BrandProducts brandName={brand.name} products={brandProducts} />
+        {brand.seoContent && <section className="mt-12 max-w-3xl rounded-2xl bg-soft-nude/50 p-6"><h2 className="font-serif text-2xl text-ink">À propos de {brand.name}</h2><p className="mt-3 whitespace-pre-line text-sm leading-7 text-ink-muted">{brand.seoContent}</p></section>}
       </div>
     </>
   );

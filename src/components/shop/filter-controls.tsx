@@ -16,23 +16,19 @@ type FilterControlsProps = {
   brands: string[];
   categories: string[];
   concerns: string[];
+  categoryCounts?: Record<string, number>;
+  brandCounts?: Record<string, number>;
   onToggle: (key: "brands" | "categories" | "concerns", value: string) => void;
   onMaxPriceChange: (value: number) => void;
   onClearAll?: () => void;
 };
 
-const KNOWN_BRANDS_LOWER = new Set([
-  "la roche-posay", "bioderma", "avene", "cerave", "vichy", "nuxe", "uriage", "svr",
-  "vital", "tynor", "topface", "pierre cardin", "lollis", "xen", "roncey", "chicco",
-  "tommee tippee", "nuk", "topicrem", "pharmaceris", "young health", "caudalie",
-  "roge cavailles", "phyto", "laino", "apivita", "canpol", "gum", "algovita",
-  "para shop", "top tunisie para", "marques"
-]);
-
 export function FilterControls({
   filters,
   brands,
   categories,
+  categoryCounts,
+  brandCounts,
   onToggle,
   onMaxPriceChange,
   onClearAll,
@@ -56,26 +52,18 @@ export function FilterControls({
 
   const deferredCategorySearch = useDeferredValue(categorySearch);
   const deferredBrandSearch = useDeferredValue(brandSearch);
-  const [brandLimit, setBrandLimit] = useState(12);
+  const [brandLimit, setBrandLimit] = useState(18);
 
   // Fast Set lookups for selected filter items
   const selectedBrandsSet = useMemo(() => new Set(filters.brands), [filters.brands]);
   const selectedCategoriesSet = useMemo(() => new Set(filters.categories), [filters.categories]);
 
-  // Filter out brand names from categories list
-  const cleanCategories = useMemo(() => {
-    return categories.filter((cat) => {
-      const lower = cat.toLowerCase().trim();
-      return !KNOWN_BRANDS_LOWER.has(lower);
-    });
-  }, [categories]);
-
   // Search filter applied to categories
   const filteredCategories = useMemo(() => {
-    if (!deferredCategorySearch.trim()) return cleanCategories;
+    if (!deferredCategorySearch.trim()) return categories;
     const q = deferredCategorySearch.toLowerCase().trim();
-    return cleanCategories.filter((cat) => cat.toLowerCase().includes(q));
-  }, [cleanCategories, deferredCategorySearch]);
+    return categories.filter((cat) => cat.toLowerCase().includes(q));
+  }, [categories, deferredCategorySearch]);
 
   // Search filter applied to brands
   const filteredBrands = useMemo(() => {
@@ -134,10 +122,9 @@ export function FilterControls({
             </div>
 
             <div className="max-h-[220px] overflow-y-auto pr-1 space-y-1 scrollbar-thin">
-              {filteredCategories.map((cat, idx) => {
+              {filteredCategories.map((cat) => {
                 const isChecked = selectedCategoriesSet.has(cat);
-                const mockCounts = [4321, 2114, 1246, 656, 642, 304, 68];
-                const countDisplay = mockCounts[idx % mockCounts.length];
+                const count = categoryCounts?.[cat];
 
                 return (
                   <label
@@ -153,9 +140,11 @@ export function FilterControls({
                       />
                       <span className="truncate font-medium text-ink">{cat}</span>
                     </div>
-                    <span className="text-[0.6875rem] font-medium text-ink-muted/80 shrink-0">
-                      ({countDisplay.toLocaleString("fr-FR")})
-                    </span>
+                    {count !== undefined && (
+                      <span className="text-[0.6875rem] font-medium text-ink-muted/80 shrink-0">
+                        ({count})
+                      </span>
+                    )}
                   </label>
                 );
               })}
@@ -204,10 +193,9 @@ export function FilterControls({
             </div>
 
             <div className="max-h-[220px] overflow-y-auto pr-1 space-y-1 scrollbar-thin">
-              {visibleBrands.map((brand, idx) => {
+              {visibleBrands.map((brand) => {
                 const isChecked = selectedBrandsSet.has(brand);
-                const mockCounts = [692, 623, 512, 451, 423, 398, 362];
-                const countDisplay = mockCounts[idx % mockCounts.length];
+                const count = brandCounts?.[brand];
 
                 return (
                   <label
@@ -223,9 +211,11 @@ export function FilterControls({
                       />
                       <span className="truncate font-medium text-ink">{brand}</span>
                     </div>
-                    <span className="text-[0.6875rem] font-medium text-ink-muted/80 shrink-0">
-                      ({countDisplay.toLocaleString("fr-FR")})
-                    </span>
+                    {count !== undefined && (
+                      <span className="text-[0.6875rem] font-medium text-ink-muted/80 shrink-0">
+                        ({count})
+                      </span>
+                    )}
                   </label>
                 );
               })}

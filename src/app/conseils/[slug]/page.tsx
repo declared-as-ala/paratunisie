@@ -16,6 +16,7 @@ async function fetchArticleBySlug(slug: string): Promise<Article | null> {
   try {
     const res = await fetch(`${API_URL}/content/articles/by-slug/${slug}`, {
       next: { revalidate: 300 },
+      signal: AbortSignal.timeout(1000),
     });
     if (!res.ok) throw new Error("Not found");
     const data = await res.json();
@@ -29,7 +30,7 @@ async function fetchRelatedArticles(category: string, currentSlug: string): Prom
   try {
     const res = await fetch(
       `${API_URL}/content/articles?status=PUBLISHED&category=${encodeURIComponent(category)}`,
-      { next: { revalidate: 300 } }
+      { next: { revalidate: 300 }, signal: AbortSignal.timeout(1000) }
     );
     if (!res.ok) throw new Error("API error");
     const data = await res.json();

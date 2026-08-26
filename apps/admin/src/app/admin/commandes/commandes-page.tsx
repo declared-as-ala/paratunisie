@@ -19,7 +19,7 @@ import {
 import type { OrderStatus } from "@/lib/types";
 import { useToast } from "@/components/toast";
 import { ConfirmModal } from "@/components/confirm-modal";
-import { apiClient, ApiError } from "@/lib/api-client";
+import { apiClient, ApiError, resolveMediaUrl } from "@/lib/api-client";
 import { formatCurrency, formatPercent } from "@/lib/utils";
 import { notifyOrdersChanged, onOrdersChanged } from "@/lib/order-events";
 
@@ -1272,7 +1272,7 @@ function CommandesInner() {
                           <div className="flex items-center gap-3">
                             <div className="h-9 w-9 rounded-xl bg-white border border-slate-200 p-0.5 flex items-center justify-center shrink-0 shadow-xs">
                               {product.image ? (
-                                <img src={product.image} alt={product.name} className="h-full w-full object-contain" />
+                                <img src={resolveMediaUrl(product.image)} alt={product.name} className="h-full w-full object-contain" />
                               ) : (
                                 <Package size={16} className="text-[#E11D48]" />
                               )}
@@ -1325,7 +1325,7 @@ function CommandesInner() {
                               <div className="flex items-center gap-2.5">
                                 <div className="h-9 w-9 rounded-xl bg-white border border-slate-200 p-0.5 flex items-center justify-center shrink-0 shadow-xs">
                                   {item.image ? (
-                                    <img src={item.image} alt={item.productName} className="h-full w-full object-contain" />
+                                    <img src={resolveMediaUrl(item.image)} alt={item.productName} className="h-full w-full object-contain" />
                                   ) : (
                                     <Package size={16} className="text-[#E11D48]" />
                                   )}

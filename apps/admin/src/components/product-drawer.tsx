@@ -6,6 +6,7 @@ import { useToast } from "@/components/toast";
 import { ConfirmModal } from "@paratunisie/ui";
 import { calculateMargin, marginWarningClass, formatCurrency, formatPercent, formatDate } from "@/lib/utils";
 import type { Product, Supplier, PurchasePriceHistory } from "@/lib/types";
+import { SeoFormSection } from "./seo-form-section";
 
 interface ProductDrawerProps {
   open: boolean;
@@ -385,39 +386,16 @@ export function ProductDrawer({ open, product, onClose, onSave, suppliers = [], 
                 className="field-input font-mono"
               />
             </Field>
-            <Field label="Titre SEO" hint="60 caractères max recommandé">
-              <input
-                type="text"
-                value={form.seoTitle ?? ""}
-                onChange={(e) => update("seoTitle", e.target.value)}
-                placeholder="Titre pour les moteurs de recherche"
-                className="field-input"
-                maxLength={60}
-              />
-            </Field>
-            <Field label="Meta description" hint="155-160 caractères max recommandé">
-              <textarea
-                value={form.metaDescription ?? ""}
-                onChange={(e) => update("metaDescription", e.target.value)}
-                placeholder="Description pour les moteurs de recherche"
-                rows={2}
-                className="field-input resize-none"
-                maxLength={160}
-              />
-            </Field>
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="indexable"
-                checked={form.indexable ?? true}
-                onChange={(e) => update("indexable", e.target.checked)}
-                className="size-4 rounded border-border text-primary focus:ring-primary"
-              />
-              <label htmlFor="indexable" className="text-sm text-ink-muted">
-                Indexable par les moteurs de recherche
-              </label>
-            </div>
           </Section>
+          <SeoFormSection
+            data={{ seoTitle: form.seoTitle, seoDescription: form.seoDescription ?? form.metaDescription, seoH1: form.seoH1, seoIntro: form.seoIntro, seoContent: form.seoContent, seoKeywords: form.seoKeywords, canonicalUrl: form.canonicalUrl, ogTitle: form.ogTitle, ogDescription: form.ogDescription, ogImage: form.ogImage, imageAlt: form.imageAlt, indexable: form.indexable, followLinks: form.followLinks }}
+            slug={form.slug || ""}
+            entityName={form.name || "Produit"}
+            entityType="product"
+            entityId={form.id}
+            pathPrefix="/produits"
+            onChange={(seo) => { setForm((prev) => ({ ...prev, ...seo, metaDescription: seo.seoDescription })); setIsDirty(true); }}
+          />
         </div>
       </Drawer>
 

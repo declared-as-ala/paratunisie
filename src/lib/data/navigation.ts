@@ -1,10 +1,3 @@
-/**
- * Site information architecture — real category/concern/brand taxonomy from
- * REQUIREMENTS.md, not commerce data. PLP/brand/concern pages ship in
- * Sprint 3/7 (SPRINTS.md); URLs below already match the locked structure in
- * SEO.md so nothing needs relinking once those pages exist.
- */
-
 export type NavCategory = {
   label: string;
   href: string;
@@ -14,83 +7,105 @@ export type NavCategory = {
 
 export const primaryCategories: NavCategory[] = [
   {
-    label: "Visage",
-    href: "/visage",
-    description: "Nettoyants, sérums, crèmes et soins ciblés.",
+    label: "Créatine",
+    href: "/creatine",
+    description: "Créatine monohydrate micronisée pour force & puissance.",
+  },
+  {
+    label: "Whey Protéine",
+    href: "/whey-proteine",
+    description: "Protéines pures pour développement musculaire & récupération.",
+  },
+  {
+    label: "Gainers",
+    href: "/gainers-proteines",
+    description: "Formules caloriques pour prise de masse rapide.",
+  },
+  {
+    label: "Pre-Workout",
+    href: "/pre-workout",
+    description: "Boosters d'énergie explosive & congestion.",
+  },
+  {
+    label: "BCAA & EAA",
+    href: "/bcaa",
+    description: "Acides aminés pour la récupération musculaire.",
     featured: [
-      { label: "Anti-imperfections", href: "/besoins/acne-imperfections" },
-      { label: "Taches & éclat", href: "/besoins/taches-eclat" },
-      { label: "Premiers signes de l'âge", href: "/besoins/premiers-signes-age" },
+      { label: "BCAA", href: "/bcaa" },
+      { label: "EAA", href: "/eaa" },
+      { label: "Beta-Alanine", href: "/beta-alanine" },
+      { label: "Citrulline", href: "/citrulline" },
     ],
   },
   {
-    label: "Corps",
-    href: "/corps",
-    description: "Hydratation, fermeté et soins quotidiens du corps.",
+    label: "Vitamines",
+    href: "/vitamines",
+    description: "Vitamines C, D3+K2 & complexes pour l'immunité.",
   },
   {
-    label: "Cheveux",
-    href: "/cheveux",
-    description: "Shampoings, soins et traitements ciblés.",
-    featured: [{ label: "Chute de cheveux", href: "/besoins/chute-cheveux" }],
+    label: "Minéraux & Zinc",
+    href: "/zinc",
+    description: "Zinc & Magnésium pour l'équilibre et la vitalité.",
+    featured: [
+      { label: "Zinc", href: "/zinc" },
+      { label: "Magnésium", href: "/magnesium" },
+    ],
   },
   {
-    label: "Solaire",
-    href: "/solaire",
-    description: "Protection visage et corps, toutes peaux.",
-    featured: [{ label: "Protection solaire", href: "/besoins/protection-solaire" }],
+    label: "Omega 3 & Santé",
+    href: "/omega-3",
+    description: "Omega 3 & Ashwagandha pour la santé globale.",
+    featured: [
+      { label: "Omega 3", href: "/omega-3" },
+      { label: "Ashwagandha", href: "/ashwagandha" },
+    ],
   },
   {
-    label: "Bébé & Maman",
-    href: "/bebe-maman",
-    description: "Soins doux pour bébé et pendant la grossesse.",
-  },
-  {
-    label: "Hygiène",
-    href: "/hygiene",
-    description: "Essentiels d'hygiène quotidienne.",
-  },
-  {
-    label: "Compléments",
-    href: "/complements",
-    description: "Compléments alimentaires et bien-être.",
-  },
-  {
-    label: "Homme",
-    href: "/homme",
-    description: "Rasage, soin visage et corps au masculin.",
+    label: "Minceur & Brûleurs",
+    href: "/l-carnitine",
+    description: "L-Carnitine & brûleurs de graisse thermogéniques.",
+    featured: [
+      { label: "L-Carnitine", href: "/l-carnitine" },
+      { label: "Brûleurs de Graisse", href: "/bruleurs-de-graisse" },
+      { label: "Boosters", href: "/boosters-hormonaux" },
+    ],
   },
 ];
 
 export const concerns: { label: string; href: string }[] = [
-  { label: "Acné & imperfections", href: "/besoins/acne-imperfections" },
-  { label: "Taches & éclat", href: "/besoins/taches-eclat" },
-  { label: "Peau sèche", href: "/besoins/peau-seche" },
-  { label: "Peau sensible", href: "/besoins/peau-sensible" },
-  { label: "Premiers signes de l'âge", href: "/besoins/premiers-signes-age" },
-  { label: "Chute de cheveux", href: "/besoins/chute-cheveux" },
-  { label: "Protection solaire", href: "/besoins/protection-solaire" },
-  { label: "Bébé", href: "/besoins/bebe" },
+  { label: "Prise de muscle", href: "/creatine" },
+  { label: "Prise de masse", href: "/gainers-proteines" },
+  { label: "Énergie & Focus", href: "/pre-workout" },
+  { label: "Récupération", href: "/bcaa" },
+  { label: "Immunité & Santé", href: "/vitamines" },
+  { label: "Anti-stress & Sommeil", href: "/ashwagandha" },
+  { label: "Sèche & Définition", href: "/l-carnitine" },
 ];
 
 export const featuredBrands: { label: string; href: string }[] = [
-  { label: "La Roche-Posay", href: "/marques/la-roche-posay" },
-  { label: "Bioderma", href: "/marques/bioderma" },
-  { label: "Avène", href: "/marques/avene" },
-  { label: "CeraVe", href: "/marques/cerave" },
-  { label: "Vichy", href: "/marques/vichy" },
-  { label: "Nuxe", href: "/marques/nuxe" },
+  { label: "OstroVit", href: "/marques/ostrovit" },
+  { label: "Optimum Nutrition", href: "/marques/optimum-nutrition" },
+  { label: "BioTechUSA", href: "/marques/biotechusa" },
+  { label: "Real Pharm", href: "/marques/real-pharm" },
+  { label: "Quamtrax", href: "/marques/quamtrax" },
+  { label: "Eric Favre", href: "/marques/eric-favre" },
+  { label: "Challenger Nutrition", href: "/marques/challenger-nutrition" },
+  { label: "Zumub", href: "/marques/zumub" },
 ];
 
 export const secondaryNav: { label: string; href: string }[] = [
+  { label: "Boutique", href: "/shop" },
   { label: "Marques", href: "/marques" },
   { label: "Conseils", href: "/conseils" },
 ];
 
 export const popularSearches: string[] = [
-  "Écran solaire peau grasse",
-  "Anti-chute",
-  "CeraVe",
-  "Vitamine C",
-  "Peau sensible",
+  "Créatine Monohydrate",
+  "Whey Protéine",
+  "Pre-Workout",
+  "Zinc",
+  "Omega 3",
+  "Optimum Nutrition",
+  "OstroVit",
+  "Ashwagandha",
 ];

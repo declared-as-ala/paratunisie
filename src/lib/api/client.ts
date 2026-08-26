@@ -25,11 +25,18 @@ function getApiBase() {
  */
 function resolveImageUrl(rawImage: string | null | undefined): string {
   if (!rawImage) return "/assets/product-tube.webp";
-  if (rawImage.startsWith("http://") || rawImage.startsWith("https://") || rawImage.startsWith("/assets/")) {
+  if (
+    rawImage.startsWith("http://") ||
+    rawImage.startsWith("https://") ||
+    rawImage.startsWith("/assets/") ||
+    rawImage.startsWith("/uploads/")
+  ) {
     return rawImage;
   }
-  const origin = getApiBase().replace(/\/api\/v\d+\/?$/, "");
-  return `${origin}${rawImage.startsWith("/") ? "" : "/"}${rawImage}`;
+  if (rawImage.startsWith("uploads/")) {
+    return `/${rawImage}`;
+  }
+  return rawImage;
 }
 
 export type PublicReview = {
@@ -49,18 +56,20 @@ export type ProductRating = { average: number; count: number };
 export type RawBrand = { id: string; name: string; slug: string; tagline?: string | null; description?: string | null };
 export type RawCategory = { id: string; name: string; slug: string };
 export type RawConcern = { id: string; name: string; slug: string };
-export type RawVariant = { id: string; label: string; priceMillimes: number; stock: number };
+export type RawVariant = { id: string; label: string; priceMillimes: number; stock: number; sku?: string | null };
+export type RawProductImage = { id: string; url: string; alt?: string | null; position: number };
 
 export type RawProduct = {
   id: string;
   slug: string;
   name: string;
-  benefit: string;
-  description: string;
-  usage: string;
-  image: string;
-  skinTypes: string;
-  routineTime: string;
+  benefit?: string | null;
+  description?: string | null;
+  usage?: string | null;
+  image?: string | null;
+  images?: RawProductImage[];
+  skinTypes?: string;
+  routineTime?: string;
   brand: RawBrand;
   category: RawCategory;
   variants: RawVariant[];
@@ -69,6 +78,15 @@ export type RawProduct = {
   seoDescription?: string | null;
   canonicalUrl?: string | null;
   indexable?: boolean;
+  followLinks?: boolean;
+  seoH1?: string | null;
+  seoIntro?: string | null;
+  seoContent?: string | null;
+  seoKeywords?: string;
+  ogTitle?: string | null;
+  ogDescription?: string | null;
+  ogImage?: string | null;
+  imageAlt?: string | null;
 };
 
 /* ─── Transform: Prisma → ProductSummary ────────────────────────────── */
@@ -76,19 +94,21 @@ export type RawProduct = {
 function transformProduct(raw: RawProduct): ProductSummary {
   const sizes = (raw.variants || []).map((v) => ({ label: v.label || raw.name, priceMillimes: v.priceMillimes || 0 }));
   const defaultVariant = raw.variants?.[0];
+  const primaryImage = raw.image || raw.images?.[0]?.url || "";
 
   return {
     id: raw.id,
+    sku: raw.variants?.[0]?.sku || raw.id,
     slug: raw.slug,
     brand: raw.brand?.name || "ParaTunisie",
     name: raw.name,
     benefit: raw.benefit || "",
     size: defaultVariant?.label || "",
     priceMillimes: defaultVariant?.priceMillimes || 0,
-    category: raw.category?.name || "Parapharmacie",
+    category: raw.category?.name || "Nutrition Sportive",
     concerns: (raw.concerns ?? []).map((c) => c.name),
     skinTypes: parseJsonStringArray(raw.skinTypes),
-    image: resolveImageUrl(raw.image),
+    image: resolveImageUrl(primaryImage),
     description: raw.description || "",
     benefits: [],
     usage: raw.usage || "",
@@ -99,6 +119,15 @@ function transformProduct(raw: RawProduct): ProductSummary {
     seoDescription: raw.seoDescription ?? null,
     canonicalUrl: raw.canonicalUrl ?? null,
     indexable: raw.indexable !== false,
+    followLinks: raw.followLinks !== false,
+    seoH1: raw.seoH1 ?? null,
+    seoIntro: raw.seoIntro ?? null,
+    seoContent: raw.seoContent ?? null,
+    seoKeywords: parseJsonStringArray(raw.seoKeywords),
+    ogTitle: raw.ogTitle ?? null,
+    ogDescription: raw.ogDescription ?? null,
+    ogImage: raw.ogImage ?? null,
+    imageAlt: raw.imageAlt ?? null,
   };
 }
 
@@ -120,6 +149,7 @@ async function apiFetch<T>(path: string, init?: RequestInit): Promise<T | null> 
   try {
     const res = await fetch(url, {
       cache: "no-store",
+      signal: AbortSignal.timeout(2000),
       ...init,
     });
     console.log(`[API FETCH] Response status for ${url}: ${res.status}`);
@@ -243,53 +273,60 @@ export type HomepageCategoryRow = {
 
 export const HOMEPAGE_CATEGORY_DEFINITIONS = [
   {
-    key: "bebe-maman",
-    title: "Bébé & Maman",
-    subtitle: "Les essentiels pour prendre soin de bébé et accompagner les mamans au quotidien.",
-    slug: "bebe-maman",
-    matches: ["bebe-maman", "bebe-maternite", "bebe", "maternite", "bébé"]
+    key: "creatine",
+    title: "Créatine Monohydrate",
+    subtitle: "Développez votre force et votre puissance musculaire avec nos créatines pures et micronisées.",
+    slug: "creatine",
+    matches: ["creatine", "créatine", "creatine-monohydrate"]
   },
   {
-    key: "visage",
-    title: "Soins du visage",
-    subtitle: "Nettoyants, hydratants et soins ciblés pour votre routine quotidienne.",
-    slug: "visage",
-    matches: ["visage", "soins-visage"]
+    key: "whey-proteine",
+    title: "Whey Protéine & Gainers",
+    subtitle: "Protéines pures et formules anaboliques pour la construction musculaire et la prise de masse.",
+    slug: "whey-proteine",
+    matches: ["whey-proteine", "whey", "gainers-proteines", "gainers"]
   },
   {
-    key: "cheveux",
-    title: "Soins des cheveux",
-    subtitle: "Shampooings, soins et solutions capillaires pour tous les besoins.",
-    slug: "cheveux",
-    matches: ["cheveux", "soins-des-cheveux", "capillaire"]
+    key: "pre-workout",
+    title: "Pre-Workout & Énergie",
+    subtitle: "Boosters d'entraînement puissants pour une énergie explosive et une congestion maximale.",
+    slug: "pre-workout",
+    matches: ["pre-workout", "boosters-hormonaux", "boosters"]
   },
   {
-    key: "corps",
-    title: "Soins du corps",
-    subtitle: "Hydratation, confort et soin pour prendre soin de votre peau au quotidien.",
-    slug: "corps",
-    matches: ["corps", "soins-du-corps", "hygiene-corps"]
+    key: "vitamines",
+    title: "Vitamines & Immunité",
+    subtitle: "Vitamines C, D3+K2 et complexes multivitaminés pour une vitalité quotidienne optimale.",
+    slug: "vitamines",
+    matches: ["vitamines", "multivitamines"]
   },
   {
-    key: "solaire",
-    title: "Protection solaire",
-    subtitle: "Une sélection de protections solaires pour le visage et le corps.",
-    slug: "solaire",
-    matches: ["solaire", "protection-solaire"]
+    key: "bcaa-eaa",
+    title: "BCAA & Acides Aminés",
+    subtitle: "Soutien anti-catabolique, endurance et récupération musculaire accélérée.",
+    slug: "bcaa",
+    matches: ["bcaa", "eaa", "beta-alanine", "citrulline"]
   },
   {
-    key: "hygiene",
-    title: "Hygiène au quotidien",
-    subtitle: "Les essentiels pour une routine simple, pratique et complète.",
-    slug: "hygiene",
-    matches: ["hygiene", "hygiene-au-quotidien"]
+    key: "mineraux",
+    title: "Zinc & Magnésium",
+    subtitle: "Minéraux essentiels pour l'immunité, l'équilibre nerveux et la réduction de la fatigue.",
+    slug: "zinc",
+    matches: ["zinc", "magnesium", "magnésium"]
   },
   {
-    key: "complements",
-    title: "Compléments alimentaires",
-    subtitle: "Découvrez notre sélection de compléments pour accompagner votre bien-être.",
-    slug: "complements",
-    matches: ["complements-alimentaires", "complements", "nutrition"]
+    key: "omega-3",
+    title: "Omega 3 & Ashwagandha",
+    subtitle: "Acides gras essentiels et plantes adaptogènes pour la santé cardiovasculaire et la gestion du stress.",
+    slug: "omega-3",
+    matches: ["omega-3", "ashwagandha"]
+  },
+  {
+    key: "minceur",
+    title: "Minceur & Brûleurs",
+    subtitle: "L-Carnitine et formules thermogéniques pour la définition musculaire et le métabolisme.",
+    slug: "l-carnitine",
+    matches: ["l-carnitine", "bruleurs-de-graisse"]
   }
 ];
 
@@ -353,10 +390,29 @@ export type BrandDetail = {
   seoDescription?: string | null;
   canonicalUrl?: string | null;
   indexable?: boolean;
+  followLinks?: boolean;
+  seoH1?: string | null;
+  seoIntro?: string | null;
+  seoContent?: string | null;
+  ogTitle?: string | null;
+  ogDescription?: string | null;
+  ogImage?: string | null;
+  imageAlt?: string | null;
 };
 
 export async function fetchBrandBySlug(slug: string): Promise<BrandDetail | null> {
   return apiFetch(`/catalogue/brands/${slug}`);
+}
+
+export type CategoryDetail = { id: string; name: string; slug: string; parentId?: string | null; parent?: { name: string; slug: string } | null; shortDescription?: string | null; description?: string | null; image?: string | null; heroImage?: string | null; seoTitle?: string | null; seoDescription?: string | null; seoH1?: string | null; seoIntro?: string | null; seoContent?: string | null; canonicalUrl?: string | null; indexable?: boolean; followLinks?: boolean; ogTitle?: string | null; ogDescription?: string | null; ogImage?: string | null; imageAlt?: string | null; children?: { name: string; slug: string }[] };
+
+export async function fetchCategoryBySlug(slug: string): Promise<CategoryDetail | null> {
+  return apiFetch<CategoryDetail>(`/catalogue/categories/${slug}`);
+}
+
+export async function fetchSeoRedirect(path: string): Promise<string | null> {
+  const result = await apiFetch<{ newPath: string }>(`/catalogue/seo/redirect?path=${encodeURIComponent(path)}`);
+  return result?.newPath || null;
 }
 
 export async function fetchCategories(): Promise<{ name: string; slug: string }[]> {
