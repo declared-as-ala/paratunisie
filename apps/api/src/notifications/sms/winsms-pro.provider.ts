@@ -109,12 +109,18 @@ export class WinSmsProProvider {
         }
 
         // WinSMS Pro responses:
-        // Success: code "200" or "100" or returns message ID
+        // Success: code "200" or "100" or "ok" or returns message ID / reference
         // Sender ID error: code "106", message "Invalid Sender id"
         // License/credits error: code "555", message "licence end"
-        const isCodeSuccess = parsed.code === "200" || parsed.code === "100" || text.includes("OK") || text.includes("success");
+        const isCodeSuccess =
+          parsed.code === "200" ||
+          parsed.code === "100" ||
+          parsed.code?.toLowerCase() === "ok" ||
+          text.toLowerCase().includes("successfully") ||
+          text.toLowerCase().includes("ok") ||
+          text.toLowerCase().includes("success");
         const senderIdAccepted = parsed.code !== "106";
-        const messageId = parsed.id || parsed.msg_id || undefined;
+        const messageId = parsed.id || parsed.msg_id || (parsed as any).reference || undefined;
 
         const isSuccess = isCodeSuccess;
 
