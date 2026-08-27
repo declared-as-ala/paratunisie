@@ -127,51 +127,58 @@ export class OrdersService {
 
     // 1. Resolve User
     let targetUser: any = null;
-    if (data.userId) {
+    if (data.userId && data.userId !== "guest") {
       targetUser = await this.prisma.user.findUnique({ where: { id: data.userId } }).catch(() => null);
     }
-    if (!targetUser && (data.email || data.phone)) {
-      const email = data.email || `customer-${Date.now()}@paratunisie.tn`;
-      const name = `${data.firstName || ""} ${data.lastName || ""}`.trim() || "Client Storefront";
-      const phone = data.phone || null;
 
+    const typedName = `${data.firstName || ""} ${data.lastName || ""}`.trim();
+    const phone = data.phone ? data.phone.trim() : null;
+    const email = data.email
+      ? data.email.trim()
+      : phone
+        ? `client-${phone.replace(/\D/g, "")}@paratunisie.tn`
+        : `customer-${Date.now()}@paratunisie.tn`;
+
+    if (!targetUser && (phone || typedName || data.email)) {
       targetUser = await this.prisma.user.findFirst({
-        where: { OR: [{ email }, ...(phone ? [{ phone }] : [])] },
+        where: {
+          OR: [
+            ...(phone ? [{ phone }] : []),
+            ...(data.email ? [{ email: data.email.trim() }] : []),
+          ],
+        },
       }).catch(() => null);
 
       if (!targetUser) {
         targetUser = await this.prisma.user.create({
           data: {
             email,
-            name,
+            name: typedName || "Client Storefront",
             phone,
             password: "checkout_guest",
           },
         }).catch(() => null);
-      } else if (phone || name) {
+      } else if (typedName || phone) {
         targetUser = await this.prisma.user.update({
           where: { id: targetUser.id },
           data: {
+            name: typedName || targetUser.name,
             phone: phone || targetUser.phone,
-            name: name || targetUser.name,
           },
         }).catch(() => targetUser);
       }
     }
 
-    // Fallback user if DB operations fail
-    if (!targetUser) {
-      targetUser = await this.prisma.user.findFirst().catch(() => null);
-    }
+    // Fallback user if DB operations fail (create guest instead of hijacking existing accounts)
     if (!targetUser) {
       targetUser = await this.prisma.user.create({
         data: {
-          email: "client.storefront@paratunisie.tn",
-          name: "Client Storefront",
-          phone: "27578505",
+          email: `guest-${Date.now()}@paratunisie.tn`,
+          name: typedName || "Client Storefront",
+          phone: phone || "27578505",
           password: "checkout_guest",
         },
-      });
+      }).catch(() => null);
     }
 
     // 2. Resolve items to real Product & ProductVariant records. A cart line

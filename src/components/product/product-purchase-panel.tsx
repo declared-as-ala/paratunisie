@@ -84,11 +84,17 @@ export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
 
     setSubmitting(true);
 
+    const nameParts = fullName.trim().split(/\s+/);
+    const firstName = nameParts[0] || fullName.trim();
+    const lastName = nameParts.slice(1).join(" ") || "";
+
     const { order, error } = await createExpressOrder({
-      userId: "guest",
+      firstName,
+      lastName,
+      phone: phone.trim(),
       gouvernorat,
-      fullAddress: `${address} (Tel: ${phone}, Nom: ${fullName})`,
-      deliveryNote: note,
+      fullAddress: address.trim(),
+      deliveryNote: note.trim() || undefined,
       items: [
         {
           productId: product.id,
@@ -101,7 +107,7 @@ export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
     setSubmitting(false);
 
     if (order?.id) {
-      setOrderSuccess({ id: `PT-${order.id.slice(-6).toUpperCase()}`, name: fullName, phone });
+      setOrderSuccess({ id: `PT-${order.id.slice(-6).toUpperCase()}`, name: fullName.trim(), phone: phone.trim() });
     } else {
       setErrorMsg(error || "Une erreur s'est produite lors de la validation de la commande. Veuillez réessayer.");
     }
@@ -226,9 +232,9 @@ export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
           type="button"
           size="lg"
           onClick={() => setQuickOrderOpen(true)}
-          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl py-3.5 sm:py-6 text-xs sm:text-base gap-2 shadow-md transition-all active:scale-[0.98] h-11 sm:h-13"
+          className="w-full bg-gradient-to-r from-[#d4a359] via-[#c89b3c] to-[#b88628] hover:from-[#c89b3c] hover:via-[#b88628] hover:to-[#a0741f] text-white font-extrabold rounded-xl py-3.5 sm:py-6 text-xs sm:text-base gap-2 shadow-md transition-all active:scale-[0.98] h-11 sm:h-13 border border-[#b88628]/30"
         >
-          <Zap size={18} className="fill-white" />
+          <Zap size={18} className="fill-white text-white" />
           Acheter maintenant · {formatPrice(selected.priceMillimes * quantity)}
         </Button>
       </div>
@@ -277,9 +283,9 @@ export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
           type="button"
           size="lg"
           onClick={() => setQuickOrderOpen(true)}
-          className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs gap-1.5 rounded-xl h-10 shadow-sm"
+          className="w-full bg-gradient-to-r from-[#d4a359] via-[#c89b3c] to-[#b88628] hover:from-[#c89b3c] hover:via-[#b88628] hover:to-[#a0741f] text-white font-extrabold text-xs gap-1.5 rounded-xl h-10 shadow-sm"
         >
-          <Zap size={14} className="fill-white" />
+          <Zap size={14} className="fill-white text-white" />
           Acheter maintenant · {formatPrice(selected.priceMillimes * quantity)}
         </Button>
       </div>
@@ -330,7 +336,7 @@ export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
               <form onSubmit={handleQuickOrderSubmit} className="space-y-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <Zap size={20} className="text-emerald-600 fill-emerald-600" />
+                    <Zap size={20} className="text-[#c89b3c] fill-[#c89b3c]" />
                     <h3 className="text-xl font-serif font-bold text-ink">Commande Rapide 1-Clic</h3>
                   </div>
                   <p className="text-xs text-ink-muted mt-1">
@@ -453,7 +459,7 @@ export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
                   <Button
                     type="submit"
                     disabled={submitting}
-                    className="w-full h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-sm gap-2 shadow-md transition-all active:scale-[0.98]"
+                    className="w-full h-12 rounded-xl bg-gradient-to-r from-[#d4a359] via-[#c89b3c] to-[#b88628] hover:from-[#c89b3c] hover:via-[#b88628] hover:to-[#a0741f] text-white font-extrabold text-sm gap-2 shadow-md transition-all active:scale-[0.98]"
                   >
                     {submitting ? (
                       <>
