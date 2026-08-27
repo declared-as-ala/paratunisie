@@ -254,14 +254,14 @@ export function FilterControls({
           <div className="space-y-3 pt-1">
             <div className="flex items-center justify-between text-[0.7rem] font-semibold text-ink-muted">
               <span>0 DT</span>
-              <span className="font-bold text-primary">300 DT+</span>
+              <span className="font-bold text-primary">500 DT+</span>
             </div>
             <input
               type="range"
               min="10"
-              max="300"
-              step="5"
-              value={filters.maxPrice}
+              max="500"
+              step="10"
+              value={filters.maxPrice > 500 ? 500 : filters.maxPrice}
               onChange={(event) => onMaxPriceChange(Number(event.target.value))}
               aria-label="Prix maximum en dinars"
               className="h-1.5 w-full accent-primary bg-border rounded-lg cursor-pointer"
@@ -276,7 +276,7 @@ export function FilterControls({
               <div>
                 <label className="block text-ink-muted mb-0.5">Max.</label>
                 <div className="h-8 rounded-xl border border-border bg-white flex items-center px-2.5 font-bold text-ink">
-                  {filters.maxPrice} DT+
+                  {filters.maxPrice >= 500 ? "500 DT+" : `${filters.maxPrice} DT`}
                 </div>
               </div>
             </div>

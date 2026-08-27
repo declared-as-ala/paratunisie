@@ -57,7 +57,7 @@ type FilterState = {
   maxPrice: number;
 };
 
-const EMPTY_FILTERS: FilterState = { brands: [], concerns: [], skinTypes: [], maxPrice: 200 };
+const EMPTY_FILTERS: FilterState = { brands: [], concerns: [], skinTypes: [], maxPrice: 1000 };
 
 /* ─── Subcategory Chips ──────────────────────────────────────────── */
 
@@ -127,7 +127,7 @@ function ActiveFilters({
   filters.brands.forEach((b) => chips.push({ key: "brands", label: b, value: b }));
   filters.concerns.forEach((c) => chips.push({ key: "concerns", label: c, value: c }));
   filters.skinTypes.forEach((s) => chips.push({ key: "skinTypes", label: s, value: s }));
-  if (filters.maxPrice < 200) chips.push({ key: "maxPrice", label: `Max ${filters.maxPrice} DT`, value: String(filters.maxPrice) });
+  if (filters.maxPrice < 1000) chips.push({ key: "maxPrice", label: `Max ${filters.maxPrice} DT`, value: String(filters.maxPrice) });
   if (chips.length === 0) return null;
   return (
     <div className="flex flex-wrap items-center gap-2">
@@ -199,9 +199,9 @@ function FilterPanel({
         <legend className="text-sm font-semibold text-ink">Prix maximum</legend>
         <div className="mt-2 flex items-center justify-between text-sm text-muted-foreground">
           <span>0 DT</span>
-          <output className="font-medium text-ink">{filters.maxPrice} DT</output>
+          <output className="font-medium text-ink">{filters.maxPrice >= 1000 ? "Tous les prix" : `${filters.maxPrice} DT`}</output>
         </div>
-        <input type="range" min="0" max="200" step="5" value={filters.maxPrice} onChange={(e) => onMaxPriceChange(Number(e.target.value))} aria-label="Prix maximum" className="mt-2 h-10 w-full accent-primary" />
+        <input type="range" min="10" max="600" step="10" value={filters.maxPrice > 600 ? 600 : filters.maxPrice} onChange={(e) => onMaxPriceChange(Number(e.target.value) >= 600 ? 1000 : Number(e.target.value))} aria-label="Prix maximum" className="mt-2 h-10 w-full accent-primary" />
       </fieldset>
     </div>
   );
@@ -231,7 +231,7 @@ export function CategoryPLP({
     brands: parseList(searchParams.brands),
     concerns: parseList(searchParams.concerns),
     skinTypes: parseList(searchParams.skinTypes),
-    maxPrice: Number(searchParams.maxPrice) || 200,
+    maxPrice: Number(searchParams.maxPrice) || 1000,
   });
   const [sort, setSort] = useState<SortKey>((searchParams.sort as SortKey) || "pertinence");
   const [query, setQuery] = useState(searchParams.q?.toString() || "");
@@ -268,7 +268,9 @@ export function CategoryPLP({
     if (filters.brands.length > 0) result = result.filter((p) => filters.brands.includes(p.brand));
     if (filters.concerns.length > 0) result = result.filter((p) => p.concerns.some((c) => filters.concerns.includes(c)));
     if (filters.skinTypes.length > 0) result = result.filter((p) => p.skinTypes.some((st) => filters.skinTypes.includes(st)));
-    result = result.filter((p) => p.priceMillimes / 1000 <= filters.maxPrice);
+    if (filters.maxPrice < 1000) {
+      result = result.filter((p) => p.priceMillimes / 1000 <= filters.maxPrice);
+    }
 
     if (query.trim()) {
       const q = normalize(query.trim());
@@ -289,13 +291,13 @@ export function CategoryPLP({
   }, []);
 
   const removeFilter = useCallback((key: keyof FilterState, value: string) => {
-    if (key === "maxPrice") setFilters((prev) => ({ ...prev, maxPrice: 200 }));
+    if (key === "maxPrice") setFilters((prev) => ({ ...prev, maxPrice: 1000 }));
     else setFilters((prev) => ({ ...prev, [key]: (prev[key] as string[]).filter((v) => v !== value) }));
   }, []);
 
   const clearFilters = useCallback(() => { setFilters(EMPTY_FILTERS); setQuery(""); setActiveSubcategory(null); setActiveConcern(null); }, []);
 
-  const activeFilterCount = filters.brands.length + filters.concerns.length + filters.skinTypes.length + (filters.maxPrice < 200 ? 1 : 0);
+  const activeFilterCount = filters.brands.length + filters.concerns.length + filters.skinTypes.length + (filters.maxPrice < 1000 ? 1 : 0);
   const hasActive = activeFilterCount > 0 || query.trim().length > 0 || activeSubcategory !== null || activeConcern !== null;
 
   const filterContent = (

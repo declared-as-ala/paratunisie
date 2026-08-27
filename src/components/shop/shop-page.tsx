@@ -64,12 +64,12 @@ export function ShopPage({
     brands: parseList(searchParams.get("brands") || searchParams.get("brand")),
     categories: parseList(searchParams.get("categories") || searchParams.get("category")),
     concerns: parseList(searchParams.get("concerns") || searchParams.get("concern")),
-    maxPrice: Number(searchParams.get("maxPrice")) || 100,
+    maxPrice: Number(searchParams.get("maxPrice")) || 500,
   };
   const query = searchParams.get("q")?.trim() ?? "";
   const sort = searchParams.get("sort") ?? "recommended";
 
-  const hasPriceFilter = filters.maxPrice < 100;
+  const hasPriceFilter = filters.maxPrice < 500;
 
   /* Derive filter option lists */
   const allBrands = useMemo(
@@ -139,7 +139,7 @@ export function ShopPage({
       brandCounts={brandCounts}
       concerns={[]}
       onToggle={toggleFilter}
-      onMaxPriceChange={(value) => updateParams({ maxPrice: value < 100 ? String(value) : null, page: null })}
+      onMaxPriceChange={(value) => updateParams({ maxPrice: value < 500 ? String(value) : null, page: null })}
       onClearAll={clearAllFilters}
     />
   );

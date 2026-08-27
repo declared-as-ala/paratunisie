@@ -33,7 +33,7 @@ const GAMMES: GammeItem[] = [
     subtitle: "Construction Musculaire",
     description: "Whey isolate, concentré et gainers pour une synthèse protéique maximale et prise de masse.",
     dotColor: "#E56953",
-    image: "/uploads/products/anabolic-whey-80-2-25kg-proactive-2f58e1c6.webp",
+    image: "/uploads/products/anabolic-whey-80-2-25kg-proactive-d1e70098.webp",
     href: "/whey-proteine",
   },
   {
@@ -43,7 +43,7 @@ const GAMMES: GammeItem[] = [
     subtitle: "Focus & Congestion",
     description: "Formules pré-workout dosées en caféine, bêta-alanine et citrulline pour repousser vos limites.",
     dotColor: "#782285",
-    image: "/uploads/products/pre-workout-born-rage-original-eric-favre-ee42a8a4.webp",
+    image: "/uploads/products/pre-workout-born-rage-original-eric-favre-2b562692.webp",
     href: "/pre-workout",
   },
   {
@@ -53,8 +53,8 @@ const GAMMES: GammeItem[] = [
     subtitle: "Immunité & Équilibre",
     description: "Complexes multivitamines, Vitamine D3+K2, Magnésium et Zinc pour une vitalité quotidienne optimale.",
     dotColor: "#B52655",
-    image: "/uploads/products/one-a-day-biotech-usa-6a68dc88.webp",
-    href: "/vitamines-mineraux",
+    image: "/uploads/products/one-a-day-biotech-usa-635bcef6.webp",
+    href: "/vitamines",
   },
   {
     id: "seche",
@@ -64,7 +64,7 @@ const GAMMES: GammeItem[] = [
     description: "L-Carnitine pure et thermogéniques haute performance pour accélérer la combustion des graisses.",
     dotColor: "#B89E16",
     image: "/uploads/products/lipo-6-black-ultra-concentrate-60caps-7abcdedc.webp",
-    href: "/bruleurs-graisse",
+    href: "/bruleurs-de-graisse",
   },
   {
     id: "recup",
@@ -74,17 +74,17 @@ const GAMMES: GammeItem[] = [
     description: "BCAA 2:1:1 et EAA pour freiner le catabolisme et accélérer la régénération post-entraînement.",
     dotColor: "#008080",
     image: "/uploads/products/xtend-bcaa-420g-f3c29f70.webp",
-    href: "/bcaa-acides-amines",
+    href: "/bcaa",
   },
   {
-    id: "dermo",
+    id: "accessoires",
     num: "7",
-    title: "Dermocosmétique",
-    subtitle: "Soins & Haute Tolérance",
-    description: "Soins dermo-protecteurs, solaires haute sécurité et hydratation avancée pour peaux actives.",
+    title: "Accessoires & Shakers",
+    subtitle: "Matériel & Équipement",
+    description: "Shakers étanches, ceintures lombaires, sangles de tirage et gants pour vos entraînements.",
     dotColor: "#8B3B62",
-    image: "/uploads/products/anthelios-fluide-invisible-la-roche-posay-3e4492bf.webp",
-    href: "/soins-du-visage",
+    image: "/uploads/products/shaker-kong-700ml.webp",
+    href: "/accessoires",
   },
 ];
 
