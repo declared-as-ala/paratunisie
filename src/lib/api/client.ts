@@ -456,14 +456,41 @@ export async function createExpressOrder(data: {
   gouvernorat: string;
   fullAddress: string;
   deliveryNote?: string;
+  eventId?: string;
+  fbp?: string;
+  fbc?: string;
+  eventSourceUrl?: string;
   items: { productId?: string; productVariantId?: string; quantity: number; priceMillimes: number }[];
 }): Promise<{ order: any; error: null } | { order: null; error: string }> {
+  // Extract Meta cookies if present in browser
+  let fbp = data.fbp;
+  let fbc = data.fbc;
+  if (typeof document !== "undefined") {
+    if (!fbp) {
+      const matchFbp = document.cookie.match(/(?:^|; )_fbp=([^;]*)/);
+      if (matchFbp) fbp = decodeURIComponent(matchFbp[1]);
+    }
+    if (!fbc) {
+      const matchFbc = document.cookie.match(/(?:^|; )_fbc=([^;]*)/);
+      if (matchFbc) fbc = decodeURIComponent(matchFbc[1]);
+    }
+  }
+  const eventSourceUrl =
+    data.eventSourceUrl || (typeof window !== "undefined" ? window.location.href : undefined);
+
+  const payload = {
+    ...data,
+    fbp,
+    fbc,
+    eventSourceUrl,
+  };
+
   const url = `${getApiBase()}/orders`;
   try {
     const res = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
+      body: JSON.stringify(payload),
       cache: "no-store",
     });
     const json = await res.json().catch(() => null);

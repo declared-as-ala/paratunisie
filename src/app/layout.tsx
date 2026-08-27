@@ -31,6 +31,9 @@ export const metadata: Metadata = {
   alternates: { canonical: "/" },
   verification: {
     google: "6Rz8hRY9p1DAcNo9GsEkcKkZxxTY0pFEu4iuHN7mZQM",
+    other: {
+      "facebook-domain-verification": "mi1xyp6q8u3nc8f83zth36dg94otvu",
+    },
   },
   openGraph: {
     type: "website",
@@ -67,6 +70,7 @@ export default function RootLayout({
       className={`${inter.variable} ${fraunces.variable} h-full antialiased`}
     >
       <head>
+        <meta name="facebook-domain-verification" content="mi1xyp6q8u3nc8f83zth36dg94otvu" />
         {/* Meta Pixel Code */}
         <Script id="meta-pixel" strategy="afterInteractive">
           {`

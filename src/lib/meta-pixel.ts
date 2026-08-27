@@ -1,7 +1,7 @@
 /**
  * Meta Pixel Standard Ecommerce Tracking Helper
  * Provides client-safe, deduplicated tracking for Meta Pixel (Facebook Pixel).
- * Configured for future Meta Conversions API (CAPI) deduplication via shared eventID.
+ * Configured for Meta Conversions API (CAPI) deduplication via shared eventID.
  */
 
 declare global {
@@ -14,6 +14,12 @@ declare global {
 // In-memory set to prevent duplicate event dispatches during React re-renders/Strict Mode
 const firedEvents = new Set<string>();
 
+export function getMetaCookie(name: string): string | undefined {
+  if (typeof document === "undefined") return undefined;
+  const match = document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`));
+  return match ? decodeURIComponent(match[1]) : undefined;
+}
+
 function isFbqAvailable(): boolean {
   return typeof window !== "undefined" && typeof window.fbq === "function";
 }
@@ -22,6 +28,30 @@ function debugLog(eventName: string, data: Record<string, unknown>, eventId?: st
   if (process.env.NODE_ENV !== "production") {
     console.log(`[Meta Pixel] ${eventName} sent:`, { ...data, eventID: eventId });
   }
+}
+
+/**
+ * Non-blocking relay of standard browser events to Server CAPI endpoint for complete dual tracking.
+ */
+function relayServerEvent(eventName: string, eventId: string, customData?: Record<string, any>) {
+  if (typeof window === "undefined") return;
+
+  const fbp = getMetaCookie("_fbp");
+  const fbc = getMetaCookie("_fbc");
+
+  fetch("/api/v1/tracking/meta-event", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      eventName,
+      eventId,
+      eventSourceUrl: window.location.href,
+      customData,
+      userData: { fbp, fbc },
+    }),
+  }).catch(() => {
+    // Non-blocking: Server CAPI failure will never impact browser experience
+  });
 }
 
 export interface MetaProductPayload {
@@ -90,6 +120,7 @@ export function trackViewContent(product: MetaProductPayload, customEventId?: st
   try {
     window.fbq!("track", "ViewContent", payload, { eventID: eventId });
     debugLog("ViewContent", payload, eventId);
+    relayServerEvent("ViewContent", eventId, payload);
   } catch (err) {
     if (process.env.NODE_ENV !== "production") {
       console.error("[Meta Pixel] ViewContent error:", err);
@@ -126,6 +157,7 @@ export function trackAddToCart(item: MetaCartItemPayload, customEventId?: string
   try {
     window.fbq!("track", "AddToCart", payload, { eventID: eventId });
     debugLog("AddToCart", payload, eventId);
+    relayServerEvent("AddToCart", eventId, payload);
   } catch (err) {
     if (process.env.NODE_ENV !== "production") {
       console.error("[Meta Pixel] AddToCart error:", err);
@@ -169,6 +201,7 @@ export function trackInitiateCheckout(data: MetaCheckoutPayload, customEventId?:
   try {
     window.fbq!("track", "InitiateCheckout", payload, { eventID: eventId });
     debugLog("InitiateCheckout", payload, eventId);
+    relayServerEvent("InitiateCheckout", eventId, payload);
   } catch (err) {
     if (process.env.NODE_ENV !== "production") {
       console.error("[Meta Pixel] InitiateCheckout error:", err);

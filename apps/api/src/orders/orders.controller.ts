@@ -1,4 +1,5 @@
-import { Controller, Delete, Get, Post, Patch, Body, Param, UseGuards } from "@nestjs/common";
+import { Controller, Delete, Get, Post, Patch, Body, Param, UseGuards, Req } from "@nestjs/common";
+import { Request } from "express";
 import { Type } from "class-transformer";
 import { ArrayMaxSize, ArrayMinSize, IsArray, IsEnum, IsInt, IsOptional, IsString, ValidateNested } from "class-validator";
 import { OrderStatus } from "@prisma/client";
@@ -70,6 +71,30 @@ class CreateOrderDto {
   @IsString()
   deliveryNote?: string;
 
+  @IsOptional()
+  @IsString()
+  eventId?: string;
+
+  @IsOptional()
+  @IsString()
+  fbp?: string;
+
+  @IsOptional()
+  @IsString()
+  fbc?: string;
+
+  @IsOptional()
+  @IsString()
+  clientIp?: string;
+
+  @IsOptional()
+  @IsString()
+  clientUserAgent?: string;
+
+  @IsOptional()
+  @IsString()
+  eventSourceUrl?: string;
+
   @IsArray()
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
@@ -88,8 +113,42 @@ export class OrdersController {
   }
 
   @Post()
-  async createOrder(@Body() body: CreateOrderDto) {
-    return this.ordersService.createOrder(body);
+  async createOrder(@Body() body: CreateOrderDto, @Req() req: Request) {
+    const forwardedFor = (req.headers["x-forwarded-for"] as string) || "";
+    const clientIp =
+      body.clientIp ||
+      forwardedFor.split(",")[0].trim() ||
+      (req.headers["x-real-ip"] as string) ||
+      req.socket.remoteAddress ||
+      undefined;
+
+    const clientUserAgent =
+      body.clientUserAgent || (req.headers["user-agent"] as string) || undefined;
+
+    const cookieHeader = (req.headers.cookie as string) || "";
+    let fbp = body.fbp;
+    let fbc = body.fbc;
+
+    if (!fbp && cookieHeader) {
+      const match = cookieHeader.match(/_fbp=([^;]+)/);
+      if (match) fbp = match[1];
+    }
+    if (!fbc && cookieHeader) {
+      const match = cookieHeader.match(/_fbc=([^;]+)/);
+      if (match) fbc = match[1];
+    }
+
+    const eventSourceUrl =
+      body.eventSourceUrl || (req.headers.referer as string) || "https://paratunisie.com/checkout";
+
+    return this.ordersService.createOrder({
+      ...body,
+      clientIp,
+      clientUserAgent,
+      fbp,
+      fbc,
+      eventSourceUrl,
+    });
   }
 
   @Get("user/:userId")

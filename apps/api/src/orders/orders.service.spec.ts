@@ -10,7 +10,8 @@ describe("OrdersService — getOrderCounts", () => {
     const prisma = { order: { groupBy: groupByMock } } as any;
     const inventory = {} as any;
     const notifications = { processOrderNotifications: jest.fn().mockResolvedValue(undefined) } as any;
-    const service = new OrdersService(prisma, inventory, notifications);
+    const metaCapi = { trackPurchase: jest.fn().mockResolvedValue({ success: true }) } as any;
+    const service = new OrdersService(prisma, inventory, notifications, metaCapi);
     return { service, groupByMock };
   }
 
@@ -70,7 +71,8 @@ describe("OrdersService — updateOrderStatus cost snapshot", () => {
       getWeightedAverageCost: jest.fn().mockResolvedValue(30_000),
     } as any;
     const notifications = { processOrderNotifications: jest.fn().mockResolvedValue(undefined) } as any;
-    const service = new OrdersService(prisma, inventory, notifications);
+    const metaCapi = { trackPurchase: jest.fn().mockResolvedValue({ success: true }) } as any;
+    const service = new OrdersService(prisma, inventory, notifications, metaCapi);
     return { service, prisma, inventory, orderItemUpdateMock };
   }
 

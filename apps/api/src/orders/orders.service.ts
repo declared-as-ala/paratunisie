@@ -77,6 +77,7 @@ export const seededOrders = [
 
 import { NotificationsService } from "../notifications/notifications.service";
 import { NotificationType } from "@prisma/client";
+import { MetaCapiService } from "../meta-capi/meta-capi.service";
 
 @Injectable()
 export class OrdersService {
@@ -84,6 +85,7 @@ export class OrdersService {
     private prisma: PrismaService,
     private inventoryService: InventoryService,
     private notificationsService: NotificationsService,
+    private metaCapiService: MetaCapiService,
   ) {}
 
   async getAllOrders() {
@@ -118,6 +120,12 @@ export class OrdersService {
     gouvernorat: string;
     fullAddress: string;
     deliveryNote?: string;
+    eventId?: string;
+    fbp?: string;
+    fbc?: string;
+    clientIp?: string;
+    clientUserAgent?: string;
+    eventSourceUrl?: string;
     items: { productId?: string; productVariantId?: string; quantity: number; priceMillimes: number }[];
   }) {
     const totalMillimes = (data.items || []).reduce(
@@ -235,13 +243,30 @@ export class OrdersService {
           payment: { create: { method: "cod", amount: totalMillimes, status: "pending" } },
           shipment: { create: { carrier: "Standard", status: "pending" } },
         },
-        include: { items: true, payment: true, shipment: true, user: true },
+        include: { items: { include: { product: true } }, payment: true, shipment: true, user: true },
       });
 
       // 3. Trigger Post-transaction ORDER_CREATED Notification (SMS & Email)
       this.notificationsService
         .processOrderNotifications(createdOrder.id, NotificationType.ORDER_CREATED)
         .catch((err) => console.error(`[OrdersService] Notification error for ${createdOrder.id}:`, err));
+
+      // 4. Trigger Meta Conversions API (CAPI) Server-side Purchase event
+      this.metaCapiService
+        .trackPurchase(createdOrder, {
+          eventId: data.eventId || `purchase_${createdOrder.id}`,
+          clientIp: data.clientIp,
+          clientUserAgent: data.clientUserAgent,
+          fbp: data.fbp,
+          fbc: data.fbc,
+          eventSourceUrl: data.eventSourceUrl,
+          email: data.email,
+          phone: data.phone,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          city: data.gouvernorat,
+        })
+        .catch((err) => console.error(`[OrdersService] Meta CAPI Purchase error for ${createdOrder.id}:`, err));
 
       return createdOrder;
     } catch (err: any) {

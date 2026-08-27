@@ -20,6 +20,7 @@ import { NavigationModule } from "./navigation/navigation.module";
 import { DiagnosticModule } from "./diagnostic/diagnostic.module";
 import { SearchModule } from "./search/search.module";
 import { NotificationsModule } from "./notifications/notifications.module";
+import { MetaCapiModule } from "./meta-capi/meta-capi.module";
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { NotificationsModule } from "./notifications/notifications.module";
     DiagnosticModule,
     NotificationsModule,
     SearchModule,
+    MetaCapiModule,
   ],
 })
 export class AppModule {}
