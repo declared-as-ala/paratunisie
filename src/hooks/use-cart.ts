@@ -3,6 +3,7 @@
 import { useMemo, useSyncExternalStore, useCallback } from "react";
 import type { ProductSummary } from "@/lib/data/products";
 import { openCartDrawer } from "@/hooks/use-cart-drawer";
+import { trackAddToCart } from "@/lib/meta-pixel";
 
 const STORAGE_KEY = "paratunisie-cart";
 export const FREE_DELIVERY_THRESHOLD = 99_000; // 99 DT in millimes
@@ -88,6 +89,17 @@ export function useCart() {
         });
       }
       persist(current);
+
+      // Trigger Meta Pixel AddToCart
+      trackAddToCart({
+        productId: product.id,
+        name: product.name,
+        quantity,
+        priceMillimes: size.priceMillimes,
+        category: product.category,
+        brand: product.brand,
+      });
+
       // Centralized here — every add-to-cart entry point (product card, PDP,
       // recommendations, routine actions) gets drawer-open + highlight for
       // free, with no per-component wiring.

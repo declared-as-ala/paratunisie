@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { formatPrice, type ProductSummary } from "@/lib/data/products";
 import { createExpressOrder } from "@/lib/api/client";
+import { trackViewContent, trackInitiateCheckout, trackPurchase } from "@/lib/meta-pixel";
 
 const reassurance = [
   { icon: BadgeCheck, label: "Produit authentique" },
@@ -33,6 +34,11 @@ export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [orderSuccess, setOrderSuccess] = useState<{ id: string; name: string; phone: string } | null>(null);
+
+  // Track ViewContent on product load
+  useEffect(() => {
+    trackViewContent(product);
+  }, [product]);
 
   // IntersectionObserver State for Mobile Sticky Bar (only visible when inline buttons scroll out of view)
   const inlineBuyRef = useRef<HTMLDivElement>(null);
@@ -73,6 +79,21 @@ export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
   const deliveryFeeMillimes = subtotalMillimes >= 99_000 ? 0 : 10_000;
   const totalMillimes = subtotalMillimes + deliveryFeeMillimes;
 
+  const handleOpenQuickOrder = useCallback(() => {
+    setQuickOrderOpen(true);
+    trackInitiateCheckout({
+      items: [
+        {
+          productId: product.id,
+          name: product.name,
+          quantity,
+          priceMillimes: selected.priceMillimes,
+        },
+      ],
+      totalTnd: totalMillimes / 1000,
+    });
+  }, [product.id, product.name, quantity, selected.priceMillimes, totalMillimes]);
+
   const handleQuickOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
@@ -107,7 +128,21 @@ export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
     setSubmitting(false);
 
     if (order?.id) {
-      setOrderSuccess({ id: `PT-${order.id.slice(-6).toUpperCase()}`, name: fullName.trim(), phone: phone.trim() });
+      const orderRef = `PT-${order.id.slice(-6).toUpperCase()}`;
+      trackPurchase({
+        orderId: order.id,
+        orderNumber: orderRef,
+        totalTnd: (order.totalMillimes || totalMillimes) / 1000,
+        items: [
+          {
+            productId: product.id,
+            name: product.name,
+            quantity,
+            priceMillimes: selected.priceMillimes,
+          },
+        ],
+      });
+      setOrderSuccess({ id: orderRef, name: fullName.trim(), phone: phone.trim() });
     } else {
       setErrorMsg(error || "Une erreur s'est produite lors de la validation de la commande. Veuillez réessayer.");
     }
@@ -231,7 +266,7 @@ export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
         <Button
           type="button"
           size="lg"
-          onClick={() => setQuickOrderOpen(true)}
+          onClick={handleOpenQuickOrder}
           className="w-full bg-gradient-to-r from-[#d4a359] via-[#c89b3c] to-[#b88628] hover:from-[#c89b3c] hover:via-[#b88628] hover:to-[#a0741f] text-white font-extrabold rounded-xl py-3.5 sm:py-6 text-xs sm:text-base gap-2 shadow-md transition-all active:scale-[0.98] h-11 sm:h-13 border border-[#b88628]/30"
         >
           <Zap size={18} className="fill-white text-white" />
@@ -282,7 +317,7 @@ export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
         <Button
           type="button"
           size="lg"
-          onClick={() => setQuickOrderOpen(true)}
+          onClick={handleOpenQuickOrder}
           className="w-full bg-gradient-to-r from-[#d4a359] via-[#c89b3c] to-[#b88628] hover:from-[#c89b3c] hover:via-[#b88628] hover:to-[#a0741f] text-white font-extrabold text-xs gap-1.5 rounded-xl h-10 shadow-sm"
         >
           <Zap size={14} className="fill-white text-white" />

@@ -3,12 +3,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { BadgeCheck, CheckCircle2, ChevronDown, Lock, ShieldCheck, Truck, Wallet, AlertCircle, Loader2, ShoppingBag } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { formatPrice } from "@/lib/data/products";
 import { createExpressOrder } from "@/lib/api/client";
+import { trackInitiateCheckout, trackPurchase } from "@/lib/meta-pixel";
 
 const GOUVERNORATS = [
   "Ariana", "Béja", "Ben Arous", "Bizerte", "Gabès", "Gafsa",
@@ -37,6 +38,23 @@ export function CheckoutPage() {
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Track InitiateCheckout on checkout page mount if cart has items
+  useEffect(() => {
+    if (cart.items.length > 0 && !submitted) {
+      const deliveryPrice = cart.hasFreeDelivery ? 0 : ARAMEX_DELIVERY_PRICE;
+      const total = cart.subtotal + deliveryPrice;
+      trackInitiateCheckout({
+        items: cart.items.map((i) => ({
+          productId: i.productId,
+          name: i.name,
+          quantity: i.quantity,
+          priceMillimes: i.priceMillimes,
+        })),
+        totalTnd: total / 1000,
+      });
+    }
+  }, [cart.items.length, cart.subtotal, cart.hasFreeDelivery, submitted]);
 
   const [form, setForm] = useState<CheckoutFormData>({
     email: "",
@@ -160,6 +178,18 @@ export function CheckoutPage() {
 
       if (order?.id) {
         const ref = `PT-${order.id.slice(-6).toUpperCase()}`;
+        const orderTotalTnd = (order.totalMillimes || total) / 1000;
+        trackPurchase({
+          orderId: order.id,
+          orderNumber: ref,
+          totalTnd: orderTotalTnd,
+          items: cart.items.map((i) => ({
+            productId: i.productId,
+            name: i.name,
+            quantity: i.quantity,
+            priceMillimes: i.priceMillimes,
+          })),
+        });
         setOrderNumber(ref);
         setSubmitted(true);
         cart.clearCart();
