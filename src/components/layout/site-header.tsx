@@ -13,7 +13,7 @@ import { Logo } from "@/components/layout/logo";
 import { SearchOverlay } from "@/components/layout/navigation/search-overlay";
 import { MegaMenu } from "@/components/layout/navigation/mega-menu";
 import { CartDrawer } from "@/components/cart/cart-drawer";
-import { phoneHref, phoneNumber } from "@/lib/contact";
+import { phoneHref, phoneNumber, whatsappHref } from "@/lib/contact";
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -34,7 +34,7 @@ export function SiteHeader() {
             </a>
             <span className="hidden md:inline opacity-60">|</span>
             <a
-              href="https://wa.me/21627612500"
+              href={whatsappHref}
               target="_blank"
               rel="noopener noreferrer"
               className="hidden md:flex shrink-0 items-center gap-1 text-emerald-300 hover:underline"
