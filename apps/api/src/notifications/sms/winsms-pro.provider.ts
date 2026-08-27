@@ -72,21 +72,22 @@ export class WinSmsProProvider {
       };
     }
 
-    const params = new URLSearchParams({
-      action: "send-sms",
-      api_key: apiKey,
-      to: normalized.providerFormat,
-      from: effectiveSenderId,
-      sms: messageText,
-    });
-
-    const url = `${apiUrl}?${params.toString()}`;
+    let currentSender = effectiveSenderId;
     let attempt = 0;
     let lastResult: SmsSendResult | null = null;
 
     while (attempt < maxRetries) {
       attempt++;
       try {
+        const params = new URLSearchParams({
+          action: "send-sms",
+          api_key: apiKey,
+          to: normalized.providerFormat,
+          from: currentSender,
+          sms: messageText,
+        });
+
+        const url = `${apiUrl}?${params.toString()}`;
         const controller = new AbortController();
         const timer = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -134,7 +135,17 @@ export class WinSmsProProvider {
           return lastResult;
         }
 
-        // Non-transient errors (e.g., 106 Invalid Sender ID, 555 Licence End) should not retry endlessly
+        // If WinSMS rejects custom sender ID (e.g. PARATUNISIE not yet approved by telco on WinSMS account),
+        // automatically fallback to the account's registered sender (SOBITAS) so the customer receives the SMS.
+        if (parsed.code === "106" && currentSender !== "SOBITAS") {
+          this.logger.warn(
+            `WinSMS Pro rejected sender "${currentSender}" (106: Invalid Sender id). Falling back to registered sender "SOBITAS" for recipient ${maskPhone(toPhone)}.`
+          );
+          currentSender = "SOBITAS";
+          continue;
+        }
+
+        // Non-transient errors (e.g., 555 Licence End) should not retry endlessly
         if (!lastResult.isTransient) {
           this.logger.warn(
             `WinSMS Pro returned permanent error (${parsed.code}: ${parsed.message}) for recipient ${maskPhone(toPhone)}.`
