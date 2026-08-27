@@ -415,8 +415,8 @@ async function seedAccessoires() {
   // 4. Sync Meilisearch
   console.log("\nSyncing Meilisearch...");
   try {
-    const { MeiliSearch } = await import("meilisearch");
-    const client = new MeiliSearch({
+    const { Meilisearch } = await import("meilisearch");
+    const client = new Meilisearch({
       host: process.env.MEILI_HOST || "http://127.0.0.1:7700",
       apiKey: process.env.MEILI_API_KEY || "paratunisie_dev_meili_key",
     });
