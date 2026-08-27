@@ -6,13 +6,9 @@ type SeoEntityType = "product" | "category" | "brand";
 
 // The production image keeps compiled files in dist/, while local development
 // runs this script against TypeScript sources.
-const { CatalogueSeoService } = fs.existsSync(path.resolve(process.cwd(), "dist/catalogue/catalogue-seo.service.js"))
-  ? require("../dist/catalogue/catalogue-seo.service")
-  : require("../src/catalogue/catalogue-seo.service");
-
 const prisma = new PrismaClient();
 
-async function seedType(service: InstanceType<typeof CatalogueSeoService>, type: SeoEntityType, mode: "missing" | "all" = "missing") {
+async function seedType(service: { generateBulk: Function }, type: SeoEntityType, mode: "missing" | "all" = "missing") {
   let cursor: string | undefined;
   const totals = { processed: 0, succeeded: 0, failed: 0 };
   do {
@@ -27,6 +23,11 @@ async function seedType(service: InstanceType<typeof CatalogueSeoService>, type:
 }
 
 async function main() {
+  const { CatalogueSeoService } = await import(
+    fs.existsSync(path.resolve(process.cwd(), "dist/catalogue/catalogue-seo.service.js"))
+      ? "../dist/catalogue/catalogue-seo.service.js"
+      : "../src/catalogue/catalogue-seo.service"
+  );
   await prisma.$connect();
   const backupDir = path.resolve(process.cwd(), "..", "..", "backups");
   fs.mkdirSync(backupDir, { recursive: true });
