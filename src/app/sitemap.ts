@@ -1,3 +1,4 @@
+import type { MetadataRoute } from "next";
 import { getAllCategorySlugs } from "@/lib/data/categories";
 import { getAllConcernSlugs } from "@/lib/data/concerns";
 import { articles as localArticles } from "@/lib/data/articles";
