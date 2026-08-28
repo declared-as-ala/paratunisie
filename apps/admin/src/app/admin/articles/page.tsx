@@ -73,124 +73,22 @@ const STATUS_CONFIG: Record<ArticleStatus, { label: string; color: string; dot: 
   ARCHIVED: { label: "Archivé", color: "bg-slate-200 text-slate-600 border-slate-300", dot: "bg-slate-400" },
 };
 
-/* ── Fallback data (when API unavailable) ─────────────────────────────── */
-
-const FALLBACK_ARTICLES: Article[] = [
-  {
-    id: "a1",
-    title: "Routine peau grasse : le guide complet",
-    slug: "routine-peau-grasse-guide-complet",
-    excerpt: "Comment construire une routine efficace pour une peau à tendance grasse, sans agresser la barrière cutanée.",
-    content: "[]",
-    status: "PUBLISHED",
-    authorName: "Dr. Amira Selmi",
-    category: "Visage",
-    readTime: "5 min",
-    publishedAt: "2026-07-15T10:00:00Z",
-    updatedAt: "2026-08-01T10:00:00Z",
-    createdAt: "2026-07-15T10:00:00Z",
-    seoTitle: "Routine peau grasse : le guide complet | ParaTunisie",
-    metaDescription: "Comment construire une routine efficace pour une peau à tendance grasse en Tunisie.",
-    indexable: true,
-    products: [{ productId: "p1" }, { productId: "p2" }],
-    faqs: [],
-  },
-  {
-    id: "a2",
-    title: "Protection solaire en Tunisie : comment bien choisir",
-    slug: "protection-solaire-tunisie-guide",
-    excerpt: "Quel SPF, quelle texture, quelle fréquence d'application ? Le guide pratique pour se protéger du soleil en Tunisie.",
-    content: "[]",
-    status: "PUBLISHED",
-    authorName: "Dr. Amira Selmi",
-    category: "Solaire",
-    readTime: "4 min",
-    publishedAt: "2026-06-28T10:00:00Z",
-    updatedAt: "2026-07-10T10:00:00Z",
-    createdAt: "2026-06-28T10:00:00Z",
-    seoTitle: "Protection solaire Tunisie — Guide complet",
-    metaDescription: "Découvrez les meilleurs conseils pour vous protéger du soleil en Tunisie.",
-    indexable: true,
-    products: [{ productId: "p3" }],
-    faqs: [],
-  },
-  {
-    id: "a3",
-    title: "Quand commencer une routine anti-âge ?",
-    slug: "routine-anti-age-debut",
-    excerpt: "Les premiers signes de l'âge apparaissent souvent dès 25-30 ans. Voici comment anticiper sans surcharger sa routine.",
-    content: "[]",
-    status: "DRAFT",
-    authorName: "Dr. Amira Selmi",
-    category: "Visage",
-    readTime: "4 min",
-    updatedAt: "2026-08-05T10:00:00Z",
-    createdAt: "2026-07-01T10:00:00Z",
-    indexable: true,
-    products: [],
-    faqs: [],
-  },
-  {
-    id: "a4",
-    title: "Peau sensible : les gestes pour l'apaiser",
-    slug: "peau-sensible-calmee",
-    excerpt: "Cuir chevelu qui tire, rougeurs, inconfort — voici comment apaiser une peau sensible au quotidien.",
-    content: "[]",
-    status: "DRAFT",
-    category: "Visage",
-    readTime: "3 min",
-    updatedAt: "2026-07-28T10:00:00Z",
-    createdAt: "2026-07-28T10:00:00Z",
-    indexable: true,
-    products: [],
-    faqs: [],
-  },
-  {
-    id: "a5",
-    title: "Chute de cheveux : les précautions à prendre",
-    slug: "chute-cheveux-precautions",
-    excerpt: "La chute de cheveux est un sujet fréquent. Voici les premiers réflexes à adopter avant de consulter.",
-    content: "[]",
-    status: "PUBLISHED",
-    authorName: "Dr. Amira Selmi",
-    category: "Cheveux",
-    readTime: "4 min",
-    publishedAt: "2026-05-08T10:00:00Z",
-    updatedAt: "2026-06-01T10:00:00Z",
-    createdAt: "2026-05-08T10:00:00Z",
-    seoTitle: "Chute de cheveux — précautions",
-    metaDescription: "Que faire en cas de chute de cheveux ? Guide pratique ParaTunisie.",
-    indexable: true,
-    products: [{ productId: "p4" }],
-    faqs: [],
-  },
-  {
-    id: "a6",
-    title: "Hydrater sa peau sèche en hiver",
-    slug: "hydratation-peau-seche-hiver",
-    excerpt: "Le froid, le vent et le chauffage assèchent la peau. Comment adapter sa routine pour garder une peau confortable.",
-    content: "[]",
-    status: "PUBLISHED",
-    authorName: "Dr. Amira Selmi",
-    category: "Corps",
-    readTime: "3 min",
-    publishedAt: "2026-04-18T10:00:00Z",
-    updatedAt: "2026-05-01T10:00:00Z",
-    createdAt: "2026-04-18T10:00:00Z",
-    indexable: true,
-    products: [],
-    faqs: [],
-  },
-];
-
-const API_URL = "http://localhost:3001/api/v1";
+function getApiBaseUrl() {
+  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+  if (typeof window !== "undefined") {
+    if (window.location.hostname.includes("paratunisie.com")) {
+      return "https://paratunisie.com/api/v1";
+    }
+  }
+  return process.env.API_URL || "http://localhost:3001/api/v1";
+}
 
 /* ── Main component ──────────────────────────────────────────────────── */
 
 export default function ArticlesPage() {
   const { toast } = useToast();
 
-  const [articles, setArticles] = useState<Article[]>(FALLBACK_ARTICLES);
+  const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [apiAvailable, setApiAvailable] = useState(false);
 
@@ -208,17 +106,16 @@ export default function ArticlesPage() {
   const fetchArticles = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/content/articles`, { cache: "no-store" });
+      const baseUrl = getApiBaseUrl();
+      const res = await fetch(`${baseUrl}/content/articles`, { cache: "no-store" });
       if (!res.ok) throw new Error("API error");
       const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
+      if (Array.isArray(data)) {
         setArticles(data);
         setApiAvailable(true);
         if (typeof window !== "undefined") {
           localStorage.setItem("paratunisie_admin_articles", JSON.stringify(data));
         }
-      } else {
-        setApiAvailable(true);
       }
     } catch {
       setApiAvailable(false);
@@ -289,9 +186,10 @@ export default function ArticlesPage() {
 
   /* ── Actions ── */
   async function handleSaveArticle(data: ArticleFormData, _action: "draft" | "publish") {
+    const baseUrl = getApiBaseUrl();
     if (apiAvailable) {
       const isNew = !data.id;
-      const url = isNew ? `${API_URL}/content/articles` : `${API_URL}/content/articles/${data.id}`;
+      const url = isNew ? `${baseUrl}/content/articles` : `${baseUrl}/content/articles/${data.id}`;
       const method = isNew ? "POST" : "PATCH";
       const res = await fetch(url, {
         method,
@@ -365,9 +263,10 @@ export default function ArticlesPage() {
   }
 
   async function handleToggleStatus(article: Article) {
+    const baseUrl = getApiBaseUrl();
     const newStatus: ArticleStatus = article.status === "PUBLISHED" ? "DRAFT" : "PUBLISHED";
     if (apiAvailable) {
-      await fetch(`${API_URL}/content/articles/${article.id}`, {
+      await fetch(`${baseUrl}/content/articles/${article.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
@@ -391,8 +290,9 @@ export default function ArticlesPage() {
   }
 
   async function handleDuplicate(article: Article) {
+    const baseUrl = getApiBaseUrl();
     if (apiAvailable) {
-      await fetch(`${API_URL}/content/articles/${article.id}/duplicate`, { method: "POST" });
+      await fetch(`${baseUrl}/content/articles/${article.id}/duplicate`, { method: "POST" });
       await fetchArticles();
     } else {
       const copy: Article = {
@@ -412,8 +312,9 @@ export default function ArticlesPage() {
 
   async function handleDelete() {
     if (!deleteTarget) return;
+    const baseUrl = getApiBaseUrl();
     if (apiAvailable) {
-      await fetch(`${API_URL}/content/articles/${deleteTarget.id}`, { method: "DELETE" });
+      await fetch(`${baseUrl}/content/articles/${deleteTarget.id}`, { method: "DELETE" });
       await fetchArticles();
     } else {
       setArticles((prev) => prev.filter((a) => a.id !== deleteTarget.id));

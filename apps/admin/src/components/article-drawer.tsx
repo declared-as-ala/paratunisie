@@ -124,13 +124,23 @@ function slugify(text: string): string {
     .trim();
 }
 
+function getApiBaseUrl() {
+  if (process.env.NEXT_PUBLIC_API_URL) return process.env.NEXT_PUBLIC_API_URL;
+  if (typeof window !== "undefined") {
+    if (window.location.hostname.includes("paratunisie.com")) {
+      return "https://paratunisie.com/api/v1";
+    }
+  }
+  return process.env.API_URL || "http://localhost:3001/api/v1";
+}
+
 function emptyForm(): ArticleFormData {
   return {
     title: "",
     slug: "",
     excerpt: "",
-    category: "Visage",
-    authorName: "Dr. Amira Selmi",
+    category: "Créatine",
+    authorName: "Équipe éditoriale ParaTunisie",
     expertReviewer: "",
     status: "DRAFT",
     featuredImage: "",
@@ -185,9 +195,13 @@ export function ArticleDrawer({ open, article, onClose, onSave }: ArticleDrawerP
   /* Fetch products for relation panel */
   useEffect(() => {
     if (!open) return;
-    fetch("http://localhost:3001/catalogue/products")
+    const baseUrl = getApiBaseUrl();
+    fetch(`${baseUrl}/catalogue/products?limit=100`)
       .then((r) => r.json())
-      .then((data: ApiProduct[]) => setAvailableProducts(Array.isArray(data) ? data : []))
+      .then((res) => {
+        const data = Array.isArray(res) ? res : res?.data;
+        setAvailableProducts(Array.isArray(data) ? data : []);
+      })
       .catch(() => {
         /* fallback — no products available */
       });
