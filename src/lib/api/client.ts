@@ -316,10 +316,17 @@ export const HOMEPAGE_CATEGORY_DEFINITIONS = [
   },
   {
     key: "omega-3",
-    title: "Omega 3 & Ashwagandha",
-    subtitle: "Acides gras essentiels et plantes adaptogènes pour la santé cardiovasculaire et la gestion du stress.",
+    title: "Omega 3 & Acides Gras",
+    subtitle: "Acides gras essentiels EPA & DHA pour la santé cardiovasculaire, cérébrale et articulaire.",
     slug: "omega-3",
-    matches: ["omega-3", "ashwagandha"]
+    matches: ["omega-3"]
+  },
+  {
+    key: "ashwagandha",
+    title: "Ashwagandha & Sommeil",
+    subtitle: "Plante adaptogène premium pour réguler le cortisol, réduire le stress et optimiser la récupération.",
+    slug: "ashwagandha",
+    matches: ["ashwagandha"]
   },
   {
     key: "minceur",

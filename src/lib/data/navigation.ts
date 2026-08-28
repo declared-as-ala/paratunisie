@@ -52,13 +52,14 @@ export const primaryCategories: NavCategory[] = [
     ],
   },
   {
-    label: "Omega 3 & Santé",
+    label: "Ashwagandha",
+    href: "/ashwagandha",
+    description: "Plante adaptogène pour le stress, le sommeil réparateur et la vitalité.",
+  },
+  {
+    label: "Omega 3",
     href: "/omega-3",
-    description: "Omega 3 & Ashwagandha pour la santé globale.",
-    featured: [
-      { label: "Omega 3", href: "/omega-3" },
-      { label: "Ashwagandha", href: "/ashwagandha" },
-    ],
+    description: "Acides gras essentiels EPA & DHA pour le cœur et les articulations.",
   },
   {
     label: "Minceur & Brûleurs",

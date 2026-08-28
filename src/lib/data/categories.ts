@@ -257,8 +257,8 @@ export const categories: Category[] = [
     "slug": "ashwagandha",
     "name": "Ashwagandha",
     "eyebrow": "Plante Adaptogène",
-    "description": "Extrait naturel pour réguler le cortisol, réduire le stress et booster la vitalité.",
-    "seoIntro": "L'ashwagandha est une plante adaptogène ancestrale qui aide l'organisme à résister au stress physique et mental et améliore la qualité du sommeil.",
+    "description": "Achetez vos produits Ashwagandha en Tunisie sur ParaTunisie. Découvrez notre sélection de compléments à base d’Ashwagandha, avec livraison en Tunisie.",
+    "seoIntro": "Découvrez notre sélection de compléments alimentaires à base d'Ashwagandha (Withania Somnifera) en Tunisie. Plante adaptogène pure pour réguler le cortisol, réduire le stress, optimiser le sommeil réparateur et soutenir la vitalité quotidienne au meilleur prix.",
     "subcategories": [
       {
         "slug": "tous",
