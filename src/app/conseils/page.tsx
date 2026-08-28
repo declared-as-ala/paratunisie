@@ -20,12 +20,19 @@ export const metadata: Metadata = {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
 
+function getArticleImage(slug: string, apiImage?: string): string {
+  if (apiImage && apiImage !== "/assets/hero-paratunisie.webp" && apiImage.trim() !== "") {
+    return apiImage;
+  }
+  return `/assets/blog/${slug}.webp`;
+}
+
 async function fetchPublishedArticles(): Promise<Article[]> {
   try {
     const res = await fetch(`${API_URL}/content/articles?status=PUBLISHED`, {
       cache: "no-store",
     });
-    if (!res.ok) return articles;
+    if (!res.ok) return articles.map(a => ({ ...a, featuredImage: getArticleImage(a.slug, a.featuredImage) }));
     const data = await res.json();
     if (Array.isArray(data) && data.length > 0) {
       // Merge with static metadata for rich rendering
@@ -34,7 +41,7 @@ async function fetchPublishedArticles(): Promise<Article[]> {
         return {
           ...local,
           ...apiArt,
-          featuredImage: apiArt.featuredImage || local?.featuredImage || "/assets/hero-paratunisie.webp",
+          featuredImage: getArticleImage(apiArt.slug, apiArt.featuredImage || local?.featuredImage),
           title: apiArt.title || local?.title || "",
           excerpt: apiArt.excerpt || local?.excerpt || "",
           category: apiArt.category || local?.category || "Créatine",
@@ -43,9 +50,9 @@ async function fetchPublishedArticles(): Promise<Article[]> {
         };
       });
     }
-    return articles;
+    return articles.map(a => ({ ...a, featuredImage: getArticleImage(a.slug, a.featuredImage) }));
   } catch {
-    return articles;
+    return articles.map(a => ({ ...a, featuredImage: getArticleImage(a.slug, a.featuredImage) }));
   }
 }
 

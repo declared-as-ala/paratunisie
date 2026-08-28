@@ -152,7 +152,11 @@ export function BlogHubClient({ initialArticles, categories }: BlogHubClientProp
                   className="relative aspect-16/10 w-full overflow-hidden bg-slate-100 block"
                 >
                   <Image
-                    src={article.featuredImage || "/assets/hero-paratunisie.webp"}
+                    src={
+                      article.featuredImage && article.featuredImage !== "/assets/hero-paratunisie.webp"
+                        ? article.featuredImage
+                        : `/assets/blog/${article.slug}.webp`
+                    }
                     alt={article.imageAlt || article.title}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-500"

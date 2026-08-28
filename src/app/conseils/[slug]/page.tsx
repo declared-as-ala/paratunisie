@@ -28,7 +28,15 @@ import {
 const SITE_URL = "https://paratunisie.com";
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
 
+function getArticleImage(slug: string, apiImage?: string): string {
+  if (apiImage && apiImage !== "/assets/hero-paratunisie.webp" && apiImage.trim() !== "") {
+    return apiImage;
+  }
+  return `/assets/blog/${slug}.webp`;
+}
+
 async function fetchArticleBySlug(slug: string): Promise<Article | null> {
+  const local = getArticleBySlug(slug);
   try {
     const res = await fetch(`${API_URL}/content/articles/by-slug/${slug}`, {
       next: { revalidate: 300 },
@@ -38,14 +46,21 @@ async function fetchArticleBySlug(slug: string): Promise<Article | null> {
       const data = await res.json();
       if (data && data.slug) {
         // Merge with local static full data if present
-        const local = getArticleBySlug(slug);
-        return { ...local, ...data };
+        return {
+          ...local,
+          ...data,
+          featuredImage: getArticleImage(slug, data.featuredImage || local?.featuredImage),
+        };
       }
     }
   } catch {
     // fallback to static
   }
-  return getArticleBySlug(slug) ?? null;
+  if (!local) return null;
+  return {
+    ...local,
+    featuredImage: getArticleImage(slug, local.featuredImage),
+  };
 }
 
 export function generateStaticParams() {
