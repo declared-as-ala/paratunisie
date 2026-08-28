@@ -9,6 +9,7 @@ import { useCart } from "@/hooks/use-cart";
 import { formatPrice, type ProductSummary } from "@/lib/data/products";
 import { createExpressOrder, type ProductRating } from "@/lib/api/client";
 import { trackViewContent, trackInitiateCheckout, trackPurchase } from "@/lib/meta-pixel";
+import { trackGoogleAdsPurchase } from "@/lib/google-ads";
 import { calculatePointsEarned } from "@/lib/loyalty";
 import { getCustomerSession } from "@/lib/customer-auth";
 
@@ -135,10 +136,24 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
 
     if (order?.id) {
       const orderRef = `PT-${order.id.slice(-6).toUpperCase()}`;
+      const totalTnd = (order.totalMillimes || totalMillimes) / 1000;
       trackPurchase({
         orderId: order.id,
         orderNumber: orderRef,
-        totalTnd: (order.totalMillimes || totalMillimes) / 1000,
+        totalTnd,
+        items: [
+          {
+            productId: product.id,
+            name: product.name,
+            quantity,
+            priceMillimes: selected.priceMillimes,
+          },
+        ],
+      });
+      trackGoogleAdsPurchase({
+        orderId: order.id,
+        orderNumber: orderRef,
+        totalTnd,
         items: [
           {
             productId: product.id,

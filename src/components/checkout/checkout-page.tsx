@@ -10,6 +10,7 @@ import { useCart } from "@/hooks/use-cart";
 import { formatPrice } from "@/lib/data/products";
 import { createExpressOrder } from "@/lib/api/client";
 import { trackInitiateCheckout, trackPurchase } from "@/lib/meta-pixel";
+import { trackGoogleAdsPurchase } from "@/lib/google-ads";
 import { getCustomerSession, type CustomerSession } from "@/lib/customer-auth";
 import { calculatePointsDiscountMillimes } from "@/lib/loyalty";
 
@@ -216,6 +217,17 @@ export function CheckoutPage() {
         const ref = `PT-${order.id.slice(-6).toUpperCase()}`;
         const orderTotalTnd = (order.totalMillimes || total) / 1000;
         trackPurchase({
+          orderId: order.id,
+          orderNumber: ref,
+          totalTnd: orderTotalTnd,
+          items: cart.items.map((i) => ({
+            productId: i.productId,
+            name: i.name,
+            quantity: i.quantity,
+            priceMillimes: i.priceMillimes,
+          })),
+        });
+        trackGoogleAdsPurchase({
           orderId: order.id,
           orderNumber: ref,
           totalTnd: orderTotalTnd,
