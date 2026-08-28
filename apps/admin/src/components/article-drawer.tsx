@@ -27,15 +27,14 @@ import { SeoCompletenessScore, computeSeoScore } from "@/components/seo-complete
 /* ── Types ─────────────────────────────────────────────────────────────── */
 
 const EDITORIAL_CATEGORIES = [
-  "Visage",
-  "Cheveux",
-  "Solaire",
-  "Corps",
-  "Bébé & Maman",
-  "Ingrédients",
-  "Routines",
-  "Guides d'achat",
+  "Créatine",
+  "Protéines & Masse",
+  "Performance",
+  "Acides Aminés",
+  "Vitamines & Santé",
   "Bien-être",
+  "Sèche & Minceur",
+  "Débutants",
 ] as const;
 
 const ARTICLE_STATUSES = [

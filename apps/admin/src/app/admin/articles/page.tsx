@@ -56,15 +56,14 @@ interface Article {
 }
 
 const EDITORIAL_CATEGORIES = [
-  "Visage",
-  "Cheveux",
-  "Solaire",
-  "Corps",
-  "Bébé & Maman",
-  "Ingrédients",
-  "Routines",
-  "Guides d'achat",
+  "Créatine",
+  "Protéines & Masse",
+  "Performance",
+  "Acides Aminés",
+  "Vitamines & Santé",
   "Bien-être",
+  "Sèche & Minceur",
+  "Débutants",
 ];
 
 const STATUS_CONFIG: Record<ArticleStatus, { label: string; color: string; dot: string }> = {

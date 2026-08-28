@@ -1,310 +1,317 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Clock, ChevronRight, User, Sparkles } from "lucide-react";
-import { articles, type Article } from "@/lib/data/articles";
-
-const SITE_URL = "https://paratunisie.com";
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+import Image from "next/image";
+import {
+  Clock,
+  ArrowRight,
+  Sparkles,
+  BookOpen,
+  Zap,
+  Target,
+  Flame,
+  HeartPulse,
+  Dumbbell,
+  ShieldCheck,
+} from "lucide-react";
+import { articles, articleCategories, type Article } from "@/lib/data/articles";
 
 export const metadata: Metadata = {
-  title: "Conseils beauté & soins de la peau | ParaTunisie",
+  title: "Conseils Nutrition, Sport & Bien-être en Tunisie | ParaTunisie",
   description:
-    "Guides pratiques, routines de soin et conseils d'experts pour prendre soin de votre peau, vos cheveux et votre corps. Parapharmacie en ligne en Tunisie.",
+    "Guides pratiques et comparatifs d'experts pour mieux comprendre la créatine, la whey, les vitamines et les compléments alimentaires en Tunisie.",
   alternates: { canonical: "/conseils" },
   openGraph: {
     type: "website",
-    title: "Conseils beauté & soins | ParaTunisie",
-    description: "Guides experts, routines et conseils parapharmaceutiques en Tunisie.",
+    title: "Conseils Nutrition, Sport & Bien-être | ParaTunisie",
+    description:
+      "Guides d'experts, comparatifs de créatines, protéines, pre-workouts et vitamines disponibles en Tunisie.",
     url: "/conseils",
   },
 };
 
-const CATEGORIES = [
-  { label: "Tous", value: "" },
-  { label: "Visage", value: "Visage" },
-  { label: "Cheveux", value: "Cheveux" },
-  { label: "Solaire", value: "Solaire" },
-  { label: "Corps", value: "Corps" },
-  { label: "Ingrédients", value: "Ingrédients" },
-  { label: "Routines", value: "Routines" },
+const OBJECTIVES = [
+  {
+    title: "Force & Puissance Musculaire",
+    description: "Tout sur la créatine monohydrate, les dosages et le timing de prise.",
+    icon: Dumbbell,
+    link: "/conseils/meilleure-creatine-tunisie",
+    category: "Créatine",
+    badge: "Top Recherche",
+  },
+  {
+    title: "Prise de Masse & Poids",
+    description: "Stratégies nutritionnelles, comparatif Whey vs Gainer et surplus calorique.",
+    icon: Target,
+    link: "/conseils/prise-de-masse-tunisie-guide",
+    category: "Protéines & Masse",
+    badge: "Guide Pilier",
+  },
+  {
+    title: "Énergie & Performance Pré-Séance",
+    description: "Choisir son booster pre-workout, citrulline et bêta-alanine.",
+    icon: Zap,
+    link: "/conseils/meilleur-pre-workout-tunisie",
+    category: "Performance",
+    badge: "Boost & Pump",
+  },
+  {
+    title: "Sèche & Définition",
+    description: "Rôle de la L-Carnitine, des brûleurs thermogéniques et déficit calorique.",
+    icon: Flame,
+    link: "/conseils/l-carnitine-perte-graisse",
+    category: "Sèche & Minceur",
+    badge: "Minceur & Cardio",
+  },
+  {
+    title: "Santé, Vitalité & Sommeil",
+    description: "Ashwagandha, Vitamine D3+K2, Zinc, Oméga 3 et Multivitamines.",
+    icon: HeartPulse,
+    link: "/conseils/ashwagandha-tunisie-guide",
+    category: "Bien-être",
+    badge: "Micronutrition",
+  },
+  {
+    title: "Guide Débutant Musculation",
+    description: "Par quoi commencer ? Les bases de l'alimentation et les 3 compléments essentiels.",
+    icon: BookOpen,
+    link: "/conseils/complements-musculation-debutant",
+    category: "Débutants",
+    badge: "Spécial Démarrage",
+  },
 ];
 
-const CATEGORY_COLORS: Record<string, string> = {
-  Visage: "bg-rose-100 text-rose-700",
-  Cheveux: "bg-amber-100 text-amber-700",
-  Solaire: "bg-orange-100 text-orange-700",
-  Corps: "bg-blue-100 text-blue-700",
-  "Bébé & Maman": "bg-purple-100 text-purple-700",
-  Ingrédients: "bg-emerald-100 text-emerald-700",
-  Routines: "bg-pink-100 text-pink-700",
-  "Guides d'achat": "bg-indigo-100 text-indigo-700",
-  "Bien-être": "bg-teal-100 text-teal-700",
-};
+const COMMERCIAL_HUBS = [
+  { name: "Créatine", url: "/creatine", count: "Toutes marques" },
+  { name: "Whey Protéine", url: "/whey-proteine", count: "Isolate & Concentré" },
+  { name: "Mass Gainers", url: "/gainers", count: "Haute calorie" },
+  { name: "Pre-Workout", url: "/pre-workout", count: "Boosters & Pump" },
+  { name: "BCAA & Acides Aminés", url: "/bcaa-acides-amines", count: "EAA, BCAA, Citrulline" },
+  { name: "Ashwagandha", url: "/ashwagandha", count: "Adaptogènes purs" },
+  { name: "Vitamines & Minéraux", url: "/vitamines-mineraux", count: "D3, Zinc, Multi" },
+  { name: "Brûleurs de Graisse", url: "/bruleurs-de-graisse", count: "Sèche & Minceur" },
+];
 
-async function getPublishedArticles(): Promise<Article[]> {
-  try {
-    const res = await fetch(`${API_URL}/content/articles?status=PUBLISHED`, {
-      next: { revalidate: 300 }, // 5 min cache
-      signal: AbortSignal.timeout(1000),
-    });
-    if (!res.ok) throw new Error("API error");
-    const data = await res.json();
-    if (Array.isArray(data) && data.length > 0) return data as Article[];
-    return articles; // fallback to static
-  } catch {
-    return articles; // fallback to static
-  }
-}
-
-export default async function ConseilsPage() {
-  const allArticles = await getPublishedArticles();
-  const featured = allArticles[0];
-  const rest = allArticles.slice(1);
-
-  const breadcrumbJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Accueil", item: `${SITE_URL}/` },
-      { "@type": "ListItem", position: 2, name: "Conseils", item: `${SITE_URL}/conseils` },
-    ],
-  };
-
-  const itemListJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    name: "Conseils beauté ParaTunisie",
-    itemListElement: allArticles.map((a, i) => ({
-      "@type": "ListItem",
-      position: i + 1,
-      url: `${SITE_URL}/conseils/${a.slug}`,
-      name: a.title,
-    })),
-  };
+export default function ConseilsHubPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ cat?: string }>;
+}) {
+  const featuredArticles = articles.filter((a) =>
+    [
+      "meilleure-creatine-tunisie",
+      "prise-de-masse-tunisie-guide",
+      "complements-musculation-debutant",
+      "meilleur-pre-workout-tunisie",
+    ].includes(a.slug),
+  );
 
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c") }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListJsonLd).replace(/</g, "\\u003c") }}
-      />
-
-      <div className="mx-auto max-w-[1440px] px-4 pb-20 pt-8 sm:px-6 sm:pt-10 lg:px-8 lg:pt-14">
-        {/* Breadcrumb */}
-        <nav aria-label="Fil d'Ariane" className="mb-6 text-xs text-ink-muted sm:text-sm">
-          <ol className="flex items-center gap-1.5 sm:gap-2">
-            <li>
-              <Link href="/" className="hover:text-primary transition-colors">
-                Accueil
-              </Link>
-            </li>
-            <li aria-hidden className="text-ink-muted/50">
-              /
-            </li>
-            <li aria-current="page" className="text-ink">
-              Conseils
-            </li>
-          </ol>
-        </nav>
-
-        {/* Hero section */}
-        <header className="mb-10">
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles size={14} className="text-primary" aria-hidden />
-            <p className="text-xs font-semibold tracking-[0.14em] text-primary uppercase">
-              Notre expertise
-            </p>
+    <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+      {/* ── Hero Section ── */}
+      <section className="relative overflow-hidden rounded-3xl border border-primary/20 bg-linear-to-br from-primary/10 via-primary/5 to-white p-8 sm:p-12 lg:p-16 shadow-xs">
+        <div className="max-w-3xl">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-white/80 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-primary mb-4 backdrop-blur-xs">
+            <Sparkles className="size-3.5" />
+            Centre de Ressources & Nutrition Sportive
           </div>
-          <h1 className="font-serif text-3xl font-medium tracking-tight text-ink sm:text-4xl lg:text-5xl">
-            Conseils beauté & soins
-          </h1>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-ink-muted sm:text-base">
-            Guides pratiques, routines de soin et conseils d&apos;experts rédigés par notre équipe. Des
-            informations fiables, sans jargon inutile, pour prendre soin de vous au quotidien.
-          </p>
-        </header>
 
-        {/* Category chips */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 mb-8 scrollbar-hide">
-          {CATEGORIES.map((cat) => (
-            <a
-              key={cat.value}
-              href={cat.value ? `/conseils?categorie=${cat.value}` : "/conseils"}
-              className={`shrink-0 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-all ${
-                cat.value === ""
-                  ? "bg-primary text-white border-primary shadow-sm"
-                  : "border-border text-ink-muted hover:border-primary hover:text-primary bg-surface-alt"
-              }`}
+          <h1 className="font-serif text-3xl font-bold tracking-tight text-ink sm:text-4xl lg:text-5xl leading-tight">
+            Conseils Nutrition, Sport & Bien-être
+          </h1>
+
+          <p className="mt-4 text-sm sm:text-base leading-relaxed text-ink-muted">
+            Guides pratiques, comparatifs impartiaux et conseils fondés sur la science pour mieux comprendre la créatine, les protéines, les vitamines et les compléments alimentaires disponibles en Tunisie.
+          </p>
+
+          {/* Quick Stats / Trust */}
+          <div className="mt-8 flex flex-wrap items-center gap-6 text-xs text-ink font-semibold">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="size-4 text-emerald-600" />
+              <span>Articles 100% rédigés par notre équipe</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Sparkles className="size-4 text-primary" />
+              <span>Produits réels du catalogue tunisien</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <BookOpen className="size-4 text-amber-600" />
+              <span>Sources scientifiques référencées</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Objectives Selector ── */}
+      <section className="mt-12">
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <h2 className="font-serif text-2xl font-bold text-ink">Explorez par Objectif</h2>
+            <p className="text-xs text-ink-muted mt-0.5">Accédez directement aux guides adaptés à vos besoins actuels.</p>
+          </div>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {OBJECTIVES.map((obj, idx) => {
+            const Icon = obj.icon;
+            return (
+              <Link
+                key={idx}
+                href={obj.link}
+                className="group rounded-2xl border border-border/80 bg-white p-5 shadow-xs transition-all hover:border-primary/40 hover:shadow-sm"
+              >
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-white transition-colors">
+                    <Icon className="size-5" />
+                  </div>
+                  <span className="rounded-md bg-soft-nude text-ink-muted px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                    {obj.badge}
+                  </span>
+                </div>
+
+                <h3 className="font-serif text-base font-bold text-ink group-hover:text-primary transition-colors">
+                  {obj.title}
+                </h3>
+                <p className="mt-1 text-xs text-ink-muted line-clamp-2 leading-relaxed">
+                  {obj.description}
+                </p>
+
+                <div className="mt-3 flex items-center gap-1 text-xs font-semibold text-primary">
+                  <span>Lire le dossier</span>
+                  <ArrowRight className="size-3 transition-transform group-hover:translate-x-1" />
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ── Featured Guides (À la Une) ── */}
+      <section className="mt-16">
+        <div className="mb-6">
+          <div className="flex items-center gap-2 text-primary font-bold text-xs uppercase tracking-wider mb-1">
+            <Sparkles className="size-3.5" />
+            Sélection de la Rédaction
+          </div>
+          <h2 className="font-serif text-2xl font-bold text-ink">Guides Piliers & Incontournables</h2>
+        </div>
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {featuredArticles.map((art) => (
+            <article
+              key={art.slug}
+              className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-white p-5 shadow-xs transition-all hover:border-primary/40 hover:shadow-sm"
             >
-              {cat.label}
-            </a>
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <span className="rounded-md bg-primary/10 text-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                    {art.category}
+                  </span>
+                  <span className="text-[11px] text-ink-muted font-medium flex items-center gap-1">
+                    <Clock className="size-3" />
+                    {art.readTime}
+                  </span>
+                </div>
+
+                <h3 className="font-serif text-base font-bold text-ink group-hover:text-primary transition-colors line-clamp-2 leading-snug">
+                  <Link href={`/conseils/${art.slug}`}>{art.title}</Link>
+                </h3>
+
+                <p className="mt-2 text-xs text-ink-muted line-clamp-3 leading-relaxed">
+                  {art.excerpt}
+                </p>
+              </div>
+
+              <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between">
+                <Link
+                  href={`/conseils/${art.slug}`}
+                  className="font-semibold text-xs text-primary inline-flex items-center gap-1 group-hover:underline"
+                >
+                  Découvrir le guide
+                  <ArrowRight className="size-3" />
+                </Link>
+              </div>
+            </article>
           ))}
         </div>
+      </section>
 
-        {/* Featured article */}
-        {featured && (
-          <div className="mb-12">
-            <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-ink-muted mb-3">
-              À la une
-            </p>
-            <Link
-              href={`/conseils/${featured.slug}`}
-              className="group relative overflow-hidden rounded-2xl border border-border bg-surface-alt flex flex-col lg:flex-row hover:shadow-[0_12px_40px_rgba(43,35,38,0.10)] transition-all duration-300 hover:-translate-y-0.5"
+      {/* ── Complete Articles Grid (Tous nos 20 guides) ── */}
+      <section className="mt-16">
+        <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h2 className="font-serif text-2xl font-bold text-ink">Tous Nos Guides & Articles ({articles.length})</h2>
+            <p className="text-xs text-ink-muted mt-0.5">Explorez l&apos;ensemble de nos dossiers thématiques classés par catégorie.</p>
+          </div>
+        </div>
+
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {articles.map((art) => (
+            <article
+              key={art.slug}
+              className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-white p-5 shadow-xs transition-all hover:border-primary/40 hover:shadow-sm"
             >
-              {/* Image placeholder / featured image */}
-              <div className="lg:w-[42%] h-48 lg:h-auto bg-gradient-to-br from-primary/8 via-soft-nude to-primary/5 flex items-center justify-center border-b lg:border-b-0 lg:border-r border-border shrink-0 relative overflow-hidden">
-                {(featured as Record<string, unknown>).featuredImage ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={(featured as Record<string, unknown>).featuredImage as string}
-                    alt={featured.title}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="flex flex-col items-center gap-3 text-primary/30">
-                    <div className="w-16 h-20 rounded-lg bg-primary/10 flex items-center justify-center">
-                      <span className="font-serif text-3xl font-bold text-primary/20">A</span>
-                    </div>
-                    <div className="w-24 h-1.5 rounded-full bg-primary/10" />
-                    <div className="w-20 h-1.5 rounded-full bg-primary/10" />
-                  </div>
-                )}
-              </div>
-
-              {/* Content */}
-              <div className="flex flex-col justify-center p-6 lg:p-10">
-                <div className="flex items-center gap-2 mb-3">
-                  <span
-                    className={`rounded-full px-2.5 py-0.5 text-[0.65rem] font-semibold ${CATEGORY_COLORS[featured.category] ?? "bg-primary/10 text-primary"}`}
-                  >
-                    {featured.category}
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-2.5">
+                  <span className="rounded-md bg-primary/10 text-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                    {art.category}
                   </span>
-                  <span className="flex items-center gap-1 text-[0.65rem] text-ink-muted">
-                    <Clock size={11} aria-hidden />
-                    {featured.readTime}
+                  <span className="text-[11px] text-ink-muted font-medium flex items-center gap-1">
+                    <Clock className="size-3" />
+                    {art.readTime}
                   </span>
                 </div>
-                <h2 className="font-serif text-xl font-medium text-ink group-hover:text-primary transition-colors sm:text-2xl lg:text-3xl leading-tight">
-                  {featured.title}
-                </h2>
-                <p className="mt-3 text-sm text-ink-muted leading-relaxed line-clamp-3 max-w-prose">
-                  {featured.excerpt}
+
+                <h3 className="font-serif text-base font-bold text-ink group-hover:text-primary transition-colors line-clamp-2">
+                  <Link href={`/conseils/${art.slug}`}>{art.title}</Link>
+                </h3>
+
+                <p className="mt-2 text-xs text-ink-muted line-clamp-3 leading-relaxed">
+                  {art.excerpt}
                 </p>
-                {featured.authorName && (
-                  <div className="flex items-center gap-1.5 mt-4 text-xs text-ink-muted">
-                    <User size={12} aria-hidden />
-                    {featured.authorName}
-                  </div>
-                )}
-                <div className="mt-5 flex items-center gap-1.5 text-sm font-semibold text-primary">
-                  Lire l&apos;article
-                  <ChevronRight size={15} className="group-hover:translate-x-1 transition-transform" />
-                </div>
               </div>
-            </Link>
-          </div>
-        )}
 
-        {/* Latest articles grid */}
-        {rest.length > 0 && (
-          <section aria-labelledby="latest-heading">
-            <h2
-              id="latest-heading"
-              className="text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-ink-muted mb-5"
+              <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between text-xs">
+                <span className="text-[11px] text-ink-muted">
+                  {new Date(art.date).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+                </span>
+                <Link
+                  href={`/conseils/${art.slug}`}
+                  className="font-semibold text-primary inline-flex items-center gap-1 group-hover:underline"
+                >
+                  Lire l&apos;article
+                  <ArrowRight className="size-3" />
+                </Link>
+              </div>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Commercial Category Rails ── */}
+      <section className="mt-20 rounded-3xl border border-border/80 bg-soft-nude/40 p-8 sm:p-10">
+        <div className="text-center max-w-2xl mx-auto mb-8">
+          <h2 className="font-serif text-2xl font-bold text-ink">Boutique & Produits Authentiques</h2>
+          <p className="mt-2 text-xs sm:text-sm text-ink-muted">
+            Commandez directement vos créatines, protéines et vitamines sur ParaTunisie avec livraison express sur toute la Tunisie.
+          </p>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {COMMERCIAL_HUBS.map((hub) => (
+            <Link
+              key={hub.url}
+              href={hub.url}
+              className="flex items-center justify-between rounded-xl bg-white border border-border/70 p-4 shadow-xs hover:border-primary hover:text-primary transition-colors group"
             >
-              Derniers guides
-            </h2>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {rest.map((article) => (
-                <ArticleCard key={article.slug} article={article} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {allArticles.length === 0 && (
-          <div className="flex flex-col items-center gap-3 py-20 text-center">
-            <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
-              <Sparkles size={20} className="text-primary" />
-            </div>
-            <p className="text-base font-medium text-ink">Aucun article publié pour l&apos;instant</p>
-            <p className="text-sm text-ink-muted">
-              Nos conseils beauté seront bientôt disponibles.
-            </p>
-          </div>
-        )}
-      </div>
-    </>
-  );
-}
-
-/* ── Article card ─────────────────────────────────────────────────────── */
-
-function ArticleCard({ article }: { article: Article }) {
-  const authorName = (article as Record<string, unknown>).authorName as string | undefined;
-  const featuredImage = (article as Record<string, unknown>).featuredImage as string | undefined;
-
-  return (
-    <Link
-      href={`/conseils/${article.slug}`}
-      className="group flex flex-col rounded-2xl border border-border bg-surface-alt overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_8px_32px_rgba(43,35,38,0.08)]"
-    >
-      {/* Thumbnail */}
-      <div className="h-40 bg-gradient-to-br from-primary/8 via-soft-nude to-primary/5 flex items-center justify-center border-b border-border overflow-hidden">
-        {featuredImage ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={featuredImage}
-            alt={article.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        ) : (
-          <div className="flex flex-col gap-2 items-center opacity-20">
-            <div className="w-10 h-12 rounded-md bg-primary/40" />
-            <div className="w-14 h-1 rounded-full bg-primary/40" />
-            <div className="w-10 h-1 rounded-full bg-primary/40" />
-          </div>
-        )}
-      </div>
-
-      {/* Content */}
-      <div className="flex flex-col flex-1 p-5">
-        <div className="flex items-center gap-2 mb-3">
-          <span
-            className={`rounded-full px-2.5 py-0.5 text-[0.6rem] font-semibold ${CATEGORY_COLORS[article.category] ?? "bg-primary/10 text-primary"}`}
-          >
-            {article.category}
-          </span>
-          <span className="flex items-center gap-1 text-[0.6rem] text-ink-muted">
-            <Clock size={10} aria-hidden />
-            {article.readTime}
-          </span>
+              <div>
+                <p className="font-bold text-sm text-ink group-hover:text-primary">{hub.name}</p>
+                <p className="text-[11px] text-ink-muted">{hub.count}</p>
+              </div>
+              <ArrowRight className="size-4 text-primary transition-transform group-hover:translate-x-1" />
+            </Link>
+          ))}
         </div>
-        <h3 className="font-serif text-base font-medium text-ink group-hover:text-primary transition-colors leading-snug line-clamp-2">
-          {article.title}
-        </h3>
-        <p className="mt-2 flex-1 text-xs leading-relaxed text-ink-muted line-clamp-3">
-          {article.excerpt}
-        </p>
-        <div className="mt-4 flex items-center justify-between">
-          {authorName ? (
-            <span className="flex items-center gap-1 text-[0.6rem] text-ink-faint">
-              <User size={10} aria-hidden />
-              {authorName}
-            </span>
-          ) : (
-            <span />
-          )}
-          <span className="flex items-center gap-1 text-xs font-semibold text-primary">
-            Lire
-            <ChevronRight size={13} className="group-hover:translate-x-0.5 transition-transform" />
-          </span>
-        </div>
-      </div>
-    </Link>
+      </section>
+    </main>
   );
 }

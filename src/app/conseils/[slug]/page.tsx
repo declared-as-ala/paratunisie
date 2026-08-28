@@ -1,16 +1,32 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Clock, User, ChevronRight, Calendar, Shield, Sparkles } from "lucide-react";
+import Image from "next/image";
+import {
+  Clock,
+  Calendar,
+  ChevronRight,
+  Sparkles,
+  ArrowRight,
+  ShoppingBag,
+  Package,
+} from "lucide-react";
 
 import { articles, getArticleBySlug, type Article } from "@/lib/data/articles";
-import { products as mockProducts, formatPrice } from "@/lib/data/products";
-import { ArticleBlockRenderer, extractTOC } from "@/components/article-block-renderer";
+import { getProductBySlug, formatPrice } from "@/lib/data/products";
+import { ArticleProductCard } from "@/components/article/article-product-card";
+import { ArticleProductComparison } from "@/components/article/article-product-comparison";
+import { ArticleTableOfContents } from "@/components/article/article-table-of-contents";
+import { ArticleFaq } from "@/components/article/article-faq";
+import {
+  ArticleTakeawayBox,
+  ArticleDisclaimerBox,
+  ArticleSourcesBox,
+  ArticleEditorialAuthorBox,
+} from "@/components/article/article-editorial-box";
 
 const SITE_URL = "https://paratunisie.com";
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
-
-/* ── Data fetching ──────────────────────────────────────────────────── */
 
 async function fetchArticleBySlug(slug: string): Promise<Article | null> {
   try {
@@ -18,28 +34,18 @@ async function fetchArticleBySlug(slug: string): Promise<Article | null> {
       next: { revalidate: 300 },
       signal: AbortSignal.timeout(1000),
     });
-    if (!res.ok) throw new Error("Not found");
-    const data = await res.json();
-    return data ?? null;
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.slug) {
+        // Merge with local static full data if present
+        const local = getArticleBySlug(slug);
+        return { ...local, ...data };
+      }
+    }
   } catch {
-    return getArticleBySlug(slug) ?? null;
+    // fallback to static
   }
-}
-
-async function fetchRelatedArticles(category: string, currentSlug: string): Promise<Article[]> {
-  try {
-    const res = await fetch(
-      `${API_URL}/content/articles?status=PUBLISHED&category=${encodeURIComponent(category)}`,
-      { next: { revalidate: 300 }, signal: AbortSignal.timeout(1000) }
-    );
-    if (!res.ok) throw new Error("API error");
-    const data = await res.json();
-    return (Array.isArray(data) ? data : []).filter((a: Article) => a.slug !== currentSlug).slice(0, 3);
-  } catch {
-    return articles
-      .filter((a) => a.category === category && a.slug !== currentSlug)
-      .slice(0, 3);
-  }
+  return getArticleBySlug(slug) ?? null;
 }
 
 export function generateStaticParams() {
@@ -53,34 +59,45 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { slug } = await params;
   const article = await fetchArticleBySlug(slug);
-  if (!article) return { title: "Article introuvable" };
+  if (!article) return { title: "Article introuvable | ParaTunisie" };
 
-  const ext = article as Record<string, unknown>;
-  const title = (ext.seoTitle as string) || article.title;
-  const description = (ext.metaDescription as string) || article.excerpt;
+  const title = article.seoTitle || `${article.h1} | ParaTunisie`;
+  const description = article.seoDescription || article.excerpt;
+  const canonical = `/conseils/${article.slug}`;
 
   return {
     title,
     description,
-    alternates: { canonical: `/conseils/${article.slug}` },
+    alternates: { canonical },
     openGraph: {
       type: "article",
       title,
       description,
-      url: `/conseils/${article.slug}`,
-      images: ext.featuredImage ? [{ url: ext.featuredImage as string }] : [],
+      url: canonical,
+      siteName: "ParaTunisie",
+      locale: "fr_TN",
+      images: [
+        {
+          url: article.featuredImage || "/assets/hero-paratunisie.webp",
+          alt: article.imageAlt || article.title,
+        },
+      ],
+      publishedTime: article.date,
+      modifiedTime: article.updatedAt || article.date,
+      authors: ["Équipe éditoriale ParaTunisie"],
+      section: article.category,
+      tags: [article.focusKeyword, ...article.secondaryKeywords],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
+      images: [article.featuredImage || "/assets/hero-paratunisie.webp"],
     },
   };
 }
 
-/* ── Page ─────────────────────────────────────────────────────────────── */
-
-export default async function ArticlePage({
+export default async function ArticleDetailPage({
   params,
 }: {
   params: Promise<{ slug: string }>;
@@ -89,77 +106,104 @@ export default async function ArticlePage({
   const article = await fetchArticleBySlug(slug);
   if (!article) notFound();
 
-  const ext = article as Record<string, unknown>;
-  const relatedArticles = await fetchRelatedArticles(article.category, article.slug);
+  // Related articles
+  const relatedArticles = article.relatedSlugs
+    ? (article.relatedSlugs
+        .map((s) => getArticleBySlug(s))
+        .filter((a): a is Article => a !== undefined)
+        .slice(0, 3))
+    : articles.filter((a) => a.category === article.category && a.slug !== article.slug).slice(0, 3);
 
-  // Build TOC from content blocks
-  const toc = extractTOC(article.content ?? "[]");
+  // TOC extracted from sections
+  const tocItems = article.sections?.map((sec) => ({
+    id: sec.anchor,
+    text: sec.title,
+    level: 2 as const,
+  })) || [];
 
-  // Linked products
-  const linkedProducts = (
-    Array.isArray(ext.products)
-      ? (ext.products as { product?: Record<string, unknown>; productId?: string; rationale?: string }[])
-      : []
-  ).filter((p) => p.product);
-
-  // FAQs
-  const faqs = Array.isArray(ext.faqs)
-    ? (ext.faqs as { question: string; answer: string }[])
-    : [];
-
+  // Schema.org Article / BlogPosting JSON-LD
   const articleJsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
-    headline: article.title,
-    description: article.excerpt,
-    datePublished: ext.publishedAt ?? article.date,
-    dateModified: ext.updatedAt ?? article.date,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `${SITE_URL}/conseils/${article.slug}`,
+    },
+    headline: article.h1,
+    description: article.seoDescription || article.excerpt,
+    image: [
+      article.featuredImage?.startsWith("http")
+        ? article.featuredImage
+        : `${SITE_URL}${article.featuredImage || "/assets/hero-paratunisie.webp"}`,
+    ],
+    datePublished: article.date,
+    dateModified: article.updatedAt || article.date,
     author: {
-      "@type": ext.authorName ? "Person" : "Organization",
-      name: (ext.authorName as string) ?? "ParaTunisie",
+      "@type": "Organization",
+      name: "Équipe éditoriale ParaTunisie",
+      url: `${SITE_URL}/politique-editoriale`,
     },
     publisher: {
       "@type": "Organization",
       name: "ParaTunisie",
       url: SITE_URL,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/assets/hero-paratunisie.webp`,
+      },
     },
-    ...(ext.featuredImage ? { image: [ext.featuredImage as string] } : {}),
+    articleSection: article.category,
+    keywords: [article.focusKeyword, ...article.secondaryKeywords].join(", "),
   };
 
+  // Schema.org BreadcrumbList JSON-LD
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Accueil", item: `${SITE_URL}/` },
-      { "@type": "ListItem", position: 2, name: "Conseils", item: `${SITE_URL}/conseils` },
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Accueil",
+        item: `${SITE_URL}/`,
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Conseils",
+        item: `${SITE_URL}/conseils`,
+      },
       {
         "@type": "ListItem",
         position: 3,
+        name: article.category,
+        item: `${SITE_URL}/conseils?cat=${encodeURIComponent(article.category)}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 4,
         name: article.title,
         item: `${SITE_URL}/conseils/${article.slug}`,
       },
     ],
   };
 
-  const faqJsonLd = faqs.length > 0
-    ? {
-        "@context": "https://schema.org",
-        "@type": "FAQPage",
-        mainEntity: faqs.map((faq) => ({
-          "@type": "Question",
-          name: faq.question,
-          acceptedAnswer: { "@type": "Answer", text: faq.answer },
-        })),
-      }
-    : null;
-
-  const publishDate = ext.publishedAt
-    ? new Date(ext.publishedAt as string).toLocaleDateString("fr-TN", { dateStyle: "long" })
-    : article.date;
-
-  const updatedDate = ext.updatedAt
-    ? new Date(ext.updatedAt as string).toLocaleDateString("fr-TN", { dateStyle: "long" })
-    : null;
+  // Schema.org FAQPage if FAQs exist
+  const faqJsonLd =
+    article.faqs && article.faqs.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: article.faqs.map((faq) => ({
+            "@type": "Question",
+            name: faq.question,
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: faq.answer,
+            },
+          })),
+        }
+      : null;
 
   return (
     <>
@@ -178,286 +222,325 @@ export default async function ArticlePage({
         />
       )}
 
-      <div className="mx-auto max-w-[1440px] px-4 pb-20 pt-8 sm:px-6 sm:pt-10 lg:px-8 lg:pt-14">
-        <div className="lg:flex lg:gap-12 xl:gap-16">
-          {/* ── Main content column ── */}
-          <article className="min-w-0 max-w-[720px] flex-1">
-            {/* Breadcrumb */}
-            <nav aria-label="Fil d'Ariane" className="mb-6 text-xs text-ink-muted sm:text-sm">
-              <ol className="flex items-center gap-1.5 sm:gap-2">
-                <li>
-                  <Link href="/" className="hover:text-primary transition-colors">
-                    Accueil
-                  </Link>
-                </li>
-                <li aria-hidden className="text-ink-muted/50">
-                  /
-                </li>
-                <li>
-                  <Link href="/conseils" className="hover:text-primary transition-colors">
-                    Conseils
-                  </Link>
-                </li>
-                <li aria-hidden className="text-ink-muted/50">
-                  /
-                </li>
-                <li aria-current="page" className="text-ink line-clamp-1">
-                  {article.title}
-                </li>
-              </ol>
-            </nav>
+      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        {/* Breadcrumb Bar */}
+        <nav aria-label="Fil d'Ariane" className="mb-6 text-xs text-ink-muted sm:text-sm">
+          <ol className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            <li>
+              <Link href="/" className="hover:text-primary transition-colors">
+                Accueil
+              </Link>
+            </li>
+            <li aria-hidden="true" className="text-ink-muted/40">/</li>
+            <li>
+              <Link href="/conseils" className="hover:text-primary transition-colors">
+                Conseils
+              </Link>
+            </li>
+            <li aria-hidden="true" className="text-ink-muted/40">/</li>
+            <li>
+              <Link
+                href={`/conseils?cat=${encodeURIComponent(article.category)}`}
+                className="hover:text-primary transition-colors font-medium text-ink-muted"
+              >
+                {article.category}
+              </Link>
+            </li>
+            <li aria-hidden="true" className="text-ink-muted/40">/</li>
+            <li aria-current="page" className="text-ink font-semibold line-clamp-1 max-w-[280px] sm:max-w-md">
+              {article.title}
+            </li>
+          </ol>
+        </nav>
 
-            {/* Article header */}
+        {/* Two-Column Responsive Layout */}
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px] xl:gap-14">
+          {/* Main Editorial Content (720px max readable width) */}
+          <article className="min-w-0 max-w-[800px]">
+            {/* Header Meta */}
             <header className="mb-8">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[0.65rem] font-semibold text-primary">
+              <div className="flex flex-wrap items-center gap-2.5 mb-4">
+                <span className="rounded-full bg-primary/10 border border-primary/20 px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-primary">
                   {article.category}
                 </span>
-                <span className="flex items-center gap-1 text-[0.65rem] text-ink-muted">
-                  <Clock size={11} aria-hidden />
-                  {article.readTime}
+                <span className="flex items-center gap-1 text-xs text-ink-muted font-medium">
+                  <Clock className="size-3.5" />
+                  {article.readTime} de lecture
+                </span>
+                <span className="text-ink-muted/40">•</span>
+                <span className="flex items-center gap-1 text-xs text-ink-muted font-medium">
+                  <Calendar className="size-3.5" />
+                  Mis à jour le {new Date(article.updatedAt || article.date).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
                 </span>
               </div>
 
-              <h1 className="font-serif text-2xl font-medium tracking-tight text-ink sm:text-3xl lg:text-4xl leading-tight">
-                {article.title}
+              <h1 className="font-serif text-2xl font-bold tracking-tight text-ink sm:text-3xl lg:text-[2.25rem] leading-tight">
+                {article.h1}
               </h1>
-              <p className="mt-4 text-sm leading-relaxed text-ink-muted sm:text-base">
+
+              <p className="mt-4 text-sm sm:text-base leading-relaxed text-ink-muted font-medium">
                 {article.excerpt}
               </p>
-
-              {/* Author & dates */}
-              <div className="mt-5 flex flex-wrap items-center gap-4 text-xs text-ink-muted border-t border-border pt-4">
-                {typeof ext.authorName === "string" && ext.authorName && (
-                  <div className="flex items-center gap-1.5">
-                    <div className="h-6 w-6 rounded-full bg-primary/15 flex items-center justify-center">
-                      <User size={11} className="text-primary" />
-                    </div>
-                    <span className="font-medium text-ink">{ext.authorName}</span>
-                  </div>
-                )}
-                {typeof ext.expertReviewer === "string" && ext.expertReviewer && (
-                  <div className="flex items-center gap-1.5">
-                    <Shield size={12} className="text-emerald-600" />
-                    <span>Relu par {ext.expertReviewer}</span>
-                  </div>
-                )}
-                <div className="flex items-center gap-1">
-                  <Calendar size={12} />
-                  <span>
-                    {publishDate}
-                    {updatedDate && updatedDate !== publishDate && ` · Mis à jour le ${updatedDate}`}
-                  </span>
-                </div>
-              </div>
             </header>
 
-            {/* Featured image */}
-            {typeof ext.featuredImage === "string" && ext.featuredImage && (
-              <div className="mb-8 rounded-2xl overflow-hidden border border-border">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={ext.featuredImage}
-                  alt={article.title}
-                  className="w-full object-cover"
-                  style={{ maxHeight: "420px" }}
-                  fetchPriority="high"
-                />
-              </div>
+            {/* Hero Image */}
+            {article.featuredImage && (
+              <figure className="my-6 overflow-hidden rounded-2xl border border-border/80 bg-soft-nude/40">
+                <div className="relative aspect-16/9 w-full">
+                  <Image
+                    src={article.featuredImage}
+                    alt={article.imageAlt || article.title}
+                    fill
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 800px"
+                    className="object-cover"
+                  />
+                </div>
+                {article.imageAlt && (
+                  <figcaption className="p-3 text-center text-[11px] italic text-ink-muted">
+                    {article.imageAlt}
+                  </figcaption>
+                )}
+              </figure>
             )}
 
-            {/* Content blocks */}
-            {typeof article.content === "string" ? (
-              <ArticleBlockRenderer content={article.content} />
-            ) : Array.isArray(article.content) ? (
-              /* Legacy format: array of paragraphs */
-              <div className="space-y-5">
-                {article.content.map((paragraph, index) => (
-                  <p key={index} className="text-sm leading-relaxed text-ink sm:text-base sm:leading-7">
-                    {paragraph}
-                  </p>
-                ))}
-              </div>
-            ) : null}
+            {/* "À retenir en bref" Takeaways Box */}
+            {article.takeaways && article.takeaways.length > 0 && (
+              <ArticleTakeawayBox points={article.takeaways} />
+            )}
 
-            {/* Product recommendations */}
-            <section className="mt-12 border-t border-border pt-8" aria-labelledby="recommandations-heading">
-              <h2
-                id="recommandations-heading"
-                className="font-serif text-xl sm:text-2xl font-medium text-ink mb-5 flex items-center gap-2"
-              >
-                <Sparkles className="text-primary size-5" />
-                Soins recommandés dans cet article
-              </h2>
-              <div className="grid gap-4 sm:grid-cols-2">
-                {(linkedProducts.length > 0
-                  ? linkedProducts
-                  : mockProducts.slice(0, 2).map((p) => ({
-                      product: {
-                        id: p.id,
-                        name: p.name,
-                        slug: p.slug,
-                        image: p.image,
-                        variants: [{ priceMillimes: p.priceMillimes }],
-                      },
-                      productId: p.id,
-                      rationale: p.benefit,
-                    }))
-                ).map((ap) => {
-                  const product = ap.product!;
-                  const variant = Array.isArray(product.variants) && product.variants.length > 0
-                    ? (product.variants[0] as { priceMillimes: number })
-                    : null;
-                  const price = variant?.priceMillimes
-                    ? formatPrice(variant.priceMillimes)
-                    : null;
-                  const prodName = typeof product.name === "string" ? product.name : "";
-                  const prodSlug = typeof product.slug === "string" ? product.slug : (product.id as string);
-                  const prodImg = typeof product.image === "string" ? product.image : "";
+            {/* Table of Contents */}
+            {tocItems.length > 0 && <ArticleTableOfContents items={tocItems} />}
 
-                  return (
-                    <div
-                      key={ap.productId ?? (product.id as string)}
-                      className="flex gap-3 rounded-2xl border border-border bg-surface-alt p-4 transition-all hover:border-primary/40 hover:shadow-xs"
-                    >
-                      {prodImg && (
-                        <Link
-                          href={`/produits/${prodSlug}`}
-                          className="shrink-0"
-                        >
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={prodImg}
-                            alt={prodName}
-                            className="h-16 w-16 rounded-xl object-contain border border-border bg-white"
-                          />
-                        </Link>
-                      )}
-                      <div className="flex-1 min-w-0">
-                        <Link
-                          href={`/produits/${prodSlug}`}
-                          className="font-bold text-sm text-ink hover:text-primary transition-colors line-clamp-2"
-                        >
-                          {prodName}
-                        </Link>
-                        {price && (
-                          <p className="text-sm font-extrabold text-primary font-tabular mt-1">{price}</p>
-                        )}
-                        {ap.rationale && (
-                          <p className="text-xs text-ink-muted mt-1 line-clamp-2">{ap.rationale}</p>
-                        )}
-                        <Link
-                          href={`/produits/${prodSlug}`}
-                          className="mt-2 inline-flex items-center gap-1 text-xs font-bold text-primary hover:text-primary-hover transition-colors"
-                        >
-                          Voir le produit
-                          <ChevronRight size={12} />
-                        </Link>
+            {/* Optional Comparison Table if configured */}
+            {article.comparisonProducts && article.comparisonProducts.length > 0 && (
+              <ArticleProductComparison items={article.comparisonProducts} />
+            )}
+
+            {/* Main Sections */}
+            <div className="mt-8 space-y-8 text-sm sm:text-base leading-relaxed text-ink">
+              {article.sections?.map((section) => (
+                <section key={section.anchor} id={section.anchor} className="scroll-mt-24">
+                  <h2 className="font-serif text-xl sm:text-2xl font-bold text-ink mb-3.5 tracking-tight border-b border-border/40 pb-2">
+                    {section.title}
+                  </h2>
+                  <div className="space-y-4 text-ink-muted">
+                    {section.content.map((p, idx) => (
+                      <p key={idx} className="leading-relaxed">
+                        {p}
+                      </p>
+                    ))}
+                  </div>
+
+                  {section.subsections?.map((sub) => (
+                    <div key={sub.anchor} id={sub.anchor} className="mt-5 pl-3 border-l-2 border-primary/40 scroll-mt-24">
+                      <h3 className="font-serif text-lg font-bold text-ink mb-2">
+                        {sub.title}
+                      </h3>
+                      <div className="space-y-3 text-ink-muted">
+                        {sub.content.map((p, idx) => (
+                          <p key={idx} className="leading-relaxed">
+                            {p}
+                          </p>
+                        ))}
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            </section>
+                  ))}
+                </section>
+              ))}
+            </div>
 
-            {/* FAQ */}
-            {faqs.length > 0 && (
-              <section className="mt-12 border-t border-border pt-8" aria-labelledby="faq-heading">
-                <h2
-                  id="faq-heading"
-                  className="font-serif text-xl font-medium text-ink mb-5"
-                >
-                  Questions fréquentes
-                </h2>
+            {/* Contextual Real Product Cards (2-4 products) */}
+            {article.products && article.products.length > 0 && (
+              <div className="mt-10 pt-6 border-t border-border/80">
+                <div className="flex items-center gap-2 mb-4">
+                  <ShoppingBag className="size-5 text-primary" />
+                  <h3 className="font-serif text-xl font-bold text-ink">
+                    Produits authentiques recommandés dans ce guide
+                  </h3>
+                </div>
                 <div className="space-y-4">
-                  {faqs.map((faq, i) => (
-                    <details key={i} className="group rounded-xl border border-border bg-surface-alt">
-                      <summary className="flex cursor-pointer items-start justify-between px-5 py-4 text-sm font-semibold text-ink select-none gap-3">
-                        <span>{faq.question}</span>
-                        <span className="shrink-0 text-primary group-open:rotate-180 transition-transform mt-0.5">▾</span>
-                      </summary>
-                      <p className="px-5 pb-4 text-sm leading-relaxed text-ink-muted">
-                        {faq.answer}
-                      </p>
-                    </details>
+                  {article.products.map((item, idx) => (
+                    <ArticleProductCard
+                      key={item.productSlug || idx}
+                      productSlug={item.productSlug}
+                      rationale={item.rationale}
+                      highlightBadge={item.highlightBadge}
+                    />
                   ))}
                 </div>
-              </section>
+              </div>
             )}
 
-            {/* Related articles */}
-            {relatedArticles.length > 0 && (
-              <section className="mt-12 border-t border-border pt-8" aria-labelledby="related-heading">
-                <h2
-                  id="related-heading"
-                  className="text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-ink-muted mb-5"
-                >
-                  Lire aussi
-                </h2>
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {relatedArticles.map((related) => (
+            {/* FAQ Section */}
+            {article.faqs && article.faqs.length > 0 && (
+              <ArticleFaq items={article.faqs} />
+            )}
+
+            {/* Scientific Sources */}
+            {article.sources && article.sources.length > 0 && (
+              <ArticleSourcesBox sources={article.sources} />
+            )}
+
+            {/* Medical Disclaimer Box */}
+            <ArticleDisclaimerBox />
+
+            {/* Editorial Author Box */}
+            <ArticleEditorialAuthorBox
+              publishedAt={article.date}
+              updatedAt={article.updatedAt}
+              authorName={article.authorName}
+            />
+
+            {/* Commercial Category Links (Topic Cluster Bridge) */}
+            {article.relatedCategories && article.relatedCategories.length > 0 && (
+              <div className="mt-8 rounded-2xl border border-primary/20 bg-linear-to-r from-primary/10 via-primary/5 to-white p-6">
+                <h4 className="font-serif text-base font-bold text-ink mb-2 flex items-center gap-2">
+                  <Sparkles className="size-4 text-primary" />
+                  Explorer les rayons associés sur ParaTunisie
+                </h4>
+                <div className="flex flex-wrap gap-2.5 mt-3">
+                  {article.relatedCategories.map((cat) => (
                     <Link
-                      key={related.slug}
-                      href={`/conseils/${related.slug}`}
-                      className="group rounded-xl border border-border bg-surface-alt p-4 hover:border-primary/30 hover:shadow-sm transition-all"
+                      key={cat.url}
+                      href={cat.url}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-white border border-border px-3.5 py-2 text-xs font-semibold text-ink hover:border-primary hover:text-primary transition-colors shadow-xs"
                     >
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[0.6rem] font-semibold text-primary">
-                          {related.category}
-                        </span>
-                        <span className="flex items-center gap-0.5 text-[0.6rem] text-ink-faint">
-                          <Clock size={10} />
-                          {related.readTime}
-                        </span>
-                      </div>
-                      <p className="text-sm font-medium text-ink group-hover:text-primary transition-colors line-clamp-2">
-                        {related.title}
-                      </p>
+                      {cat.name}
+                      <ArrowRight className="size-3 text-primary" />
                     </Link>
                   ))}
                 </div>
-              </section>
+              </div>
             )}
-
-            {/* Back link */}
-            <div className="mt-12 border-t border-border pt-8">
-              <Link
-                href="/conseils"
-                className="flex items-center gap-1.5 text-sm font-medium text-primary hover:text-primary-hover transition-colors"
-              >
-                ← Retour aux conseils
-              </Link>
-            </div>
           </article>
 
-          {/* ── Sidebar (TOC) — visible lg+ ── */}
-          {toc.length >= 3 && (
-            <aside className="hidden lg:block w-56 xl:w-64 shrink-0">
-              <div className="sticky top-6">
-                <p className="text-[0.6875rem] font-semibold uppercase tracking-[0.1em] text-ink-muted mb-3">
-                  Dans cet article
-                </p>
-                <nav aria-label="Table des matières">
-                  <ul className="space-y-1.5">
-                    {toc.map((item) => (
-                      <li key={item.id}>
-                        <a
-                          href={`#${item.id}`}
-                          className={`block text-xs leading-relaxed text-ink-muted hover:text-primary transition-colors ${
-                            item.level === 3 ? "pl-3" : ""
-                          }`}
+          {/* Sidebar (Desktop Sticky) */}
+          <aside className="hidden lg:block space-y-6">
+            {/* Quick Summary Card */}
+            <div className="rounded-2xl border border-border/80 bg-white p-5 shadow-xs sticky top-24">
+              <h4 className="font-serif text-sm font-bold uppercase tracking-wider text-ink mb-3 pb-2 border-b border-border/60">
+                Dans ce guide
+              </h4>
+              <ul className="space-y-2 text-xs text-ink-muted">
+                {article.sections?.map((sec) => (
+                  <li key={sec.anchor}>
+                    <a
+                      href={`#${sec.anchor}`}
+                      className="block hover:text-primary transition-colors leading-snug line-clamp-1"
+                    >
+                      • {sec.title}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+
+              {/* Mentioned Products mini-list */}
+              {article.products && article.products.length > 0 && (
+                <div className="mt-6 pt-4 border-t border-border/60">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-primary block mb-2">
+                    Produits cités ({article.products.length})
+                  </span>
+                  <div className="space-y-2">
+                    {article.products.map((item, idx) => {
+                      const prod = item.productSlug ? getProductBySlug(item.productSlug) : null;
+                      if (!prod) return null;
+                      return (
+                        <Link
+                          key={item.productSlug || idx}
+                          href={`/produits/${prod.slug}`}
+                          className="flex items-center gap-2 rounded-lg p-1.5 hover:bg-soft-nude/40 transition-colors group"
                         >
-                          {item.text}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
-                </nav>
+                          {prod.image ? (
+                            <div className="relative size-8 shrink-0 rounded border border-border bg-white p-0.5">
+                              <Image src={prod.image} alt={prod.name} fill sizes="32px" className="object-contain" />
+                            </div>
+                          ) : null}
+                          <div className="min-w-0 flex-1 text-[11px]">
+                            <p className="font-medium text-ink group-hover:text-primary line-clamp-1">{prod.name}</p>
+                            <p className="font-tabular font-bold text-primary">{formatPrice(prod.priceMillimes)}</p>
+                          </div>
+                        </Link>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Guaranteed Authentic Badge */}
+              <div className="mt-6 rounded-xl bg-soft-nude/50 p-3 text-center text-[11px] text-ink-muted">
+                <p className="font-bold text-ink">✓ 100% Produits Originaux</p>
+                <p className="mt-0.5 text-[10px]">Expédition rapide partout en Tunisie.</p>
               </div>
-            </aside>
-          )}
+            </div>
+          </aside>
         </div>
-      </div>
+
+        {/* ── Related Articles (Topic Cluster Internal Silo) ── */}
+        {relatedArticles.length > 0 && (
+          <section className="mt-16 border-t border-border/80 pt-10">
+            <div className="flex items-center justify-between gap-4 mb-6">
+              <div>
+                <h3 className="font-serif text-xl font-bold text-ink sm:text-2xl">
+                  Articles & Guides complémentaires
+                </h3>
+                <p className="text-xs text-ink-muted mt-0.5">
+                  Approfondissez vos connaissances en nutrition sportive et micronutrition.
+                </p>
+              </div>
+              <Link
+                href="/conseils"
+                className="hidden sm:inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+              >
+                Tous nos guides
+                <ArrowRight className="size-3.5" />
+              </Link>
+            </div>
+
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              {relatedArticles.map((rel) => (
+                <article
+                  key={rel.slug}
+                  className="group flex flex-col justify-between overflow-hidden rounded-2xl border border-border/80 bg-white p-5 shadow-xs transition-all hover:border-primary/40 hover:shadow-sm"
+                >
+                  <div>
+                    <div className="flex items-center justify-between gap-2 mb-2.5">
+                      <span className="rounded-md bg-primary/10 text-primary px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+                        {rel.category}
+                      </span>
+                      <span className="text-[11px] text-ink-muted font-medium flex items-center gap-1">
+                        <Clock className="size-3" />
+                        {rel.readTime}
+                      </span>
+                    </div>
+
+                    <h4 className="font-serif text-base font-bold text-ink group-hover:text-primary transition-colors line-clamp-2">
+                      <Link href={`/conseils/${rel.slug}`}>{rel.title}</Link>
+                    </h4>
+
+                    <p className="mt-2 text-xs text-ink-muted line-clamp-3 leading-relaxed">
+                      {rel.excerpt}
+                    </p>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between text-xs">
+                    <span className="text-[11px] text-ink-muted">
+                      {new Date(rel.date).toLocaleDateString("fr-FR", { month: "short", year: "numeric" })}
+                    </span>
+                    <Link
+                      href={`/conseils/${rel.slug}`}
+                      className="font-semibold text-primary inline-flex items-center gap-1 group-hover:underline"
+                    >
+                      Lire le guide
+                      <ArrowRight className="size-3" />
+                    </Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+      </main>
     </>
   );
 }
