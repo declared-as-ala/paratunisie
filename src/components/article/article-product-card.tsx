@@ -19,19 +19,7 @@ export function ArticleProductCard({
   highlightBadge,
   initialProduct,
 }: ArticleProductCardProps) {
-  const [product, setProduct] = React.useState<ProductSummary | null>(() => {
-    if (initialProduct) return initialProduct;
-    if (productSlug) return getProductBySlug(productSlug) || null;
-    return null;
-  });
-
-  // Optional client-side sync with API if needed
-  React.useEffect(() => {
-    if (!product && productSlug) {
-      const found = getProductBySlug(productSlug);
-      if (found) setProduct(found);
-    }
-  }, [product, productSlug]);
+  const product = initialProduct || (productSlug ? getProductBySlug(productSlug) : null);
 
   if (!product) {
     // Graceful fallback if product is deleted or unavailable
