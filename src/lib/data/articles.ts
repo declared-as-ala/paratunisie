@@ -72,7 +72,7 @@ export const articles: Article[] = [
     date: "2026-08-28",
     updatedAt: "2026-08-28",
     authorName: "Équipe éditoriale ParaTunisie",
-    featuredImage: "/assets/hero-paratunisie.webp",
+    featuredImage: "/assets/blog/meilleure-creatine-tunisie.webp",
     imageAlt: "Comparatif de pots de créatine monohydrate disponibles en Tunisie",
     focusKeyword: "meilleure creatine tunisie",
     secondaryKeywords: [
@@ -209,7 +209,7 @@ export const articles: Article[] = [
     date: "2026-08-28",
     updatedAt: "2026-08-28",
     authorName: "Équipe éditoriale ParaTunisie",
-    featuredImage: "/assets/hero-paratunisie.webp",
+    featuredImage: "/assets/blog/creatine-monohydrate-bienfaits-dosage.webp",
     imageAlt: "Dosage précis d'une cuillère de créatine monohydrate dans un shaker",
     focusKeyword: "creatine monohydrate",
     secondaryKeywords: [
@@ -308,7 +308,7 @@ export const articles: Article[] = [
     date: "2026-08-28",
     updatedAt: "2026-08-28",
     authorName: "Équipe éditoriale ParaTunisie",
-    featuredImage: "/assets/hero-paratunisie.webp",
+    featuredImage: "/assets/blog/creatine-avant-ou-apres-entrainement.webp",
     imageAlt: "Prise de créatine après un entraînement de musculation",
     focusKeyword: "creatine avant ou apres entrainement",
     secondaryKeywords: [
@@ -395,7 +395,7 @@ export const articles: Article[] = [
     date: "2026-08-28",
     updatedAt: "2026-08-28",
     authorName: "Équipe éditoriale ParaTunisie",
-    featuredImage: "/assets/hero-paratunisie.webp",
+    featuredImage: "/assets/blog/whey-protein-tunisie-guide.webp",
     imageAlt: "Shaker de whey protéine et dosette de poudre protéinée",
     focusKeyword: "whey protein tunisie",
     secondaryKeywords: [
@@ -487,7 +487,7 @@ export const articles: Article[] = [
     date: "2026-08-28",
     updatedAt: "2026-08-28",
     authorName: "Équipe éditoriale ParaTunisie",
-    featuredImage: "/assets/hero-paratunisie.webp",
+    featuredImage: "/assets/blog/whey-ou-gainer-prise-de-masse.webp",
     imageAlt: "Comparatif entre un pot de whey et un sac de mass gainer",
     focusKeyword: "whey ou gainer",
     secondaryKeywords: [
@@ -572,7 +572,7 @@ export const articles: Article[] = [
     date: "2026-08-28",
     updatedAt: "2026-08-28",
     authorName: "Équipe éditoriale ParaTunisie",
-    featuredImage: "/assets/hero-paratunisie.webp",
+    featuredImage: "/assets/blog/prise-de-masse-tunisie-guide.webp",
     imageAlt: "Guide complet de nutrition et compléments pour la prise de masse en Tunisie",
     focusKeyword: "prise de masse tunisie",
     secondaryKeywords: [
@@ -684,7 +684,7 @@ export const articles: Article[] = [
     date: "2026-08-28",
     updatedAt: "2026-08-28",
     authorName: "Équipe éditoriale ParaTunisie",
-    featuredImage: "/assets/hero-paratunisie.webp",
+    featuredImage: "/assets/blog/meilleur-pre-workout-tunisie.webp",
     imageAlt: "Shaker de booster pre-workout avant l'entraînement en salle",
     focusKeyword: "pre workout tunisie",
     secondaryKeywords: [
@@ -781,7 +781,7 @@ export const articles: Article[] = [
     date: "2026-08-28",
     updatedAt: "2026-08-28",
     authorName: "Équipe éditoriale ParaTunisie",
-    featuredImage: "/assets/hero-paratunisie.webp",
+    featuredImage: "/assets/blog/pre-workout-ou-creatine.webp",
     imageAlt: "Pot de créatine monohydrate à côté d'un pot de booster pre-workout",
     focusKeyword: "pre workout ou creatine",
     secondaryKeywords: [
@@ -865,7 +865,7 @@ export const articles: Article[] = [
     date: "2026-08-28",
     updatedAt: "2026-08-28",
     authorName: "Équipe éditoriale ParaTunisie",
-    featuredImage: "/assets/hero-paratunisie.webp",
+    featuredImage: "/assets/blog/bcaa-ou-eaa.webp",
     imageAlt: "Boisson d'acides aminés EAA et BCAA intra-workout",
     focusKeyword: "bcaa ou eaa",
     secondaryKeywords: [
@@ -946,7 +946,7 @@ export const articles: Article[] = [
     date: "2026-08-28",
     updatedAt: "2026-08-28",
     authorName: "Équipe éditoriale ParaTunisie",
-    featuredImage: "/assets/hero-paratunisie.webp",
+    featuredImage: "/assets/blog/citrulline-arginine-beta-alanine.webp",
     imageAlt: "Flacons d'acides aminés purs citrulline et beta-alanine",
     focusKeyword: "citrulline ou beta alanine",
     secondaryKeywords: [
@@ -1025,7 +1025,7 @@ export const articles: Article[] = [
     date: "2026-08-28",
     updatedAt: "2026-08-28",
     authorName: "Équipe éditoriale ParaTunisie",
-    featuredImage: "/assets/hero-paratunisie.webp",
+    featuredImage: "/assets/blog/ashwagandha-tunisie-guide.webp",
     imageAlt: "Complément alimentaire Ashwagandha gélules et plante Withania somnifera",
     focusKeyword: "ashwagandha tunisie",
     secondaryKeywords: [
@@ -1121,7 +1121,7 @@ export const articles: Article[] = [
     date: "2026-08-28",
     updatedAt: "2026-08-28",
     authorName: "Équipe éditoriale ParaTunisie",
-    featuredImage: "/assets/hero-paratunisie.webp",
+    featuredImage: "/assets/blog/quand-prendre-ashwagandha.webp",
     imageAlt: "Prise de gélule d'ashwagandha lors d'un repas",
     focusKeyword: "quand prendre ashwagandha",
     secondaryKeywords: [
@@ -1196,7 +1196,7 @@ export const articles: Article[] = [
     date: "2026-08-28",
     updatedAt: "2026-08-28",
     authorName: "Équipe éditoriale ParaTunisie",
-    featuredImage: "/assets/hero-paratunisie.webp",
+    featuredImage: "/assets/blog/vitamine-d3-k2-tunisie.webp",
     imageAlt: "Gélules de vitamine D3 et vitamine K2 pour la santé osseuse",
     focusKeyword: "vitamine d3 k2 tunisie",
     secondaryKeywords: [
@@ -1275,7 +1275,7 @@ export const articles: Article[] = [
     date: "2026-08-28",
     updatedAt: "2026-08-28",
     authorName: "Équipe éditoriale ParaTunisie",
-    featuredImage: "/assets/hero-paratunisie.webp",
+    featuredImage: "/assets/blog/zinc-sportif-musculation.webp",
     imageAlt: "Complément alimentaire de zinc en comprimés pour sportifs",
     focusKeyword: "zinc sportif",
     secondaryKeywords: [
@@ -1362,7 +1362,7 @@ export const articles: Article[] = [
     date: "2026-08-28",
     updatedAt: "2026-08-28",
     authorName: "Équipe éditoriale ParaTunisie",
-    featuredImage: "/assets/hero-paratunisie.webp",
+    featuredImage: "/assets/blog/omega-3-tunisie-guide.webp",
     imageAlt: "Capsules dorées d'huile de poisson oméga-3 EPA et DHA",
     focusKeyword: "omega 3 tunisie",
     secondaryKeywords: [
@@ -1441,7 +1441,7 @@ export const articles: Article[] = [
     date: "2026-08-28",
     updatedAt: "2026-08-28",
     authorName: "Équipe éditoriale ParaTunisie",
-    featuredImage: "/assets/hero-paratunisie.webp",
+    featuredImage: "/assets/blog/multivitamines-sportifs.webp",
     imageAlt: "Flacon de complexe multivitamines et minéraux pour sportifs",
     focusKeyword: "multivitamines sportif",
     secondaryKeywords: [
@@ -1522,7 +1522,7 @@ export const articles: Article[] = [
     date: "2026-08-28",
     updatedAt: "2026-08-28",
     authorName: "Équipe éditoriale ParaTunisie",
-    featuredImage: "/assets/hero-paratunisie.webp",
+    featuredImage: "/assets/blog/l-carnitine-perte-graisse.webp",
     imageAlt: "Flacon de L-Carnitine liquide et capsules de nutrition sportive",
     focusKeyword: "l carnitine perte de poids",
     secondaryKeywords: [
@@ -1601,7 +1601,7 @@ export const articles: Article[] = [
     date: "2026-08-28",
     updatedAt: "2026-08-28",
     authorName: "Équipe éditoriale ParaTunisie",
-    featuredImage: "/assets/hero-paratunisie.webp",
+    featuredImage: "/assets/blog/bruleur-de-graisse-tunisie.webp",
     imageAlt: "Brûleur de graisse thermogénique pour la période de sèche en musculation",
     focusKeyword: "bruleur de graisse tunisie",
     secondaryKeywords: [
@@ -1681,7 +1681,7 @@ export const articles: Article[] = [
     date: "2026-08-28",
     updatedAt: "2026-08-28",
     authorName: "Équipe éditoriale ParaTunisie",
-    featuredImage: "/assets/hero-paratunisie.webp",
+    featuredImage: "/assets/blog/complements-musculation-debutant.webp",
     imageAlt: "Pack de compléments alimentaires pour débuter la musculation en Tunisie",
     focusKeyword: "complément musculation débutant",
     secondaryKeywords: [
@@ -1783,7 +1783,7 @@ export const articles: Article[] = [
     date: "2026-08-28",
     updatedAt: "2026-08-28",
     authorName: "Équipe éditoriale ParaTunisie",
-    featuredImage: "/assets/hero-paratunisie.webp",
+    featuredImage: "/assets/blog/complements-avant-pendant-apres-entrainement.webp",
     imageAlt: "Organisation de la supplémentation avant pendant et après l'entraînement",
     focusKeyword: "compléments avant après entraînement",
     secondaryKeywords: [
