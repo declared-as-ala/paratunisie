@@ -6,6 +6,12 @@ import { LoyaltyService } from "./loyalty.service";
 export class LoyaltyController {
   constructor(private readonly loyaltyService: LoyaltyService) {}
 
+  @UseGuards(AdminAuthGuard)
+  @Get("admin/stats")
+  async getAdminStats() {
+    return this.loyaltyService.getAdminStats();
+  }
+
   @Get("account/:userId")
   async getAccount(@Param("userId") userId: string) {
     return this.loyaltyService.getAccount(userId);
@@ -19,12 +25,6 @@ export class LoyaltyController {
   @Post("redeem")
   async redeemPoints(@Body() body: { userId: string; points: number; orderId?: string }) {
     return this.loyaltyService.redeemPoints(body.userId, body.points, body.orderId);
-  }
-
-  @UseGuards(AdminAuthGuard)
-  @Get("admin/stats")
-  async getAdminStats() {
-    return this.loyaltyService.getAdminStats();
   }
 
   @UseGuards(AdminAuthGuard)

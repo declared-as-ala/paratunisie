@@ -30,9 +30,16 @@ const reviewInclude = {
 export class ReviewsService {
   constructor(private prisma: PrismaService) {}
 
-  async getReviewsByProduct(productId: string) {
+  async getReviewsByProduct(productIdOrSlug: string) {
+    let resolvedId = productIdOrSlug;
+    const prod = await this.prisma.product.findFirst({
+      where: { OR: [{ id: productIdOrSlug }, { slug: productIdOrSlug }] },
+      select: { id: true },
+    });
+    if (prod) resolvedId = prod.id;
+
     return this.prisma.review.findMany({
-      where: { productId, status: ReviewStatus.APPROVED },
+      where: { productId: resolvedId, status: ReviewStatus.APPROVED },
       include: { user: { select: { name: true } } },
       orderBy: { createdAt: "desc" },
     });
@@ -40,7 +47,7 @@ export class ReviewsService {
 
   async createReview(
     userId: string,
-    productId: string,
+    productIdOrSlug: string,
     data: { rating: number; title?: string; body?: string; orderId?: string },
   ) {
     if (!Number.isInteger(data.rating) || data.rating < 1 || data.rating > 5) {
@@ -49,11 +56,15 @@ export class ReviewsService {
 
     const [user, product] = await Promise.all([
       this.prisma.user.findUnique({ where: { id: userId }, select: { id: true } }),
-      this.prisma.product.findUnique({ where: { id: productId }, select: { id: true } }),
+      this.prisma.product.findFirst({
+        where: { OR: [{ id: productIdOrSlug }, { slug: productIdOrSlug }] },
+        select: { id: true },
+      }),
     ]);
     if (!user) throw new NotFoundException("Client introuvable");
     if (!product) throw new NotFoundException("Produit introuvable");
 
+    const productId = product.id;
     const verifiedOrder = await this.findVerifiedOrder(userId, productId, data.orderId);
 
     const existingReview = await this.prisma.review.findFirst({
@@ -88,9 +99,16 @@ export class ReviewsService {
     });
   }
 
-  async getProductRating(productId: string) {
+  async getProductRating(productIdOrSlug: string) {
+    let resolvedId = productIdOrSlug;
+    const prod = await this.prisma.product.findFirst({
+      where: { OR: [{ id: productIdOrSlug }, { slug: productIdOrSlug }] },
+      select: { id: true },
+    });
+    if (prod) resolvedId = prod.id;
+
     const result = await this.prisma.review.aggregate({
-      where: { productId, status: ReviewStatus.APPROVED },
+      where: { productId: resolvedId, status: ReviewStatus.APPROVED },
       _avg: { rating: true },
       _count: { rating: true },
     });
