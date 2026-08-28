@@ -14,6 +14,18 @@ interface DrawerProps {
 }
 
 function Drawer({ open, title, description, onClose, children, footer }: DrawerProps) {
+  React.useEffect(() => {
+    if (!open) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" || e.key === "Esc") {
+        e.preventDefault();
+        onClose();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [open, onClose]);
+
   return (
     <DrawerPrimitive.Root
       open={open}

@@ -191,18 +191,43 @@ export default function ArticlesPage() {
       const isNew = !data.id;
       const url = isNew ? `${baseUrl}/content/articles` : `${baseUrl}/content/articles/${data.id}`;
       const method = isNew ? "POST" : "PATCH";
+
+      const payload = {
+        title: data.title,
+        slug: data.slug,
+        excerpt: data.excerpt,
+        category: data.category,
+        authorName: data.authorName,
+        expertReviewer: data.expertReviewer,
+        status: data.status,
+        featuredImage: data.featuredImage,
+        readTime: data.readTime,
+        scheduledFor: data.scheduledFor ? new Date(data.scheduledFor).toISOString() : undefined,
+        content: data.content,
+        seoTitle: data.seoTitle,
+        metaDescription: data.metaDescription,
+        canonicalUrl: data.canonicalUrl,
+        indexable: data.indexable !== false,
+        ogTitle: data.ogTitle,
+        ogDescription: data.ogDescription,
+        ogImage: data.ogImage,
+        targetKeyword: data.targetKeyword || data.seoKeywords,
+        productIds: (data.products ?? []).map((p, i) => ({
+          productId: p.productId,
+          rationale: p.rationale,
+          position: p.position ?? i,
+        })),
+        faqs: (data.faqs ?? []).map((f, i) => ({
+          question: f.question,
+          answer: f.answer,
+          position: f.position ?? i,
+        })),
+      };
+
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...data,
-          productIds: data.products.map((p, i) => ({
-            productId: p.productId,
-            rationale: p.rationale,
-            position: i,
-          })),
-          faqs: data.faqs,
-        }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error("Save failed");
       const savedArticle = await res.json();

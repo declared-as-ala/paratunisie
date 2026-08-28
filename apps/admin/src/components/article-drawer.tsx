@@ -74,13 +74,19 @@ export interface ArticleFormData {
   publishedAt?: string;
   content: string;
   seoTitle: string;
+  seoH1?: string;
   metaDescription: string;
   canonicalUrl: string;
   indexable: boolean;
+  followLinks?: boolean;
   ogTitle: string;
   ogDescription: string;
   ogImage: string;
   targetKeyword: string;
+  seoKeywords?: string;
+  seoIntro?: string;
+  seoContent?: string;
+  imageAlt?: string;
   products: ArticleProduct[];
   brandIds: string[];
   concernIds: string[];
@@ -148,13 +154,19 @@ function emptyForm(): ArticleFormData {
     scheduledFor: "",
     content: "[]",
     seoTitle: "",
+    seoH1: "",
     metaDescription: "",
     canonicalUrl: "",
     indexable: true,
+    followLinks: true,
     ogTitle: "",
     ogDescription: "",
     ogImage: "",
     targetKeyword: "",
+    seoKeywords: "",
+    seoIntro: "",
+    seoContent: "",
+    imageAlt: "",
     products: [],
     brandIds: [],
     concernIds: [],
@@ -182,11 +194,36 @@ export function ArticleDrawer({ open, article, onClose, onSave }: ArticleDrawerP
   if (formKey !== lastKey) {
     setLastKey(formKey);
     if (open) {
-      setForm(
-        article
-          ? { ...emptyForm(), ...article }
-          : emptyForm()
-      );
+      if (article) {
+        const seoTitle = article.seoTitle || (article.title ? `${article.title} | ParaTunisie` : "");
+        const metaDescription = article.metaDescription || article.excerpt || "";
+        const canonicalUrl = article.canonicalUrl || (article.slug ? `/conseils/${article.slug}` : "");
+        const targetKeyword = article.targetKeyword || article.seoKeywords || "";
+        const ogTitle = article.ogTitle || seoTitle;
+        const ogDescription = article.ogDescription || metaDescription;
+        const ogImage = article.ogImage || article.featuredImage || "";
+        const imageAlt = article.imageAlt || article.title || "";
+        const seoH1 = article.seoH1 || article.title || "";
+        const seoIntro = article.seoIntro || article.excerpt || "";
+
+        setForm({
+          ...emptyForm(),
+          ...article,
+          seoTitle,
+          seoH1,
+          metaDescription,
+          canonicalUrl,
+          targetKeyword,
+          seoKeywords: targetKeyword,
+          ogTitle,
+          ogDescription,
+          ogImage,
+          imageAlt,
+          seoIntro,
+        });
+      } else {
+        setForm(emptyForm());
+      }
       setIsDirty(false);
       setActiveTab("info");
     }
@@ -852,25 +889,38 @@ export function ArticleDrawer({ open, article, onClose, onSave }: ArticleDrawerP
               <SeoFormSection
                 data={{
                   seoTitle: form.seoTitle,
+                  seoH1: form.seoH1 || form.title,
                   seoDescription: form.metaDescription,
                   canonicalUrl: form.canonicalUrl,
-                  indexable: form.indexable,
+                  indexable: form.indexable !== false,
+                  followLinks: form.followLinks !== false,
                   ogTitle: form.ogTitle,
                   ogDescription: form.ogDescription,
-                  ogImage: form.ogImage,
+                  ogImage: form.ogImage || form.featuredImage,
+                  imageAlt: form.imageAlt || form.title,
+                  seoKeywords: form.seoKeywords || form.targetKeyword || "",
+                  seoIntro: form.seoIntro || form.excerpt || "",
+                  seoContent: form.seoContent || "",
                 }}
-                slug={`conseils/${form.slug}`}
+                slug={form.slug ? `conseils/${form.slug}` : "conseils"}
                 entityName={form.title || "Article"}
                 onChange={(updated) => {
                   setForm((prev) => ({
                     ...prev,
-                    seoTitle: updated.seoTitle ?? prev.seoTitle,
-                    metaDescription: updated.seoDescription ?? prev.metaDescription,
-                    canonicalUrl: updated.canonicalUrl ?? prev.canonicalUrl,
-                    indexable: updated.indexable ?? prev.indexable,
-                    ogTitle: updated.ogTitle ?? prev.ogTitle,
-                    ogDescription: updated.ogDescription ?? prev.ogDescription,
-                    ogImage: updated.ogImage ?? prev.ogImage,
+                    seoTitle: updated.seoTitle !== undefined ? updated.seoTitle : prev.seoTitle,
+                    seoH1: updated.seoH1 !== undefined ? updated.seoH1 : prev.seoH1,
+                    metaDescription: updated.seoDescription !== undefined ? updated.seoDescription : prev.metaDescription,
+                    canonicalUrl: updated.canonicalUrl !== undefined ? updated.canonicalUrl : prev.canonicalUrl,
+                    indexable: updated.indexable !== undefined ? updated.indexable : prev.indexable,
+                    followLinks: updated.followLinks !== undefined ? updated.followLinks : prev.followLinks,
+                    ogTitle: updated.ogTitle !== undefined ? updated.ogTitle : prev.ogTitle,
+                    ogDescription: updated.ogDescription !== undefined ? updated.ogDescription : prev.ogDescription,
+                    ogImage: updated.ogImage !== undefined ? updated.ogImage : prev.ogImage,
+                    imageAlt: updated.imageAlt !== undefined ? updated.imageAlt : prev.imageAlt,
+                    targetKeyword: typeof updated.seoKeywords === "string" ? updated.seoKeywords : Array.isArray(updated.seoKeywords) ? updated.seoKeywords.join(", ") : (prev.targetKeyword ?? ""),
+                    seoKeywords: typeof updated.seoKeywords === "string" ? updated.seoKeywords : Array.isArray(updated.seoKeywords) ? updated.seoKeywords.join(", ") : (prev.seoKeywords ?? ""),
+                    seoIntro: updated.seoIntro !== undefined ? updated.seoIntro : prev.seoIntro,
+                    seoContent: updated.seoContent !== undefined ? updated.seoContent : prev.seoContent,
                   }));
                   setIsDirty(true);
                 }}
