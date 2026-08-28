@@ -339,7 +339,11 @@ export class OrdersService {
       normal: total,
       abandoned: 0,
       deleted: 0,
-      bySta  async getOrdersByUser(userId: string) {
+      byStatus,
+    };
+  }
+
+  async getOrdersByUser(userId: string) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
       select: { id: true, phone: true, email: true },
