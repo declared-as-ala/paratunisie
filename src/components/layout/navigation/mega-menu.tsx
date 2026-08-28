@@ -317,7 +317,7 @@ export const MEGA_MENU_DATA: MegaMenuSection[] = [
         slug: "vitamin-c-110-tabs-ostrovit",
         benefit: "Défense immunitaire puissante & antioxydant.",
         priceMillimes: 49000,
-        image: "/uploads/products/vitamin-c-110-tabs-ostrovit-77c8e6df.webp",
+        image: "/uploads/products/vitamin-c-110-tabs-ostrovit-eff32ea5.webp",
       },
     ],
   },
