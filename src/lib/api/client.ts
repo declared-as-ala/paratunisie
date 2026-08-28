@@ -467,6 +467,7 @@ export async function createExpressOrder(data: {
   fbp?: string;
   fbc?: string;
   eventSourceUrl?: string;
+  loyaltyPointsToRedeem?: number;
   items: { productId?: string; productVariantId?: string; quantity: number; priceMillimes: number }[];
 }): Promise<{ order: any; error: null } | { order: null; error: string }> {
   // Extract Meta cookies if present in browser

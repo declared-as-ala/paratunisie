@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { BadgeCheck, Check, Heart, Minus, Plus, Truck, Wallet, Zap, X, ShoppingBag, Loader2, CheckCircle2, AlertCircle } from "lucide-react";
+import { BadgeCheck, Check, Heart, Minus, Plus, Truck, Wallet, Zap, X, ShoppingBag, Loader2, CheckCircle2, AlertCircle, Gift, Star } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { formatPrice, type ProductSummary } from "@/lib/data/products";
-import { createExpressOrder } from "@/lib/api/client";
+import { createExpressOrder, type ProductRating } from "@/lib/api/client";
 import { trackViewContent, trackInitiateCheckout, trackPurchase } from "@/lib/meta-pixel";
+import { calculatePointsEarned } from "@/lib/loyalty";
 
 const reassurance = [
   { icon: BadgeCheck, label: "Produit authentique" },
@@ -22,7 +23,7 @@ const GOUVERNORATS_TUNISIE = [
   "Kebili", "Béja", "Jendouba", "Le Kef", "Siliana", "Zaghouan"
 ];
 
-export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
+export function ProductPurchasePanel({ product, rating }: { product: ProductSummary; rating?: ProductRating }) {
   const defaultIndex = Math.max(
     0,
     product.sizes.findIndex((size) => size.label === product.size),
@@ -159,6 +160,19 @@ export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
       <h1 className="mt-1 sm:mt-2 font-serif text-xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-ink leading-snug">
         {product.seoH1 || product.name}
       </h1>
+
+      {rating && rating.count > 0 && (
+        <div className="mt-2 flex items-center gap-1.5">
+          <span className="flex gap-0.5 text-amber-400" aria-hidden>
+            {[1, 2, 3, 4, 5].map((s) => (
+              <Star key={s} className={`size-3.5 ${s <= Math.round(rating.average) ? "fill-amber-400 text-amber-400" : "fill-slate-100 text-slate-200"}`} />
+            ))}
+          </span>
+          <span className="text-xs font-bold text-ink">{rating.average.toFixed(1)}</span>
+          <span className="text-xs text-ink-muted">({rating.count} avis)</span>
+        </div>
+      )}
+
       <p className="mt-1.5 sm:mt-2 text-xs sm:text-base leading-relaxed text-ink-muted">{product.benefit}</p>
 
       {/* Stock + Delivery indicators */}
@@ -180,6 +194,19 @@ export function ProductPurchasePanel({ product }: { product: ProductSummary }) {
       <p className="font-tabular mt-3 sm:mt-5 text-xl sm:text-2xl font-bold text-ink">
         {formatPrice(selected.priceMillimes)}
       </p>
+
+      {/* Loyalty points reward banner */}
+      <div className="mt-3 flex items-start gap-2.5 rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 text-xs">
+        <Gift className="size-4 text-amber-600 shrink-0 mt-0.5" />
+        <div>
+          <p className="font-bold text-ink">
+            🎁 Gagnez {calculatePointsEarned(selected.priceMillimes * quantity)} points avec cet achat
+          </p>
+          <p className="text-[0.6875rem] text-ink-muted mt-0.5">
+            20 points = 1 DT de réduction sur vos prochaines commandes
+          </p>
+        </div>
+      </div>
 
       {product.sizes.length > 1 && (
         <div className="mt-4 sm:mt-6">

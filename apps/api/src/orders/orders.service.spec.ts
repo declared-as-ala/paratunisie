@@ -11,7 +11,12 @@ describe("OrdersService — getOrderCounts", () => {
     const inventory = {} as any;
     const notifications = { processOrderNotifications: jest.fn().mockResolvedValue(undefined) } as any;
     const metaCapi = { trackPurchase: jest.fn().mockResolvedValue({ success: true }) } as any;
-    const service = new OrdersService(prisma, inventory, notifications, metaCapi);
+    const loyalty = {
+      awardOrderPoints: jest.fn().mockResolvedValue({}),
+      reverseOrderPoints: jest.fn().mockResolvedValue({}),
+      redeemPoints: jest.fn().mockResolvedValue({}),
+    } as any;
+    const service = new OrdersService(prisma, inventory, notifications, metaCapi, loyalty);
     return { service, groupByMock };
   }
 
@@ -72,7 +77,12 @@ describe("OrdersService — updateOrderStatus cost snapshot", () => {
     } as any;
     const notifications = { processOrderNotifications: jest.fn().mockResolvedValue(undefined) } as any;
     const metaCapi = { trackPurchase: jest.fn().mockResolvedValue({ success: true }) } as any;
-    const service = new OrdersService(prisma, inventory, notifications, metaCapi);
+    const loyalty = {
+      awardOrderPoints: jest.fn().mockResolvedValue({}),
+      reverseOrderPoints: jest.fn().mockResolvedValue({}),
+      redeemPoints: jest.fn().mockResolvedValue({}),
+    } as any;
+    const service = new OrdersService(prisma, inventory, notifications, metaCapi, loyalty);
     return { service, prisma, inventory, orderItemUpdateMock };
   }
 

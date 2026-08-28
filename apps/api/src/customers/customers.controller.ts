@@ -7,6 +7,16 @@ import { AdminCustomersQueryDto } from "./dto/admin-customers-query.dto";
 export class CustomersController {
   constructor(private readonly customersService: CustomersService) {}
 
+  @Post("register")
+  async register(@Body() body: { email: string; name: string; phone?: string; password: string }) {
+    return this.customersService.registerCustomer(body);
+  }
+
+  @Post("login")
+  async login(@Body() body: { email: string; password: string }) {
+    return this.customersService.loginCustomer(body);
+  }
+
   @UseGuards(AdminAuthGuard)
   @Get("admin/list")
   async getAdminCustomers(@Query() query: AdminCustomersQueryDto) {

@@ -89,7 +89,7 @@ export default async function ProductPage({
     name: product.name,
     brand: { "@type": "Brand", name: product.brand },
     description: product.description,
-    image: fullImgUrl,
+    image: [fullImgUrl],
     sku: product.sku || product.id,
     category: product.category,
     offers: {
@@ -97,15 +97,38 @@ export default async function ProductPage({
       url: `${SITE_URL}/produits/${product.slug}`,
       priceCurrency: "TND",
       price: (product.priceMillimes / 1000).toFixed(3),
+      priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
       availability: product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       itemCondition: "https://schema.org/NewCondition",
+      seller: {
+        "@type": "Organization",
+        name: "ParaTunisie",
+      },
     },
     ...(rating.count > 0 ? {
       aggregateRating: {
         "@type": "AggregateRating",
         ratingValue: rating.average.toFixed(1),
         reviewCount: rating.count,
+        bestRating: "5",
+        worstRating: "1",
       },
+      review: (reviews || []).slice(0, 5).map((rev) => ({
+        "@type": "Review",
+        author: {
+          "@type": "Person",
+          name: rev.user?.name || "Client vérifié ParaTunisie",
+        },
+        datePublished: new Date(rev.createdAt).toISOString().split("T")[0],
+        reviewRating: {
+          "@type": "Rating",
+          ratingValue: rev.rating,
+          bestRating: "5",
+          worstRating: "1",
+        },
+        name: rev.title || `Avis sur ${product.name}`,
+        reviewBody: rev.body || `Produit très satisfaisant. Recommandé par le client.`,
+      })),
     } : {}),
   };
 

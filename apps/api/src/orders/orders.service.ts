@@ -78,6 +78,8 @@ export const seededOrders = [
 import { NotificationsService } from "../notifications/notifications.service";
 import { NotificationType } from "@prisma/client";
 import { MetaCapiService } from "../meta-capi/meta-capi.service";
+import { LoyaltyService } from "../loyalty/loyalty.service";
+import { calculatePointsEarned, calculatePointsDiscountMillimes } from "../loyalty/loyalty.constants";
 
 @Injectable()
 export class OrdersService {
@@ -86,6 +88,7 @@ export class OrdersService {
     private inventoryService: InventoryService,
     private notificationsService: NotificationsService,
     private metaCapiService: MetaCapiService,
+    private loyaltyService: LoyaltyService,
   ) {}
 
   async getAllOrders() {
@@ -126,9 +129,10 @@ export class OrdersService {
     clientIp?: string;
     clientUserAgent?: string;
     eventSourceUrl?: string;
+    loyaltyPointsToRedeem?: number;
     items: { productId?: string; productVariantId?: string; quantity: number; priceMillimes: number }[];
   }) {
-    const totalMillimes = (data.items || []).reduce(
+    const rawSubtotalMillimes = (data.items || []).reduce(
       (sum, item) => sum + item.priceMillimes * item.quantity,
       0,
     );
@@ -189,13 +193,38 @@ export class OrdersService {
       }).catch(() => null);
     }
 
-    // 2. Resolve items to real Product & ProductVariant records. A cart line
-    // that doesn't resolve to a real row is a real error (stale localStorage
-    // cart referencing a deleted/renamed product, tampered payload, etc.) —
-    // it must reject with a clear message, never silently substitute a
-    // different, unrelated real product just to avoid an FK failure. Doing
-    // that would create an order for a product the customer never chose,
-    // with no error and no trace of the mismatch.
+    // Handle Loyalty Points Redemption on checkout
+    let loyaltyPointsUsed = 0;
+    let loyaltyDiscountMillimes = 0;
+
+    if (data.loyaltyPointsToRedeem && data.loyaltyPointsToRedeem > 0 && targetUser) {
+      const userAccount = await this.prisma.loyaltyAccount.findUnique({
+        where: { userId: targetUser.id },
+      });
+
+      if (userAccount && userAccount.points > 0) {
+        // Cannot redeem more points than account balance
+        const pointsAvailable = Math.min(data.loyaltyPointsToRedeem, userAccount.points);
+        const maxDiscountPossible = calculatePointsDiscountMillimes(pointsAvailable);
+
+        // Cannot exceed product subtotal
+        loyaltyDiscountMillimes = Math.min(rawSubtotalMillimes, maxDiscountPossible);
+        loyaltyPointsUsed = Math.floor(loyaltyDiscountMillimes / 1000 / 0.05);
+
+        if (loyaltyPointsUsed > 0) {
+          await this.loyaltyService.redeemPoints(targetUser.id, loyaltyPointsUsed);
+        }
+      }
+    }
+
+    const netProductSubtotal = Math.max(0, rawSubtotalMillimes - loyaltyDiscountMillimes);
+    const deliveryFeeMillimes = netProductSubtotal >= 99_000 ? 0 : 7_000;
+    const finalTotalMillimes = netProductSubtotal + deliveryFeeMillimes;
+
+    // Points earned only on net amount paid for products (shipping excluded)
+    const loyaltyPointsEarned = calculatePointsEarned(netProductSubtotal);
+
+    // 2. Resolve items to real Product & ProductVariant records.
     const createItemInputs: { productId: string; productVariantId: string; quantity: number; priceMillimes: number }[] = [];
 
     for (const item of data.items || []) {
@@ -233,14 +262,17 @@ export class OrdersService {
       const createdOrder = await this.prisma.order.create({
         data: {
           userId: targetUser.id,
-          totalMillimes,
+          totalMillimes: finalTotalMillimes,
+          loyaltyPointsUsed,
+          loyaltyDiscountMillimes,
+          loyaltyPointsEarned,
           gouvernorat: data.gouvernorat,
           fullAddress: data.fullAddress,
           deliveryNote: data.deliveryNote,
           items: {
             create: createItemInputs,
           },
-          payment: { create: { method: "cod", amount: totalMillimes, status: "pending" } },
+          payment: { create: { method: "cod", amount: finalTotalMillimes, status: "pending" } },
           shipment: { create: { carrier: "Standard", status: "pending" } },
         },
         include: { items: { include: { product: true } }, payment: true, shipment: true, user: true },
@@ -393,12 +425,16 @@ export class OrdersService {
       this.notificationsService.processOrderNotifications(orderId, NotificationType.ORDER_SHIPPED).catch(() => {});
     } else if (toStatus === OrderStatus.LIVREE) {
       await this.inventoryService.sellForOrder(orderId, items, staffId);
+      // Award loyalty points idempotently upon successful delivery
+      await this.loyaltyService.awardOrderPoints(orderId).catch((err) => console.error("[OrdersService] Loyalty award error:", err));
     } else if (
       toStatus === OrderStatus.ANNULEE ||
       toStatus === OrderStatus.REFUSEE ||
       toStatus === OrderStatus.RETOURNEE
     ) {
       await this.inventoryService.releaseReservationForOrder(orderId, items, staffId);
+      // Reverse loyalty points if order is cancelled or refunded
+      await this.loyaltyService.reverseOrderPoints(orderId).catch((err) => console.error("[OrdersService] Loyalty reverse error:", err));
       if (toStatus === OrderStatus.ANNULEE) {
         this.notificationsService.processOrderNotifications(orderId, NotificationType.ORDER_CANCELLED).catch(() => {});
       }

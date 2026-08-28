@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Param } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+import { AdminAuthGuard } from "../admin-auth/guards/admin-auth.guard";
 import { LoyaltyService } from "./loyalty.service";
 
 @Controller("loyalty")
@@ -10,8 +11,31 @@ export class LoyaltyController {
     return this.loyaltyService.getAccount(userId);
   }
 
-  @Post("add-points")
-  async addPoints(@Body() body: { userId: string; points: number; type: string; description?: string }) {
-    return this.loyaltyService.addPoints(body.userId, body.points, body.type, body.description);
+  @Get("account/:userId/transactions")
+  async getTransactions(@Param("userId") userId: string) {
+    return this.loyaltyService.getAccountTransactions(userId);
+  }
+
+  @Post("redeem")
+  async redeemPoints(@Body() body: { userId: string; points: number; orderId?: string }) {
+    return this.loyaltyService.redeemPoints(body.userId, body.points, body.orderId);
+  }
+
+  @UseGuards(AdminAuthGuard)
+  @Get("admin/stats")
+  async getAdminStats() {
+    return this.loyaltyService.getAdminStats();
+  }
+
+  @UseGuards(AdminAuthGuard)
+  @Post("order/:orderId/award")
+  async awardOrderPoints(@Param("orderId") orderId: string) {
+    return this.loyaltyService.awardOrderPoints(orderId);
+  }
+
+  @UseGuards(AdminAuthGuard)
+  @Post("order/:orderId/reverse")
+  async reverseOrderPoints(@Param("orderId") orderId: string) {
+    return this.loyaltyService.reverseOrderPoints(orderId);
   }
 }

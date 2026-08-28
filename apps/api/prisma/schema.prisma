@@ -269,17 +269,20 @@ enum OrderStatus {
 }
 
 model Order {
-  id            String      @id @default(cuid())
-  userId        String
-  user          User        @relation(fields: [userId], references: [id])
-  status        OrderStatus @default(EN_ATTENTE)
-  totalMillimes Int
-  gouvernorat   String
-  fullAddress   String
-  deliveryNote  String?
-  paymentMethod String      @default("cod")
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
+  id                      String      @id @default(cuid())
+  userId                  String
+  user                    User        @relation(fields: [userId], references: [id])
+  status                  OrderStatus @default(EN_ATTENTE)
+  totalMillimes           Int
+  loyaltyPointsUsed       Int         @default(0)
+  loyaltyDiscountMillimes Int         @default(0)
+  loyaltyPointsEarned     Int         @default(0)
+  gouvernorat             String
+  fullAddress             String
+  deliveryNote            String?
+  paymentMethod           String      @default("cod")
+  createdAt               DateTime    @default(now())
+  updatedAt               DateTime    @updatedAt
 
   items         OrderItem[]
   shipment      Shipment?
@@ -397,13 +400,20 @@ model LoyaltyAccount {
 }
 
 model LoyaltyTransaction {
-  id          String         @id @default(cuid())
-  accountId   String
-  account     LoyaltyAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  points      Int
-  type        String
-  description String?
-  createdAt   DateTime       @default(now())
+  id                    String         @id @default(cuid())
+  accountId             String
+  account               LoyaltyAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  userId                String?
+  orderId               String?
+  points                Int
+  type                  String         // "EARN" | "REDEEM" | "REFUND" | "ADJUSTMENT"
+  monetaryValueMillimes Int?
+  description           String?
+  createdAt             DateTime       @default(now())
+
+  @@index([accountId])
+  @@index([orderId])
+  @@index([userId])
 }
 
 // ─── Personalization ─────────────────────────────────────────────────

@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import { Check, ShieldCheck, Star, Truck, FileText, Sparkles, Droplets, Info } from "lucide-react";
 
@@ -5,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { hasConfiguredWhatsApp, whatsappHref } from "@/lib/contact";
 import type { ProductSummary } from "@/lib/data/products";
 import type { ProductRating, PublicReview } from "@/lib/api/client";
+import { ProductReviewModal } from "./product-review-modal";
 
 export function ProductTabs({
   product,
@@ -15,6 +19,8 @@ export function ProductTabs({
   reviews: PublicReview[];
   rating: ProductRating;
 }) {
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+
   return (
     <div className="mt-10 sm:mt-14">
       {/* ── Mobile Layout (< md): Stacked Sections Under Each Other ── */}
@@ -45,11 +51,11 @@ export function ProductTabs({
               <Sparkles className="size-4 text-primary shrink-0" />
               Bénéfices
             </h3>
-            <ul className="grid gap-2.5">
-              {product.benefits.map((benefit) => (
-                <li key={benefit} className="flex items-start gap-2 text-xs font-medium text-ink">
-                  <Check className="mt-0.5 size-3.5 shrink-0 text-primary" aria-hidden />
-                  {benefit}
+            <ul className="space-y-2 text-xs leading-5 text-ink-muted">
+              {product.benefits.map((benefit, index) => (
+                <li key={index} className="flex gap-2 items-start">
+                  <span className="text-primary font-bold">•</span>
+                  <span>{benefit}</span>
                 </li>
               ))}
             </ul>
@@ -63,7 +69,7 @@ export function ProductTabs({
               <Droplets className="size-4 text-primary shrink-0" />
               Conseils d&apos;utilisation
             </h3>
-            <p className="leading-6 text-sm text-ink-muted">{product.usage}</p>
+            <p className="leading-6 text-xs text-ink-muted">{product.usage}</p>
           </section>
         )}
 
@@ -73,18 +79,8 @@ export function ProductTabs({
             <Info className="size-4 text-primary shrink-0" />
             Composition &amp; Ingrédients
           </h3>
-          <p className="leading-6 text-xs text-ink-muted">
-            La liste complète des ingrédients (INCI) figure sur l&apos;emballage du produit. Pour toute question sur la composition avant votre achat,{" "}
-            {hasConfiguredWhatsApp ? (
-              <a href={whatsappHref} className="text-primary font-bold underline-offset-4 hover:underline">
-                contactez notre équipe sur WhatsApp
-              </a>
-            ) : (
-              <a href={whatsappHref} className="text-primary font-bold underline-offset-4 hover:underline">
-                contactez notre équipe
-              </a>
-            )}
-            .
+          <p className="leading-5 text-xs text-ink-muted">
+            {(product as any).ingredients || "Composition détaillée disponible sur l’emballage du produit."}
           </p>
         </section>
 
@@ -94,42 +90,67 @@ export function ProductTabs({
             <Truck className="size-4 text-primary shrink-0" />
             Livraison &amp; Retours
           </h3>
-          <ul className="space-y-2 text-xs leading-5 text-ink-muted">
+          <ul className="space-y-2 text-xs text-ink-muted">
             <li className="flex items-center gap-2">
               <Check className="size-3.5 text-emerald-600 shrink-0" />
-              Livraison partout en Tunisie sous 24h/48h.
+              Livraison partout en Tunisie sous 24 à 48h
             </li>
             <li className="flex items-center gap-2">
               <Check className="size-3.5 text-emerald-600 shrink-0" />
-              Livraison OFFERTE dès 99 DT de commande.
+              Frais de livraison : 7 DT (Gratuit dès 99 DT)
             </li>
             <li className="flex items-center gap-2">
               <Check className="size-3.5 text-emerald-600 shrink-0" />
-              Paiement en espèces à la livraison.
+              Paiement à la livraison
             </li>
           </ul>
         </section>
 
         {/* Avis Clients Section */}
         <section className="pt-6">
-          <h3 className="flex items-center gap-2 text-base font-extrabold text-ink mb-3 font-serif">
-            <Star className="size-4 text-amber-500 fill-amber-500 shrink-0" />
-            Avis Clients{rating.count > 0 ? ` (${rating.count})` : ""}
-          </h3>
+          <div className="flex items-center justify-between gap-3 mb-3">
+            <h3 className="flex items-center gap-2 text-base font-extrabold text-ink font-serif">
+              <Star className="size-4 text-amber-500 fill-amber-500 shrink-0" />
+              Avis Clients{rating.count > 0 ? ` (${rating.count})` : ""}
+            </h3>
+            <button
+              type="button"
+              onClick={() => setReviewModalOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary/20 transition-colors"
+            >
+              Donner votre avis
+            </button>
+          </div>
 
           {reviews.length === 0 ? (
             <div className="rounded-xl border border-border/80 bg-soft-nude/50 p-4 text-xs">
               <p className="font-bold text-ink">Aucun avis client pour le moment</p>
               <p className="mt-1 text-ink-muted">Soyez le premier à partager votre avis sur ce soin.</p>
+              <button
+                type="button"
+                onClick={() => setReviewModalOpen(true)}
+                className="mt-3 inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-bold text-white hover:bg-primary/90"
+              >
+                Rédiger un avis
+              </button>
             </div>
           ) : (
             <div className="space-y-4">
-              <div className="flex items-center gap-3 rounded-xl border border-border bg-soft-nude/60 p-4">
-                <strong className="text-2xl text-ink font-black">{rating.average.toFixed(1)}</strong>
-                <div>
-                  <ReviewStars rating={Math.round(rating.average)} />
-                  <p className="mt-0.5 text-[0.6875rem] text-ink-muted">{rating.count} avis approuvé{rating.count > 1 ? "s" : ""}</p>
+              <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-soft-nude/60 p-4">
+                <div className="flex items-center gap-3">
+                  <strong className="text-2xl text-ink font-black">{rating.average.toFixed(1)}</strong>
+                  <div>
+                    <ReviewStars rating={Math.round(rating.average)} />
+                    <p className="mt-0.5 text-[0.6875rem] text-ink-muted">{rating.count} avis approuvé{rating.count > 1 ? "s" : ""}</p>
+                  </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setReviewModalOpen(true)}
+                  className="rounded-lg border border-primary/30 bg-white px-2.5 py-1 text-xs font-bold text-primary hover:bg-primary hover:text-white transition-colors"
+                >
+                  Donner votre avis
+                </button>
               </div>
               <div className="divide-y divide-border/60 rounded-xl border border-border bg-white px-4">
                 {reviews.map((review) => (
@@ -183,11 +204,11 @@ export function ProductTabs({
 
         {product.benefits && product.benefits.length > 0 && (
           <TabsContent value="benefits" className="pt-6">
-            <ul className="grid max-w-2xl gap-3 sm:grid-cols-2">
-              {product.benefits.map((benefit) => (
-                <li key={benefit} className="flex items-start gap-2.5 text-sm text-ink">
-                  <Check className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
-                  {benefit}
+            <ul className="max-w-2xl space-y-2 text-sm leading-6 text-ink">
+              {product.benefits.map((benefit, index) => (
+                <li key={index} className="flex gap-2">
+                  <span className="text-primary">•</span>
+                  <span>{benefit}</span>
                 </li>
               ))}
             </ul>
@@ -201,33 +222,18 @@ export function ProductTabs({
         )}
 
         <TabsContent value="composition" className="pt-6">
-          <p className="max-w-2xl leading-7 text-ink-muted">
-            La liste complète des ingrédients (INCI) figure sur l&apos;emballage du produit. Pour toute question sur la composition avant votre achat,{" "}
-            {hasConfiguredWhatsApp ? (
-              <a href={whatsappHref} className="text-primary underline-offset-4 hover:underline font-medium">
-                contactez notre équipe sur WhatsApp
-              </a>
-            ) : (
-              <a href={whatsappHref} className="text-primary underline-offset-4 hover:underline font-medium">
-                contactez notre équipe
-              </a>
-            )}
-            .
+          <p className="max-w-2xl text-xs leading-6 text-ink-muted">
+            {(product as any).ingredients || "Composition détaillée disponible sur l’emballage du produit."}
           </p>
         </TabsContent>
 
         <TabsContent value="delivery" className="pt-6">
-          <ul className="max-w-2xl space-y-3 text-sm leading-6 text-ink">
-            <li>Livraison partout en Tunisie, avec livraison offerte dès 99 DT de commande.</li>
-            <li>Paiement à la livraison disponible.</li>
-            <li>
-              Une question sur une commande en cours ? Consultez notre{" "}
-              <Link href="/aide" className="text-primary underline-offset-4 hover:underline">
-                page d&apos;aide
-              </Link>
-              .
-            </li>
-          </ul>
+          <div className="max-w-2xl space-y-4 text-sm leading-6 text-ink">
+            <p>Livraison rapide dans toute la Tunisie sous 24 à 48 heures ouvrées.</p>
+            <p>Frais de livraison : 7 DT (Gratuit à partir de 99 DT d’achat).</p>
+            <p>Paiement à la livraison en espèces ou par carte bancaire selon disponibilité.</p>
+            <p>Retours possibles sous 7 jours pour les produits non ouverts et dans leur emballage d’origine.</p>
+          </div>
         </TabsContent>
 
         <TabsContent value="reviews" className="pt-6">
@@ -235,15 +241,31 @@ export function ProductTabs({
             <div className="max-w-xl rounded-xl border border-border bg-soft-nude p-6">
               <p className="font-medium text-ink">Aucun avis client pour le moment</p>
               <p className="mt-2 text-sm leading-6 text-ink-muted">Soyez la première personne à partager votre expérience avec ce produit.</p>
+              <button
+                type="button"
+                onClick={() => setReviewModalOpen(true)}
+                className="mt-4 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-sm font-bold text-white hover:bg-primary/90"
+              >
+                Donner votre avis
+              </button>
             </div>
           ) : (
             <div className="max-w-3xl space-y-5">
-              <div className="flex items-center gap-4 rounded-xl border border-border bg-soft-nude p-5">
-                <strong className="text-3xl text-ink">{rating.average.toFixed(1)}</strong>
-                <div>
-                  <ReviewStars rating={Math.round(rating.average)} />
-                  <p className="mt-1 text-xs text-ink-muted">{rating.count} avis approuvé{rating.count > 1 ? "s" : ""}</p>
+              <div className="flex items-center justify-between gap-4 rounded-xl border border-border bg-soft-nude p-5">
+                <div className="flex items-center gap-4">
+                  <strong className="text-3xl text-ink font-black">{rating.average.toFixed(1)}</strong>
+                  <div>
+                    <ReviewStars rating={Math.round(rating.average)} />
+                    <p className="mt-1 text-xs text-ink-muted">{rating.count} avis approuvé{rating.count > 1 ? "s" : ""}</p>
+                  </div>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setReviewModalOpen(true)}
+                  className="rounded-xl border border-primary bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90 transition-colors shadow-xs"
+                >
+                  Donner votre avis
+                </button>
               </div>
               <div className="divide-y divide-border rounded-xl border border-border bg-white px-5">
                 {reviews.map((review) => (
@@ -271,6 +293,14 @@ export function ProductTabs({
           )}
         </TabsContent>
       </Tabs>
+
+      <ProductReviewModal
+        isOpen={reviewModalOpen}
+        onClose={() => setReviewModalOpen(false)}
+        productId={product.id}
+        productName={product.name}
+        productSlug={product.slug}
+      />
     </div>
   );
 }

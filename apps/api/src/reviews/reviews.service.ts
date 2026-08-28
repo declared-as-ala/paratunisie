@@ -55,6 +55,25 @@ export class ReviewsService {
     if (!product) throw new NotFoundException("Produit introuvable");
 
     const verifiedOrder = await this.findVerifiedOrder(userId, productId, data.orderId);
+
+    const existingReview = await this.prisma.review.findFirst({
+      where: { userId, productId },
+    });
+
+    if (existingReview) {
+      return this.prisma.review.update({
+        where: { id: existingReview.id },
+        data: {
+          rating: data.rating,
+          title: data.title?.trim() || null,
+          body: data.body?.trim() || null,
+          orderId: verifiedOrder?.id || existingReview.orderId,
+          verified: Boolean(verifiedOrder || existingReview.verified),
+          status: ReviewStatus.PENDING,
+        },
+      });
+    }
+
     return this.prisma.review.create({
       data: {
         userId,

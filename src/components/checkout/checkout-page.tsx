@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { BadgeCheck, CheckCircle2, ChevronDown, Lock, ShieldCheck, Truck, Wallet, AlertCircle, Loader2, ShoppingBag } from "lucide-react";
+import { BadgeCheck, CheckCircle2, ChevronDown, Lock, ShieldCheck, Truck, Wallet, AlertCircle, Loader2, ShoppingBag, Gift, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,8 @@ import { useCart } from "@/hooks/use-cart";
 import { formatPrice } from "@/lib/data/products";
 import { createExpressOrder } from "@/lib/api/client";
 import { trackInitiateCheckout, trackPurchase } from "@/lib/meta-pixel";
+import { getCustomerSession, type CustomerSession } from "@/lib/customer-auth";
+import { calculatePointsDiscountMillimes } from "@/lib/loyalty";
 
 const GOUVERNORATS = [
   "Ariana", "Béja", "Ben Arous", "Bizerte", "Gabès", "Gafsa",
@@ -38,6 +40,29 @@ export function CheckoutPage() {
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Customer session & loyalty points
+  const [session, setSession] = useState<CustomerSession | null>(null);
+  const [userPoints, setUserPoints] = useState<number>(0);
+  const [useLoyaltyPoints, setUseLoyaltyPoints] = useState<boolean>(false);
+
+  useEffect(() => {
+    const currentSession = getCustomerSession();
+    if (currentSession?.user) {
+      setSession(currentSession);
+      if (currentSession.user.email && !form.email) {
+        setForm((prev) => ({ ...prev, email: currentSession.user.email, fullName: currentSession.user.name || prev.fullName, phone: currentSession.user.phone || prev.phone }));
+      }
+      fetch(`/api/v1/loyalty/account/${currentSession.user.id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && typeof data.points === "number") {
+            setUserPoints(data.points);
+          }
+        })
+        .catch(() => {});
+    }
+  }, []);
 
   // Track InitiateCheckout on checkout page mount if cart has items
   useEffect(() => {
@@ -158,8 +183,18 @@ export function CheckoutPage() {
     const firstName = nameParts[0] || form.fullName.trim();
     const lastName = nameParts.slice(1).join(" ") || ".";
 
+    // Calculate loyalty points discount
+    const maxDiscountMillimes = calculatePointsDiscountMillimes(userPoints);
+    const applicableDiscountMillimes = useLoyaltyPoints
+      ? Math.min(cart.subtotal, maxDiscountMillimes)
+      : 0;
+    const pointsActuallyUsed = useLoyaltyPoints
+      ? Math.floor(applicableDiscountMillimes / 1000 / 0.05)
+      : 0;
+
     try {
       const payload = {
+        userId: session?.user?.id,
         email: form.email.trim() || undefined,
         phone: form.phone,
         firstName,
@@ -167,6 +202,7 @@ export function CheckoutPage() {
         gouvernorat: form.governorat,
         fullAddress: form.address,
         deliveryNote: form.notes,
+        loyaltyPointsToRedeem: pointsActuallyUsed > 0 ? pointsActuallyUsed : undefined,
         items: cart.items.map((i) => ({
           productId: i.productId,
           quantity: i.quantity,
@@ -203,8 +239,18 @@ export function CheckoutPage() {
     }
   }
 
-  const deliveryPrice = cart.hasFreeDelivery ? 0 : ARAMEX_DELIVERY_PRICE;
-  const total = cart.subtotal + deliveryPrice;
+  // Loyalty calculations
+  const maxPossibleDiscount = calculatePointsDiscountMillimes(userPoints);
+  const loyaltyDiscountMillimes = useLoyaltyPoints
+    ? Math.min(cart.subtotal, maxPossibleDiscount)
+    : 0;
+  const pointsRedeemed = useLoyaltyPoints
+    ? Math.floor(loyaltyDiscountMillimes / 1000 / 0.05)
+    : 0;
+
+  const netSubtotal = Math.max(0, cart.subtotal - loyaltyDiscountMillimes);
+  const deliveryPrice = cart.hasFreeDelivery || netSubtotal >= 99_000 ? 0 : ARAMEX_DELIVERY_PRICE;
+  const total = netSubtotal + deliveryPrice;
 
   if (cart.items.length === 0 && !submitted) {
     return (
@@ -344,6 +390,12 @@ export function CheckoutPage() {
                 <span>Sous-total produits</span>
                 <span className="font-tabular font-bold text-ink">{formatPrice(cart.subtotal)}</span>
               </div>
+              {loyaltyDiscountMillimes > 0 && (
+                <div className="flex justify-between text-emerald-700 font-bold">
+                  <span>Points fidélité ({pointsRedeemed} pts)</span>
+                  <span className="font-tabular">-{formatPrice(loyaltyDiscountMillimes)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-ink-muted">
                 <span>Livraison Aramex</span>
                 <span className="font-tabular font-bold text-emerald-700">
@@ -358,6 +410,50 @@ export function CheckoutPage() {
           </div>
         )}
       </div>
+
+      {/* Guest Loyalty Incentive or Logged-in Loyalty Widget */}
+      {!session ? (
+        <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 text-xs">
+          <div className="flex items-center gap-2.5">
+            <Gift className="size-5 text-amber-600 shrink-0" />
+            <div>
+              <p className="font-bold text-ink">Gagnez des points fidélité sur cette commande !</p>
+              <p className="text-[0.6875rem] text-ink-muted mt-0.5">1 DT dépensé = 1 point (20 points = 1 DT de réduction future).</p>
+            </div>
+          </div>
+          <Link
+            href={`/compte?redirect=${encodeURIComponent("/checkout")}`}
+            className="rounded-xl border border-amber-600 bg-white px-3 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-50 shrink-0 shadow-2xs"
+          >
+            Se connecter
+          </Link>
+        </div>
+      ) : userPoints > 0 ? (
+        <div className="mt-4 rounded-2xl border border-amber-500/30 bg-linear-to-r from-amber-500/10 via-amber-500/5 to-white p-4 shadow-xs">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <Gift className="size-5 text-amber-600 shrink-0" />
+              <div>
+                <p className="text-xs font-bold text-ink">
+                  Vous avez <strong className="text-amber-800 font-extrabold">{userPoints} points</strong> disponibles ({(userPoints * 0.05).toFixed(3)} DT)
+                </p>
+                <p className="text-[0.6875rem] text-ink-muted">Utilisez vos points pour réduire le montant de votre commande.</p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setUseLoyaltyPoints(!useLoyaltyPoints)}
+              className={`rounded-xl px-4 py-2 text-xs font-bold transition-all shadow-xs ${
+                useLoyaltyPoints
+                  ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                  : "bg-amber-600 text-white hover:bg-amber-700"
+              }`}
+            >
+              {useLoyaltyPoints ? "✓ Points appliqués (-" + formatPrice(loyaltyDiscountMillimes) + ")" : "Utiliser mes points"}
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       {/* General Error Banner */}
       {errorMsg && (
@@ -618,6 +714,12 @@ export function CheckoutPage() {
                 <span>Sous-total</span>
                 <span className="font-tabular font-bold text-ink">{formatPrice(cart.subtotal)}</span>
               </div>
+              {loyaltyDiscountMillimes > 0 && (
+                <div className="flex justify-between text-emerald-700 font-bold">
+                  <span>Points fidélité ({pointsRedeemed} pts)</span>
+                  <span className="font-tabular">-{formatPrice(loyaltyDiscountMillimes)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-ink-muted">
                 <span>Livraison Aramex</span>
                 <span className="font-tabular font-bold text-ink">
@@ -631,6 +733,14 @@ export function CheckoutPage() {
                 </div>
               </div>
             </dl>
+
+            {/* Loyalty points to earn on this order */}
+            <div className="mt-3 flex items-center gap-2 rounded-xl bg-amber-500/10 border border-amber-500/20 p-2.5 text-[0.6875rem] text-ink">
+              <Sparkles className="size-4 text-amber-600 shrink-0" />
+              <span>
+                Cette commande vous rapporte <strong className="text-amber-800">{Math.floor(netSubtotal / 1000)} points</strong> fidélité !
+              </span>
+            </div>
 
             <div className="mt-4 rounded-xl bg-soft-nude/60 p-3 space-y-1 text-[0.6875rem] text-ink-muted font-medium">
               <div className="flex items-center gap-1.5 text-ink font-semibold">

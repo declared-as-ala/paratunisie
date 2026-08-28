@@ -1,17 +1,87 @@
-import { Injectable } from "@nestjs/common";
+import { BadRequestException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { AdminCustomersQueryDto } from "./dto/admin-customers-query.dto";
+import * as bcrypt from "bcryptjs";
 
 @Injectable()
 export class CustomersService {
   constructor(private prisma: PrismaService) {}
 
+  async registerCustomer(data: { email: string; name: string; phone?: string; password: string }) {
+    const existing = await this.prisma.user.findUnique({
+      where: { email: data.email.toLowerCase().trim() },
+    });
+
+    if (existing) {
+      throw new BadRequestException("Un compte avec cette adresse e-mail existe déjà.");
+    }
+
+    const hashedPassword = await bcrypt.hash(data.password, 10);
+
+    const user = await this.prisma.user.create({
+      data: {
+        email: data.email.toLowerCase().trim(),
+        name: data.name.trim(),
+        phone: data.phone?.trim() || null,
+        password: hashedPassword,
+        role: "CUSTOMER",
+      },
+    });
+
+    // Create initial loyalty account with 0 points
+    await this.prisma.loyaltyAccount.create({
+      data: {
+        userId: user.id,
+        points: 0,
+        tier: "Bronze",
+      },
+    }).catch(() => {});
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      phone: user.phone,
+      role: user.role,
+    };
+  }
+
+  async loginCustomer(data: { email: string; password: string }) {
+    const user = await this.prisma.user.findUnique({
+      where: { email: data.email.toLowerCase().trim() },
+    });
+
+    if (!user) {
+      throw new UnauthorizedException("Identifiants incorrects.");
+    }
+
+    // Support both hashed passwords and legacy plaintext
+    let passwordValid = false;
+    if (user.password.startsWith("$2a$") || user.password.startsWith("$2b$")) {
+      passwordValid = await bcrypt.compare(data.password, user.password);
+    } else {
+      passwordValid = user.password === data.password;
+    }
+
+    if (!passwordValid) {
+      throw new UnauthorizedException("Identifiants incorrects.");
+    }
+
+    return {
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      phone: user.phone,
+      role: user.role,
+    };
+  }
+
   async createCustomer(data: { email: string; name?: string; password: string }) {
     return this.prisma.user.create({
       data: {
-        email: data.email,
+        email: data.email.toLowerCase().trim(),
         name: data.name,
-        password: data.password, // TODO: hash in production
+        password: data.password,
         role: "CUSTOMER",
       },
     });
@@ -20,7 +90,21 @@ export class CustomersService {
   async getCustomerById(id: string) {
     return this.prisma.user.findUnique({
       where: { id },
-      include: { profile: true, addresses: true },
+      include: {
+        profile: true,
+        addresses: true,
+        loyalty: {
+          include: {
+            transactions: {
+              orderBy: { createdAt: "desc" },
+            },
+          },
+        },
+        orders: {
+          orderBy: { createdAt: "desc" },
+          take: 10,
+        },
+      },
     });
   }
 

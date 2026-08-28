@@ -18,6 +18,7 @@ import {
   LogOut,
   BarChart3,
   Wallet,
+  Gift,
 } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { cn } from "@paratunisie/ui";
@@ -66,6 +67,7 @@ const navSections: { title: string; items: NavItem[] }[] = [
     items: [
       { label: "Clients", href: "/admin/clients", icon: Users },
       { label: "Avis", href: "/admin/avis", icon: Star },
+      { label: "Fidélité", href: "/admin/fidelite", icon: Gift },
     ],
   },
   {
