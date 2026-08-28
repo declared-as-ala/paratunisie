@@ -23,11 +23,11 @@ const fraunces = Fraunces({
 export const metadata: Metadata = {
   metadataBase: new URL("https://paratunisie.com"),
   title: {
-    default: "ParaTunisie | Parapharmacie en ligne en Tunisie",
+    default: "ParaTunisie | Parapharmacie en Ligne en Tunisie — Soins & Nutrition",
     template: "%s | ParaTunisie",
   },
   description:
-    "Parapharmacie en ligne premium en Tunisie : soins visage, cheveux, solaire et bébé, conseils d'experts et livraison partout en Tunisie.",
+    "ParaTunisie, votre parapharmacie en ligne de référence en Tunisie. Découvrez notre sélection de compléments alimentaires, nutrition sportive (créatine, whey, ashwagandha), vitamines et soins avec livraison rapide 24-48h partout en Tunisie.",
   alternates: { canonical: "/" },
   verification: {
     google: "6Rz8hRY9p1DAcNo9GsEkcKkZxxTY0pFEu4iuHN7mZQM",
@@ -39,26 +39,68 @@ export const metadata: Metadata = {
     type: "website",
     locale: "fr_TN",
     siteName: "ParaTunisie",
-    title: "ParaTunisie | Parapharmacie en ligne en Tunisie",
+    title: "ParaTunisie | Parapharmacie en Ligne en Tunisie — Soins & Nutrition",
     description:
-      "Soins authentiques, conseils d'experts et livraison partout en Tunisie.",
+      "Votre parapharmacie en ligne en Tunisie : compléments alimentaires authentiques, nutrition sportive, vitamines et soins livrés partout en Tunisie.",
     url: "/",
     images: [
       {
         url: "/assets/hero-cinematic-poster.webp",
         width: 1920,
         height: 1080,
-        alt: "L'univers de soin ParaTunisie",
+        alt: "ParaTunisie — Parapharmacie en Ligne en Tunisie",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ParaTunisie | Parapharmacie en ligne en Tunisie",
+    title: "ParaTunisie | Parapharmacie en Ligne en Tunisie — Soins & Nutrition",
     description:
-      "Soins authentiques, conseils clairs et livraison partout en Tunisie.",
+      "Votre parapharmacie en ligne en Tunisie : compléments authentiques et livraison 24-48h.",
     images: ["/assets/hero-cinematic-poster.webp"],
   },
+};
+
+const storeJsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": ["OnlineStore", "Pharmacy"],
+      "@id": "https://paratunisie.com/#organization",
+      name: "ParaTunisie",
+      alternateName: ["Para Tunisie", "ParaTunisie en Ligne", "Parapharmacie Tunisie"],
+      url: "https://paratunisie.com",
+      logo: "https://paratunisie.com/assets/hero-cinematic-poster.webp",
+      description: "Première parapharmacie en ligne spécialisée en Tunisie : compléments alimentaires, nutrition sportive, vitamines et soins 100% authentiques.",
+      telephone: "+21697991266",
+      priceRange: "TND",
+      currenciesAccepted: "TND",
+      paymentAccepted: "Cash on delivery, Cash, Credit Card",
+      address: {
+        "@type": "PostalAddress",
+        addressCountry: "TN",
+        addressLocality: "Tunis"
+      },
+      areaServed: {
+        "@type": "Country",
+        name: "Tunisia"
+      },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: "https://paratunisie.com/shop?q={search_term_string}",
+        "query-input": "required name=search_term_string"
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://paratunisie.com/#website",
+      url: "https://paratunisie.com",
+      name: "ParaTunisie",
+      publisher: {
+        "@id": "https://paratunisie.com/#organization"
+      }
+    }
+  ]
 };
 
 export default function RootLayout({
@@ -71,6 +113,10 @@ export default function RootLayout({
     >
       <head>
         <meta name="facebook-domain-verification" content="mi1xyp6q8u3nc8f83zth36dg94otvu" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(storeJsonLd) }}
+        />
         {/* Meta Pixel Code */}
         <Script id="meta-pixel" strategy="afterInteractive">
           {`

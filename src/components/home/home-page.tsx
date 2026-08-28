@@ -5,6 +5,7 @@ import { HomeGammesGrid } from "@/components/home/home-gammes-grid";
 import { HomeFeaturedBrands } from "@/components/home/home-featured-brands";
 import { HomeTrustReassurance } from "@/components/home/home-trust-reassurance";
 import { HomeCommunity } from "@/components/home/home-community";
+import { HomeSeoSection } from "@/components/home/home-seo-section";
 import { type HomepageCategoryRow } from "@/lib/api/client";
 
 const BACKGROUND_CLASSES = [
@@ -59,7 +60,10 @@ export function HomePage({ categoryRows }: { categoryRows: HomepageCategoryRow[]
         {/* 7. Trust & Reassurance */}
         <HomeTrustReassurance />
 
-        {/* 8. Community & Le Cercle */}
+        {/* 8. SEO Authority Pillar & FAQ Section */}
+        <HomeSeoSection />
+
+        {/* 9. Community & Le Cercle */}
         <HomeCommunity />
       </div>
     </div>

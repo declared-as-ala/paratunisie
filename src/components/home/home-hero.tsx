@@ -91,19 +91,19 @@ export function HomeHero() {
           {/* Eyebrow Pill */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-white/20 bg-white/10 backdrop-blur-md text-[11px] uppercase tracking-[0.2em] text-white/90 font-medium mb-4">
             <span className="inline-block size-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399] animate-pulse" />
-            <span>ParaTunisie — Nutrition Sportive &amp; Santé</span>
+            <span>ParaTunisie — Parapharmacie en Ligne en Tunisie</span>
           </div>
 
           {/* Main Display Headline */}
           <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.08] tracking-tight text-white drop-shadow-[0_4px_25px_rgba(0,0,0,0.85)]">
-            Votre bien-être,
+            Votre Parapharmacie en Ligne
             <br />
-            <span className="text-white font-normal italic">et votre performance.</span>
+            <span className="text-white font-normal italic">en Tunisie.</span>
           </h1>
 
           {/* Subtitle */}
           <p className="mt-4 max-w-xl text-sm sm:text-base md:text-lg leading-relaxed text-white/90 font-light drop-shadow-md">
-            Parapharmacie d&apos;élite, soins dermatologiques haute tolérance, vitamines certifiées et nutrition sportive 100% authentique sélectionnées pour vos exigences quotidiennes en Tunisie.
+            Parapharmacie en ligne de référence en Tunisie : compléments alimentaires certifiés, créatine, whey protéine, ashwagandha, vitamines et soins 100% authentiques avec livraison rapide à domicile.
           </p>
 
           {/* Dual CTAs */}
