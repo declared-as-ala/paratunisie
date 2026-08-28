@@ -35,6 +35,7 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
   const [saved, setSaved] = useState(false);
   const [quickOrderOpen, setQuickOrderOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [orderSuccess, setOrderSuccess] = useState<{ id: string; name: string; phone: string } | null>(null);
 
@@ -99,6 +100,7 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
 
   const handleQuickOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmittingRef.current || submitting) return;
     setErrorMsg("");
 
     if (!fullName.trim() || !phone.trim() || !address.trim()) {
@@ -106,6 +108,7 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
       return;
     }
 
+    isSubmittingRef.current = true;
     setSubmitting(true);
 
     const nameParts = fullName.trim().split(/\s+/);
@@ -114,58 +117,64 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
 
     const session = getCustomerSession();
 
-    const { order, error } = await createExpressOrder({
-      userId: session?.user?.id,
-      email: session?.user?.email,
-      firstName,
-      lastName,
-      phone: phone.trim(),
-      gouvernorat,
-      fullAddress: address.trim(),
-      deliveryNote: note.trim() || undefined,
-      items: [
-        {
-          productId: product.id,
-          quantity,
-          priceMillimes: selected.priceMillimes,
-        },
-      ],
-    });
-
-    setSubmitting(false);
-
-    if (order?.id) {
-      const orderRef = `PT-${order.id.slice(-6).toUpperCase()}`;
-      const totalTnd = (order.totalMillimes || totalMillimes) / 1000;
-      trackPurchase({
-        orderId: order.id,
-        orderNumber: orderRef,
-        totalTnd,
+    try {
+      const { order, error } = await createExpressOrder({
+        userId: session?.user?.id,
+        email: session?.user?.email,
+        firstName,
+        lastName,
+        phone: phone.trim(),
+        gouvernorat,
+        fullAddress: address.trim(),
+        deliveryNote: note.trim() || undefined,
         items: [
           {
             productId: product.id,
-            name: product.name,
             quantity,
             priceMillimes: selected.priceMillimes,
           },
         ],
       });
-      trackGoogleAdsPurchase({
-        orderId: order.id,
-        orderNumber: orderRef,
-        totalTnd,
-        items: [
-          {
-            productId: product.id,
-            name: product.name,
-            quantity,
-            priceMillimes: selected.priceMillimes,
-          },
-        ],
-      });
-      setOrderSuccess({ id: orderRef, name: fullName.trim(), phone: phone.trim() });
-    } else {
-      setErrorMsg(error || "Une erreur s'est produite lors de la validation de la commande. Veuillez réessayer.");
+
+      if (order?.id) {
+        const orderRef = `PT-${order.id.slice(-6).toUpperCase()}`;
+        const totalTnd = (order.totalMillimes || totalMillimes) / 1000;
+        trackPurchase({
+          orderId: order.id,
+          orderNumber: orderRef,
+          totalTnd,
+          items: [
+            {
+              productId: product.id,
+              name: product.name,
+              quantity,
+              priceMillimes: selected.priceMillimes,
+            },
+          ],
+        });
+        trackGoogleAdsPurchase({
+          orderId: order.id,
+          orderNumber: orderRef,
+          totalTnd,
+          items: [
+            {
+              productId: product.id,
+              name: product.name,
+              quantity,
+              priceMillimes: selected.priceMillimes,
+            },
+          ],
+        });
+        setOrderSuccess({ id: orderRef, name: fullName.trim(), phone: phone.trim() });
+      } else {
+        isSubmittingRef.current = false;
+        setErrorMsg(error || "Une erreur s'est produite lors de la validation de la commande. Veuillez réessayer.");
+      }
+    } catch {
+      isSubmittingRef.current = false;
+      setErrorMsg("Impossible de communiquer avec le serveur. Veuillez réessayer.");
+    } finally {
+      setSubmitting(false);
     }
   };
 

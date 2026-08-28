@@ -37,43 +37,63 @@ export interface GoogleAdsPurchaseData {
 }
 
 /**
- * Check if gtag or dataLayer is available in browser context.
- */
-function isGtagReady(): boolean {
-  if (typeof window === "undefined") return false;
-  return typeof window.gtag === "function" || Array.isArray(window.dataLayer);
-}
-
-/**
  * Fires the Google Ads Purchase conversion event only after an order is confirmed by backend.
- * Features strict deduplication via in-memory Set and sessionStorage.
+ * Features strict deduplication via:
+ * 1. Global window Set (__gads_purchases)
+ * 2. Module-level in-memory Set (firedGoogleAdsPurchases)
+ * 3. Browser sessionStorage (gads_purchase_<id>)
  */
 export function trackGoogleAdsPurchase(data: GoogleAdsPurchaseData): void {
-  if (!data?.orderId || typeof data.totalTnd !== "number" || isNaN(data.totalTnd)) {
+  if (!data?.orderId || typeof data.totalTnd !== "number" || isNaN(data.totalTnd) || data.totalTnd <= 0) {
     return;
   }
 
   const transactionId = data.orderNumber || data.orderId;
-  const storageKey = `gads_purchase_${data.orderId}`;
+  const orderKey = data.orderId;
+  const storageKey = `gads_purchase_${orderKey}`;
 
-  // 1. In-memory deduplication check (prevents double-firing in React Strict Mode & re-renders)
-  if (firedGoogleAdsPurchases.has(data.orderId)) {
+  // 1. Check Global Window Guard (survives any module re-evaluations or React Strict Mode)
+  if (typeof window !== "undefined") {
+    (window as any).__gads_purchases = (window as any).__gads_purchases || new Set<string>();
+    if (
+      (window as any).__gads_purchases.has(orderKey) ||
+      (window as any).__gads_purchases.has(transactionId)
+    ) {
+      if (process.env.NODE_ENV !== "production") {
+        console.warn("⚠️ [Google Ads] Duplicate purchase conversion blocked by window guard:", transactionId);
+      }
+      return;
+    }
+  }
+
+  // 2. Check Module-level in-memory Set
+  if (firedGoogleAdsPurchases.has(orderKey) || firedGoogleAdsPurchases.has(transactionId)) {
     return;
   }
 
-  // 2. Persistent sessionStorage check (prevents duplicate conversions if page is refreshed)
+  // 3. Persistent sessionStorage check (prevents duplicate conversions if page is refreshed or reopened)
   try {
     if (typeof window !== "undefined" && window.sessionStorage) {
-      if (sessionStorage.getItem(storageKey)) {
+      if (sessionStorage.getItem(storageKey) || sessionStorage.getItem(`gads_tx_${transactionId}`)) {
+        if (process.env.NODE_ENV !== "production") {
+          console.warn("⚠️ [Google Ads] Duplicate purchase conversion blocked by sessionStorage:", transactionId);
+        }
         return;
       }
       sessionStorage.setItem(storageKey, "1");
+      sessionStorage.setItem(`gads_tx_${transactionId}`, "1");
     }
   } catch {
     // Ignore storage quota/security errors in private browsing
   }
 
-  firedGoogleAdsPurchases.add(data.orderId);
+  // Register in guards immediately before dispatch
+  firedGoogleAdsPurchases.add(orderKey);
+  firedGoogleAdsPurchases.add(transactionId);
+  if (typeof window !== "undefined") {
+    (window as any).__gads_purchases.add(orderKey);
+    (window as any).__gads_purchases.add(transactionId);
+  }
 
   const sendTo = getGoogleAdsPurchaseSendTo();
   const value = Number(data.totalTnd.toFixed(3));
@@ -86,12 +106,11 @@ export function trackGoogleAdsPurchase(data: GoogleAdsPurchaseData): void {
     transaction_id: transactionId,
   };
 
-  // Dispatch via window.gtag or fallback to window.dataLayer.push
+  // Dispatch EXACTLY ONCE via window.gtag or fallback to window.dataLayer
   if (typeof window !== "undefined") {
     if (typeof window.gtag === "function") {
       window.gtag("event", "conversion", eventPayload);
-    } else {
-      window.dataLayer = window.dataLayer || [];
+    } else if (Array.isArray(window.dataLayer)) {
       window.dataLayer.push(["event", "conversion", eventPayload]);
     }
   }
@@ -103,7 +122,7 @@ export function trackGoogleAdsPurchase(data: GoogleAdsPurchaseData): void {
       (window.location.hostname === "localhost" ||
         window.location.hostname === "127.0.0.1"))
   ) {
-    console.log("🎯 [Google Ads] Purchase conversion fired:", {
+    console.log("🎯 [Google Ads] Purchase conversion fired (EXACTLY ONCE):", {
       transaction_id: transactionId,
       value: value,
       currency: currency,

@@ -40,6 +40,7 @@ export function CheckoutPage() {
   const [orderNumber, setOrderNumber] = useState("");
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const isSubmittingRef = useRef(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   // Customer session & loyalty points
@@ -151,6 +152,7 @@ export function CheckoutPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (isSubmittingRef.current || submitting) return;
     setErrorMsg(null);
 
     // Mark all as touched and validate
@@ -177,6 +179,7 @@ export function CheckoutPage() {
       return;
     }
 
+    isSubmittingRef.current = true;
     setSubmitting(true);
 
     // Split fullName into firstName and lastName for API backend compatibility
@@ -242,9 +245,11 @@ export function CheckoutPage() {
         setSubmitted(true);
         cart.clearCart();
       } else {
+        isSubmittingRef.current = false;
         setErrorMsg(error || "Une erreur s'est produite lors de la validation de la commande. Veuillez réessayer.");
       }
     } catch (err: any) {
+      isSubmittingRef.current = false;
       setErrorMsg("Impossible de communiquer avec le serveur. Veuillez vérifier votre connexion.");
     } finally {
       setSubmitting(false);
