@@ -117,6 +117,19 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(storeJsonLd) }}
         />
+        {/* Google tag (gtag.js) - Google Ads: AW-18415809993 */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-18415809993"
+          strategy="afterInteractive"
+        />
+        <Script id="google-gtag" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-18415809993');
+          `}
+        </Script>
         {/* Meta Pixel Code */}
         <Script id="meta-pixel" strategy="afterInteractive">
           {`
