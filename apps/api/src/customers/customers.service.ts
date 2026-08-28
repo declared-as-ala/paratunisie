@@ -88,7 +88,7 @@ export class CustomersService {
   }
 
   async getCustomerById(id: string) {
-    return this.prisma.user.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { id },
       include: {
         profile: true,
@@ -101,11 +101,53 @@ export class CustomersService {
           },
         },
         orders: {
+          include: {
+            items: {
+              include: {
+                product: true,
+                productVariant: true,
+              },
+            },
+            shipment: true,
+            payment: true,
+          },
           orderBy: { createdAt: "desc" },
-          take: 10,
         },
       },
     });
+
+    if (!user) return null;
+
+    // Check if additional orders match by user phone or email
+    const additionalOrders = await this.prisma.order.findMany({
+      where: {
+        userId: { not: user.id },
+        OR: [
+          ...(user.phone ? [{ user: { phone: user.phone } }] : []),
+          ...(user.email && !user.email.startsWith("customer-") ? [{ user: { email: user.email } }] : []),
+        ],
+      },
+      include: {
+        items: {
+          include: {
+            product: true,
+            productVariant: true,
+          },
+        },
+        shipment: true,
+        payment: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const combinedOrders = [...user.orders, ...additionalOrders].sort(
+      (a, b) => +new Date(b.createdAt) - +new Date(a.createdAt),
+    );
+
+    return {
+      ...user,
+      orders: combinedOrders,
+    };
   }
 
   async getAddresses(userId: string) {

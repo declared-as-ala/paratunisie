@@ -10,6 +10,7 @@ import { formatPrice, type ProductSummary } from "@/lib/data/products";
 import { createExpressOrder, type ProductRating } from "@/lib/api/client";
 import { trackViewContent, trackInitiateCheckout, trackPurchase } from "@/lib/meta-pixel";
 import { calculatePointsEarned } from "@/lib/loyalty";
+import { getCustomerSession } from "@/lib/customer-auth";
 
 const reassurance = [
   { icon: BadgeCheck, label: "Produit authentique" },
@@ -110,7 +111,11 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
     const firstName = nameParts[0] || fullName.trim();
     const lastName = nameParts.slice(1).join(" ") || "";
 
+    const session = getCustomerSession();
+
     const { order, error } = await createExpressOrder({
+      userId: session?.user?.id,
+      email: session?.user?.email,
       firstName,
       lastName,
       phone: phone.trim(),

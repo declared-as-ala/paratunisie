@@ -339,22 +339,56 @@ export class OrdersService {
       normal: total,
       abandoned: 0,
       deleted: 0,
-      byStatus,
-    };
-  }
+      bySta  async getOrdersByUser(userId: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, phone: true, email: true },
+    });
 
-  async getOrdersByUser(userId: string) {
-    return seededOrders.filter((o) => o.user?.email.includes(userId));
+    return this.prisma.order.findMany({
+      where: {
+        OR: [
+          { userId },
+          ...(user?.phone ? [{ user: { phone: user.phone } }] : []),
+          ...(user?.email ? [{ user: { email: user.email } }] : []),
+        ],
+      },
+      include: {
+        items: {
+          include: {
+            product: true,
+            productVariant: true,
+          },
+        },
+        shipment: true,
+        payment: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
   }
 
   async getOrderById(orderId: string) {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        user: true,
+        items: {
+          include: {
+            product: true,
+            productVariant: true,
+          },
+        },
+        shipment: true,
+        payment: true,
+      },
+    });
+    if (order) return order;
     return seededOrders.find((o) => o.id === orderId) || seededOrders[0];
   }
 
   async deleteOrder(orderId: string) {
     const order = await this.prisma.order.findUnique({ where: { id: orderId }, select: { id: true } });
     if (!order) throw new NotFoundException("Commande introuvable");
-
     await this.prisma.$transaction([
       this.prisma.payment.deleteMany({ where: { orderId } }),
       this.prisma.shipment.deleteMany({ where: { orderId } }),
@@ -421,11 +455,13 @@ export class OrdersService {
       await this.inventoryService.reserveForOrder(orderId, items, staffId);
       await this.snapshotItemCosts(order.items);
       this.notificationsService.processOrderNotifications(orderId, NotificationType.ORDER_CONFIRMED).catch(() => {});
+      // Award loyalty points immediately when confirmed by admin
+      await this.loyaltyService.awardOrderPoints(orderId).catch((err) => console.error("[OrdersService] Loyalty award error:", err));
     } else if (toStatus === OrderStatus.EXPEDIEE) {
       this.notificationsService.processOrderNotifications(orderId, NotificationType.ORDER_SHIPPED).catch(() => {});
     } else if (toStatus === OrderStatus.LIVREE) {
       await this.inventoryService.sellForOrder(orderId, items, staffId);
-      // Award loyalty points idempotently upon successful delivery
+      // Award loyalty points idempotently upon delivery if not already awarded
       await this.loyaltyService.awardOrderPoints(orderId).catch((err) => console.error("[OrdersService] Loyalty award error:", err));
     } else if (
       toStatus === OrderStatus.ANNULEE ||

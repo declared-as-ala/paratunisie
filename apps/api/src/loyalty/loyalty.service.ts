@@ -66,7 +66,27 @@ export class LoyaltyService {
       include: { items: true, user: true },
     });
 
-    if (!order || !order.userId) return null;
+    if (!order) return null;
+
+    let targetUserId = order.userId;
+    if (order.user) {
+      const userPhone = order.user.phone;
+      const userEmail = order.user.email;
+      const matchedCustomer = await this.prisma.user.findFirst({
+        where: {
+          role: "CUSTOMER",
+          OR: [
+            ...(userPhone ? [{ phone: userPhone }] : []),
+            ...(userEmail && !userEmail.startsWith("customer-") && !userEmail.startsWith("client-") ? [{ email: userEmail }] : []),
+          ],
+        },
+      });
+      if (matchedCustomer) {
+        targetUserId = matchedCustomer.id;
+      }
+    }
+
+    if (!targetUserId) return null;
 
     // Check if points were already awarded for this order
     const existingEarnTx = await this.prisma.loyaltyTransaction.findFirst({
@@ -97,13 +117,13 @@ export class LoyaltyService {
 
     return this.prisma.$transaction(async (tx) => {
       let account = await tx.loyaltyAccount.findUnique({
-        where: { userId: order.userId },
+        where: { userId: targetUserId },
       });
 
       if (!account) {
         account = await tx.loyaltyAccount.create({
           data: {
-            userId: order.userId,
+            userId: targetUserId,
             points: 0,
             tier: "Bronze",
           },
@@ -123,7 +143,7 @@ export class LoyaltyService {
       const transaction = await tx.loyaltyTransaction.create({
         data: {
           accountId: account.id,
-          userId: order.userId,
+          userId: targetUserId,
           orderId: order.id,
           points: pointsToEarn,
           type: "EARN",
@@ -132,10 +152,10 @@ export class LoyaltyService {
         },
       });
 
-      // Also ensure order record stores the loyaltyPointsEarned
+      // Also ensure order record stores the loyaltyPointsEarned and ties to targetUserId
       await tx.order.update({
         where: { id: order.id },
-        data: { loyaltyPointsEarned: pointsToEarn },
+        data: { loyaltyPointsEarned: pointsToEarn, userId: targetUserId },
       });
 
       return transaction;
