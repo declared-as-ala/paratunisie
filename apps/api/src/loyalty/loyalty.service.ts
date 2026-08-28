@@ -7,40 +7,105 @@ export class LoyaltyService {
   constructor(private prisma: PrismaService) {}
 
   async getAccount(userId: string) {
-    let account = await this.prisma.loyaltyAccount.findUnique({
-      where: { userId },
-      include: {
-        transactions: {
-          orderBy: { createdAt: "desc" },
-          take: 20,
-        },
-      },
+    const currentUser = await this.prisma.user.findUnique({
+      where: { id: userId },
+      select: { id: true, phone: true, email: true },
     });
 
-    if (!account) {
-      account = await this.prisma.loyaltyAccount.create({
+    // Find all duplicate or shadow accounts sharing the same phone or email
+    const matchingUsers = await this.prisma.user.findMany({
+      where: {
+        OR: [
+          { id: userId },
+          ...(currentUser?.phone ? [{ phone: currentUser.phone }] : []),
+          ...(currentUser?.email ? [{ email: currentUser.email }] : []),
+        ],
+      },
+      select: { id: true },
+    });
+
+    const allUserIds = Array.from(new Set(matchingUsers.map((u) => u.id)));
+
+    let primaryAccount = await this.prisma.loyaltyAccount.findUnique({
+      where: { userId },
+    });
+
+    if (!primaryAccount) {
+      primaryAccount = await this.prisma.loyaltyAccount.create({
         data: {
           userId,
           points: 0,
           tier: "Bronze",
         },
-        include: {
-          transactions: true,
+      });
+    }
+
+    // Merge transactions and points from other accounts sharing this identity
+    const otherUserIds = allUserIds.filter((id) => id !== userId);
+    if (otherUserIds.length > 0) {
+      const otherAccounts = await this.prisma.loyaltyAccount.findMany({
+        where: { userId: { in: otherUserIds } },
+      });
+
+      for (const otherAcc of otherAccounts) {
+        await this.prisma.loyaltyTransaction.updateMany({
+          where: { accountId: otherAcc.id },
+          data: { accountId: primaryAccount.id, userId },
+        });
+        await this.prisma.loyaltyAccount.delete({ where: { id: otherAcc.id } }).catch(() => {});
+      }
+
+      await this.prisma.loyaltyTransaction.updateMany({
+        where: { userId: { in: otherUserIds } },
+        data: { accountId: primaryAccount.id, userId },
+      });
+
+      // Link orders as well so user owns all their orders
+      await this.prisma.order.updateMany({
+        where: { userId: { in: otherUserIds } },
+        data: { userId },
+      });
+    }
+
+    // Always calculate accurate points based on transactions
+    const allTxs = await this.prisma.loyaltyTransaction.findMany({
+      where: { accountId: primaryAccount.id },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const totalEarned = allTxs
+      .filter((t) => t.type === "EARN")
+      .reduce((sum, t) => sum + t.points, 0);
+    const totalSpent = allTxs
+      .filter((t) => t.type === "REDEEM")
+      .reduce((sum, t) => sum + t.points, 0);
+    const totalAdjusted = allTxs
+      .filter((t) => t.type === "ADJUST")
+      .reduce((sum, t) => sum + t.points, 0);
+
+    const accuratePoints = Math.max(0, totalEarned - totalSpent + totalAdjusted);
+
+    if (primaryAccount.points !== accuratePoints) {
+      primaryAccount = await this.prisma.loyaltyAccount.update({
+        where: { id: primaryAccount.id },
+        data: {
+          points: accuratePoints,
+          tier: this.calculateTier(accuratePoints),
         },
       });
     }
 
-    const availableValueTnd = Number((account.points * POINT_VALUE_TND).toFixed(3));
-    const availableValueMillimes = calculatePointsDiscountMillimes(account.points);
+    const availableValueTnd = Number((primaryAccount.points * POINT_VALUE_TND).toFixed(3));
+    const availableValueMillimes = calculatePointsDiscountMillimes(primaryAccount.points);
 
     return {
-      id: account.id,
-      userId: account.userId,
-      points: account.points,
-      tier: account.tier,
+      id: primaryAccount.id,
+      userId: primaryAccount.userId,
+      points: primaryAccount.points,
+      tier: primaryAccount.tier,
       availableValueTnd,
       availableValueMillimes,
-      transactions: account.transactions,
+      transactions: allTxs.slice(0, 20),
     };
   }
 
@@ -76,10 +141,11 @@ export class LoyaltyService {
         where: {
           role: "CUSTOMER",
           OR: [
-            ...(userPhone ? [{ phone: userPhone }] : []),
             ...(userEmail && !userEmail.startsWith("customer-") && !userEmail.startsWith("client-") ? [{ email: userEmail }] : []),
+            ...(userPhone ? [{ phone: userPhone }] : []),
           ],
         },
+        orderBy: { createdAt: "desc" },
       });
       if (matchedCustomer) {
         targetUserId = matchedCustomer.id;
