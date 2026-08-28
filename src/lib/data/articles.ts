@@ -1260,7 +1260,7 @@ export const articles: Article[] = [
       "multivitamines-sportifs",
       "omega-3-tunisie-guide",
     ],
-    relatedCategories: [{ name: "Vitamines & Minéraux", url: "/vitamines-mineraux" }],
+    relatedCategories: [{ name: "Vitamines & Minéraux", url: "/vitamines" }],
   },
 
   // ── ARTICLE 14 ──
@@ -1347,7 +1347,7 @@ export const articles: Article[] = [
       "multivitamines-sportifs",
       "omega-3-tunisie-guide",
     ],
-    relatedCategories: [{ name: "Vitamines & Minéraux", url: "/vitamines-mineraux" }],
+    relatedCategories: [{ name: "Vitamines & Minéraux", url: "/vitamines" }],
   },
 
   // ── ARTICLE 15 ──
@@ -1426,7 +1426,7 @@ export const articles: Article[] = [
       "vitamine-d3-k2-tunisie",
       "multivitamines-sportifs",
     ],
-    relatedCategories: [{ name: "Vitamines & Minéraux", url: "/vitamines-mineraux" }],
+    relatedCategories: [{ name: "Vitamines & Minéraux", url: "/vitamines" }],
   },
 
   // ── ARTICLE 16 ──
@@ -1507,7 +1507,7 @@ export const articles: Article[] = [
       "zinc-sportif-musculation",
       "omega-3-tunisie-guide",
     ],
-    relatedCategories: [{ name: "Vitamines & Minéraux", url: "/vitamines-mineraux" }],
+    relatedCategories: [{ name: "Vitamines & Minéraux", url: "/vitamines" }],
   },
 
   // ── ARTICLE 17 ──
@@ -1767,7 +1767,7 @@ export const articles: Article[] = [
     relatedCategories: [
       { name: "Whey Protéine", url: "/whey-proteine" },
       { name: "Créatine", url: "/creatine" },
-      { name: "Vitamines & Minéraux", url: "/vitamines-mineraux" },
+      { name: "Vitamines & Minéraux", url: "/vitamines" },
     ],
   },
 

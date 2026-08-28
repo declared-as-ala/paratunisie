@@ -49,6 +49,11 @@ const nextConfig: NextConfig = {
         destination: "/conseils/omega-3-tunisie-guide",
         permanent: true,
       },
+      {
+        source: "/vitamines-mineraux",
+        destination: "/vitamines",
+        permanent: true,
+      },
     ];
   },
 };
