@@ -103,8 +103,8 @@ export default function DemandesPage() {
       if (search.trim()) {
         queryParams.search = search.trim();
       }
-
-      const res = await apiClient.get<any>("/product-requests", queryParams);
+      const qs = new URLSearchParams(queryParams).toString();
+      const res = await apiClient.get<any>(`/product-requests?${qs}`);
       if (res?.data) {
         setRequests(res.data);
         setTotalPages(res.meta?.totalPages || 1);
