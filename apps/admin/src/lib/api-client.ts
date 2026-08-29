@@ -1,8 +1,17 @@
 function getApiBaseUrl() {
   if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+    // If accessing via VPS IP directly
+    if (host === "145.223.118.9") {
+      return `http://145.223.118.9:3013/api/v1`;
+    }
+    // If accessing on production domain
+    if (host.includes("paratunisie.com")) {
+      return "https://paratunisie.com/api/v1";
+    }
     return process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
   }
-  return process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+  return process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://paratunisie-api:3001/api/v1";
 }
 
 export function resolveMediaUrl(value?: string | null, fallback = "/assets/product-tube.webp") {

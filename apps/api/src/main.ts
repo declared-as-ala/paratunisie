@@ -32,8 +32,23 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: true,
+    origin: (origin, callback) => {
+      // Reflect the origin header so credentials work from any dashboard or client domain
+      callback(null, origin || true);
+    },
     credentials: true,
+    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
+    allowedHeaders: [
+      "Content-Type",
+      "Accept",
+      "Authorization",
+      "Cookie",
+      "X-Requested-With",
+      "Origin",
+      "Access-Control-Request-Method",
+      "Access-Control-Request-Headers",
+    ],
+    exposedHeaders: ["Set-Cookie"],
   });
 
   const port = process.env.PORT || 3001;
