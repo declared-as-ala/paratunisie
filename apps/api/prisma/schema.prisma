@@ -195,6 +195,8 @@ model Product {
   seoIsCustom     Boolean             @default(false)
   seoGeneratedAt  DateTime?
   publishState    ProductPublishState @default(DRAFT)
+  inStock         Boolean             @default(false)
+  totalStock      Int                 @default(0)
   manualOverrides String              @default("[]")
   createdAt       DateTime            @default(now())
   updatedAt       DateTime            @updatedAt
@@ -209,10 +211,12 @@ model Product {
   articleProducts  ArticleProduct[]
   importedProduct  ImportedProduct?
   competitorPrices CompetitorPrice[]
+  requests         ProductRequest[]
 
   @@index([brandId])
   @@index([categoryId])
   @@index([publishState])
+  @@index([inStock, createdAt])
   @@index([createdAt])
   @@index([name])
 }
@@ -248,6 +252,33 @@ model ProductImage {
   url       String
   alt       String?
   position  Int     @default(0)
+}
+
+enum ProductRequestStatus {
+  NOUVELLE
+  CONTACTE
+  COMMANDE
+  TERMINE
+  ANNULE
+}
+
+model ProductRequest {
+  id          String               @id @default(cuid())
+  productId   String
+  product     Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
+  fullName    String
+  phone       String
+  email       String?
+  quantity    Int                  @default(1)
+  message     String?
+  status      ProductRequestStatus @default(NOUVELLE)
+  adminNotes  String?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  @@index([productId])
+  @@index([status])
+  @@index([createdAt])
 }
 
 // ─── Commerce ────────────────────────────────────────────────────────

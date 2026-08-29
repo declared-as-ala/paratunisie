@@ -136,11 +136,11 @@ export class CatalogueService {
       ];
     }
 
-    let orderBy: any = { createdAt: "desc" };
+    let orderBy: any[] = [{ inStock: "desc" }, { createdAt: "desc" }];
     if (params?.sort === "name_asc" || params?.sort === "name") {
-      orderBy = { name: "asc" };
+      orderBy = [{ inStock: "desc" }, { name: "asc" }];
     } else if (params?.sort === "newest") {
-      orderBy = { createdAt: "desc" };
+      orderBy = [{ inStock: "desc" }, { createdAt: "desc" }];
     }
 
     try {

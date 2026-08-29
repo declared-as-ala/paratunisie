@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { Check, Heart, ShoppingBag } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { Check, Heart, Mail, ShoppingBag } from "lucide-react";
+import { useCallback, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { formatPrice, type ProductSummary } from "@/lib/data/products";
+import { DemanderModal } from "@/components/product/demander-modal";
 
 export interface ProductCardProps {
   product: ProductSummary;
@@ -22,6 +23,7 @@ export function ProductCard({ product, variant = "shop" }: ProductCardProps) {
   const { addItem, isInCart } = useCart();
   const added = isInCart(product.id);
   const [loading, setLoading] = useState(false);
+  const [demanderOpen, setDemanderOpen] = useState(false);
 
   // Sync image state whenever product image prop changes
   if (prevImage !== product.image) {
@@ -29,11 +31,17 @@ export function ProductCard({ product, variant = "shop" }: ProductCardProps) {
     setImgSrc(product.image || "/assets/product-tube.webp");
   }
 
+  const isAvailable = product.inStock !== false;
+
   const handleAdd = useCallback(() => {
+    if (!isAvailable) {
+      setDemanderOpen(true);
+      return;
+    }
     setLoading(true);
     addItem(product);
     setTimeout(() => setLoading(false), 250);
-  }, [addItem, product]);
+  }, [addItem, product, isAvailable]);
 
   // Optional mock discount calculation for visual fidelity
   const oldPriceMillimes = Math.round(product.priceMillimes * 1.2);
@@ -44,12 +52,16 @@ export function ProductCard({ product, variant = "shop" }: ProductCardProps) {
       {/* ── 1. HOME MOBILE HORIZONTAL CARD (variant="home" & < sm) ─────────────── */}
       {variant === "home" && (
         <article className="group relative flex w-full flex-row overflow-hidden rounded-2xl border border-border/70 bg-white p-3 gap-3 shadow-2xs hover:border-primary/40 transition-all sm:hidden">
-          {/* Discount Badge */}
-          {showDiscount && (
+          {/* Top Badge: Sur Commande or Discount */}
+          {!isAvailable ? (
+            <span className="absolute start-2 top-2 z-10 rounded-full bg-amber-600 px-2 py-0.5 text-[0.6rem] font-extrabold text-white shadow-2xs">
+              SUR COMMANDE
+            </span>
+          ) : showDiscount ? (
             <span className="absolute start-2 top-2 z-10 rounded-full bg-primary px-2 py-0.5 text-[0.625rem] font-extrabold text-white shadow-2xs">
               -15%
             </span>
-          )}
+          ) : null}
 
           {/* Favorite Heart Button */}
           <button
@@ -62,7 +74,7 @@ export function ProductCard({ product, variant = "shop" }: ProductCardProps) {
             <Heart size={15} className={saved ? "fill-primary text-primary" : "text-ink-muted"} />
           </button>
 
-          {/* Left: Product Image Box (~105-120px fixed shrink-0 width) */}
+          {/* Left: Product Image Box */}
           <div className="relative w-[105px] xs:w-[120px] shrink-0 aspect-square rounded-xl bg-white p-1.5 flex items-center justify-center border border-border/40 overflow-hidden">
             <Link href={`/produits/${product.slug}`} className="flex size-full items-center justify-center p-1">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -91,7 +103,7 @@ export function ProductCard({ product, variant = "shop" }: ProductCardProps) {
               {/* Prices & Savings */}
               <div className="flex items-baseline gap-1.5 flex-wrap">
                 <span className="font-tabular text-sm font-extrabold text-ink">{formatPrice(product.priceMillimes)}</span>
-                {showDiscount && (
+                {showDiscount && isAvailable && (
                   <>
                     <span className="font-tabular text-[0.6875rem] text-ink-muted/70 line-through">
                       {formatPrice(oldPriceMillimes)}
@@ -104,27 +116,46 @@ export function ProductCard({ product, variant = "shop" }: ProductCardProps) {
               </div>
 
               {/* Stock Reassurance */}
-              <div className="flex items-center gap-2 text-[0.65rem] font-semibold text-ink-muted">
-                <span className="text-emerald-700 font-bold flex items-center gap-0.5">✓ En stock</span>
-                <span>🚚 24–48h</span>
+              <div className="flex items-center gap-2 text-[0.65rem] font-semibold">
+                {isAvailable ? (
+                  <>
+                    <span className="text-emerald-700 font-bold flex items-center gap-0.5">✓ En stock</span>
+                    <span className="text-ink-muted">🚚 24–48h</span>
+                  </>
+                ) : (
+                  <span className="text-amber-700 font-bold flex items-center gap-0.5">○ Sur commande</span>
+                )}
               </div>
 
-              {/* Add To Cart CTA Button */}
-              <Button
-                type="button"
-                size="sm"
-                disabled={loading}
-                onClick={handleAdd}
-                aria-label={added ? `${product.name} ajouté` : `Ajouter ${product.name}`}
-                className={`w-full h-8.5 rounded-xl font-bold text-xs gap-1.5 shadow-2xs transition-all ${
-                  added
-                    ? "bg-success-bg text-success border border-success/30"
-                    : "bg-primary text-white hover:bg-primary-hover active:scale-[0.98]"
-                }`}
-              >
-                {added ? <Check size={14} className="text-success" /> : <ShoppingBag size={14} />}
-                <span>{added ? "Ajouté" : "Ajouter au panier"}</span>
-              </Button>
+              {/* CTA Button */}
+              {isAvailable ? (
+                <Button
+                  type="button"
+                  size="sm"
+                  disabled={loading}
+                  onClick={handleAdd}
+                  aria-label={added ? `${product.name} ajouté` : `Ajouter ${product.name}`}
+                  className={`w-full h-8.5 rounded-xl font-bold text-xs gap-1.5 shadow-2xs transition-all ${
+                    added
+                      ? "bg-success-bg text-success border border-success/30"
+                      : "bg-primary text-white hover:bg-primary-hover active:scale-[0.98]"
+                  }`}
+                >
+                  {added ? <Check size={14} className="text-success" /> : <ShoppingBag size={14} />}
+                  <span>{added ? "Ajouté" : "Ajouter au panier"}</span>
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => setDemanderOpen(true)}
+                  aria-label={`Demander ${product.name}`}
+                  className="w-full h-8.5 rounded-xl font-bold text-xs gap-1.5 shadow-2xs bg-amber-600 text-white hover:bg-amber-700 active:scale-[0.98]"
+                >
+                  <Mail size={13} />
+                  <span>Demander</span>
+                </Button>
+              )}
             </div>
           </div>
         </article>
@@ -136,12 +167,16 @@ export function ProductCard({ product, variant = "shop" }: ProductCardProps) {
           variant === "home" ? "hidden sm:flex" : "flex"
         }`}
       >
-        {/* Discount Badge */}
-        {showDiscount && (
+        {/* Top Badge */}
+        {!isAvailable ? (
+          <span className="absolute start-2 top-2 z-10 rounded-full bg-amber-600 px-1.5 sm:px-2 py-0.5 text-[0.6rem] sm:text-[0.625rem] font-extrabold text-white shadow-2xs">
+            SUR COMMANDE
+          </span>
+        ) : showDiscount ? (
           <span className="absolute start-2 top-2 z-10 rounded-full bg-primary px-1.5 sm:px-2 py-0.5 text-[0.6rem] sm:text-[0.625rem] font-extrabold text-white shadow-2xs">
             -15%
           </span>
-        )}
+        ) : null}
 
         {/* Favorite Heart Button */}
         <button
@@ -184,7 +219,7 @@ export function ProductCard({ product, variant = "shop" }: ProductCardProps) {
           <div className="mt-auto pt-2 sm:pt-2.5 space-y-1 sm:space-y-1.5">
             <div className="flex items-baseline gap-1 sm:gap-1.5 flex-wrap">
               <span className="font-tabular text-xs sm:text-sm font-extrabold text-ink">{formatPrice(product.priceMillimes)}</span>
-              {showDiscount && (
+              {showDiscount && isAvailable && (
                 <>
                   <span className="font-tabular text-[0.6rem] sm:text-[0.65rem] text-ink-muted/70 line-through">
                     {formatPrice(oldPriceMillimes)}
@@ -196,32 +231,65 @@ export function ProductCard({ product, variant = "shop" }: ProductCardProps) {
               )}
             </div>
 
-            <div className="flex items-center gap-1.5 sm:gap-2 text-[0.6rem] sm:text-[0.65rem] font-semibold text-ink-muted">
-              <span className="text-emerald-700 font-bold">✓ En stock</span>
-              <span>🚚 24–48h</span>
+            <div className="flex items-center gap-1.5 sm:gap-2 text-[0.6rem] sm:text-[0.65rem] font-semibold">
+              {isAvailable ? (
+                <>
+                  <span className="text-emerald-700 font-bold">✓ En stock</span>
+                  <span className="text-ink-muted">🚚 24–48h</span>
+                </>
+              ) : (
+                <span className="text-amber-700 font-bold">○ Sur commande</span>
+              )}
             </div>
 
             {/* Action Button */}
-            <Button
-              type="button"
-              size="sm"
-              disabled={loading}
-              variant={added ? "secondary" : "default"}
-              onClick={handleAdd}
-              aria-label={added ? `${product.name} ajouté` : `Ajouter ${product.name}`}
-              className={`w-full h-8.5 sm:h-9 rounded-xl font-bold text-[0.7rem] sm:text-xs gap-1 sm:gap-1.5 shadow-2xs transition-all ${
-                added
-                  ? "bg-success-bg text-success border border-success/30 hover:bg-success-bg/80"
-                  : "bg-primary text-white hover:bg-primary-hover active:scale-[0.98]"
-              }`}
-            >
-              {added ? <Check size={14} className="text-success" /> : <ShoppingBag size={14} />}
-              <span>{added ? "Ajouté" : "Ajouter au panier"}</span>
-            </Button>
+            {isAvailable ? (
+              <Button
+                type="button"
+                size="sm"
+                disabled={loading}
+                variant={added ? "secondary" : "default"}
+                onClick={handleAdd}
+                aria-label={added ? `${product.name} ajouté` : `Ajouter ${product.name}`}
+                className={`w-full h-8.5 sm:h-9 rounded-xl font-bold text-[0.7rem] sm:text-xs gap-1 sm:gap-1.5 shadow-2xs transition-all ${
+                  added
+                    ? "bg-success-bg text-success border border-success/30 hover:bg-success-bg/80"
+                    : "bg-primary text-white hover:bg-primary-hover active:scale-[0.98]"
+                }`}
+              >
+                {added ? <Check size={14} className="text-success" /> : <ShoppingBag size={14} />}
+                <span>{added ? "Ajouté" : "Ajouter au panier"}</span>
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                size="sm"
+                onClick={() => setDemanderOpen(true)}
+                aria-label={`Demander ${product.name}`}
+                className="w-full h-8.5 sm:h-9 rounded-xl font-bold text-[0.7rem] sm:text-xs gap-1 sm:gap-1.5 shadow-2xs bg-amber-600 text-white hover:bg-amber-700 active:scale-[0.98]"
+              >
+                <Mail size={13} />
+                <span>Demander</span>
+              </Button>
+            )}
           </div>
         </div>
       </article>
+
+      {/* Demander Modal */}
+      <DemanderModal
+        isOpen={demanderOpen}
+        onClose={() => setDemanderOpen(false)}
+        product={{
+          id: product.id,
+          name: product.name,
+          brand: product.brand,
+          image: imgSrc,
+          priceMillimes: product.priceMillimes,
+        }}
+      />
     </>
   );
 }
+
 

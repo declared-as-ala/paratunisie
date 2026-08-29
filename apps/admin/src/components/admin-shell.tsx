@@ -51,6 +51,7 @@ const navSections: { title: string; items: NavItem[] }[] = [
     title: "Commandes",
     items: [
       { label: "Commandes", href: "/admin/commandes", icon: ShoppingCart },
+      { label: "Demandes Produits", href: "/admin/demandes", icon: BookOpen },
     ],
   },
   {

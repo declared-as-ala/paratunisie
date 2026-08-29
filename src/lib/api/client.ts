@@ -690,3 +690,34 @@ export async function resetDiagnosticChatSession(sessionToken: string) {
     method: "POST",
   });
 }
+
+/* ─── Demande Produit (Sur Commande) ────────────────────────────── */
+
+export interface ProductRequestPayload {
+  productId: string;
+  fullName: string;
+  phone: string;
+  email?: string;
+  quantity?: number;
+  message?: string;
+}
+
+export async function submitProductRequest(payload: ProductRequestPayload): Promise<{ data: any; error: string | null }> {
+  const url = `${getApiBase()}/product-requests`;
+  try {
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+      cache: "no-store",
+    });
+    const json = await res.json().catch(() => null);
+    if (!res.ok) {
+      const message = typeof json?.message === "string" ? json.message : "Une erreur est survenue lors de l'envoi de votre demande.";
+      return { data: null, error: message };
+    }
+    return { data: json, error: null };
+  } catch (err: any) {
+    return { data: null, error: "Impossible de joindre le serveur. Veuillez vérifier votre connexion." };
+  }
+}

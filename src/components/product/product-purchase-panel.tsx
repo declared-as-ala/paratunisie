@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { BadgeCheck, Check, Heart, Minus, Plus, Truck, Wallet, Zap, X, ShoppingBag, Loader2, CheckCircle2, AlertCircle, Gift, Star } from "lucide-react";
+import { BadgeCheck, Check, Heart, Minus, Plus, Truck, Wallet, Zap, X, ShoppingBag, Loader2, CheckCircle2, AlertCircle, Gift, Star, Mail } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/hooks/use-cart";
@@ -12,6 +12,7 @@ import { trackViewContent, trackInitiateCheckout, trackPurchase } from "@/lib/me
 import { trackGoogleAdsPurchase } from "@/lib/google-ads";
 import { calculatePointsEarned } from "@/lib/loyalty";
 import { getCustomerSession } from "@/lib/customer-auth";
+import { DemanderModal } from "@/components/product/demander-modal";
 
 const reassurance = [
   { icon: BadgeCheck, label: "Produit authentique" },
@@ -34,6 +35,7 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
   const [quantity, setQuantity] = useState(1);
   const [saved, setSaved] = useState(false);
   const [quickOrderOpen, setQuickOrderOpen] = useState(false);
+  const [demanderOpen, setDemanderOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const isSubmittingRef = useRef(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -206,18 +208,23 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
 
       {/* Stock + Delivery indicators */}
       <div className="mt-2.5 sm:mt-3 flex flex-wrap items-center gap-2">
-        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[0.6875rem] font-semibold border ${
-          product.inStock
-            ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-700"
-            : "bg-rose-500/10 border-rose-500/20 text-rose-700"
-        }`}>
-          <span className={`h-1.5 w-1.5 rounded-full ${product.inStock ? "bg-emerald-500" : "bg-rose-500"}`} />
-          {product.inStock ? "En stock" : "Rupture de stock"}
-        </span>
-        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[0.6875rem] font-semibold bg-blue-500/10 border border-blue-500/20 text-blue-700">
-          <Truck className="size-3" />
-          Livraison 24–48h
-        </span>
+        {product.inStock ? (
+          <>
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[0.6875rem] font-semibold border bg-emerald-500/10 border-emerald-500/20 text-emerald-700">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+              En stock
+            </span>
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[0.6875rem] font-semibold bg-blue-500/10 border border-blue-500/20 text-blue-700">
+              <Truck className="size-3" />
+              Livraison 24–48h
+            </span>
+          </>
+        ) : (
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[0.6875rem] font-semibold border bg-amber-500/10 border-amber-500/20 text-amber-700">
+            <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
+            Disponible sur commande
+          </span>
+        )}
       </div>
 
       <p className="font-tabular mt-3 sm:mt-5 text-xl sm:text-2xl font-bold text-ink">
@@ -225,17 +232,19 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
       </p>
 
       {/* Loyalty points reward banner */}
-      <div className="mt-3 flex items-start gap-2.5 rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 text-xs">
-        <Gift className="size-4 text-amber-600 shrink-0 mt-0.5" />
-        <div>
-          <p className="font-bold text-ink">
-            🎁 Gagnez {calculatePointsEarned(selected.priceMillimes * quantity)} points avec cet achat
-          </p>
-          <p className="text-[0.6875rem] text-ink-muted mt-0.5">
-            20 points = 1 DT de réduction sur vos prochaines commandes
-          </p>
+      {product.inStock && (
+        <div className="mt-3 flex items-start gap-2.5 rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 text-xs">
+          <Gift className="size-4 text-amber-600 shrink-0 mt-0.5" />
+          <div>
+            <p className="font-bold text-ink">
+              🎁 Gagnez {calculatePointsEarned(selected.priceMillimes * quantity)} points avec cet achat
+            </p>
+            <p className="text-[0.6875rem] text-ink-muted mt-0.5">
+              20 points = 1 DT de réduction sur vos prochaines commandes
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       {product.sizes.length > 1 && (
         <div className="mt-4 sm:mt-6">
@@ -263,71 +272,102 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
         </div>
       )}
 
-      <div className="mt-4 sm:mt-6 flex items-center gap-3">
-        <p className="text-xs sm:text-sm font-medium text-ink" id="quantity-label">
-          Quantité
-        </p>
-        <div className="flex items-center rounded-lg border border-border bg-white">
-          <button
-            type="button"
-            aria-label="Diminuer la quantité"
-            onClick={() => setQuantity((current) => Math.max(1, current - 1))}
-            className="flex size-9 sm:size-11 items-center justify-center text-ink-muted transition-transform duration-100 hover:text-ink focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none active:scale-90"
-          >
-            <Minus className="size-3.5 sm:size-4" aria-hidden />
-          </button>
-          <span aria-labelledby="quantity-label" className="font-tabular w-8 text-center text-xs sm:text-sm font-bold text-ink">
-            {quantity}
-          </span>
-          <button
-            type="button"
-            aria-label="Augmenter la quantité"
-            onClick={() => setQuantity((current) => current + 1)}
-            className="flex size-9 sm:size-11 items-center justify-center text-ink-muted transition-transform duration-100 hover:text-ink focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none active:scale-90"
-          >
-            <Plus className="size-3.5 sm:size-4" aria-hidden />
-          </button>
+      {product.inStock && (
+        <div className="mt-4 sm:mt-6 flex items-center gap-3">
+          <p className="text-xs sm:text-sm font-medium text-ink" id="quantity-label">
+            Quantité
+          </p>
+          <div className="flex items-center rounded-lg border border-border bg-white">
+            <button
+              type="button"
+              aria-label="Diminuer la quantité"
+              onClick={() => setQuantity((current) => Math.max(1, current - 1))}
+              className="flex size-9 sm:size-11 items-center justify-center text-ink-muted transition-transform duration-100 hover:text-ink focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none active:scale-90"
+            >
+              <Minus className="size-3.5 sm:size-4" aria-hidden />
+            </button>
+            <span aria-labelledby="quantity-label" className="font-tabular w-8 text-center text-xs sm:text-sm font-bold text-ink">
+              {quantity}
+            </span>
+            <button
+              type="button"
+              aria-label="Augmenter la quantité"
+              onClick={() => setQuantity((current) => current + 1)}
+              className="flex size-9 sm:size-11 items-center justify-center text-ink-muted transition-transform duration-100 hover:text-ink focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none active:scale-90"
+            >
+              <Plus className="size-3.5 sm:size-4" aria-hidden />
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Main Flow Purchase Buttons (Observed by IntersectionObserver) */}
       <div ref={inlineBuyRef} className="mt-5 sm:mt-7 flex flex-col gap-2.5 sm:gap-3 max-w-md">
-        {/* 1. Ajouter au panier & Favorite */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
-          <Button
-            type="button"
-            size="lg"
-            variant={added ? "secondary" : "default"}
-            onClick={handleAdd}
-            className="flex-1 rounded-xl font-bold py-3.5 sm:py-6 text-xs sm:text-base shadow-xs h-11 sm:h-13"
-          >
-            {added ? <Check className="size-4 sm:size-5" /> : <ShoppingBag className="size-4 sm:size-5" />}
-            {added ? "Ajouté au panier" : "Ajouter au panier"}
-          </Button>
+        {product.inStock ? (
+          <>
+            {/* 1. Ajouter au panier & Favorite */}
+            <div className="flex items-center gap-2.5 sm:gap-3">
+              <Button
+                type="button"
+                size="lg"
+                variant={added ? "secondary" : "default"}
+                onClick={handleAdd}
+                className="flex-1 rounded-xl font-bold py-3.5 sm:py-6 text-xs sm:text-base shadow-xs h-11 sm:h-13"
+              >
+                {added ? <Check className="size-4 sm:size-5" /> : <ShoppingBag className="size-4 sm:size-5" />}
+                {added ? "Ajouté au panier" : "Ajouter au panier"}
+              </Button>
 
-          <Button
-            type="button"
-            variant="outline"
-            size="icon-lg"
-            aria-label={saved ? "Retirer des favoris" : "Ajouter aux favoris"}
-            aria-pressed={saved}
-            onClick={() => setSaved((current) => !current)}
-            className="rounded-xl h-11 w-11 sm:h-13 sm:w-13 shrink-0"
-          >
-            <Heart className={saved ? "fill-primary text-primary" : ""} />
-          </Button>
-        </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-lg"
+                aria-label={saved ? "Retirer des favoris" : "Ajouter aux favoris"}
+                aria-pressed={saved}
+                onClick={() => setSaved((current) => !current)}
+                className="rounded-xl h-11 w-11 sm:h-13 sm:w-13 shrink-0"
+              >
+                <Heart className={saved ? "fill-primary text-primary" : ""} />
+              </Button>
+            </div>
 
-        {/* 2. Acheter maintenant */}
-        <Button
-          type="button"
-          size="lg"
-          onClick={handleOpenQuickOrder}
-          className="w-full bg-gradient-to-r from-[#d4a359] via-[#c89b3c] to-[#b88628] hover:from-[#c89b3c] hover:via-[#b88628] hover:to-[#a0741f] text-white font-extrabold rounded-xl py-3.5 sm:py-6 text-xs sm:text-base gap-2 shadow-md transition-all active:scale-[0.98] h-11 sm:h-13 border border-[#b88628]/30"
-        >
-          <Zap size={18} className="fill-white text-white" />
-          Acheter maintenant · {formatPrice(selected.priceMillimes * quantity)}
-        </Button>
+            {/* 2. Acheter maintenant */}
+            <Button
+              type="button"
+              size="lg"
+              onClick={handleOpenQuickOrder}
+              className="w-full bg-gradient-to-r from-[#d4a359] via-[#c89b3c] to-[#b88628] hover:from-[#c89b3c] hover:via-[#b88628] hover:to-[#a0741f] text-white font-extrabold rounded-xl py-3.5 sm:py-6 text-xs sm:text-base gap-2 shadow-md transition-all active:scale-[0.98] h-11 sm:h-13 border border-[#b88628]/30"
+            >
+              <Zap size={18} className="fill-white text-white" />
+              Acheter maintenant · {formatPrice(selected.priceMillimes * quantity)}
+            </Button>
+          </>
+        ) : (
+          /* SUR COMMANDE CTA BUTTON */
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <Button
+              type="button"
+              size="lg"
+              onClick={() => setDemanderOpen(true)}
+              className="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl py-3.5 sm:py-6 text-xs sm:text-base gap-2 shadow-md transition-all active:scale-[0.98] h-11 sm:h-13"
+            >
+              <Mail size={18} />
+              Demander ce produit
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              size="icon-lg"
+              aria-label={saved ? "Retirer des favoris" : "Ajouter aux favoris"}
+              aria-pressed={saved}
+              onClick={() => setSaved((current) => !current)}
+              className="rounded-xl h-11 w-11 sm:h-13 sm:w-13 shrink-0"
+            >
+              <Heart className={saved ? "fill-primary text-primary" : ""} />
+            </Button>
+          </div>
+        )}
       </div>
 
       <ul className="mt-6 sm:mt-8 space-y-2.5 sm:space-y-3 border-t border-border pt-4 sm:pt-6">
@@ -347,39 +387,80 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
             : "translate-y-full opacity-0 pointer-events-none"
         }`}
       >
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="icon"
-            aria-label={saved ? "Retirer des favoris" : "Ajouter aux favoris"}
-            aria-pressed={saved}
-            onClick={() => setSaved((current) => !current)}
-            className="shrink-0 rounded-xl h-10 w-10 border-border"
-          >
-            <Heart className={saved ? "fill-primary text-primary size-4" : "size-4"} />
-          </Button>
-          <Button
-            type="button"
-            size="lg"
-            variant={added ? "secondary" : "default"}
-            onClick={handleAdd}
-            className="flex-1 text-xs font-bold rounded-xl h-10 gap-1.5"
-          >
-            {added ? <Check className="size-4" /> : <ShoppingBag className="size-4" />}
-            {added ? "Ajouté" : "Ajouter au panier"}
-          </Button>
-        </div>
-        <Button
-          type="button"
-          size="lg"
-          onClick={handleOpenQuickOrder}
-          className="w-full bg-gradient-to-r from-[#d4a359] via-[#c89b3c] to-[#b88628] hover:from-[#c89b3c] hover:via-[#b88628] hover:to-[#a0741f] text-white font-extrabold text-xs gap-1.5 rounded-xl h-10 shadow-sm"
-        >
-          <Zap size={14} className="fill-white text-white" />
-          Acheter maintenant · {formatPrice(selected.priceMillimes * quantity)}
-        </Button>
+        {product.inStock ? (
+          <>
+            <div className="flex items-center gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                aria-label={saved ? "Retirer des favoris" : "Ajouter aux favoris"}
+                aria-pressed={saved}
+                onClick={() => setSaved((current) => !current)}
+                className="shrink-0 rounded-xl h-10 w-10 border-border"
+              >
+                <Heart className={saved ? "fill-primary text-primary size-4" : "size-4"} />
+              </Button>
+              <Button
+                type="button"
+                size="lg"
+                variant={added ? "secondary" : "default"}
+                onClick={handleAdd}
+                className="flex-1 text-xs font-bold rounded-xl h-10 gap-1.5"
+              >
+                {added ? <Check className="size-4" /> : <ShoppingBag className="size-4" />}
+                {added ? "Ajouté" : "Ajouter au panier"}
+              </Button>
+            </div>
+            <Button
+              type="button"
+              size="lg"
+              onClick={handleOpenQuickOrder}
+              className="w-full bg-gradient-to-r from-[#d4a359] via-[#c89b3c] to-[#b88628] hover:from-[#c89b3c] hover:via-[#b88628] hover:to-[#a0741f] text-white font-extrabold text-xs gap-1.5 rounded-xl h-10 shadow-sm"
+            >
+              <Zap size={14} className="fill-white text-white" />
+              Acheter maintenant · {formatPrice(selected.priceMillimes * quantity)}
+            </Button>
+          </>
+        ) : (
+          <div className="flex items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              aria-label={saved ? "Retirer des favoris" : "Ajouter aux favoris"}
+              aria-pressed={saved}
+              onClick={() => setSaved((current) => !current)}
+              className="shrink-0 rounded-xl h-10 w-10 border-border"
+            >
+              <Heart className={saved ? "fill-primary text-primary size-4" : "size-4"} />
+            </Button>
+            <Button
+              type="button"
+              size="lg"
+              onClick={() => setDemanderOpen(true)}
+              className="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl h-10 text-xs gap-1.5 shadow-sm"
+            >
+              <Mail size={15} />
+              Demander ce produit
+            </Button>
+          </div>
+        )}
       </div>
+
+      {/* Demander Modal */}
+      <DemanderModal
+        isOpen={demanderOpen}
+        onClose={() => setDemanderOpen(false)}
+        product={{
+          id: product.id,
+          name: product.name,
+          brand: product.brand,
+          image: product.image,
+          priceMillimes: selected.priceMillimes,
+          format: selected.label,
+        }}
+      />
 
       {/* ── Express 1-Click Order Modal Form ────────────────────────────── */}
       {quickOrderOpen && (
