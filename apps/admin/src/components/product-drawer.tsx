@@ -7,6 +7,7 @@ import { ConfirmModal } from "@paratunisie/ui";
 import { calculateMargin, marginWarningClass, formatCurrency, formatPercent, formatDate } from "@/lib/utils";
 import type { Product, Supplier, PurchasePriceHistory } from "@/lib/types";
 import { SeoFormSection } from "./seo-form-section";
+import { MediaUploader } from "./media-uploader";
 
 interface ProductDrawerProps {
   open: boolean;
@@ -44,6 +45,7 @@ export function ProductDrawer({ open, product, onClose, onSave, suppliers = [], 
               stock: 0,
               status: "DRAFT",
               indexable: true,
+              image: "",
             }
       );
       setIsDirty(false);
@@ -115,6 +117,19 @@ export function ProductDrawer({ open, product, onClose, onSave, suppliers = [], 
         }
       >
         <div className="space-y-6">
+          {/* ── Photo du produit ── */}
+          <Section title="Photo du produit">
+            <MediaUploader
+              label="Photo principale du produit"
+              value={form.image ?? ""}
+              onChange={(url) => update("image", url)}
+              altText={form.imageAlt ?? form.name ?? ""}
+              onAltTextChange={(alt) => update("imageAlt", alt)}
+              aspectRatio="square"
+              hint="PNG, JPG, WebP jusqu'à 8MB — téléversement direct ou lien URL"
+            />
+          </Section>
+
           {/* ── A. Informations principales ── */}
           <Section title="Informations principales">
             <Field label="Nom du produit" required>

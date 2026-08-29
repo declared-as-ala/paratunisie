@@ -1,6 +1,9 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { MeilisearchService } from "../search/meilisearch.service";
+import * as fs from "fs/promises";
+import * as path from "path";
+import * as crypto from "crypto";
 
 export const fallbackProducts = [
   {
@@ -657,5 +660,34 @@ export class CatalogueService {
       }),
     ]);
     return { products, brands, categories };
+  }
+
+  /**
+   * Upload an image buffer and save it to public/uploads/products
+   */
+  async uploadImage(file: { buffer?: Buffer; mimetype?: string; originalname?: string }) {
+    if (!file || !file.buffer) {
+      throw new BadRequestException("Aucun fichier valide fourni");
+    }
+    const uploadDir = path.join(process.cwd(), "public", "uploads", "products");
+    await fs.mkdir(uploadDir, { recursive: true });
+
+    const rawExt = path.extname(file.originalname || "").toLowerCase();
+    const ext = [".jpg", ".jpeg", ".png", ".webp", ".svg", ".avif"].includes(rawExt) ? rawExt : ".webp";
+    const base = (file.originalname || "image")
+      .replace(rawExt, "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "") || "produit";
+
+    const hash = crypto.randomBytes(4).toString("hex");
+    const fileName = `${base}-${hash}${ext}`;
+    const filePath = path.join(uploadDir, fileName);
+
+    await fs.writeFile(filePath, file.buffer);
+    const url = `/uploads/products/${fileName}`;
+    return { url, fileName };
   }
 }

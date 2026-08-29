@@ -57,6 +57,25 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+export async function uploadMediaFile(file: File): Promise<{ url: string; fileName: string }> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await fetch(`${getApiBaseUrl()}/catalogue/upload-image`, {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+  });
+  if (!res.ok) {
+    let message = "Échec du téléchargement";
+    try {
+      const data = await res.json();
+      message = data.message || message;
+    } catch {}
+    throw new ApiError(Array.isArray(message) ? message.join(", ") : message, res.status);
+  }
+  return res.json();
+}
+
 export const apiClient = {
   get: <T>(path: string) => request<T>(path, { method: "GET" }),
   post: <T>(path: string, body?: unknown) =>
@@ -64,4 +83,5 @@ export const apiClient = {
   patch: <T>(path: string, body?: unknown) =>
     request<T>(path, { method: "PATCH", body: body !== undefined ? JSON.stringify(body) : undefined }),
   delete: <T>(path: string) => request<T>(path, { method: "DELETE" }),
+  uploadImage: uploadMediaFile,
 };

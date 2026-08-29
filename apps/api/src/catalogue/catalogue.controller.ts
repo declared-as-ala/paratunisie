@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Patch, Delete, Param, Query, Body, UseGuards } from "@nestjs/common";
+import { Controller, Get, Post, Patch, Delete, Param, Query, Body, UseGuards, UseInterceptors, UploadedFile } from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
 import { CatalogueService } from "./catalogue.service";
 import { CatalogueSeoService, SeoEntityType } from "./catalogue-seo.service";
 import { AdminAuthGuard } from "../admin-auth/guards/admin-auth.guard";
@@ -18,6 +19,13 @@ export class CatalogueController {
     private readonly catalogueService: CatalogueService,
     private readonly catalogueSeoService: CatalogueSeoService,
   ) {}
+
+  @Post("upload-image")
+  @UseGuards(AdminAuthGuard)
+  @UseInterceptors(FileInterceptor("file"))
+  async uploadImage(@UploadedFile() file: any) {
+    return this.catalogueService.uploadImage(file);
+  }
 
   @Get("products")
   async getProducts(
