@@ -85,15 +85,8 @@ export function HomeSplitFeature() {
 
             <div className="pt-4 flex flex-wrap gap-3.5">
               <Link
-                href="/diagnostic"
-                className="group/button inline-flex shrink-0 items-center justify-center rounded-lg bg-[#8B3B62] hover:bg-[#a64775] text-white uppercase tracking-widest text-xs font-semibold px-5 py-3 shadow-md gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]"
-              >
-                <Sparkles size={14} />
-                <span>Commencer mon diagnostic</span>
-              </Link>
-              <Link
                 href="/shop"
-                className="group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-border bg-background hover:bg-muted text-foreground uppercase tracking-widest text-xs font-semibold px-5 py-3 gap-2 transition-all"
+                className="group/button inline-flex shrink-0 items-center justify-center rounded-lg bg-[#8B3B62] hover:bg-[#a64775] text-white uppercase tracking-widest text-xs font-semibold px-6 py-3.5 shadow-md gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <span>Découvrir le catalogue</span>
                 <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />

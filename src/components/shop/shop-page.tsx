@@ -396,7 +396,7 @@ export function ShopPage({
                 <div className="mx-auto flex size-14 items-center justify-center rounded-full bg-soft-nude text-ink-muted mb-4">
                   <ShoppingBag size={28} />
                 </div>
-                <h2 className="font-serif text-xl sm:text-2xl font-bold text-ink">Aucun soin ne correspond à vos critères</h2>
+                <h2 className="font-serif text-xl sm:text-2xl font-bold text-ink">Aucun produit ne correspond à vos critères</h2>
                 <p className="mx-auto mt-2 max-w-md text-xs sm:text-sm leading-6 text-ink-muted">
                   {query ? (
                     <span>Aucun résultat trouvé pour « {query} ». Essayez d&apos;autres mots-clés.</span>

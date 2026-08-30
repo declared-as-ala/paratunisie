@@ -118,15 +118,84 @@ export class CatalogueService {
 
     const where: any = {};
 
-    if (params?.brand) {
-      where.brand = { slug: params.brand };
-    }
+    // 1. Category filter (supports slug, name, multiple separated by | or comma, and child categories)
     if (params?.category) {
-      where.category = { slug: params.category };
+      const catTokens = params.category.split(/[|,]/).map((s) => s.trim()).filter(Boolean);
+      if (catTokens.length > 0) {
+        const matchedCats = await this.prisma.category.findMany({
+          where: {
+            OR: [
+              { slug: { in: catTokens.map((t) => t.toLowerCase()) } },
+              { name: { in: catTokens, mode: "insensitive" } },
+              ...catTokens.map((t) => ({ slug: { equals: t, mode: "insensitive" as const } })),
+            ],
+          },
+          select: { id: true },
+        });
+
+        const matchedCatIds = matchedCats.map((c) => c.id);
+
+        if (matchedCatIds.length > 0) {
+          const childCats = await this.prisma.category.findMany({
+            where: { parentId: { in: matchedCatIds } },
+            select: { id: true },
+          });
+          const allCatIds = Array.from(new Set([...matchedCatIds, ...childCats.map((c) => c.id)]));
+          where.categoryId = { in: allCatIds };
+        } else {
+          where.category = {
+            OR: [
+              { slug: { in: catTokens.map((t) => t.toLowerCase()) } },
+              { name: { in: catTokens, mode: "insensitive" } },
+            ],
+          };
+        }
+      }
     }
+
+    // 2. Brand filter (supports slug, name, multiple separated by | or comma)
+    if (params?.brand) {
+      const brandTokens = params.brand.split(/[|,]/).map((s) => s.trim()).filter(Boolean);
+      if (brandTokens.length > 0) {
+        const matchedBrands = await this.prisma.brand.findMany({
+          where: {
+            OR: [
+              { slug: { in: brandTokens.map((t) => t.toLowerCase()) } },
+              { name: { in: brandTokens, mode: "insensitive" } },
+              ...brandTokens.map((t) => ({ slug: { equals: t, mode: "insensitive" as const } })),
+            ],
+          },
+          select: { id: true },
+        });
+        const matchedBrandIds = matchedBrands.map((b) => b.id);
+        if (matchedBrandIds.length > 0) {
+          where.brandId = { in: matchedBrandIds };
+        } else {
+          where.brand = {
+            OR: [
+              { slug: { in: brandTokens.map((t) => t.toLowerCase()) } },
+              { name: { in: brandTokens, mode: "insensitive" } },
+            ],
+          };
+        }
+      }
+    }
+
+    // 3. Concern filter
     if (params?.concern) {
-      where.concerns = { some: { slug: params.concern } };
+      const concernTokens = params.concern.split(/[|,]/).map((s) => s.trim()).filter(Boolean);
+      if (concernTokens.length > 0) {
+        where.concerns = {
+          some: {
+            OR: [
+              { slug: { in: concernTokens.map((t) => t.toLowerCase()) } },
+              { name: { in: concernTokens, mode: "insensitive" } },
+            ],
+          },
+        };
+      }
     }
+
     if (params?.status) {
       where.publishState = params.status as any;
     }
