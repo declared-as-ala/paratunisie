@@ -69,8 +69,8 @@ export const MEGA_MENU_DATA: MegaMenuSection[] = [
       title: "Nos Catégories",
       description:
         "Compléments alimentaires et nutrition sportive 100% authentiques en Tunisie. Formules pures pour la force, le muscle, l'énergie et la vitalité.",
-      ctaLabel: "Diagnostic Nutritionnel",
-      ctaHref: "/diagnostic",
+      ctaLabel: "Voir tout le catalogue",
+      ctaHref: "/shop",
     },
     groups: [
       {
@@ -151,7 +151,7 @@ export const MEGA_MENU_DATA: MegaMenuSection[] = [
         brand: "BioTechUSA",
         slug: "100-creatine-monohydrate-300g-biotech-usa",
         benefit: "Sans arôme, grade pharmaceutique européen.",
-        priceMillimes: 129000,
+        priceMillimes: 149000,
         image: "/uploads/products/100-creatine-monohydrate-300g-biotech-usa-eca8075b.webp",
       },
       {
@@ -185,7 +185,7 @@ export const MEGA_MENU_DATA: MegaMenuSection[] = [
         brand: "ProActive",
         slug: "anabolic-whey-80-2-25kg-proactive",
         benefit: "80% de protéines, profil d'acides aminés complet.",
-        priceMillimes: 289000,
+        priceMillimes: 259000,
         image: "/uploads/products/anabolic-whey-80-2-25kg-proactive-d1e70098.webp",
       },
       {
@@ -194,7 +194,7 @@ export const MEGA_MENU_DATA: MegaMenuSection[] = [
         brand: "Challenger Nutrition",
         slug: "thunder-gainer-5-4kg-challenger-nutrition",
         benefit: "Prise de masse rapide, formule haute teneur calorique.",
-        priceMillimes: 319000,
+        priceMillimes: 279000,
         image: "/uploads/products/thunder-gainer-5-4kg-challenger-nutrition-20b49293.webp",
       },
       {
@@ -203,7 +203,7 @@ export const MEGA_MENU_DATA: MegaMenuSection[] = [
         brand: "Xtend",
         slug: "xtend-bcaa-420g",
         benefit: "7g de BCAA 2:1:1 + électrolytes d'hydratation.",
-        priceMillimes: 159000,
+        priceMillimes: 139000,
         image: "/uploads/products/xtend-bcaa-420g-f3c29f70.webp",
       },
       {
@@ -237,7 +237,7 @@ export const MEGA_MENU_DATA: MegaMenuSection[] = [
         brand: "Eric Favre",
         slug: "pre-workout-born-rage-original-eric-favre",
         benefit: "Congestion explosive, énergie sans crash post-séance.",
-        priceMillimes: 149000,
+        priceMillimes: 119000,
         image: "/uploads/products/pre-workout-born-rage-original-eric-favre-2b562692.webp",
       },
       {
@@ -246,7 +246,7 @@ export const MEGA_MENU_DATA: MegaMenuSection[] = [
         brand: "Insane Labz",
         slug: "psychotic-pre-workout",
         benefit: "Booster surpuissant pour séances haute intensité.",
-        priceMillimes: 169000,
+        priceMillimes: 139000,
         image: "/uploads/products/psychotic-pre-workout-c7dabc0f.webp",
       },
       {
@@ -289,7 +289,7 @@ export const MEGA_MENU_DATA: MegaMenuSection[] = [
         brand: "BioTechUSA",
         slug: "one-a-day-biotech-usa",
         benefit: "12 vitamines & 10 minéraux pour la vitalité quotidienne.",
-        priceMillimes: 79000,
+        priceMillimes: 109000,
         image: "/uploads/products/one-a-day-biotech-usa-635bcef6.webp",
       },
       {
@@ -298,7 +298,7 @@ export const MEGA_MENU_DATA: MegaMenuSection[] = [
         brand: "WeightWorld",
         slug: "vegan-vitamin-d3-k2-365-tablets-weightworld",
         benefit: "Fixation du calcium et capital osseux renforcé.",
-        priceMillimes: 89000,
+        priceMillimes: 159000,
         image: "/uploads/products/vegan-vitamin-d3-k2-365-tablets-weightworld-f4276b19.webp",
       },
       {
@@ -307,7 +307,7 @@ export const MEGA_MENU_DATA: MegaMenuSection[] = [
         brand: "BioTechUSA",
         slug: "zinc-duo-biotech-usa-60-capsules",
         benefit: "Soutien immunitaire & synthèse de testostérone.",
-        priceMillimes: 49000,
+        priceMillimes: 89000,
         image: "/uploads/products/zinc-duo-biotech-usa-60-capsules-73f31972.webp",
       },
       {
@@ -316,7 +316,7 @@ export const MEGA_MENU_DATA: MegaMenuSection[] = [
         brand: "OstroVit",
         slug: "vitamin-c-110-tabs-ostrovit",
         benefit: "Défense immunitaire puissante & antioxydant.",
-        priceMillimes: 49000,
+        priceMillimes: 95000,
         image: "/uploads/products/vitamin-c-110-tabs-ostrovit-eff32ea5.webp",
       },
     ],
