@@ -298,7 +298,10 @@ export class AramexService {
             InsuranceAmount: null,
             CashAdditionalAmount: null,
             CashAdditionalAmountDescription: "",
-            CustomsValueAmount: null,
+            CustomsValueAmount: {
+              CurrencyCode: "TND",
+              Value: codAmountTnd,
+            },
             CollectAmount: null,
             Items: itemsPayload.length > 0 ? itemsPayload : [],
           },
