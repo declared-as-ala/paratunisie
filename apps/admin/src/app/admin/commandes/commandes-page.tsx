@@ -365,51 +365,63 @@ function CommandesInner() {
       try {
         const data = await apiClient.get<any[]>("/orders");
         if (Array.isArray(data) && data.length > 0) {
-          const mapped: CustomOrder[] = data.map((o: any, idx: number) => ({
-            id: o.id || `cmd-${idx}`,
-            reference: `#${o.id?.slice(-5) || 53380 + idx}`,
-            customerName: o.user?.name || "Client ParaTunisie",
-            isRegularClient: Boolean(o.user?.orders && o.user.orders.length > 1),
-            date: new Date(o.createdAt || Date.now()).toLocaleDateString("fr-FR"),
-            phone: o.user?.phone || "27578505",
-            phone2: "",
-            email: o.user?.email || "",
-            city: o.gouvernorat || "Tunis",
-            address: o.fullAddress || "Adresse client",
-            status: (o.status || "EN_ATTENTE") as OrderStatus,
-            total: Math.round((o.totalMillimes || 0) / 1000),
-            subtotal: Math.round(((o.totalMillimes || 8000) - 8000) / 1000),
-            shippingFee: 8,
-            shipment: o.shipment
-              ? {
-                  id: o.shipment.id,
-                  carrier: o.shipment.carrier,
-                  tracking: o.shipment.tracking,
-                  hawb: o.shipment.hawb || o.shipment.tracking,
-                  labelUrl: o.shipment.labelUrl,
-                  status: o.shipment.status,
-                  lastTrackingUpdate: o.shipment.lastTrackingUpdate,
-                  weightKg: o.shipment.weightKg,
-                  pieces: o.shipment.pieces,
-                  codAmountMillimes: o.shipment.codAmountMillimes,
-                }
-              : null,
-            items: o.items?.map((item: ApiOrderItem) => ({
+          const mapped: CustomOrder[] = data.map((o: any, idx: number) => {
+            const items: OrderItemExt[] = o.items?.map((item: any) => ({
               productName: item.product?.name || "Produit Parapharmacie",
-              brand: "ParaTunisie",
+              brand: item.product?.brand?.name || "ParaTunisie",
               quantity: item.quantity || 1,
               unitPrice: Math.round((item.priceMillimes || 0) / 1000),
               lineTotal: Math.round(((item.priceMillimes || 0) * (item.quantity || 1)) / 1000),
-            })) || [
-              {
-                productName: "Anthelios Fluide Invisible SPF50+",
-                brand: "La Roche-Posay",
-                quantity: 1,
-                unitPrice: 58,
-                lineTotal: 58,
-              },
-            ],
-          }));
+              image: item.product?.image,
+            })) || [];
+
+            const calculatedSubtotal = items.reduce((acc, it) => acc + it.lineTotal, 0);
+            const defaultShipping = 10; // Default shipping fee: 10 DT
+            const rawTotal = Math.round((o.totalMillimes || 0) / 1000);
+            const subtotal = calculatedSubtotal > 0 ? calculatedSubtotal : (rawTotal > defaultShipping ? rawTotal - defaultShipping : rawTotal);
+            const shippingFee = defaultShipping;
+            const total = subtotal + shippingFee;
+
+            return {
+              id: o.id || `cmd-${idx}`,
+              reference: `#${o.id?.slice(-5) || 53380 + idx}`,
+              customerName: o.user?.name || "Client ParaTunisie",
+              isRegularClient: Boolean(o.user?.orders && o.user.orders.length > 1),
+              date: new Date(o.createdAt || Date.now()).toLocaleDateString("fr-FR"),
+              phone: o.user?.phone || "27578505",
+              phone2: "",
+              email: o.user?.email || "",
+              city: o.gouvernorat || "Tunis",
+              address: o.fullAddress || "Adresse client",
+              status: (o.status || "EN_ATTENTE") as OrderStatus,
+              total,
+              subtotal,
+              shippingFee,
+              shipment: o.shipment
+                ? {
+                    id: o.shipment.id,
+                    carrier: o.shipment.carrier,
+                    tracking: o.shipment.tracking,
+                    hawb: o.shipment.hawb || o.shipment.tracking,
+                    labelUrl: o.shipment.labelUrl,
+                    status: o.shipment.status,
+                    lastTrackingUpdate: o.shipment.lastTrackingUpdate,
+                    weightKg: o.shipment.weightKg,
+                    pieces: o.shipment.pieces,
+                    codAmountMillimes: o.shipment.codAmountMillimes,
+                  }
+                : null,
+              items: items.length > 0 ? items : [
+                {
+                  productName: "Anthelios Fluide Invisible SPF50+",
+                  brand: "La Roche-Posay",
+                  quantity: 1,
+                  unitPrice: 58,
+                  lineTotal: 58,
+                },
+              ],
+            };
+          });
           setOrders(mapped);
         }
       } catch (err) {
@@ -1543,7 +1555,7 @@ function CommandesInner() {
                       <div className="flex items-center gap-1">
                         <input
                           type="number"
-                          value={formData.shippingFee}
+                          value={formData.shippingFee ?? 10}
                           onChange={(e) => {
                             const fee = parseFloat(e.target.value) || 0;
                             setEditingForm({
@@ -1556,6 +1568,12 @@ function CommandesInner() {
                         />
                         <span className="font-black text-slate-900">DT</span>
                       </div>
+                    </div>
+                    <div className="flex items-center justify-between border-t border-rose-200/80 pt-2 mt-1">
+                      <span className="uppercase tracking-wider text-rose-900 font-extrabold text-xs">TOTAL</span>
+                      <span className="font-black text-[#E11D48] text-base">
+                        {typeof formData.total === "number" ? formData.total.toFixed(3) : formData.total} DT
+                      </span>
                     </div>
                   </div>
                 </div>
