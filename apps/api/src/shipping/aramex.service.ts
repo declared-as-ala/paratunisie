@@ -99,7 +99,16 @@ export class AramexService {
   async createShipment(orderId: string, customData?: AramexCustomData) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
-      include: { user: true, items: { include: { product: true } }, shipment: true },
+      include: {
+        user: true,
+        items: {
+          include: {
+            product: true,
+            productVariant: true,
+          },
+        },
+        shipment: true,
+      },
     });
 
     if (!order) {
@@ -128,10 +137,38 @@ export class AramexService {
         ? Number(customData.codAmount)
         : Math.round(order.totalMillimes / 1000);
 
-    const description = `Commande ParaTunisie #${order.id.slice(-6)}`;
-    const instructions = customData?.instructions || order.deliveryNote || "";
+    // Format all product items into a clear summary list
+    const productSummaryList = (order.items || []).map((it) => {
+      const q = it.quantity || 1;
+      const name = it.product?.name || "Produit Parapharmacie";
+      const variantName = it.productVariant?.name ? ` (${it.productVariant.name})` : "";
+      return `${q}x ${name}${variantName}`;
+    });
+
+    const productsText =
+      productSummaryList.length > 0
+        ? productSummaryList.join(", ")
+        : `Commande ParaTunisie #${order.id.slice(-6)}`;
+
+    const descriptionOfGoods = productsText.slice(0, 150);
+    const shortRef2 = (productSummaryList[0] || descriptionOfGoods).slice(0, 45);
+    const instructions = customData?.instructions || order.deliveryNote || `Contenu: ${descriptionOfGoods}`;
 
     const isCod = codAmountTnd > 0;
+
+    const itemsPayload = (order.items || []).map((it, idx) => ({
+      PackageType: "Box",
+      Quantity: it.quantity || 1,
+      Weight: {
+        Unit: "KG",
+        Value: Number((weight / Math.max(1, order.items.length)).toFixed(2)),
+      },
+      Comments: (it.product?.name || "Produit").slice(0, 50),
+      Reference: `ITEM-${idx + 1}`,
+      Pieces: it.quantity || 1,
+      CountryOfOrigin: "TN",
+      GoodsDescription: `${it.quantity}x ${it.product?.name || "Produit"}`.slice(0, 50),
+    }));
 
     const payload = {
       ClientInfo: clientInfo,
@@ -145,10 +182,10 @@ export class AramexService {
       Shipments: [
         {
           Reference1: `CMD-${order.id.slice(-6).toUpperCase()}`,
-          Reference2: "",
-          Reference3: "",
+          Reference2: shortRef2,
+          Reference3: `Tel: ${formattedPhone}`,
           Shipper: {
-            Reference1: "",
+            Reference1: "ParaTunisie",
             Reference2: "",
             AccountNumber: clientInfo.AccountNumber,
             PartyAddress: {
@@ -233,10 +270,10 @@ export class AramexService {
           },
           ShippingDateTime: `/Date(${Date.now()}-0500)/`,
           DueDate: `/Date(${Date.now()}-0500)/`,
-          Comments: instructions || description,
+          Comments: `Contenu: ${descriptionOfGoods}`.slice(0, 150),
           PickupLocation: "Reception",
-          OperationsInstructions: instructions,
-          AccountingInstrcutions: "",
+          OperationsInstructions: instructions.slice(0, 100),
+          AccountingInstrcutions: `COD: ${codAmountTnd} TND`,
           ForeignHAWB: "",
           TransportType: 0,
           PickupGUID: "",
@@ -244,7 +281,7 @@ export class AramexService {
             Dimensions: null,
             ActualWeight: { Unit: "KG", Value: weight },
             ChargeableWeight: null,
-            DescriptionOfGoods: description,
+            DescriptionOfGoods: descriptionOfGoods,
             GoodsOriginCountry: "TN",
             NumberOfPieces: pieces,
             ProductGroup: "DOM",
@@ -263,7 +300,7 @@ export class AramexService {
             CashAdditionalAmountDescription: "",
             CustomsValueAmount: null,
             CollectAmount: null,
-            Items: [],
+            Items: itemsPayload.length > 0 ? itemsPayload : [],
           },
           Attachments: [],
         },
