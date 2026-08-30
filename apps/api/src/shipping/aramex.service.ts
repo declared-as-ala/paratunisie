@@ -24,6 +24,44 @@ export interface AramexCustomData {
   instructions?: string;
 }
 
+function normalizeAramexCity(city?: string): string {
+  if (!city) return "Tunis";
+  const clean = city.trim();
+  const map: Record<string, string> = {
+    "Gabès": "Gabes",
+    "Gabes": "Gabes",
+    "Béja": "Beja",
+    "Beja": "Beja",
+    "Médenine": "Medenine",
+    "Medenine": "Medenine",
+    "Manouba": "Manouba",
+    "La Manouba": "Manouba",
+    "Ben Arous": "Ben Arous",
+    "Ariana": "Ariana",
+    "Tunis": "Tunis",
+    "Bizerte": "Bizerte",
+    "Nabeul": "Nabeul",
+    "Zaghouan": "Zaghouan",
+    "Sousse": "Sousse",
+    "Monastir": "Monastir",
+    "Mahdia": "Mahdia",
+    "Sfax": "Sfax",
+    "Kairouan": "Kairouan",
+    "Kasserine": "Kasserine",
+    "Sidi Bouzid": "Sidi Bouzid",
+    "Gafsa": "Gafsa",
+    "Tozeur": "Tozeur",
+    "Kebili": "Kebili",
+    "Kébili": "Kebili",
+    "Tataouine": "Tataouine",
+    "Jendouba": "Jendouba",
+    "Kef": "Kef",
+    "Le Kef": "Kef",
+    "Siliana": "Siliana",
+  };
+  return map[clean] || clean.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
+
 @Injectable()
 export class AramexService {
   private readonly logger = new Logger(AramexService.name);
@@ -79,9 +117,9 @@ export class AramexService {
 
     const formattedPhone = this.formatTunisianPhone(customData?.phone || order.user?.phone || "20000000");
     const address = (customData?.adresse || order.fullAddress || "Tunisie").trim();
-    const city = (customData?.ville || order.gouvernorat || "Tunis").trim();
-    const state = (customData?.gouvernorat || order.gouvernorat || "Tunisie").trim();
-    const email = order.user?.email || "client@paratunisie.com";
+    const rawCity = (customData?.ville || order.gouvernorat || "Tunis").trim();
+    const city = normalizeAramexCity(rawCity);
+    const email = order.user?.email || "contact@paratunisie.com";
 
     const weight = Number(customData?.weight || 1.0);
     const pieces = Number(customData?.pieces || 1);
@@ -93,7 +131,7 @@ export class AramexService {
     const description = `Commande ParaTunisie #${order.id.slice(-6)}`;
     const instructions = customData?.instructions || order.deliveryNote || "";
 
-    const isCod = codAmountTnd > 0 && order.paymentMethod.toLowerCase() === "cod";
+    const isCod = codAmountTnd > 0;
 
     const payload = {
       ClientInfo: clientInfo,
@@ -106,7 +144,7 @@ export class AramexService {
       },
       Shipments: [
         {
-          Reference1: order.id,
+          Reference1: `CMD-${order.id.slice(-6).toUpperCase()}`,
           Reference2: "",
           Reference3: "",
           Shipper: {
@@ -143,10 +181,10 @@ export class AramexService {
             AccountNumber: "",
             PartyAddress: {
               Line1: address,
-              Line2: state,
+              Line2: "",
               Line3: "",
               City: city,
-              StateOrProvinceCode: state,
+              StateOrProvinceCode: "",
               PostCode: "",
               CountryCode: "TN",
             },
@@ -216,14 +254,18 @@ export class AramexService {
             Services: isCod ? "CODS" : "",
             CashOnDeliveryAmount: isCod
               ? {
-                  Amount: codAmountTnd,
                   CurrencyCode: "TND",
+                  Value: codAmountTnd,
                 }
               : null,
+            InsuranceAmount: null,
             CashAdditionalAmount: null,
+            CashAdditionalAmountDescription: "",
             CustomsValueAmount: null,
+            CollectAmount: null,
             Items: [],
           },
+          Attachments: [],
         },
       ],
       LabelInfo: {
@@ -232,16 +274,28 @@ export class AramexService {
       },
     };
 
-    this.logger.log(`Creating Aramex shipment for order ${order.id}...`);
+    this.logger.log(`Creating Aramex shipment for order ${order.id} with city ${city} and COD ${codAmountTnd} TND...`);
 
     try {
+      const payloadStr = JSON.stringify(payload);
       const response = await fetch(endpoint, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify(payload),
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+          "Content-Length": String(Buffer.byteLength(payloadStr)),
+        },
+        body: payloadStr,
       });
 
-      const data = await response.json();
+      const responseText = await response.text();
+      let data: any;
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseErr) {
+        this.logger.error(`Aramex raw response was not JSON: ${responseText}`);
+        throw new BadRequestException("Réponse invalide reçue de l'API Aramex.");
+      }
 
       if (data?.HasErrors || (data?.Notifications && data.Notifications.some((n: any) => n.Code))) {
         const errorMsg = data?.Notifications?.[0]?.Message || "Erreur lors de la création Aramex";
@@ -250,6 +304,12 @@ export class AramexService {
       }
 
       const shipmentObj = data?.Shipments?.[0];
+      if (shipmentObj?.HasErrors) {
+        const errorMsg = shipmentObj?.Notifications?.[0]?.Message || "Erreur sur l'expédition Aramex";
+        this.logger.warn(`Aramex shipment item error for ${order.id}: ${errorMsg}`);
+        throw new BadRequestException(`Aramex API: ${errorMsg}`);
+      }
+
       const hawb = shipmentObj?.ID;
       const labelUrl =
         shipmentObj?.ShipmentLabel?.LabelURL || data?.ShipmentLabel?.LabelURL || null;
