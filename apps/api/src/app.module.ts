@@ -22,6 +22,7 @@ import { SearchModule } from "./search/search.module";
 import { NotificationsModule } from "./notifications/notifications.module";
 import { MetaCapiModule } from "./meta-capi/meta-capi.module";
 import { ProductRequestsModule } from "./product-requests/product-requests.module";
+import { ShippingModule } from "./shipping/shipping.module";
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { ProductRequestsModule } from "./product-requests/product-requests.modul
     SearchModule,
     MetaCapiModule,
     ProductRequestsModule,
+    ShippingModule,
   ],
 })
 export class AppModule {}

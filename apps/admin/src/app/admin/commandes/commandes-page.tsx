@@ -15,6 +15,7 @@ import {
   X,
   Package,
   Wallet,
+  Truck,
 } from "lucide-react";
 import type { OrderStatus } from "@/lib/types";
 import { useToast } from "@/components/toast";
@@ -22,6 +23,9 @@ import { ConfirmModal } from "@/components/confirm-modal";
 import { apiClient, ApiError, resolveMediaUrl } from "@/lib/api-client";
 import { formatCurrency, formatPercent } from "@/lib/utils";
 import { notifyOrdersChanged, onOrdersChanged } from "@/lib/order-events";
+import { AramexBadge } from "@/components/aramex/aramex-badge";
+import { AramexShipmentModal } from "@/components/aramex/aramex-shipment-modal";
+import { AramexTrackingDrawer } from "@/components/aramex/aramex-tracking-drawer";
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
 
@@ -35,6 +39,19 @@ interface OrderItemExt {
   equipe?: string;
   taille?: string;
   bundleName?: string;
+}
+
+export interface ShipmentExt {
+  id?: string;
+  carrier?: string;
+  tracking?: string;
+  hawb?: string;
+  labelUrl?: string | null;
+  status?: string;
+  lastTrackingUpdate?: string;
+  weightKg?: number;
+  pieces?: number;
+  codAmountMillimes?: number;
 }
 
 interface CustomOrder {
@@ -56,6 +73,7 @@ interface CustomOrder {
   customerNote?: string;
   isExchange?: boolean;
   items: OrderItemExt[];
+  shipment?: ShipmentExt | null;
 }
 
 // Admin-only — GET /profitability/orders/:id. Independent of CustomOrder above,
@@ -312,6 +330,14 @@ function CommandesInner() {
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const selectAllRef = useRef<HTMLInputElement>(null);
 
+  // Aramex Integration States
+  const [aramexModalOrder, setAramexModalOrder] = useState<CustomOrder | null>(null);
+  const [aramexTrackingTarget, setAramexTrackingTarget] = useState<{
+    orderId: string;
+    hawb: string;
+    labelUrl?: string | null;
+  } | null>(null);
+
   // Canonical counts (sidebar badge reads the same endpoint) — refetched on
   // mount and whenever an order mutation fires the shared invalidation event,
   // so header/tab numbers never need a manual page reload to catch up.
@@ -337,9 +363,9 @@ function CommandesInner() {
     async function fetchOrders() {
       setLoadingOrders(true);
       try {
-        const data = await apiClient.get<ApiOrder[]>("/orders");
+        const data = await apiClient.get<any[]>("/orders");
         if (Array.isArray(data) && data.length > 0) {
-          const mapped: CustomOrder[] = data.map((o: ApiOrder, idx: number) => ({
+          const mapped: CustomOrder[] = data.map((o: any, idx: number) => ({
             id: o.id || `cmd-${idx}`,
             reference: `#${o.id?.slice(-5) || 53380 + idx}`,
             customerName: o.user?.name || "Client ParaTunisie",
@@ -354,6 +380,20 @@ function CommandesInner() {
             total: Math.round((o.totalMillimes || 0) / 1000),
             subtotal: Math.round(((o.totalMillimes || 8000) - 8000) / 1000),
             shippingFee: 8,
+            shipment: o.shipment
+              ? {
+                  id: o.shipment.id,
+                  carrier: o.shipment.carrier,
+                  tracking: o.shipment.tracking,
+                  hawb: o.shipment.hawb || o.shipment.tracking,
+                  labelUrl: o.shipment.labelUrl,
+                  status: o.shipment.status,
+                  lastTrackingUpdate: o.shipment.lastTrackingUpdate,
+                  weightKg: o.shipment.weightKg,
+                  pieces: o.shipment.pieces,
+                  codAmountMillimes: o.shipment.codAmountMillimes,
+                }
+              : null,
             items: o.items?.map((item: ApiOrderItem) => ({
               productName: item.product?.name || "Produit Parapharmacie",
               brand: "ParaTunisie",
@@ -881,6 +921,7 @@ function CommandesInner() {
                 <th className="py-3.5 px-4">TÉLÉPHONE</th>
                 <th className="py-3.5 px-4">VILLE</th>
                 <th className="py-3.5 px-4">STATUT</th>
+                <th className="py-3.5 px-4">EXPÉDITION (ARAMEX)</th>
                 <th className="py-3.5 px-4">TOTAL</th>
                 <th className="py-3.5 px-4 text-right">ACTIONS</th>
               </tr>
@@ -888,13 +929,13 @@ function CommandesInner() {
             <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
               {loadingOrders ? (
                 <tr>
-                  <td colSpan={9} className="py-8 text-center text-slate-500 font-semibold">
+                  <td colSpan={10} className="py-8 text-center text-slate-500 font-semibold">
                     Chargement des commandes depuis la base de données...
                   </td>
                 </tr>
               ) : filteredOrders.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-8 text-center text-slate-500 font-semibold">
+                  <td colSpan={10} className="py-8 text-center text-slate-500 font-semibold">
                     Aucune commande enregistrée.
                   </td>
                 </tr>
@@ -1000,6 +1041,20 @@ function CommandesInner() {
                           Annulée
                         </span>
                       )}
+                    </td>
+                    <td className="py-3.5 px-4">
+                      <AramexBadge
+                        hawb={order.shipment?.hawb || order.shipment?.tracking}
+                        labelUrl={order.shipment?.labelUrl}
+                        onOpenCreate={() => setAramexModalOrder(order)}
+                        onOpenTrack={() =>
+                          setAramexTrackingTarget({
+                            orderId: order.id,
+                            hawb: order.shipment?.hawb || order.shipment?.tracking || "",
+                            labelUrl: order.shipment?.labelUrl,
+                          })
+                        }
+                      />
                     </td>
                     <td className="py-3.5 px-4 font-black text-slate-900">{typeof order.total === "number" ? order.total.toFixed(3) : order.total} DT</td>
                     <td className="py-3.5 px-4 text-right">
@@ -1229,6 +1284,85 @@ function CommandesInner() {
                     className="w-full rounded-xl border border-slate-200 bg-white p-3 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#E11D48]"
                   />
                 </div>
+              </div>
+
+              {/* SECTION: EXPÉDITION ARAMEX & BORDEREAU */}
+              <div className="rounded-2xl bg-white p-5 shadow-xs border border-slate-200/80 space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <div className="flex items-center gap-2">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-600 text-white shadow-2xs">
+                      <Truck size={15} />
+                    </div>
+                    <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">
+                      EXPÉDITION ARAMEX & BORDEREAU
+                    </h3>
+                  </div>
+                  {formData.shipment?.hawb && (
+                    <span className="rounded-full bg-red-50 text-red-700 border border-red-200 px-2.5 py-0.5 text-[0.6875rem] font-bold font-mono">
+                      HAWB: {formData.shipment.hawb}
+                    </span>
+                  )}
+                </div>
+
+                {formData.shipment?.hawb ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                      <div>
+                        <p className="text-xs font-bold text-slate-800">
+                          Colis pris en charge par Aramex
+                        </p>
+                        <p className="text-[0.6875rem] text-slate-500 font-mono mt-0.5">
+                          N° de suivi (HAWB) :{" "}
+                          <strong className="text-red-600">{formData.shipment.hawb}</strong>
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setAramexTrackingTarget({
+                              orderId: formData.id,
+                              hawb: formData.shipment?.hawb || "",
+                              labelUrl: formData.shipment?.labelUrl,
+                            })
+                          }
+                          className="rounded-xl bg-white border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-2xs transition-colors"
+                        >
+                          Suivi en direct
+                        </button>
+                        {formData.shipment.labelUrl && (
+                          <a
+                            href={formData.shipment.labelUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="rounded-xl bg-red-600 text-white px-3 py-1.5 text-xs font-bold hover:bg-red-700 shadow-2xs transition-colors"
+                          >
+                            Imprimer Bordereau
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 rounded-xl bg-red-50/40 border border-red-100">
+                    <div>
+                      <p className="text-xs font-bold text-slate-800">
+                        Aucune expédition Aramex active
+                      </p>
+                      <p className="text-[0.6875rem] text-slate-500 mt-0.5">
+                        Générez le bordereau officiel Aramex avec étiquette PDF en 1 clic.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setAramexModalOrder(formData)}
+                      className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-red-700 transition-all active:scale-95 shrink-0"
+                    >
+                      <Truck size={14} />
+                      Créer Expédition Aramex
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* SECTION 3: SÉLECTIONNER UN PRODUIT (Interactive Real Product Search) */}
@@ -1563,14 +1697,55 @@ function CommandesInner() {
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
       />
-      <ConfirmModal
-        open={bulkDeleteOpen}
-        title={`Supprimer ${selectedIds.size} commande${selectedIds.size > 1 ? "s" : ""} ?`}
-        description={bulkDeleting ? "Suppression dans la base de données…" : "Les commandes sélectionnées seront définitivement supprimées de la base. Cette action est irréversible."}
-        confirmLabel={bulkDeleting ? "Suppression…" : "Supprimer la sélection"}
-        variant="danger"
-        onConfirm={handleBulkDelete}
-        onCancel={() => { if (!bulkDeleting) setBulkDeleteOpen(false); }}
+      {/* Aramex Shipment Modal */}
+      <AramexShipmentModal
+        isOpen={!!aramexModalOrder}
+        order={aramexModalOrder}
+        onClose={() => setAramexModalOrder(null)}
+        onSuccess={({ hawb, labelUrl }) => {
+          if (aramexModalOrder) {
+            setOrders((prev) =>
+              prev.map((o) =>
+                o.id === aramexModalOrder.id
+                  ? {
+                      ...o,
+                      status: "EXPEDIEE" as OrderStatus,
+                      shipment: {
+                        ...(o.shipment || {}),
+                        hawb,
+                        tracking: hawb,
+                        labelUrl,
+                        status: "EXPEDIEE",
+                      },
+                    }
+                  : o
+              )
+            );
+            if (editingForm && editingForm.id === aramexModalOrder.id) {
+              setEditingForm({
+                ...editingForm,
+                status: "EXPEDIEE" as OrderStatus,
+                shipment: {
+                  ...(editingForm.shipment || {}),
+                  hawb,
+                  tracking: hawb,
+                  labelUrl,
+                  status: "EXPEDIEE",
+                },
+              });
+            }
+          }
+          setOrdersRefreshKey((k) => k + 1);
+        }}
+      />
+
+      {/* Aramex Tracking Drawer */}
+      <AramexTrackingDrawer
+        isOpen={!!aramexTrackingTarget}
+        orderId={aramexTrackingTarget?.orderId || null}
+        hawb={aramexTrackingTarget?.hawb || null}
+        labelUrl={aramexTrackingTarget?.labelUrl || null}
+        onClose={() => setAramexTrackingTarget(null)}
       />
     </div>
   );

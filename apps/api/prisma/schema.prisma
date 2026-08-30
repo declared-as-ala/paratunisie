@@ -370,14 +370,22 @@ model Payment {
 }
 
 model Shipment {
-  id        String   @id @default(cuid())
-  orderId   String   @unique
-  order     Order    @relation(fields: [orderId], references: [id])
-  carrier   String   @default("aramex")
-  status    String   @default("pending")
-  tracking  String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                 String    @id @default(cuid())
+  orderId            String    @unique
+  order              Order     @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  carrier            String    @default("aramex")
+  status             String    @default("pending")
+  tracking           String?
+  hawb               String?
+  labelUrl           String?
+  pickupGuid         String?
+  lastTrackingUpdate DateTime?
+  rawResponse        String?
+  weightKg           Float     @default(1.0)
+  pieces             Int       @default(1)
+  codAmountMillimes  Int?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 }
 
 // ─── Engagement ──────────────────────────────────────────────────────
