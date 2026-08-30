@@ -283,7 +283,6 @@ export class AramexService {
         headers: {
           "Content-Type": "application/json",
           Accept: "application/json",
-          "Content-Length": String(Buffer.byteLength(payloadStr)),
         },
         body: payloadStr,
       });
