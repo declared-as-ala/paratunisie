@@ -141,7 +141,7 @@ export class AramexService {
     const productSummaryList = (order.items || []).map((it) => {
       const q = it.quantity || 1;
       const name = it.product?.name || "Produit Parapharmacie";
-      const variantName = it.productVariant?.name ? ` (${it.productVariant.name})` : "";
+      const variantName = it.productVariant?.label ? ` (${it.productVariant.label})` : "";
       return `${q}x ${name}${variantName}`;
     });
 
