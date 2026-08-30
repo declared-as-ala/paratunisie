@@ -137,22 +137,30 @@ export class AramexService {
         ? Number(customData.codAmount)
         : Math.round(order.totalMillimes / 1000);
 
-    // Format all product items into a clear summary list
+    const subtotalTnd = (order.items || []).reduce(
+      (sum, it) => sum + ((it.priceMillimes || 0) * (it.quantity || 1)) / 1000,
+      0
+    );
+    const shippingFeeTnd = Math.max(0, codAmountTnd - Math.round(subtotalTnd));
+    const shippingText = shippingFeeTnd > 0 ? ` + Livr. (${shippingFeeTnd} DT)` : "";
+
+    // Format all product items into a clear summary list with isolated prices
     const productSummaryList = (order.items || []).map((it) => {
       const q = it.quantity || 1;
       const name = it.product?.name || "Produit Parapharmacie";
+      const price = Math.round((it.priceMillimes || 0) / 1000);
       const variantName = it.productVariant?.label ? ` (${it.productVariant.label})` : "";
-      return `${q}x ${name}${variantName}`;
+      return `${q}x ${name}${variantName} (${price * q} DT)`;
     });
 
     const productsText =
       productSummaryList.length > 0
-        ? productSummaryList.join(", ")
-        : `Commande ParaTunisie #${order.id.slice(-6)}`;
+        ? `${productSummaryList.join(", ")}${shippingText} = Total ${codAmountTnd} DT`
+        : `Commande #${order.id.slice(-6)} (Total ${codAmountTnd} DT)`;
 
     const descriptionOfGoods = productsText.slice(0, 150);
-    const shortRef2 = (productSummaryList[0] || descriptionOfGoods).slice(0, 45);
-    const instructions = customData?.instructions || order.deliveryNote || `Contenu: ${descriptionOfGoods}`;
+    const shortRef2 = `Prod: ${Math.round(subtotalTnd)} DT | Livr: ${shippingFeeTnd} DT`.slice(0, 45);
+    const instructions = customData?.instructions || order.deliveryNote || descriptionOfGoods;
 
     const isCod = codAmountTnd > 0;
 
