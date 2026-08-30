@@ -312,7 +312,7 @@ function CommandesInner() {
   const params = useSearchParams();
   const { toast } = useToast();
 
-  const [orders, setOrders] = useState<CustomOrder[]>(fallbackOrders);
+  const [orders, setOrders] = useState<CustomOrder[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [catalogProducts, setCatalogProducts] = useState<CatalogProduct[]>([]);
   const [productSearchQuery, setProductSearchQuery] = useState("");
