@@ -796,7 +796,7 @@ function CommandesInner() {
   // the same one the sidebar badge reads — so the two can never drift again.
   // Falls back to the locally-derived count while that fetch is in flight.
   const normalCount = orderCounts?.normal ?? normalCountLocal;
-  const abandonedCount = orderCounts?.abandoned ?? abandonedCountLocal;
+  const abandonedCount = orderCounts?.abandoned ?? (abandonedList.length > 0 ? abandonedList.length : abandonedCountLocal);
   const deletedCount = orderCounts?.deleted ?? deletedCountLocal;
 
   // Filtered List
@@ -904,9 +904,6 @@ function CommandesInner() {
   const confirmeeCount = orderCounts?.byStatus.CONFIRMEE ?? orders.filter((o) => o.status === "CONFIRMEE").length;
   const tentativeCount = orderCounts?.byStatus.TENTATIVE_CONTACT ?? orders.filter((o) => (o.status as string) === "TENTATIVE_CONTACT").length;
   const annuleeCount = orderCounts?.byStatus.ANNULEE ?? orders.filter((o) => o.status === "ANNULEE").length;
-  const normalCount = orderCounts?.normal ?? orders.length;
-  const abandonedCount = orderCounts?.abandoned ?? abandonedList.length;
-  const deletedCount = orderCounts?.deleted ?? 0;
 
   return (
     <div className="space-y-6 min-h-screen bg-[#FFF5F5]/40 p-2 sm:p-6 text-slate-800">
