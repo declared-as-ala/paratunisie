@@ -80,6 +80,7 @@ import { NotificationType } from "@prisma/client";
 import { MetaCapiService } from "../meta-capi/meta-capi.service";
 import { LoyaltyService } from "../loyalty/loyalty.service";
 import { calculatePointsEarned, calculatePointsDiscountMillimes } from "../loyalty/loyalty.constants";
+import { AbandonedCheckoutsService } from "../abandoned-checkouts/abandoned-checkouts.service";
 
 @Injectable()
 export class OrdersService {
@@ -89,6 +90,7 @@ export class OrdersService {
     private notificationsService: NotificationsService,
     private metaCapiService: MetaCapiService,
     private loyaltyService: LoyaltyService,
+    private abandonedCheckoutsService: AbandonedCheckoutsService,
   ) {}
 
   async getAllOrders() {
@@ -129,6 +131,7 @@ export class OrdersService {
     clientIp?: string;
     clientUserAgent?: string;
     eventSourceUrl?: string;
+    checkoutSessionId?: string;
     loyaltyPointsToRedeem?: number;
     items: { productId?: string; productVariantId?: string; quantity: number; priceMillimes: number }[];
   }) {
@@ -300,6 +303,10 @@ export class OrdersService {
         })
         .catch((err) => console.error(`[OrdersService] Meta CAPI Purchase error for ${createdOrder.id}:`, err));
 
+      if (data.checkoutSessionId) {
+        this.abandonedCheckoutsService.markConverted(data.checkoutSessionId, createdOrder.id);
+      }
+
       return createdOrder;
     } catch (err: any) {
       // Never mask a real write failure with a fabricated success object —
@@ -316,14 +323,15 @@ export class OrdersService {
 
   // Canonical order-counts source (fixes sidebar badge vs Commandes header
   // drift — both now read this same query instead of independently deriving
-  // totals). One groupBy, real OrderStatus enum values only — "abandoned"/
-  // "deleted" are honestly 0 today since no real status represents either;
-  // they're not fabricated buckets, just not reachable yet.
+  // totals).
   async getOrderCounts() {
-    const grouped = await this.prisma.order.groupBy({
-      by: ["status"],
-      _count: true,
-    });
+    const [grouped, abandoned] = await Promise.all([
+      this.prisma.order.groupBy({
+        by: ["status"],
+        _count: true,
+      }),
+      this.abandonedCheckoutsService.countAbandoned(),
+    ]);
 
     const byStatus = Object.fromEntries(
       Object.values(OrderStatus).map((status) => [status, 0]),
@@ -332,12 +340,12 @@ export class OrdersService {
       byStatus[row.status] = row._count;
     }
 
-    const total = grouped.reduce((sum, row) => sum + row._count, 0);
+    const normal = grouped.reduce((sum, row) => sum + row._count, 0);
 
     return {
-      total,
-      normal: total,
-      abandoned: 0,
+      total: normal + abandoned,
+      normal,
+      abandoned,
       deleted: 0,
       byStatus,
     };

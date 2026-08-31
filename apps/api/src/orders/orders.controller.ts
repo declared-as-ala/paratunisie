@@ -95,6 +95,10 @@ class CreateOrderDto {
   @IsString()
   eventSourceUrl?: string;
 
+  @IsOptional()
+  @IsString()
+  checkoutSessionId?: string;
+
   @IsArray()
   @ArrayMinSize(1)
   @ValidateNested({ each: true })

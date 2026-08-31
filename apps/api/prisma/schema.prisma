@@ -1223,3 +1223,46 @@ model AnalyticsDailyAggregate {
   @@index([dimensionType, dimensionValue])
 }
 
+// ─── Abandoned Checkouts (Lead Recovery) ────────────────────────────────
+
+enum AbandonedCheckoutStatus {
+  DRAFT
+  ABANDONED
+  CONVERTED
+  ARCHIVED
+}
+
+enum CheckoutSource {
+  CHECKOUT_PAGE
+  BUY_NOW_MODAL
+}
+
+model AbandonedCheckout {
+  id                  String                  @id @default(cuid())
+  checkoutSessionId   String                  @unique // Unique per checkout session/attempt to avoid duplicates
+  userId              String?
+  customerName        String?
+  phone               String?
+  email               String?
+  gouvernorat         String?
+  fullAddress         String?
+  deliveryNote        String?
+  items               String                  @default("[]") // JSON string: [{ productId, name, image, variantLabel, quantity, priceMillimes }]
+  subtotalMillimes    Int                     @default(0)
+  shippingFeeMillimes Int                     @default(10000)
+  totalMillimes       Int                     @default(0)
+  source              CheckoutSource          @default(CHECKOUT_PAGE)
+  sourceUrl           String?
+  status              AbandonedCheckoutStatus @default(DRAFT)
+  convertedOrderId    String?
+  lastActivityAt      DateTime                @default(now())
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime                @updatedAt
+
+  @@index([status])
+  @@index([phone])
+  @@index([lastActivityAt])
+  @@index([createdAt])
+}
+
+

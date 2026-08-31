@@ -10,10 +10,10 @@ import { useCart } from "@/hooks/use-cart";
 import { formatPrice } from "@/lib/data/products";
 import { createExpressOrder } from "@/lib/api/client";
 import { trackInitiateCheckout, trackPurchase } from "@/lib/meta-pixel";
-import { trackBeginCheckout, trackPurchase as trackFirstPartyPurchase } from "@/lib/analytics/tracker";
 import { trackGoogleAdsPurchase } from "@/lib/google-ads";
 import { getCustomerSession, type CustomerSession } from "@/lib/customer-auth";
 import { calculatePointsDiscountMillimes } from "@/lib/loyalty";
+import { saveCheckoutDraft, markCheckoutAbandoned, getCheckoutSessionId, resetCheckoutSession } from "@/lib/checkout/abandoned-tracker";
 
 const GOUVERNORATS = [
   "Ariana", "Béja", "Ben Arous", "Bizerte", "Gabès", "Gafsa",
@@ -93,6 +93,48 @@ export function CheckoutPage() {
     address: "",
     notes: "",
   });
+
+  // Progressive draft saving as customer fills checkout form
+  useEffect(() => {
+    if (cart.items.length > 0 && form.phone.trim() && !submitted) {
+      const deliveryPrice = cart.hasFreeDelivery ? 0 : ARAMEX_DELIVERY_PRICE;
+      const totalAmount = cart.subtotal + deliveryPrice;
+      saveCheckoutDraft({
+        source: "CHECKOUT_PAGE",
+        customerName: form.fullName,
+        phone: form.phone,
+        email: form.email,
+        gouvernorat: form.governorat,
+        fullAddress: form.address,
+        deliveryNote: form.notes,
+        items: cart.items.map((i) => ({
+          productId: i.productId,
+          name: i.name,
+          image: i.image,
+          variantLabel: i.variantLabel,
+          quantity: i.quantity,
+          priceMillimes: i.priceMillimes,
+        })),
+        subtotalMillimes: cart.subtotal,
+        shippingFeeMillimes: deliveryPrice,
+        totalMillimes: totalAmount,
+      });
+    }
+  }, [form.phone, form.fullName, form.email, form.governorat, form.address, form.notes, cart.items, cart.subtotal, cart.hasFreeDelivery, submitted]);
+
+  // Handle page unload / navigate away before confirming order
+  useEffect(() => {
+    const handleUnload = () => {
+      if (!submitted && form.phone.trim()) {
+        markCheckoutAbandoned("CHECKOUT_PAGE");
+      }
+    };
+    window.addEventListener("beforeunload", handleUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleUnload);
+      handleUnload();
+    };
+  }, [submitted, form.phone]);
 
   const [touched, setTouched] = useState<Partial<Record<keyof CheckoutFormData, boolean>>>({});
   const [errors, setErrors] = useState<FormErrors>({});
@@ -198,6 +240,8 @@ export function CheckoutPage() {
       ? Math.floor(applicableDiscountMillimes / 1000 / 0.05)
       : 0;
 
+    const checkoutSessionId = getCheckoutSessionId("CHECKOUT_PAGE");
+
     try {
       const payload = {
         userId: session?.user?.id,
@@ -208,6 +252,7 @@ export function CheckoutPage() {
         gouvernorat: form.governorat,
         fullAddress: form.address,
         deliveryNote: form.notes,
+        checkoutSessionId,
         loyaltyPointsToRedeem: pointsActuallyUsed > 0 ? pointsActuallyUsed : undefined,
         items: cart.items.map((i) => ({
           productId: i.productId,
@@ -219,6 +264,7 @@ export function CheckoutPage() {
       const { order, error } = await createExpressOrder(payload);
 
       if (order?.id) {
+        resetCheckoutSession("CHECKOUT_PAGE");
         const ref = `PT-${order.id.slice(-6).toUpperCase()}`;
         const orderTotalTnd = (order.totalMillimes || total) / 1000;
         trackPurchase({

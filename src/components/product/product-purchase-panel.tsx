@@ -14,6 +14,7 @@ import { trackGoogleAdsPurchase } from "@/lib/google-ads";
 import { calculatePointsEarned } from "@/lib/loyalty";
 import { getCustomerSession } from "@/lib/customer-auth";
 import { DemanderModal } from "@/components/product/demander-modal";
+import { saveCheckoutDraft, markCheckoutAbandoned, getCheckoutSessionId, resetCheckoutSession } from "@/lib/checkout/abandoned-tracker";
 
 const reassurance = [
   { icon: BadgeCheck, label: "Produit authentique" },
@@ -108,6 +109,42 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
     });
   }, [product.id, product.name, quantity, selected.priceMillimes, totalMillimes]);
 
+  // Progressive draft saving as customer types
+  useEffect(() => {
+    if (quickOrderOpen && phone.trim()) {
+      saveCheckoutDraft({
+        source: "BUY_NOW_MODAL",
+        customerName: fullName,
+        phone,
+        gouvernorat,
+        fullAddress: address,
+        deliveryNote: note,
+        items: [
+          {
+            productId: product.id,
+            name: product.name,
+            image: product.image,
+            variantLabel: selected.label,
+            quantity,
+            priceMillimes: selected.priceMillimes,
+          },
+        ],
+        subtotalMillimes,
+        shippingFeeMillimes: deliveryFeeMillimes,
+        totalMillimes,
+      });
+    }
+  }, [quickOrderOpen, phone, fullName, gouvernorat, address, note, product.id, product.name, product.image, selected.label, selected.priceMillimes, quantity, subtotalMillimes, deliveryFeeMillimes, totalMillimes]);
+
+  const handleCloseQuickOrder = useCallback(() => {
+    if (!orderSuccess && phone.trim()) {
+      markCheckoutAbandoned("BUY_NOW_MODAL");
+    }
+    setQuickOrderOpen(false);
+    setOrderSuccess(null);
+    setErrorMsg("");
+  }, [orderSuccess, phone]);
+
   const handleQuickOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isSubmittingRef.current || submitting) return;
@@ -126,6 +163,7 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
     const lastName = nameParts.slice(1).join(" ") || "";
 
     const session = getCustomerSession();
+    const checkoutSessionId = getCheckoutSessionId("BUY_NOW_MODAL");
 
     try {
       const { order, error } = await createExpressOrder({
@@ -137,6 +175,7 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
         gouvernorat,
         fullAddress: address.trim(),
         deliveryNote: note.trim() || undefined,
+        checkoutSessionId,
         items: [
           {
             productId: product.id,
@@ -147,6 +186,7 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
       });
 
       if (order?.id) {
+        resetCheckoutSession("BUY_NOW_MODAL");
         const orderRef = `PT-${order.id.slice(-6).toUpperCase()}`;
         const totalTnd = (order.totalMillimes || totalMillimes) / 1000;
         trackPurchase({
@@ -477,11 +517,7 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
           <div className="relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-2xl border border-border max-h-[90dvh] overflow-y-auto">
             <button
               type="button"
-              onClick={() => {
-                setQuickOrderOpen(false);
-                setOrderSuccess(null);
-                setErrorMsg("");
-              }}
+              onClick={handleCloseQuickOrder}
               className="absolute top-4 right-4 p-2 text-ink-muted hover:text-ink rounded-full hover:bg-soft-nude transition-colors"
             >
               <X size={20} />

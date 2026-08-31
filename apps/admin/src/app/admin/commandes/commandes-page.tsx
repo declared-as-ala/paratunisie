@@ -16,6 +16,13 @@ import {
   Package,
   Wallet,
   Truck,
+  Phone,
+  MessageCircle,
+  Clock,
+  ExternalLink,
+  RefreshCw,
+  AlertTriangle,
+  CheckCircle,
 } from "lucide-react";
 import type { OrderStatus } from "@/lib/types";
 import { useToast } from "@/components/toast";
@@ -100,6 +107,39 @@ interface OrderProfitabilityDetail {
     costIsEstimated: boolean;
     costSource: "snapshot" | "backfilled_estimate" | "unknown";
   }[];
+}
+
+export interface AbandonedCheckoutItem {
+  productId?: string;
+  name?: string;
+  image?: string;
+  variantLabel?: string;
+  quantity: number;
+  priceMillimes: number;
+}
+
+export interface AbandonedCheckout {
+  id: string;
+  checkoutSessionId: string;
+  customerName?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  gouvernorat?: string | null;
+  fullAddress?: string | null;
+  deliveryNote?: string | null;
+  items: string;
+  parsedItems: AbandonedCheckoutItem[];
+  itemCount: number;
+  subtotalMillimes: number;
+  shippingFeeMillimes: number;
+  totalMillimes: number;
+  source: "CHECKOUT_PAGE" | "BUY_NOW_MODAL";
+  sourceUrl?: string | null;
+  status: "DRAFT" | "ABANDONED" | "CONVERTED" | "ARCHIVED";
+  convertedOrderId?: string | null;
+  lastActivityAt: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 const COST_SOURCE_LABEL: Record<string, string> = {
@@ -338,6 +378,60 @@ function CommandesInner() {
     labelUrl?: string | null;
   } | null>(null);
 
+  // Abandoned Checkouts States
+  const [abandonedList, setAbandonedList] = useState<AbandonedCheckout[]>([]);
+  const [loadingAbandoned, setLoadingAbandoned] = useState(false);
+  const [selectedAbandoned, setSelectedAbandoned] = useState<AbandonedCheckout | null>(null);
+  const [convertingAbandonedId, setConvertingAbandonedId] = useState<string | null>(null);
+  const [abandonedDeleteTarget, setAbandonedDeleteTarget] = useState<AbandonedCheckout | null>(null);
+
+  const loadAbandonedCheckouts = useCallback(async () => {
+    setLoadingAbandoned(true);
+    try {
+      const data = await apiClient.get<AbandonedCheckout[]>(`/abandoned-checkouts?search=${encodeURIComponent(search)}`);
+      setAbandonedList(data || []);
+    } catch {
+      setAbandonedList([]);
+    } finally {
+      setLoadingAbandoned(false);
+    }
+  }, [search]);
+
+  const handleConvertAbandoned = async (abandoned: AbandonedCheckout) => {
+    if (convertingAbandonedId) return;
+    setConvertingAbandonedId(abandoned.id);
+    try {
+      const res = await apiClient.post<{ success: boolean; orderId: string; orderReference: string }>(
+        `/abandoned-checkouts/${abandoned.id}/convert`,
+        {}
+      );
+      toast("success", `Commande ${res.orderReference || "créée"} confirmée avec succès !`);
+      setSelectedAbandoned(null);
+      notifyOrdersChanged();
+      loadAbandonedCheckouts();
+      loadOrderCounts();
+      setOrdersRefreshKey((k) => k + 1);
+    } catch (err: any) {
+      toast("error", err.message || "Erreur lors de la conversion de la commande");
+    } finally {
+      setConvertingAbandonedId(null);
+    }
+  };
+
+  const handleDeleteAbandoned = async () => {
+    if (!abandonedDeleteTarget) return;
+    try {
+      await apiClient.delete(`/abandoned-checkouts/${abandonedDeleteTarget.id}`);
+      toast("success", "Commande abandonnée supprimée");
+      setAbandonedDeleteTarget(null);
+      notifyOrdersChanged();
+      loadAbandonedCheckouts();
+      loadOrderCounts();
+    } catch (err: any) {
+      toast("error", err.message || "Erreur lors de la suppression");
+    }
+  };
+
   // Canonical counts (sidebar badge reads the same endpoint) — refetched on
   // mount and whenever an order mutation fires the shared invalidation event,
   // so header/tab numbers never need a manual page reload to catch up.
@@ -357,6 +451,12 @@ function CommandesInner() {
       setOrdersRefreshKey((k) => k + 1);
     });
   }, [loadOrderCounts]);
+
+  useEffect(() => {
+    if (activeTab === "ABANDONNEES") {
+      loadAbandonedCheckouts();
+    }
+  }, [activeTab, loadAbandonedCheckouts, ordersRefreshKey]);
 
   // 1. Fetch Real Orders from NestJS API
   useEffect(() => {
@@ -918,192 +1018,380 @@ function CommandesInner() {
         </div>
       )}
 
-      {/* ── Commandes Table ───────────────────────────────────────────── */}
-      <div className="rounded-2xl bg-white shadow-xs border border-slate-200/80 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-slate-100 bg-rose-50/30 text-[0.6875rem] font-bold text-slate-500 uppercase tracking-wider">
-                <th className="py-3.5 px-4 w-10">
-                  <input ref={selectAllRef} type="checkbox" checked={allVisibleSelected} disabled={visibleOrderIds.length === 0} onChange={toggleAllVisibleOrders} aria-label="Sélectionner toutes les commandes visibles" className="size-4 cursor-pointer rounded border-slate-300 text-rose-600 focus:ring-rose-500 disabled:cursor-not-allowed" />
-                </th>
-                <th className="py-3.5 px-4">ID</th>
-                <th className="py-3.5 px-4">CLIENT</th>
-                <th className="py-3.5 px-4">DATE</th>
-                <th className="py-3.5 px-4">TÉLÉPHONE</th>
-                <th className="py-3.5 px-4">VILLE</th>
-                <th className="py-3.5 px-4">STATUT</th>
-                <th className="py-3.5 px-4">EXPÉDITION (ARAMEX)</th>
-                <th className="py-3.5 px-4">TOTAL</th>
-                <th className="py-3.5 px-4 text-right">ACTIONS</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
-              {loadingOrders ? (
-                <tr>
-                  <td colSpan={10} className="py-8 text-center text-slate-500 font-semibold">
-                    Chargement des commandes depuis la base de données...
-                  </td>
+      {/* ── Table Container ───────────────────────────────────────────── */}
+      {activeTab === "ABANDONNEES" ? (
+        <div className="rounded-2xl bg-white shadow-xs border border-slate-200/80 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-100 bg-amber-50/30 text-[0.6875rem] font-bold text-slate-500 uppercase tracking-wider">
+                  <th className="py-3.5 px-4">DATE / DERNIÈRE ACTIVITÉ</th>
+                  <th className="py-3.5 px-4">CLIENT & CONTACT</th>
+                  <th className="py-3.5 px-4">RELANCE RAPIDE</th>
+                  <th className="py-3.5 px-4">VILLE & ADRESSE</th>
+                  <th className="py-3.5 px-4">ARTICLES DU PANIER</th>
+                  <th className="py-3.5 px-4">TOTAL ESTIMÉ</th>
+                  <th className="py-3.5 px-4">ORIGINE</th>
+                  <th className="py-3.5 px-4">STATUT</th>
+                  <th className="py-3.5 px-4 text-right">ACTIONS</th>
                 </tr>
-              ) : filteredOrders.length === 0 ? (
-                <tr>
-                  <td colSpan={10} className="py-8 text-center text-slate-500 font-semibold">
-                    Aucune commande enregistrée.
-                  </td>
-                </tr>
-              ) : (
-                filteredOrders.map((order) => (
-                  <tr key={order.id} className={`transition-colors ${selectedIds.has(order.id) ? "bg-rose-50/70" : "hover:bg-rose-50/20"}`}>
-                    <td className="py-3.5 px-4">
-                      <input type="checkbox" checked={selectedIds.has(order.id)} onChange={() => toggleOrder(order.id)} aria-label={`Sélectionner la commande ${order.reference}`} className="size-4 cursor-pointer rounded border-slate-300 text-rose-600 focus:ring-rose-500" />
-                    </td>
-                    <td className="py-3.5 px-4 font-black text-slate-900">{order.reference}</td>
-                    <td className="py-3.5 px-4 relative">
-                      {(() => {
-                        const key = (order.phone?.trim() || order.customerName?.trim() || "").toLowerCase();
-                        const clientOrders = customerOrdersMap.get(key) || [order];
-                        const isRegular = clientOrders.length > 1 || order.isRegularClient;
-
-                        return (
-                          <div className="flex items-center gap-2 group/client relative">
-                            <span className="font-semibold text-slate-800">{order.customerName}</span>
-                            {isRegular && (
-                              <div className="relative inline-block">
-                                <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 text-purple-700 px-2.5 py-0.5 text-[0.6875rem] font-bold cursor-pointer hover:bg-purple-200 transition-colors shadow-2xs">
-                                  <span className="text-[10px]">👥</span> Client régulier ({clientOrders.length})
-                                </span>
-
-                                {/* Hover Card / Popover listing client's past orders */}
-                                <div className="absolute left-0 top-full mt-1.5 hidden group-hover/client:block z-50 w-80 rounded-2xl bg-white p-3.5 shadow-2xl border border-slate-200 text-xs animate-in fade-in zoom-in-95 duration-150">
-                                  <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
-                                    <span className="font-bold text-slate-900 flex items-center gap-1.5 text-[0.75rem]">
-                                      <span className="text-purple-600 font-extrabold">👥</span> {order.customerName}
-                                    </span>
-                                    <span className="rounded-full bg-purple-100 text-purple-800 px-2 py-0.5 text-[0.625rem] font-extrabold">
-                                      {clientOrders.length} commandes au total
-                                    </span>
-                                  </div>
-                                  <p className="text-[0.6875rem] text-slate-500 font-medium mb-2">
-                                    Historique des commandes de ce client :
-                                  </p>
-                                  <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
-                                    {clientOrders.map((co) => (
-                                      <div
-                                        key={co.id}
-                                        className={`flex items-center justify-between rounded-xl p-2 text-[0.6875rem] border ${
-                                          co.id === order.id
-                                            ? "bg-rose-50/80 border-rose-200 font-bold text-rose-900"
-                                            : "bg-slate-50/80 border-slate-100 text-slate-700"
-                                        }`}
-                                      >
-                                        <div className="flex items-center gap-1.5 min-w-0">
-                                          <span className="font-bold text-slate-900">{co.reference}</span>
-                                          <span className="text-slate-400">•</span>
-                                          <span className="text-slate-500 text-[0.625rem]">{co.date}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2 shrink-0">
-                                          <span
-                                            className={`px-1.5 py-0.5 rounded-full text-[0.5625rem] font-bold ${
-                                              co.status === "CONFIRMEE"
-                                                ? "bg-emerald-100 text-emerald-800"
-                                                : co.status === "EN_ATTENTE"
-                                                ? "bg-amber-100 text-amber-800"
-                                                : co.status === "TENTATIVE"
-                                                ? "bg-blue-100 text-blue-800"
-                                                : "bg-rose-100 text-rose-800"
-                                            }`}
-                                          >
-                                            {co.status === "CONFIRMEE" ? "Confirmée" : co.status === "EN_ATTENTE" ? "En attente" : co.status === "TENTATIVE" ? "Tentative" : "Annulée"}
-                                          </span>
-                                          <span className="font-extrabold text-slate-900">
-                                            {typeof co.total === "number" ? co.total.toFixed(3) : co.total} DT
-                                          </span>
-                                        </div>
-                                      </div>
-                                    ))}
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        );
-                      })()}
-                    </td>
-                    <td className="py-3.5 px-4 text-slate-600">{order.date}</td>
-                    <td className="py-3.5 px-4 text-slate-800 font-semibold">{order.phone}</td>
-                    <td className="py-3.5 px-4 text-slate-700 font-medium">{order.city}</td>
-                    <td className="py-3.5 px-4">
-                      {order.status === "CONFIRMEE" && (
-                        <span className="inline-flex items-center rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200/80 px-3 py-0.5 text-[0.6875rem] font-semibold">
-                          Confirmée
-                        </span>
-                      )}
-                      {order.status === "EN_ATTENTE" && (
-                        <span className="inline-flex items-center rounded-full bg-amber-50 text-amber-600 border border-amber-200/80 px-3 py-0.5 text-[0.6875rem] font-semibold">
-                          En attente
-                        </span>
-                      )}
-                      {order.status === "TENTATIVE" && (
-                        <span className="inline-flex items-center rounded-full bg-blue-50 text-blue-600 border border-blue-200/80 px-3 py-0.5 text-[0.6875rem] font-semibold">
-                          Tentative
-                        </span>
-                      )}
-                      {order.status === "ANNULEE" && (
-                        <span className="inline-flex items-center rounded-full bg-rose-50 text-rose-600 border border-rose-200/80 px-3 py-0.5 text-[0.6875rem] font-semibold">
-                          Annulée
-                        </span>
-                      )}
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <AramexBadge
-                        hawb={order.shipment?.hawb || order.shipment?.tracking}
-                        labelUrl={order.shipment?.labelUrl}
-                        onOpenCreate={() => setAramexModalOrder(order)}
-                        onOpenTrack={() =>
-                          setAramexTrackingTarget({
-                            orderId: order.id,
-                            hawb: order.shipment?.hawb || order.shipment?.tracking || "",
-                            labelUrl: order.shipment?.labelUrl,
-                          })
-                        }
-                      />
-                    </td>
-                    <td className="py-3.5 px-4 font-black text-slate-900">{typeof order.total === "number" ? order.total.toFixed(3) : order.total} DT</td>
-                    <td className="py-3.5 px-4 text-right">
-                      <div className="flex items-center justify-end gap-2 text-slate-400">
-                        <button
-                          type="button"
-                          onClick={() => handleOpenView(order.id)}
-                          className="hover:text-slate-700 transition-colors p-1"
-                          title="Voir"
-                        >
-                          <Eye size={16} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleOpenEdit(order.id)}
-                          className="hover:text-[#E11D48] transition-colors p-1"
-                          title="Modifier"
-                        >
-                          <Pencil size={16} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setDeleteTarget(order)}
-                          className="hover:text-rose-600 transition-colors p-1 text-rose-500"
-                          title="Supprimer"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
+                {loadingAbandoned ? (
+                  <tr>
+                    <td colSpan={9} className="py-12 text-center text-slate-500 font-semibold">
+                      Chargement des commandes abandonnées...
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : abandonedList.length === 0 ? (
+                  <tr>
+                    <td colSpan={9} className="py-12 text-center text-slate-500 font-semibold">
+                      Aucune commande abandonnée trouvée.
+                    </td>
+                  </tr>
+                ) : (
+                  abandonedList.map((item) => {
+                    const cleanPhone = (item.phone || "").replace(/\D/g, "");
+                    const waUrl = cleanPhone
+                      ? `https://wa.me/216${cleanPhone.startsWith("216") ? cleanPhone.slice(3) : cleanPhone}?text=${encodeURIComponent(
+                          `Bonjour ${item.customerName || ""}, c'est l'équipe ParaTunisie ! Nous avons remarqué que vous avez commencé une commande pour vos articles de parapharmacie. Souhaitez-vous de l'aide pour finaliser votre livraison ?`
+                        )}`
+                      : null;
+
+                    return (
+                      <tr key={item.id} className="hover:bg-amber-50/20 transition-colors">
+                        <td className="py-3.5 px-4 font-semibold text-slate-700">
+                          <div className="flex items-center gap-1.5 text-xs text-slate-800">
+                            <Clock size={13} className="text-slate-400" />
+                            <span>
+                              {new Date(item.lastActivityAt || item.createdAt).toLocaleDateString("fr-FR", {
+                                day: "2-digit",
+                                month: "short",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <p className="font-bold text-slate-900">{item.customerName || "Prospect sans nom"}</p>
+                          <p className="text-slate-600 font-medium text-[0.6875rem]">{item.phone}</p>
+                          {item.email && <p className="text-slate-400 text-[0.625rem]">{item.email}</p>}
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-2">
+                            {item.phone && (
+                              <a
+                                href={`tel:${item.phone}`}
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold hover:bg-blue-100 transition-colors shadow-2xs"
+                                title="Appeler le client"
+                              >
+                                <Phone size={12} />
+                                <span>Appeler</span>
+                              </a>
+                            )}
+                            {waUrl && (
+                              <a
+                                href={waUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold hover:bg-emerald-100 transition-colors shadow-2xs"
+                                title="Relancer sur WhatsApp"
+                              >
+                                <MessageCircle size={12} />
+                                <span>WhatsApp</span>
+                              </a>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <p className="font-bold text-slate-800">{item.gouvernorat || "—"}</p>
+                          {item.fullAddress && (
+                            <p className="text-slate-500 text-[0.6875rem] line-clamp-1">{item.fullAddress}</p>
+                          )}
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-2">
+                            {item.parsedItems.slice(0, 2).map((it, idx) => (
+                              <div
+                                key={idx}
+                                className="flex items-center gap-1.5 bg-slate-50 border border-slate-200 rounded-lg p-1 pr-2 text-[0.6875rem]"
+                              >
+                                {it.image && (
+                                  // eslint-disable-next-line @next/next/no-img-element
+                                  <img
+                                    src={resolveMediaUrl(it.image)}
+                                    alt={it.name || ""}
+                                    className="size-6 object-contain rounded bg-white"
+                                  />
+                                )}
+                                <span className="font-bold text-slate-800 line-clamp-1 max-w-[120px]">
+                                  {it.name}
+                                </span>
+                                <span className="text-slate-500 font-extrabold">×{it.quantity || 1}</span>
+                              </div>
+                            ))}
+                            {item.parsedItems.length > 2 && (
+                              <span className="text-[0.6875rem] font-bold text-slate-500">
+                                +{item.parsedItems.length - 2}
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4 font-black text-[#E11D48]">
+                          {(item.totalMillimes / 1000).toFixed(3)} DT
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[0.625rem] font-extrabold ${
+                              item.source === "BUY_NOW_MODAL"
+                                ? "bg-amber-100 text-amber-800 border border-amber-200"
+                                : "bg-purple-100 text-purple-800 border border-purple-200"
+                            }`}
+                          >
+                            {item.source === "BUY_NOW_MODAL" ? "⚡ 1-Clic Modal" : "🛒 Page Commande"}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <span
+                            className={`inline-flex items-center px-2 py-0.5 rounded-full text-[0.625rem] font-extrabold ${
+                              item.status === "ABANDONED"
+                                ? "bg-rose-100 text-rose-800 border border-rose-200"
+                                : "bg-blue-100 text-blue-800 border border-blue-200"
+                            }`}
+                          >
+                            {item.status === "ABANDONED" ? "Abandonnée" : "Brouillon actif"}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            <button
+                              type="button"
+                              onClick={() => setSelectedAbandoned(item)}
+                              className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+                              title="Voir détails"
+                            >
+                              <Eye size={15} />
+                            </button>
+                            <button
+                              type="button"
+                              disabled={convertingAbandonedId === item.id}
+                              onClick={() => handleConvertAbandoned(item)}
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition-colors shadow-xs disabled:opacity-50"
+                              title="Créer la commande"
+                            >
+                              {convertingAbandonedId === item.id ? (
+                                <RefreshCw size={12} className="animate-spin" />
+                              ) : (
+                                <ShoppingBag size={12} />
+                              )}
+                              <span>Créer Commande</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setAbandonedDeleteTarget(item)}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                              title="Supprimer"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="rounded-2xl bg-white shadow-xs border border-slate-200/80 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-100 bg-rose-50/30 text-[0.6875rem] font-bold text-slate-500 uppercase tracking-wider">
+                  <th className="py-3.5 px-4 w-10">
+                    <input ref={selectAllRef} type="checkbox" checked={allVisibleSelected} disabled={visibleOrderIds.length === 0} onChange={toggleAllVisibleOrders} aria-label="Sélectionner toutes les commandes visibles" className="size-4 cursor-pointer rounded border-slate-300 text-rose-600 focus:ring-rose-500 disabled:cursor-not-allowed" />
+                  </th>
+                  <th className="py-3.5 px-4">ID</th>
+                  <th className="py-3.5 px-4">CLIENT</th>
+                  <th className="py-3.5 px-4">DATE</th>
+                  <th className="py-3.5 px-4">TÉLÉPHONE</th>
+                  <th className="py-3.5 px-4">VILLE</th>
+                  <th className="py-3.5 px-4">STATUT</th>
+                  <th className="py-3.5 px-4">EXPÉDITION (ARAMEX)</th>
+                  <th className="py-3.5 px-4">TOTAL</th>
+                  <th className="py-3.5 px-4 text-right">ACTIONS</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
+                {loadingOrders ? (
+                  <tr>
+                    <td colSpan={10} className="py-8 text-center text-slate-500 font-semibold">
+                      Chargement des commandes depuis la base de données...
+                    </td>
+                  </tr>
+                ) : filteredOrders.length === 0 ? (
+                  <tr>
+                    <td colSpan={10} className="py-8 text-center text-slate-500 font-semibold">
+                      Aucune commande enregistrée.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredOrders.map((order) => (
+                    <tr key={order.id} className={`transition-colors ${selectedIds.has(order.id) ? "bg-rose-50/70" : "hover:bg-rose-50/20"}`}>
+                      <td className="py-3.5 px-4">
+                        <input type="checkbox" checked={selectedIds.has(order.id)} onChange={() => toggleOrder(order.id)} aria-label={`Sélectionner la commande ${order.reference}`} className="size-4 cursor-pointer rounded border-slate-300 text-rose-600 focus:ring-rose-500" />
+                      </td>
+                      <td className="py-3.5 px-4 font-black text-slate-900">{order.reference}</td>
+                      <td className="py-3.5 px-4 relative">
+                        {(() => {
+                          const key = (order.phone?.trim() || order.customerName?.trim() || "").toLowerCase();
+                          const clientOrders = customerOrdersMap.get(key) || [order];
+                          const isRegular = clientOrders.length > 1 || order.isRegularClient;
+
+                          return (
+                            <div className="flex items-center gap-2 group/client relative">
+                              <span className="font-semibold text-slate-800">{order.customerName}</span>
+                              {isRegular && (
+                                <div className="relative inline-block">
+                                  <span className="inline-flex items-center gap-1 rounded-full bg-purple-100 text-purple-700 px-2.5 py-0.5 text-[0.6875rem] font-bold cursor-pointer hover:bg-purple-200 transition-colors shadow-2xs">
+                                    <span className="text-[10px]">👥</span> Client régulier ({clientOrders.length})
+                                  </span>
+
+                                  {/* Hover Card / Popover listing client's past orders */}
+                                  <div className="absolute left-0 top-full mt-1.5 hidden group-hover/client:block z-50 w-80 rounded-2xl bg-white p-3.5 shadow-2xl border border-slate-200 text-xs animate-in fade-in zoom-in-95 duration-150">
+                                    <div className="flex items-center justify-between border-b border-slate-100 pb-2 mb-2">
+                                      <span className="font-bold text-slate-900 flex items-center gap-1.5 text-[0.75rem]">
+                                        <span className="text-purple-600 font-extrabold">👥</span> {order.customerName}
+                                      </span>
+                                      <span className="rounded-full bg-purple-100 text-purple-800 px-2 py-0.5 text-[0.625rem] font-extrabold">
+                                        {clientOrders.length} commandes au total
+                                      </span>
+                                    </div>
+                                    <p className="text-[0.6875rem] text-slate-500 font-medium mb-2">
+                                      Historique des commandes de ce client :
+                                    </p>
+                                    <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
+                                      {clientOrders.map((co) => (
+                                        <div
+                                          key={co.id}
+                                          className={`flex items-center justify-between rounded-xl p-2 text-[0.6875rem] border ${
+                                            co.id === order.id
+                                              ? "bg-rose-50/80 border-rose-200 font-bold text-rose-900"
+                                              : "bg-slate-50/80 border-slate-100 text-slate-700"
+                                          }`}
+                                        >
+                                          <div className="flex items-center gap-1.5 min-w-0">
+                                            <span className="font-bold text-slate-900">{co.reference}</span>
+                                            <span className="text-slate-400">•</span>
+                                            <span className="text-slate-500 text-[0.625rem]">{co.date}</span>
+                                          </div>
+                                          <div className="flex items-center gap-2 shrink-0">
+                                            <span
+                                              className={`px-1.5 py-0.5 rounded-full text-[0.5625rem] font-bold ${
+                                                co.status === "CONFIRMEE"
+                                                  ? "bg-emerald-100 text-emerald-800"
+                                                  : co.status === "EN_ATTENTE"
+                                                  ? "bg-amber-100 text-amber-800"
+                                                  : co.status === "TENTATIVE"
+                                                  ? "bg-blue-100 text-blue-800"
+                                                  : "bg-rose-100 text-rose-800"
+                                              }`}
+                                            >
+                                              {co.status === "CONFIRMEE" ? "Confirmée" : co.status === "EN_ATTENTE" ? "En attente" : co.status === "TENTATIVE" ? "Tentative" : "Annulée"}
+                                            </span>
+                                            <span className="font-extrabold text-slate-900">
+                                              {typeof co.total === "number" ? co.total.toFixed(3) : co.total} DT
+                                            </span>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
+                      </td>
+                      <td className="py-3.5 px-4 text-slate-600">{order.date}</td>
+                      <td className="py-3.5 px-4 text-slate-800 font-semibold">{order.phone}</td>
+                      <td className="py-3.5 px-4 text-slate-700 font-medium">{order.city}</td>
+                      <td className="py-3.5 px-4">
+                        {order.status === "CONFIRMEE" && (
+                          <span className="inline-flex items-center rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200/80 px-3 py-0.5 text-[0.6875rem] font-semibold">
+                            Confirmée
+                          </span>
+                        )}
+                        {order.status === "EN_ATTENTE" && (
+                          <span className="inline-flex items-center rounded-full bg-amber-50 text-amber-600 border border-amber-200/80 px-3 py-0.5 text-[0.6875rem] font-semibold">
+                            En attente
+                          </span>
+                        )}
+                        {order.status === "TENTATIVE" && (
+                          <span className="inline-flex items-center rounded-full bg-blue-50 text-blue-600 border border-blue-200/80 px-3 py-0.5 text-[0.6875rem] font-semibold">
+                            Tentative
+                          </span>
+                        )}
+                        {order.status === "ANNULEE" && (
+                          <span className="inline-flex items-center rounded-full bg-rose-50 text-rose-600 border border-rose-200/80 px-3 py-0.5 text-[0.6875rem] font-semibold">
+                            Annulée
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3.5 px-4">
+                        <AramexBadge
+                          hawb={order.shipment?.hawb || order.shipment?.tracking}
+                          labelUrl={order.shipment?.labelUrl}
+                          onOpenCreate={() => setAramexModalOrder(order)}
+                          onOpenTrack={() =>
+                            setAramexTrackingTarget({
+                              orderId: order.id,
+                              hawb: order.shipment?.hawb || order.shipment?.tracking || "",
+                              labelUrl: order.shipment?.labelUrl,
+                            })
+                          }
+                        />
+                      </td>
+                      <td className="py-3.5 px-4 font-black text-slate-900">{typeof order.total === "number" ? order.total.toFixed(3) : order.total} DT</td>
+                      <td className="py-3.5 px-4 text-right">
+                        <div className="flex items-center justify-end gap-2 text-slate-400">
+                          <button
+                            type="button"
+                            onClick={() => handleOpenView(order.id)}
+                            className="hover:text-slate-700 transition-colors p-1"
+                            title="Voir"
+                          >
+                            <Eye size={16} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleOpenEdit(order.id)}
+                            className="hover:text-[#E11D48] transition-colors p-1"
+                            title="Modifier"
+                          >
+                            <Pencil size={16} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setDeleteTarget(order)}
+                            className="hover:text-rose-600 transition-colors p-1 text-rose-500"
+                            title="Supprimer"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* ── Edit / View Drawer Modal ── */}
       {isDrawerOpen && formData && (
@@ -1705,6 +1993,246 @@ function CommandesInner() {
         </div>
       )}
 
+      {/* ── Abandoned Checkout Detail Drawer Modal ── */}
+      {selectedAbandoned && (
+        <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/40 backdrop-blur-xs">
+          <div className="w-full max-w-3xl bg-[#F8FAFC] h-full shadow-2xl overflow-y-auto flex flex-col animate-in slide-in-from-right duration-200">
+            {/* Header */}
+            <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shadow-xs">
+              <div className="flex items-center gap-3">
+                <div className="size-9 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold">
+                  <Clock size={20} />
+                </div>
+                <div>
+                  <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                    COMMANDE ABANDONNÉE
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-bold">
+                      {selectedAbandoned.status === "ABANDONED" ? "Abandonnée" : "Brouillon"}
+                    </span>
+                  </h2>
+                  <p className="text-xs text-slate-500 font-medium">
+                    Dernière activité : {new Date(selectedAbandoned.lastActivityAt).toLocaleString("fr-FR")}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <button
+                  type="button"
+                  disabled={convertingAbandonedId === selectedAbandoned.id}
+                  onClick={() => handleConvertAbandoned(selectedAbandoned)}
+                  className="px-4 py-2 rounded-xl bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition-colors shadow-xs flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  {convertingAbandonedId === selectedAbandoned.id ? (
+                    <RefreshCw size={14} className="animate-spin" />
+                  ) : (
+                    <ShoppingBag size={14} />
+                  )}
+                  <span>Créer la commande</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedAbandoned(null)}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 space-y-6">
+              {/* SECTION 1: COORDONNÉES CLIENT & RELANCE */}
+              <div className="rounded-2xl bg-white p-5 shadow-xs border border-slate-200/80 space-y-4">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                  <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                    <span className="text-[#E11D48]">👤</span> COORDONNÉES DU PROSPECT
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    {selectedAbandoned.phone && (
+                      <a
+                        href={`tel:${selectedAbandoned.phone}`}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold hover:bg-blue-100 transition-colors shadow-2xs"
+                      >
+                        <Phone size={13} />
+                        <span>Appeler</span>
+                      </a>
+                    )}
+                    {selectedAbandoned.phone && (
+                      <a
+                        href={`https://wa.me/216${selectedAbandoned.phone.replace(/\D/g, "").replace(/^216/, "")}?text=${encodeURIComponent(
+                          `Bonjour ${selectedAbandoned.customerName || ""}, c'est l'équipe ParaTunisie ! Nous avons remarqué votre panier pour ${
+                            selectedAbandoned.parsedItems.map((i) => i.name).join(", ")
+                          }. Souhaitez-vous valider votre commande ?`
+                        )}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-xs font-bold hover:bg-emerald-100 transition-colors shadow-2xs"
+                      >
+                        <MessageCircle size={13} />
+                        <span>WhatsApp</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <span className="text-slate-400 font-bold uppercase text-[0.625rem]">Nom & Prénom</span>
+                    <p className="text-sm font-extrabold text-slate-900 mt-0.5">
+                      {selectedAbandoned.customerName || "Non renseigné"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 font-bold uppercase text-[0.625rem]">Numéro de téléphone</span>
+                    <p className="text-sm font-extrabold text-slate-900 mt-0.5">
+                      {selectedAbandoned.phone || "Non renseigné"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 font-bold uppercase text-[0.625rem]">Email</span>
+                    <p className="text-xs font-semibold text-slate-700 mt-0.5">
+                      {selectedAbandoned.email || "Non renseigné"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 font-bold uppercase text-[0.625rem]">Gouvernorat</span>
+                    <p className="text-xs font-bold text-slate-900 mt-0.5">
+                      {selectedAbandoned.gouvernorat || "Non sélectionné"}
+                    </p>
+                  </div>
+                  <div className="sm:col-span-2">
+                    <span className="text-slate-400 font-bold uppercase text-[0.625rem]">Adresse de livraison</span>
+                    <p className="text-xs font-semibold text-slate-800 mt-0.5">
+                      {selectedAbandoned.fullAddress || "Non renseignée"}
+                    </p>
+                  </div>
+                  {selectedAbandoned.deliveryNote && (
+                    <div className="sm:col-span-2 bg-amber-50 border border-amber-200 rounded-xl p-3">
+                      <span className="text-amber-800 font-bold uppercase text-[0.625rem]">Note du client :</span>
+                      <p className="text-xs text-amber-900 font-medium mt-0.5">{selectedAbandoned.deliveryNote}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* SECTION 2: TRACKING & ORIGINE */}
+              <div className="rounded-2xl bg-white p-5 shadow-xs border border-slate-200/80 space-y-3 text-xs">
+                <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
+                  <span>📍</span> ORIGINE DU PANIER
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <span className="text-slate-400 font-bold uppercase text-[0.625rem]">Formulaire Source</span>
+                    <p className="font-bold text-slate-800 mt-0.5">
+                      {selectedAbandoned.source === "BUY_NOW_MODAL" ? "⚡ Modal 1-Clic Acheter Maintenant" : "🛒 Page Commande Standard"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-slate-400 font-bold uppercase text-[0.625rem]">Date initiale de détection</span>
+                    <p className="font-semibold text-slate-700 mt-0.5">
+                      {new Date(selectedAbandoned.createdAt).toLocaleString("fr-FR")}
+                    </p>
+                  </div>
+                  {selectedAbandoned.sourceUrl && (
+                    <div className="sm:col-span-2">
+                      <span className="text-slate-400 font-bold uppercase text-[0.625rem]">Page d&apos;origine</span>
+                      <a
+                        href={selectedAbandoned.sourceUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs font-bold text-rose-600 hover:underline flex items-center gap-1 mt-0.5 truncate"
+                      >
+                        <span>{selectedAbandoned.sourceUrl}</span>
+                        <ExternalLink size={12} className="shrink-0" />
+                      </a>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* SECTION 3: ARTICLES DU PANIER */}
+              <div className="rounded-2xl bg-white p-5 shadow-xs border border-slate-200/80 space-y-4">
+                <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
+                  <Package size={16} className="text-[#E11D48]" /> ARTICLES SÉLECTIONNÉS (
+                  {selectedAbandoned.parsedItems.reduce((acc, i) => acc + (i.quantity || 1), 0)})
+                </h3>
+
+                <div className="divide-y divide-slate-100">
+                  {selectedAbandoned.parsedItems.map((item, idx) => (
+                    <div key={idx} className="py-3 flex items-center justify-between gap-3 text-xs">
+                      <div className="flex items-center gap-3 min-w-0">
+                        {item.image && (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={resolveMediaUrl(item.image)}
+                            alt={item.name || ""}
+                            className="size-12 rounded-xl object-contain bg-white border border-slate-200 p-1 shrink-0"
+                          />
+                        )}
+                        <div className="min-w-0">
+                          <p className="font-bold text-slate-900 text-xs">{item.name || "Produit Parapharmacie"}</p>
+                          {item.variantLabel && (
+                            <p className="text-[0.6875rem] text-slate-500">Format : {item.variantLabel}</p>
+                          )}
+                          <p className="text-[0.6875rem] text-slate-400 font-medium">
+                            Prix unitaire : {(item.priceMillimes / 1000).toFixed(3)} DT
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className="font-bold text-slate-500">Qté : {item.quantity || 1}</span>
+                        <p className="font-black text-slate-900 text-sm">
+                          {(((item.priceMillimes || 0) * (item.quantity || 1)) / 1000).toFixed(3)} DT
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Summary Box */}
+                <div className="border-t border-slate-100 pt-3 space-y-1.5 text-xs">
+                  <div className="flex justify-between text-slate-600">
+                    <span>Sous-total articles :</span>
+                    <span className="font-bold text-slate-900">
+                      {(selectedAbandoned.subtotalMillimes / 1000).toFixed(3)} DT
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-slate-600">
+                    <span>Frais de livraison :</span>
+                    <span className="font-bold text-slate-900">
+                      {(selectedAbandoned.shippingFeeMillimes / 1000).toFixed(3)} DT
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm font-extrabold text-slate-900 border-t border-slate-200 pt-2">
+                    <span className="text-rose-900">TOTAL ESTIMÉ :</span>
+                    <span className="text-[#E11D48] text-base">
+                      {(selectedAbandoned.totalMillimes / 1000).toFixed(3)} DT
+                    </span>
+                  </div>
+                </div>
+
+                {/* Final Action Button */}
+                <div className="pt-3">
+                  <button
+                    type="button"
+                    disabled={convertingAbandonedId === selectedAbandoned.id}
+                    onClick={() => handleConvertAbandoned(selectedAbandoned)}
+                    className="w-full py-3 rounded-xl bg-rose-600 text-white font-extrabold text-sm hover:bg-rose-700 transition-colors shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {convertingAbandonedId === selectedAbandoned.id ? (
+                      <RefreshCw size={16} className="animate-spin" />
+                    ) : (
+                      <ShoppingBag size={16} />
+                    )}
+                    <span>Valider & Créer la Commande Réelle</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Delete Confirmation Modal */}
       <ConfirmModal
         open={!!deleteTarget}
@@ -1715,6 +2243,18 @@ function CommandesInner() {
         onConfirm={handleDelete}
         onCancel={() => setDeleteTarget(null)}
       />
+
+      {/* Abandoned Delete Confirmation Modal */}
+      <ConfirmModal
+        open={!!abandonedDeleteTarget}
+        title="Supprimer la commande abandonnée"
+        description={`Voulez-vous supprimer ce prospect abandonné (${abandonedDeleteTarget?.customerName || abandonedDeleteTarget?.phone || "Sans nom"}) ?`}
+        confirmLabel="Supprimer"
+        variant="danger"
+        onConfirm={handleDeleteAbandoned}
+        onCancel={() => setAbandonedDeleteTarget(null)}
+      />
+
       {/* Aramex Shipment Modal */}
       <AramexShipmentModal
         isOpen={!!aramexModalOrder}
