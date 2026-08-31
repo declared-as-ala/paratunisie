@@ -352,7 +352,9 @@ export class AbandonedCheckoutsService {
    */
   async countAbandoned() {
     return this.prisma.abandonedCheckout.count({
-      where: { status: AbandonedCheckoutStatus.ABANDONED },
+      where: {
+        status: { in: [AbandonedCheckoutStatus.ABANDONED, AbandonedCheckoutStatus.DRAFT] },
+      },
     });
   }
 }
