@@ -10,6 +10,7 @@ import { useCart } from "@/hooks/use-cart";
 import { formatPrice } from "@/lib/data/products";
 import { createExpressOrder } from "@/lib/api/client";
 import { trackInitiateCheckout, trackPurchase } from "@/lib/meta-pixel";
+import { trackBeginCheckout, trackPurchase as trackFirstPartyPurchase } from "@/lib/analytics/tracker";
 import { trackGoogleAdsPurchase } from "@/lib/google-ads";
 import { getCustomerSession, type CustomerSession } from "@/lib/customer-auth";
 import { calculatePointsDiscountMillimes } from "@/lib/loyalty";
@@ -111,7 +112,7 @@ export function CheckoutPage() {
           productId: i.productId,
           name: i.name,
           image: i.image,
-          variantLabel: i.variantLabel,
+          variantLabel: i.sizeLabel,
           quantity: i.quantity,
           priceMillimes: i.priceMillimes,
         })),
