@@ -72,7 +72,7 @@ export class AramexService {
     return {
       UserName: process.env.ARAMEX_USER_NAME || "bitoutawalid@gmail.com",
       Password: process.env.ARAMEX_PASSWORD || "Walid@bitouta@0000",
-      Version: "1.0",
+      Version: "v1.0",
       AccountNumber: process.env.ARAMEX_ACCOUNT_NUMBER || "60506486",
       AccountPin: process.env.ARAMEX_ACCOUNT_PIN || "321321",
       AccountEntity: process.env.ARAMEX_ACCOUNT_ENTITY || "TUN",
@@ -433,7 +433,13 @@ export class AramexService {
     const endpoint = `${this.getBaseUrl()}/ShippingAPI.V2/Tracking/Service_1_0.svc/json/TrackShipments`;
     const payload = {
       ClientInfo: this.getClientInfo(),
-      Transaction: { Reference1: hawb },
+      Transaction: {
+        Reference1: hawb,
+        Reference2: "",
+        Reference3: "",
+        Reference4: "",
+        Reference5: "",
+      },
       Shipments: [hawb],
       GetLastTrackingUpdateOnly: false,
     };
@@ -445,7 +451,19 @@ export class AramexService {
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      const responseText = await response.text();
+      let data: any = {};
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        throw new BadRequestException("Réponse invalide du serveur Aramex.");
+      }
+
+      if (data?.HasErrors) {
+        const msg = data?.Notifications?.[0]?.Message || "Erreur de suivi Aramex";
+        throw new BadRequestException(`Aramex: ${msg}`);
+      }
+
       const results = data?.TrackingResults?.[0]?.Value || [];
 
       const checkpoints = results.map((item: any) => {
@@ -482,7 +500,13 @@ export class AramexService {
     const endpoint = `${this.getBaseUrl()}/ShippingAPI.V2/Shipping/Service_1_0.svc/json/PrintLabel`;
     const payload = {
       ClientInfo: this.getClientInfo(),
-      Transaction: { Reference1: hawb },
+      Transaction: {
+        Reference1: hawb,
+        Reference2: "",
+        Reference3: "",
+        Reference4: "",
+        Reference5: "",
+      },
       ShipmentNumber: hawb,
       LabelInfo: {
         ReportID: 9737,
@@ -497,7 +521,14 @@ export class AramexService {
         body: JSON.stringify(payload),
       });
 
-      const data = await response.json();
+      const responseText = await response.text();
+      let data: any = {};
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        throw new BadRequestException("Réponse invalide du serveur Aramex.");
+      }
+
       const labelUrl = data?.ShipmentLabel?.LabelURL || null;
       return { success: true, hawb, labelUrl };
     } catch (err: any) {
