@@ -9,7 +9,7 @@ import { useCart } from "@/hooks/use-cart";
 import { formatPrice, type ProductSummary } from "@/lib/data/products";
 import { createExpressOrder, type ProductRating } from "@/lib/api/client";
 import { trackViewContent, trackInitiateCheckout, trackPurchase } from "@/lib/meta-pixel";
-import { trackProductView, trackAddToCart, trackPurchase as trackFirstPartyPurchase } from "@/lib/analytics/tracker";
+import { trackProductView, trackAddToCart, trackBeginCheckout, trackPurchase as trackFirstPartyPurchase } from "@/lib/analytics/tracker";
 import { trackGoogleAdsPurchase } from "@/lib/google-ads";
 import { calculatePointsEarned } from "@/lib/loyalty";
 import { getCustomerSession } from "@/lib/customer-auth";
@@ -91,27 +91,24 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
     });
   }, [addItem, product, selected.label, selected.priceMillimes, quantity]);
 
+  const subtotalMillimes = selected.priceMillimes * quantity;
+  const deliveryFeeMillimes = subtotalMillimes >= 99_000 ? 0 : 10_000;
+  const totalMillimes = subtotalMillimes + deliveryFeeMillimes;
+
   const handleOpenQuickOrder = () => {
     setQuickOrderOpen(true);
     trackInitiateCheckout({
-      currency: "TND",
-      value: (selected.priceMillimes * quantity) / 1000,
-      num_items: quantity,
-      content_ids: [product.id],
-      content_name: product.name,
-    });
-    trackBeginCheckout({
-      value: (selected.priceMillimes * quantity) / 1000,
-      currency: "TND",
       items: [
         {
-          id: product.id,
+          productId: product.id,
           name: product.name,
-          price: selected.priceMillimes / 1000,
           quantity,
+          priceMillimes: selected.priceMillimes,
         },
       ],
+      totalTnd: totalMillimes / 1000,
     });
+    trackBeginCheckout(quantity, totalMillimes / 1000);
   };
 
   // Pre-fill user data if logged in
@@ -123,19 +120,6 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
       if (session.user.email) setEmail(session.user.email);
     }
   }, []);
-
-  const subtotalMillimes = selected.priceMillimes * quantity;
-  const deliveryFeeMillimes = subtotalMillimes >= 99_000 ? 0 : 10_000;
-  const totalMillimes = subtotalMillimes + deliveryFeeMillimes;
-
-  // ViewContent tracking
-  useEffect(() => {
-    trackProductView({
-      id: product.id,
-      name: product.name,
-      price: selected.priceMillimes / 1000,
-    });
-  }, [product.id, product.name, quantity, selected.priceMillimes, totalMillimes]);
 
   // Progressive draft saving as customer types
   useEffect(() => {
