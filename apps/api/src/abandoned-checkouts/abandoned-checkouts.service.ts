@@ -15,8 +15,14 @@ export class AbandonedCheckoutsService {
    */
   async upsertDraft(dto: UpsertCheckoutDraftDto) {
     const cleanPhone = (dto.phone || "").replace(/\D/g, "");
-    if (cleanPhone.length < 8) {
-      return { status: "ignored", reason: "phone_too_short" };
+    const hasPhone = cleanPhone.length >= 6;
+    const hasName = Boolean(dto.customerName && dto.customerName.trim().length >= 2);
+    const hasEmail = Boolean(dto.email && dto.email.trim().length >= 4);
+    const hasAddress = Boolean(dto.fullAddress && dto.fullAddress.trim().length >= 3);
+    const hasGouv = Boolean(dto.gouvernorat && dto.gouvernorat.trim().length >= 2);
+
+    if (!hasPhone && !hasName && !hasEmail && !hasAddress && !hasGouv) {
+      return { status: "ignored", reason: "no_contact_info" };
     }
 
     const now = new Date();

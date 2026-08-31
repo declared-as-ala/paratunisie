@@ -14,7 +14,7 @@ import { trackBeginCheckout, trackPurchase as trackFirstPartyPurchase } from "@/
 import { trackGoogleAdsPurchase } from "@/lib/google-ads";
 import { getCustomerSession, type CustomerSession } from "@/lib/customer-auth";
 import { calculatePointsDiscountMillimes } from "@/lib/loyalty";
-import { saveCheckoutDraft, markCheckoutAbandoned, getCheckoutSessionId, resetCheckoutSession } from "@/lib/checkout/abandoned-tracker";
+import { saveCheckoutDraft, saveCheckoutDraftImmediate, markCheckoutAbandoned, getCheckoutSessionId, resetCheckoutSession } from "@/lib/checkout/abandoned-tracker";
 
 const GOUVERNORATS = [
   "Ariana", "Béja", "Ben Arous", "Bizerte", "Gabès", "Gafsa",
@@ -97,7 +97,7 @@ export function CheckoutPage() {
 
   // Progressive draft saving as customer fills checkout form
   useEffect(() => {
-    if (cart.items.length > 0 && form.phone.trim() && !submitted) {
+    if (cart.items.length > 0 && (form.phone.trim() || form.fullName.trim() || form.email.trim() || form.address.trim()) && !submitted) {
       const deliveryPrice = cart.hasFreeDelivery ? 0 : ARAMEX_DELIVERY_PRICE;
       const totalAmount = cart.subtotal + deliveryPrice;
       saveCheckoutDraft({
@@ -126,8 +126,32 @@ export function CheckoutPage() {
   // Handle page unload / navigate away before confirming order
   useEffect(() => {
     const handleUnload = () => {
-      if (!submitted && form.phone.trim()) {
-        markCheckoutAbandoned("CHECKOUT_PAGE");
+      if (!submitted && (form.phone.trim() || form.fullName.trim() || form.address.trim())) {
+        const deliveryPrice = cart.hasFreeDelivery ? 0 : ARAMEX_DELIVERY_PRICE;
+        const totalAmount = cart.subtotal + deliveryPrice;
+        saveCheckoutDraftImmediate(
+          {
+            source: "CHECKOUT_PAGE",
+            customerName: form.fullName,
+            phone: form.phone,
+            email: form.email,
+            gouvernorat: form.governorat,
+            fullAddress: form.address,
+            deliveryNote: form.notes,
+            items: cart.items.map((i) => ({
+              productId: i.productId,
+              name: i.name,
+              image: i.image,
+              variantLabel: i.sizeLabel,
+              quantity: i.quantity,
+              priceMillimes: i.priceMillimes,
+            })),
+            subtotalMillimes: cart.subtotal,
+            shippingFeeMillimes: deliveryPrice,
+            totalMillimes: totalAmount,
+          },
+          "ABANDONED"
+        );
       }
     };
     window.addEventListener("beforeunload", handleUnload);
@@ -135,7 +159,7 @@ export function CheckoutPage() {
       window.removeEventListener("beforeunload", handleUnload);
       handleUnload();
     };
-  }, [submitted, form.phone]);
+  }, [submitted, form.phone, form.fullName, form.email, form.governorat, form.address, form.notes, cart.items, cart.subtotal, cart.hasFreeDelivery]);
 
   const [touched, setTouched] = useState<Partial<Record<keyof CheckoutFormData, boolean>>>({});
   const [errors, setErrors] = useState<FormErrors>({});

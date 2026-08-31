@@ -14,7 +14,7 @@ import { trackGoogleAdsPurchase } from "@/lib/google-ads";
 import { calculatePointsEarned } from "@/lib/loyalty";
 import { getCustomerSession } from "@/lib/customer-auth";
 import { DemanderModal } from "@/components/product/demander-modal";
-import { saveCheckoutDraft, markCheckoutAbandoned, getCheckoutSessionId, resetCheckoutSession } from "@/lib/checkout/abandoned-tracker";
+import { saveCheckoutDraft, saveCheckoutDraftImmediate, markCheckoutAbandoned, getCheckoutSessionId, resetCheckoutSession } from "@/lib/checkout/abandoned-tracker";
 
 const reassurance = [
   { icon: BadgeCheck, label: "Produit authentique" },
@@ -111,7 +111,7 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
 
   // Progressive draft saving as customer types
   useEffect(() => {
-    if (quickOrderOpen && phone.trim()) {
+    if (quickOrderOpen && (phone.trim() || fullName.trim() || address.trim() || note.trim())) {
       saveCheckoutDraft({
         source: "BUY_NOW_MODAL",
         customerName: fullName,
@@ -137,13 +137,36 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
   }, [quickOrderOpen, phone, fullName, gouvernorat, address, note, product.id, product.name, product.image, selected.label, selected.priceMillimes, quantity, subtotalMillimes, deliveryFeeMillimes, totalMillimes]);
 
   const handleCloseQuickOrder = useCallback(() => {
-    if (!orderSuccess && phone.trim()) {
-      markCheckoutAbandoned("BUY_NOW_MODAL");
+    if (!orderSuccess && (phone.trim() || fullName.trim() || address.trim())) {
+      saveCheckoutDraftImmediate(
+        {
+          source: "BUY_NOW_MODAL",
+          customerName: fullName,
+          phone,
+          gouvernorat,
+          fullAddress: address,
+          deliveryNote: note,
+          items: [
+            {
+              productId: product.id,
+              name: product.name,
+              image: product.image,
+              variantLabel: selected.label,
+              quantity,
+              priceMillimes: selected.priceMillimes,
+            },
+          ],
+          subtotalMillimes,
+          shippingFeeMillimes: deliveryFeeMillimes,
+          totalMillimes,
+        },
+        "ABANDONED"
+      );
     }
     setQuickOrderOpen(false);
     setOrderSuccess(null);
     setErrorMsg("");
-  }, [orderSuccess, phone]);
+  }, [orderSuccess, phone, fullName, gouvernorat, address, note, product.id, product.name, product.image, selected.label, selected.priceMillimes, quantity, subtotalMillimes, deliveryFeeMillimes, totalMillimes]);
 
   const handleQuickOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

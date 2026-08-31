@@ -4,7 +4,12 @@
  * and handles modal closing / page unload events reliably via sendBeacon / keepalive.
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "https://paratunisie.com/api/v1";
+function getApiBase(): string {
+  if (typeof window !== "undefined") {
+    return "/api/v1";
+  }
+  return process.env.NEXT_PUBLIC_API_URL || "https://paratunisie.com/api/v1";
+}
 
 export interface CheckoutDraftItem {
   productId?: string;
@@ -55,16 +60,69 @@ export function resetCheckoutSession(source: "CHECKOUT_PAGE" | "BUY_NOW_MODAL"):
   sessionStorage.removeItem(`_pt_chk_sid_${source}`);
 }
 
+function hasAnyUsefulLeadInfo(payload: CheckoutDraftPayload): boolean {
+  const cleanPhone = (payload.phone || "").replace(/\D/g, "");
+  const hasPhone = cleanPhone.length >= 6;
+  const hasName = Boolean(payload.customerName && payload.customerName.trim().length >= 2);
+  const hasEmail = Boolean(payload.email && payload.email.trim().length >= 4);
+  const hasAddress = Boolean(payload.fullAddress && payload.fullAddress.trim().length >= 3);
+  const hasGouv = Boolean(payload.gouvernorat && payload.gouvernorat.trim().length >= 2);
+  return hasPhone || hasName || hasEmail || hasAddress || hasGouv;
+}
+
+function sendDraftPayload(payload: CheckoutDraftPayload, status: "DRAFT" | "ABANDONED" = "DRAFT") {
+  const checkoutSessionId = getCheckoutSessionId(payload.source);
+  const body = JSON.stringify({
+    checkoutSessionId,
+    customerName: payload.customerName?.trim() || undefined,
+    phone: payload.phone?.trim() || undefined,
+    email: payload.email?.trim() || undefined,
+    gouvernorat: payload.gouvernorat?.trim() || undefined,
+    fullAddress: payload.fullAddress?.trim() || undefined,
+    deliveryNote: payload.deliveryNote?.trim() || undefined,
+    items: payload.items,
+    subtotalMillimes: payload.subtotalMillimes,
+    shippingFeeMillimes: payload.shippingFeeMillimes,
+    totalMillimes: payload.totalMillimes,
+    source: payload.source,
+    sourceUrl: payload.sourceUrl || (typeof window !== "undefined" ? window.location.href : undefined),
+    status,
+  });
+
+  const url = `${getApiBase()}/abandoned-checkouts/draft`;
+
+  try {
+    fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body,
+      keepalive: true,
+    }).catch(() => {});
+  } catch {}
+}
+
 /**
- * Debounced draft saving (1.5 seconds).
- * Only saves if phone has at least 8 digits.
+ * Immediate draft saving without debounce (e.g. on blur, close, or submit start).
+ */
+export function saveCheckoutDraftImmediate(payload: CheckoutDraftPayload, status: "DRAFT" | "ABANDONED" = "DRAFT"): void {
+  if (typeof window === "undefined") return;
+  if (!hasAnyUsefulLeadInfo(payload)) return;
+
+  const source = payload.source;
+  if (debounceTimers[source]) {
+    clearTimeout(debounceTimers[source]);
+    delete debounceTimers[source];
+  }
+
+  sendDraftPayload(payload, status);
+}
+
+/**
+ * Debounced draft saving (300ms).
  */
 export function saveCheckoutDraft(payload: CheckoutDraftPayload): void {
   if (typeof window === "undefined") return;
-
-  const cleanPhone = (payload.phone || "").replace(/\D/g, "");
-  // Do not record if no valid phone exists
-  if (cleanPhone.length < 8) return;
+  if (!hasAnyUsefulLeadInfo(payload)) return;
 
   const source = payload.source;
   if (debounceTimers[source]) {
@@ -72,35 +130,9 @@ export function saveCheckoutDraft(payload: CheckoutDraftPayload): void {
   }
 
   debounceTimers[source] = setTimeout(() => {
-    const checkoutSessionId = getCheckoutSessionId(source);
-    const body = JSON.stringify({
-      checkoutSessionId,
-      customerName: payload.customerName?.trim() || undefined,
-      phone: payload.phone?.trim() || undefined,
-      email: payload.email?.trim() || undefined,
-      gouvernorat: payload.gouvernorat?.trim() || undefined,
-      fullAddress: payload.fullAddress?.trim() || undefined,
-      deliveryNote: payload.deliveryNote?.trim() || undefined,
-      items: payload.items,
-      subtotalMillimes: payload.subtotalMillimes,
-      shippingFeeMillimes: payload.shippingFeeMillimes,
-      totalMillimes: payload.totalMillimes,
-      source: payload.source,
-      sourceUrl: payload.sourceUrl || window.location.href,
-      status: "DRAFT",
-    });
-
-    try {
-      fetch(`${API_BASE}/abandoned-checkouts/draft`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body,
-        keepalive: true,
-      }).catch(() => {
-        // Non-blocking silently catch network errors
-      });
-    } catch {}
-  }, 1200);
+    delete debounceTimers[source];
+    sendDraftPayload(payload, "DRAFT");
+  }, 300);
 }
 
 /**
@@ -114,7 +146,7 @@ export function markCheckoutAbandoned(source: "CHECKOUT_PAGE" | "BUY_NOW_MODAL")
   if (!checkoutSessionId) return;
 
   const payload = JSON.stringify({ checkoutSessionId });
-  const url = `${API_BASE}/abandoned-checkouts/mark-abandoned`;
+  const url = `${getApiBase()}/abandoned-checkouts/mark-abandoned`;
 
   if (typeof navigator !== "undefined" && typeof navigator.sendBeacon === "function") {
     const blob = new Blob([payload], { type: "application/json" });

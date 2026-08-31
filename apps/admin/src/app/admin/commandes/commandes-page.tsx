@@ -904,6 +904,9 @@ function CommandesInner() {
   const confirmeeCount = orderCounts?.byStatus.CONFIRMEE ?? orders.filter((o) => o.status === "CONFIRMEE").length;
   const tentativeCount = orderCounts?.byStatus.TENTATIVE_CONTACT ?? orders.filter((o) => (o.status as string) === "TENTATIVE_CONTACT").length;
   const annuleeCount = orderCounts?.byStatus.ANNULEE ?? orders.filter((o) => o.status === "ANNULEE").length;
+  const normalCount = orderCounts?.normal ?? orders.length;
+  const abandonedCount = orderCounts?.abandoned ?? abandonedList.length;
+  const deletedCount = orderCounts?.deleted ?? 0;
 
   return (
     <div className="space-y-6 min-h-screen bg-[#FFF5F5]/40 p-2 sm:p-6 text-slate-800">
