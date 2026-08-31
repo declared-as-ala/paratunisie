@@ -10,7 +10,9 @@ export class AdminAuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
-    const token = request.cookies?.[ADMIN_SESSION_COOKIE];
+    const authHeader = request.headers?.authorization || request.headers?.Authorization;
+    const bearerToken = typeof authHeader === "string" && authHeader.startsWith("Bearer ") ? authHeader.substring(7) : null;
+    const token = request.cookies?.[ADMIN_SESSION_COOKIE] || bearerToken;
     if (!token) throw new UnauthorizedException("Session admin requise");
 
     let payload: AdminJwtPayload;
