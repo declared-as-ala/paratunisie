@@ -49,7 +49,7 @@ export function SearchOverlay({
       const res = await fetchPaginatedProducts({ search: query, limit: 5 });
       setLiveProducts(res.products);
       setIsSearchingProducts(false);
-      trackSearch(query, res.total ?? res.products.length);
+      trackSearch(query, res.meta?.total ?? res.products.length);
     }, 400);
     return () => clearTimeout(timeout);
   }, [value]);
