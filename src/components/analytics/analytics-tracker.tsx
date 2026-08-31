@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useRef } from "react";
 import { trackEvent } from "@/lib/analytics/tracker";
 
@@ -18,7 +18,6 @@ function inferPageType(pathname: string): string {
 
 export function AnalyticsTracker() {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const startTimeRef = useRef<number>(Date.now());
   const previousPathRef = useRef<string>("");
 
@@ -54,7 +53,7 @@ export function AnalyticsTracker() {
       pageType,
       pageTitle: typeof document !== "undefined" ? document.title : undefined,
     });
-  }, [pathname, searchParams]);
+  }, [pathname]);
 
   // Handle tab close / reload duration tracking
   useEffect(() => {
