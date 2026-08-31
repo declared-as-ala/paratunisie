@@ -71,6 +71,7 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
   // Form State
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [gouvernorat, setGouvernorat] = useState("Tunis");
   const [address, setAddress] = useState("");
   const [note, setNote] = useState("");
@@ -90,32 +91,60 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
     });
   }, [addItem, product, selected.label, selected.priceMillimes, quantity]);
 
+  const handleOpenQuickOrder = () => {
+    setQuickOrderOpen(true);
+    trackInitiateCheckout({
+      currency: "TND",
+      value: (selected.priceMillimes * quantity) / 1000,
+      num_items: quantity,
+      content_ids: [product.id],
+      content_name: product.name,
+    });
+    trackBeginCheckout({
+      value: (selected.priceMillimes * quantity) / 1000,
+      currency: "TND",
+      items: [
+        {
+          id: product.id,
+          name: product.name,
+          price: selected.priceMillimes / 1000,
+          quantity,
+        },
+      ],
+    });
+  };
+
+  // Pre-fill user data if logged in
+  useEffect(() => {
+    const session = getCustomerSession();
+    if (session?.user) {
+      if (session.user.name) setFullName(session.user.name);
+      if (session.user.phone) setPhone(session.user.phone);
+      if (session.user.email) setEmail(session.user.email);
+    }
+  }, []);
+
   const subtotalMillimes = selected.priceMillimes * quantity;
   const deliveryFeeMillimes = subtotalMillimes >= 99_000 ? 0 : 10_000;
   const totalMillimes = subtotalMillimes + deliveryFeeMillimes;
 
-  const handleOpenQuickOrder = useCallback(() => {
-    setQuickOrderOpen(true);
-    trackInitiateCheckout({
-      items: [
-        {
-          productId: product.id,
-          name: product.name,
-          quantity,
-          priceMillimes: selected.priceMillimes,
-        },
-      ],
-      totalTnd: totalMillimes / 1000,
+  // ViewContent tracking
+  useEffect(() => {
+    trackProductView({
+      id: product.id,
+      name: product.name,
+      price: selected.priceMillimes / 1000,
     });
   }, [product.id, product.name, quantity, selected.priceMillimes, totalMillimes]);
 
   // Progressive draft saving as customer types
   useEffect(() => {
-    if (quickOrderOpen && (phone.trim() || fullName.trim() || address.trim() || note.trim())) {
+    if (quickOrderOpen && (phone.trim() || fullName.trim() || email.trim() || address.trim() || note.trim())) {
       saveCheckoutDraft({
         source: "BUY_NOW_MODAL",
         customerName: fullName,
         phone,
+        email: email.trim() || undefined,
         gouvernorat,
         fullAddress: address,
         deliveryNote: note,
@@ -134,15 +163,16 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
         totalMillimes,
       });
     }
-  }, [quickOrderOpen, phone, fullName, gouvernorat, address, note, product.id, product.name, product.image, selected.label, selected.priceMillimes, quantity, subtotalMillimes, deliveryFeeMillimes, totalMillimes]);
+  }, [quickOrderOpen, phone, fullName, email, gouvernorat, address, note, product.id, product.name, product.image, selected.label, selected.priceMillimes, quantity, subtotalMillimes, deliveryFeeMillimes, totalMillimes]);
 
   const handleCloseQuickOrder = useCallback(() => {
-    if (!orderSuccess && (phone.trim() || fullName.trim() || address.trim())) {
+    if (!orderSuccess && (phone.trim() || fullName.trim() || email.trim() || address.trim())) {
       saveCheckoutDraftImmediate(
         {
           source: "BUY_NOW_MODAL",
           customerName: fullName,
           phone,
+          email: email.trim() || undefined,
           gouvernorat,
           fullAddress: address,
           deliveryNote: note,
@@ -166,7 +196,7 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
     setQuickOrderOpen(false);
     setOrderSuccess(null);
     setErrorMsg("");
-  }, [orderSuccess, phone, fullName, gouvernorat, address, note, product.id, product.name, product.image, selected.label, selected.priceMillimes, quantity, subtotalMillimes, deliveryFeeMillimes, totalMillimes]);
+  }, [orderSuccess, phone, fullName, email, gouvernorat, address, note, product.id, product.name, product.image, selected.label, selected.priceMillimes, quantity, subtotalMillimes, deliveryFeeMillimes, totalMillimes]);
 
   const handleQuickOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -191,7 +221,7 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
     try {
       const { order, error } = await createExpressOrder({
         userId: session?.user?.id,
-        email: session?.user?.email,
+        email: email.trim() || session?.user?.email,
         firstName,
         lastName,
         phone: phone.trim(),
@@ -650,6 +680,17 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="Ex: 20 123 456"
+                      className="w-full h-10 rounded-xl border border-border px-3 text-xs font-medium focus:outline-none focus:border-primary"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-ink mb-1">Email (Optionnel)</label>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Ex: mohamed@gmail.com"
                       className="w-full h-10 rounded-xl border border-border px-3 text-xs font-medium focus:outline-none focus:border-primary"
                     />
                   </div>

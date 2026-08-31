@@ -1255,6 +1255,7 @@ model AbandonedCheckout {
   sourceUrl           String?
   status              AbandonedCheckoutStatus @default(DRAFT)
   convertedOrderId    String?
+  adminNotifiedAt     DateTime?
   lastActivityAt      DateTime                @default(now())
   createdAt           DateTime                @default(now())
   updatedAt           DateTime                @updatedAt

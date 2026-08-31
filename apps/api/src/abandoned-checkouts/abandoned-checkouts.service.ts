@@ -2,16 +2,119 @@ import { Injectable, Logger, NotFoundException, BadRequestException } from "@nes
 import { AbandonedCheckoutStatus, CheckoutSource, OrderStatus } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { UpsertCheckoutDraftDto } from "./dto/upsert-draft.dto";
+import { EmailService } from "../notifications/email/email.service";
 
 @Injectable()
 export class AbandonedCheckoutsService {
   private readonly logger = new Logger(AbandonedCheckoutsService.name);
 
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private emailService: EmailService
+  ) {}
+
+  /**
+   * Send an immediate email alert to Admin for a new/abandoned recoverable lead.
+   */
+  private async notifyAdmin(record: any) {
+    if (record.adminNotifiedAt) return;
+
+    const adminEmail = process.env.ADMIN_EMAIL || process.env.MAIL_USERNAME || "alamissaoui.dev@gmail.com";
+    if (!adminEmail) return;
+
+    let items: any[] = [];
+    try {
+      items = JSON.parse(record.items || "[]");
+    } catch {
+      items = [];
+    }
+
+    const itemsRows = items.length > 0
+      ? items
+          .map(
+            (it) => `
+          <tr style="border-bottom: 1px solid #f1f5f9;">
+            <td style="padding: 10px 4px; font-weight: bold; color: #1e293b;">
+              ${it.name || "Produit Parapharmacie"}
+              ${it.variantLabel ? `<br><span style="font-size: 11px; font-weight: normal; color: #64748b;">Format: ${it.variantLabel}</span>` : ""}
+            </td>
+            <td style="padding: 10px 4px; text-align: center; color: #475569; font-weight: bold;">×${it.quantity || 1}</td>
+            <td style="padding: 10px 4px; text-align: right; font-weight: bold; color: #0f172a;">${(((it.priceMillimes || 0) * (it.quantity || 1)) / 1000).toFixed(3)} DT</td>
+          </tr>`
+          )
+          .join("")
+      : '<tr><td colspan="3" style="padding: 10px; color: #94a3b8; text-align: center;">Aucun article dans le panier</td></tr>';
+
+    const cleanPhone = (record.phone || "").replace(/\D/g, "");
+    const waPhone = cleanPhone.startsWith("216") ? cleanPhone : `216${cleanPhone}`;
+    const waLink = cleanPhone ? `https://wa.me/${waPhone}?text=${encodeURIComponent(`Bonjour ${record.customerName || ""}, c'est l'équipe ParaTunisie ! Avez-vous besoin d'aide pour finaliser votre commande ?`)}` : null;
+
+    const html = `
+    <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; overflow: hidden;">
+      <div style="background: #E11D48; padding: 22px 24px; color: #ffffff;">
+        <h1 style="margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -0.3px;">🚨 Nouveau Panier Abandonné Détecté</h1>
+        <p style="margin: 4px 0 0 0; font-size: 13px; opacity: 0.95;">Un prospect a commencé une commande sur ParaTunisie sans la valider.</p>
+      </div>
+      <div style="padding: 24px;">
+        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; margin-bottom: 20px;">
+          <h3 style="margin: 0 0 12px 0; font-size: 13px; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 800;">👤 Coordonnées du Prospect</h3>
+          <p style="margin: 6px 0; font-size: 14px; color: #334155;"><strong>Nom & Prénom :</strong> <span style="font-weight: 700; color: #0f172a;">${record.customerName || "Non renseigné"}</span></p>
+          <p style="margin: 6px 0; font-size: 14px; color: #334155;"><strong>Téléphone :</strong> <a href="tel:${record.phone}" style="color: #E11D48; font-weight: 800; text-decoration: underline;">${record.phone || "Non renseigné"}</a></p>
+          ${record.email ? `<p style="margin: 6px 0; font-size: 14px; color: #334155;"><strong>Email :</strong> <a href="mailto:${record.email}" style="color: #0284c7; text-decoration: none;">${record.email}</a></p>` : ""}
+          <p style="margin: 6px 0; font-size: 14px; color: #334155;"><strong>Gouvernorat :</strong> <span style="font-weight: 600;">${record.gouvernorat || "Non renseigné"}</span></p>
+          <p style="margin: 6px 0; font-size: 14px; color: #334155;"><strong>Adresse :</strong> ${record.fullAddress || "Non renseignée"}</p>
+          ${record.deliveryNote ? `<p style="margin: 6px 0; font-size: 14px; color: #334155;"><strong>Note du client :</strong> <em style="color: #b45309;">${record.deliveryNote}</em></p>` : ""}
+          <p style="margin: 6px 0; font-size: 12px; color: #64748b;"><strong>Source :</strong> ${record.source === "BUY_NOW_MODAL" ? "⚡ Modal 1-Clic Acheter Maintenant" : "🛒 Page Commande"}</p>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+          <h3 style="margin: 0 0 12px 0; font-size: 13px; color: #0f172a; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 800;">📦 Articles du Panier</h3>
+          <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+            <thead>
+              <tr style="border-bottom: 2px solid #e2e8f0; text-align: left; color: #64748b; font-size: 11px; text-transform: uppercase;">
+                <th style="padding: 8px 4px;">Produit</th>
+                <th style="padding: 8px 4px; text-align: center;">Qté</th>
+                <th style="padding: 8px 4px; text-align: right;">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsRows}
+            </tbody>
+          </table>
+          <div style="border-top: 2px solid #e2e8f0; margin-top: 14px; padding-top: 14px; text-align: right;">
+            <span style="font-size: 13px; color: #475569; font-weight: bold;">TOTAL ESTIMÉ : </span>
+            <span style="font-size: 19px; color: #E11D48; font-weight: 900;">${(record.totalMillimes / 1000).toFixed(3)} DT</span>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 28px; padding-top: 16px; border-top: 1px solid #f1f5f9;">
+          ${waLink ? `<a href="${waLink}" target="_blank" style="display: inline-block; background: #25D366; color: #ffffff; padding: 12px 22px; border-radius: 10px; font-weight: 800; text-decoration: none; font-size: 13px; margin: 4px 6px;">📲 Relancer sur WhatsApp</a>` : ""}
+          <a href="https://paratunisie.com/admin/commandes" target="_blank" style="display: inline-block; background: #E11D48; color: #ffffff; padding: 12px 22px; border-radius: 10px; font-weight: 800; text-decoration: none; font-size: 13px; margin: 4px 6px;">Ouvrir l'Admin Commandes</a>
+        </div>
+      </div>
+    </div>`;
+
+    const subject = `🚨 Panier Abandonné — ${record.customerName || record.phone || "Prospect"} (${(record.totalMillimes / 1000).toFixed(3)} DT)`;
+
+    this.emailService
+      .sendEmail(adminEmail, subject, html)
+      .then((res) => {
+        if (res.success) {
+          this.prisma.abandonedCheckout
+            .update({
+              where: { id: record.id },
+              data: { adminNotifiedAt: new Date() },
+            })
+            .catch(() => {});
+        }
+      })
+      .catch((err) => {
+        this.logger.warn(`Failed to send abandoned checkout email: ${err.message}`);
+      });
+  }
 
   /**
    * Upsert a checkout draft progressively.
-   * Only stores if a valid phone number (at least 8 digits) is provided.
    */
   async upsertDraft(dto: UpsertCheckoutDraftDto) {
     const cleanPhone = (dto.phone || "").replace(/\D/g, "");
@@ -62,6 +165,10 @@ export class AbandonedCheckoutsService {
         },
       });
 
+      if (!updated.adminNotifiedAt && (hasPhone || hasEmail)) {
+        this.notifyAdmin(updated);
+      }
+
       return { status: "updated", id: updated.id };
     }
 
@@ -86,6 +193,10 @@ export class AbandonedCheckoutsService {
       },
     });
 
+    if (hasPhone || hasEmail) {
+      this.notifyAdmin(created);
+    }
+
     return { status: "created", id: created.id };
   }
 
@@ -103,13 +214,17 @@ export class AbandonedCheckoutsService {
       return { status: "ignored" };
     }
 
-    await this.prisma.abandonedCheckout.update({
+    const updated = await this.prisma.abandonedCheckout.update({
       where: { id: existing.id },
       data: {
         status: AbandonedCheckoutStatus.ABANDONED,
         lastActivityAt: new Date(),
       },
     });
+
+    if (!updated.adminNotifiedAt && (updated.phone || updated.email || updated.customerName)) {
+      this.notifyAdmin(updated);
+    }
 
     return { status: "abandoned", id: existing.id };
   }
