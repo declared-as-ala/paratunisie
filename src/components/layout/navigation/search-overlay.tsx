@@ -12,6 +12,7 @@ import { articles } from "@/lib/data/articles";
 import { popularSearches } from "@/lib/data/navigation";
 import { logMerchandisingEvent } from "@/lib/telemetry";
 import { fetchBrands, fetchPaginatedProducts } from "@/lib/api/client";
+import { trackSearch } from "@/lib/analytics/tracker";
 
 const RECENT_SEARCHES_KEY = "paratunisie-recent-searches";
 
@@ -48,7 +49,8 @@ export function SearchOverlay({
       const res = await fetchPaginatedProducts({ search: query, limit: 5 });
       setLiveProducts(res.products);
       setIsSearchingProducts(false);
-    }, 250);
+      trackSearch(query, res.total ?? res.products.length);
+    }, 400);
     return () => clearTimeout(timeout);
   }, [value]);
 

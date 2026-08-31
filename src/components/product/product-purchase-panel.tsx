@@ -9,6 +9,7 @@ import { useCart } from "@/hooks/use-cart";
 import { formatPrice, type ProductSummary } from "@/lib/data/products";
 import { createExpressOrder, type ProductRating } from "@/lib/api/client";
 import { trackViewContent, trackInitiateCheckout, trackPurchase } from "@/lib/meta-pixel";
+import { trackProductView, trackAddToCart, trackPurchase as trackFirstPartyPurchase } from "@/lib/analytics/tracker";
 import { trackGoogleAdsPurchase } from "@/lib/google-ads";
 import { calculatePointsEarned } from "@/lib/loyalty";
 import { getCustomerSession } from "@/lib/customer-auth";
@@ -44,6 +45,7 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
   // Track ViewContent on product load
   useEffect(() => {
     trackViewContent(product);
+    trackProductView(product);
   }, [product]);
 
   // IntersectionObserver State for Mobile Sticky Bar (only visible when inline buttons scroll out of view)
@@ -79,7 +81,13 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
 
   const handleAdd = useCallback(() => {
     addItem(product, selected.label, quantity);
-  }, [addItem, product, selected.label, quantity]);
+    trackAddToCart({
+      id: product.id,
+      name: product.name,
+      priceMillimes: selected.priceMillimes,
+      quantity,
+    });
+  }, [addItem, product, selected.label, selected.priceMillimes, quantity]);
 
   const subtotalMillimes = selected.priceMillimes * quantity;
   const deliveryFeeMillimes = subtotalMillimes >= 99_000 ? 0 : 10_000;
@@ -154,6 +162,7 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
             },
           ],
         });
+        trackFirstPartyPurchase(order.id, totalTnd, quantity);
         trackGoogleAdsPurchase({
           orderId: order.id,
           orderNumber: orderRef,

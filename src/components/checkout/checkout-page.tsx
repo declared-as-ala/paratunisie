@@ -10,6 +10,7 @@ import { useCart } from "@/hooks/use-cart";
 import { formatPrice } from "@/lib/data/products";
 import { createExpressOrder } from "@/lib/api/client";
 import { trackInitiateCheckout, trackPurchase } from "@/lib/meta-pixel";
+import { trackBeginCheckout, trackPurchase as trackFirstPartyPurchase } from "@/lib/analytics/tracker";
 import { trackGoogleAdsPurchase } from "@/lib/google-ads";
 import { getCustomerSession, type CustomerSession } from "@/lib/customer-auth";
 import { calculatePointsDiscountMillimes } from "@/lib/loyalty";
@@ -80,8 +81,9 @@ export function CheckoutPage() {
         })),
         totalTnd: total / 1000,
       });
+      trackBeginCheckout(cart.itemCount, total / 1000);
     }
-  }, [cart.items.length, cart.subtotal, cart.hasFreeDelivery, submitted]);
+  }, [cart.items.length, cart.subtotal, cart.hasFreeDelivery, cart.itemCount, submitted]);
 
   const [form, setForm] = useState<CheckoutFormData>({
     email: "",
@@ -230,6 +232,7 @@ export function CheckoutPage() {
             priceMillimes: i.priceMillimes,
           })),
         });
+        trackFirstPartyPurchase(order.id, orderTotalTnd, cart.itemCount);
         trackGoogleAdsPurchase({
           orderId: order.id,
           orderNumber: ref,

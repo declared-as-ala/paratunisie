@@ -23,6 +23,7 @@ import { NotificationsModule } from "./notifications/notifications.module";
 import { MetaCapiModule } from "./meta-capi/meta-capi.module";
 import { ProductRequestsModule } from "./product-requests/product-requests.module";
 import { ShippingModule } from "./shipping/shipping.module";
+import { AnalyticsModule } from "./analytics/analytics.module";
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { ShippingModule } from "./shipping/shipping.module";
     MetaCapiModule,
     ProductRequestsModule,
     ShippingModule,
+    AnalyticsModule,
   ],
 })
 export class AppModule {}

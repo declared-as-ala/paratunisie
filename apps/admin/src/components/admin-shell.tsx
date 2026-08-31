@@ -43,7 +43,8 @@ const navSections: { title: string; items: NavItem[] }[] = [
   {
     title: "Analyse",
     items: [
-      { label: "Rapports", href: "/admin/rapports", icon: BarChart3 },
+      { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
+      { label: "Rapports", href: "/admin/rapports", icon: LayoutDashboard },
       { label: "Rentabilité", href: "/admin/rentabilite", icon: Wallet },
     ],
   },

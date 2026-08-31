@@ -1098,3 +1098,128 @@ model NotificationDelivery {
   @@index([orderId])
   @@index([status])
 }
+
+// ─── First-Party Analytics ─────────────────────────────────────────────
+
+enum AnalyticsEventType {
+  PAGE_VIEW
+  PRODUCT_VIEW
+  CATEGORY_VIEW
+  SEARCH
+  ADD_TO_CART
+  REMOVE_FROM_CART
+  BEGIN_CHECKOUT
+  PURCHASE
+  CUSTOM
+}
+
+model AnalyticsSession {
+  id              String           @id @default(cuid())
+  visitorId       String           // Persistent anonymous visitor UUID
+  sessionToken    String           @unique // Unique session token (30 min sliding window)
+  userId          String?          // If logged in customer
+  startedAt       DateTime         @default(now())
+  lastActiveAt    DateTime         @default(now())
+  durationSeconds Int              @default(0)
+  pageViewsCount  Int              @default(1)
+  isBounce        Boolean          @default(true)
+  isNewVisitor    Boolean          @default(true)
+  
+  // Geo Info (Anonymized, no raw IP stored)
+  country         String?          @default("Tunisie")
+  countryCode     String?          @default("TN")
+  city            String?
+  
+  // Device & Client Info
+  deviceType      String           @default("mobile") // mobile, desktop, tablet
+  browser         String?          // Chrome, Safari, Firefox, Edge, etc.
+  os              String?          // iOS, Android, Windows, macOS, Linux
+  
+  // Attribution & Traffic Source
+  referrer        String?
+  channel         String           @default("direct") // direct, organic_search, paid_search, social_facebook, social_instagram, social_tiktok, referral, other
+  utmSource       String?
+  utmMedium       String?
+  utmCampaign     String?
+  utmContent      String?
+  utmTerm         String?
+  
+  // E-commerce connection
+  hasOrder        Boolean          @default(false)
+  orderId         String?
+
+  events          AnalyticsEvent[]
+
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([visitorId])
+  @@index([startedAt])
+  @@index([countryCode])
+  @@index([channel])
+  @@index([deviceType])
+  @@index([hasOrder])
+  @@index([lastActiveAt])
+}
+
+model AnalyticsEvent {
+  id                  String             @id @default(cuid())
+  sessionId           String
+  session             AnalyticsSession   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  visitorId           String
+  eventType           AnalyticsEventType @default(PAGE_VIEW)
+  
+  // Page context
+  pageUrl             String
+  pagePath            String
+  pageType            String             @default("other") // home, shop, product, category, brand, blog, cart, checkout, search, other
+  pageTitle           String?
+  timeOnPageSeconds   Int?               @default(0)
+  
+  // Entity context
+  productId           String?
+  categoryId          String?
+  brandId             String?
+  orderId             String?
+  
+  // Search context
+  searchKeyword       String?
+  searchResultsCount  Int?
+  
+  // E-commerce details
+  priceMillimes       Int?
+  quantity            Int?
+  
+  // Additional unstructured payload
+  metadata            String?            @default("{}")
+  
+  createdAt           DateTime           @default(now())
+
+  @@index([sessionId])
+  @@index([visitorId])
+  @@index([eventType])
+  @@index([pageType])
+  @@index([productId])
+  @@index([categoryId])
+  @@index([searchKeyword])
+  @@index([createdAt])
+}
+
+model AnalyticsDailyAggregate {
+  id              String   @id @default(cuid())
+  date            String   // YYYY-MM-DD
+  metric          String   // page_views, unique_visitors, sessions, orders, revenue_millimes, etc.
+  dimensionType   String   // country, device, channel, page_path, product_id, search_term
+  dimensionValue  String
+  countValue      Int      @default(0)
+  sumValue        BigInt   @default(0)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([date, metric, dimensionType, dimensionValue])
+  @@index([date])
+  @@index([metric])
+  @@index([dimensionType, dimensionValue])
+}
+

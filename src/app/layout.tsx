@@ -6,6 +6,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { MobileTabBar } from "@/components/layout/navigation/mobile-tab-bar";
 import { GlobalAiAssistant } from "@/components/layout/global-ai-assistant";
+import { AnalyticsTracker } from "@/components/analytics/analytics-tracker";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -156,6 +157,7 @@ export default function RootLayout({
         </noscript>
       </head>
       <body className="flex min-h-full flex-col bg-background pb-[calc(4.5rem+env(safe-area-inset-bottom))] text-foreground lg:pb-0">
+        <AnalyticsTracker />
         <a
           href="#contenu-principal"
           className="fixed start-4 top-4 z-[100] -translate-y-24 rounded-md bg-primary px-4 py-3 text-sm font-medium text-primary-foreground shadow-lg transition-transform focus:translate-y-0"
