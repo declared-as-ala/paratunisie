@@ -390,6 +390,10 @@ export async function fetchBrands(): Promise<{ name: string; slug: string }[]> {
 export type BrandDetail = {
   name: string;
   slug: string;
+  image?: string | null;
+  logo?: string | null;
+  origin?: string | null;
+  featured?: boolean;
   tagline?: string | null;
   shortDescription?: string | null;
   description?: string | null;
