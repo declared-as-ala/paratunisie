@@ -128,7 +128,7 @@ export class AramexService {
     const address = (customData?.adresse || order.fullAddress || "Tunisie").trim();
     const rawCity = (customData?.ville || order.gouvernorat || "Tunis").trim();
     const city = normalizeAramexCity(rawCity);
-    const email = order.user?.email || "contact@paratunisie.com";
+    const email = order.user?.email || "contact@sobitas.tn";
 
     const weight = Number(customData?.weight || 1.0);
     const pieces = Number(customData?.pieces || 1);
@@ -147,7 +147,7 @@ export class AramexService {
     // Format all product items into a clear summary list with isolated prices
     const productSummaryList = (order.items || []).map((it) => {
       const q = it.quantity || 1;
-      const name = it.product?.name || "Produit Parapharmacie";
+      const name = it.product?.name || "Produit";
       const price = Math.round((it.priceMillimes || 0) / 1000);
       const variantName = it.productVariant?.label ? ` (${it.productVariant.label})` : "";
       return `${q}x ${name}${variantName} (${price * q} DT)`;
@@ -193,7 +193,7 @@ export class AramexService {
           Reference2: shortRef2,
           Reference3: `Tel: ${formattedPhone}`,
           Shipper: {
-            Reference1: "ParaTunisie",
+            Reference1: process.env.ARAMEX_SHIPPER_REF || process.env.ARAMEX_SHIPPER_NAME || "Sobitas",
             Reference2: "",
             AccountNumber: clientInfo.AccountNumber,
             PartyAddress: {
@@ -209,14 +209,14 @@ export class AramexService {
               Department: "",
               PersonName: ".",
               Title: "",
-              CompanyName: process.env.ARAMEX_SHIPPER_NAME || "Para Tunisie",
+              CompanyName: process.env.ARAMEX_SHIPPER_NAME || "Sobitas",
               PhoneNumber1: process.env.ARAMEX_SHIPPER_PHONE || "0021671160800",
               PhoneNumber1Ext: "",
               PhoneNumber2: "",
               PhoneNumber2Ext: "",
               FaxNumber: "",
               CellPhone: process.env.ARAMEX_SHIPPER_PHONE || "0021671160800",
-              EmailAddress: process.env.ARAMEX_SHIPPER_EMAIL || "contact@paratunisie.com",
+              EmailAddress: process.env.ARAMEX_SHIPPER_EMAIL || "contact@sobitas.tn",
               Type: "",
             },
           },
