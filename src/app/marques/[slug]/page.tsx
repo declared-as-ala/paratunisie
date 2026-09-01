@@ -77,12 +77,14 @@ export default async function BrandPage({
     brand.shortDescription ||
     `Découvrez la sélection ${brand.name} disponible en Tunisie : produits authentiques, prix et livraison partout dans le pays.`;
 
+  const brandLogo = brand.image || brand.logo || undefined;
+
   const brandJsonLd = {
     "@context": "https://schema.org",
     "@type": "Brand",
     name: brand.name,
     url: `${SITE_URL}/marques/${brand.slug}`,
-    logo: brand.image || brand.logo || undefined,
+    logo: brandLogo,
     description: introText,
   };
 
@@ -112,9 +114,9 @@ export default async function BrandPage({
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
             {/* Official Logo Well */}
             <div className="size-24 sm:size-28 shrink-0 rounded-2xl border border-border/70 bg-white p-3 flex items-center justify-center shadow-xs">
-              {brand.image || brand.logo ? (
+              {brandLogo ? (
                 <img
-                  src={brand.image || brand.logo}
+                  src={brandLogo}
                   alt={`Logo ${brand.name} Tunisie`}
                   className="max-h-full max-w-full object-contain filter contrast-105"
                 />
