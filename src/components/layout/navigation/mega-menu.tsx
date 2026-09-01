@@ -189,6 +189,24 @@ export const MEGA_MENU_DATA: MegaMenuSection[] = [
         image: "/uploads/products/anabolic-whey-80-2-25kg-proactive-d1e70098.webp",
       },
       {
+        id: "p_gold_whey",
+        name: "100% Whey Gold Standard 2.27kg",
+        brand: "Optimum Nutrition",
+        slug: "100-whey-gold-standard-2-27kg",
+        benefit: "La référence mondiale en isolat et concentré de whey.",
+        priceMillimes: 319000,
+        image: "https://admin.protein.tn/storage/produits/August2023/pANexavomTnlAOLqswAs.webp",
+      },
+      {
+        id: "p_tantor_whey",
+        name: "Tantor Whey Protein 2,267 g",
+        brand: "Scenit Nutrition",
+        slug: "tantor-whey-protein-2-267-g-scenit-nutrition",
+        benefit: "Protéine complète ultra-filtrée pour le muscle sec.",
+        priceMillimes: 249000,
+        image: "https://admin.protein.tn/storage/produits/ZszNLpJj2LNNJ4sciiDxGPixlCD31oNPr1Rk5BXC.webp",
+      },
+      {
         id: "p29",
         name: "Thunder Gainer 5.4kg",
         brand: "Challenger Nutrition",
@@ -196,24 +214,6 @@ export const MEGA_MENU_DATA: MegaMenuSection[] = [
         benefit: "Prise de masse rapide, formule haute teneur calorique.",
         priceMillimes: 279000,
         image: "/uploads/products/thunder-gainer-5-4kg-challenger-nutrition-20b49293.webp",
-      },
-      {
-        id: "p31",
-        name: "Xtend BCAA 420g",
-        brand: "Xtend",
-        slug: "xtend-bcaa-420g",
-        benefit: "7g de BCAA 2:1:1 + électrolytes d'hydratation.",
-        priceMillimes: 139000,
-        image: "/uploads/products/xtend-bcaa-420g-f3c29f70.webp",
-      },
-      {
-        id: "p33",
-        name: "EAA Master Amino 390g",
-        brand: "Scenit Nutrition",
-        slug: "eaa-master-amino-390g-scenit-nutrition",
-        benefit: "9 acides aminés essentiels pour l'anti-catabolisme.",
-        priceMillimes: 139000,
-        image: "/uploads/products/eaa-master-amino-390g-scenit-nutrition-21d315c0.webp",
       },
     ],
   },
@@ -250,22 +250,22 @@ export const MEGA_MENU_DATA: MegaMenuSection[] = [
         image: "/uploads/products/psychotic-pre-workout-c7dabc0f.webp",
       },
       {
-        id: "p36",
-        name: "Lipo-6 Black Ultra Concentrate",
-        brand: "Nutrex Research",
-        slug: "lipo-6-black-ultra-concentrate-60caps",
-        benefit: "Thermogénique ultra-concentré pour la sèche.",
-        priceMillimes: 140000,
-        image: "/uploads/products/lipo-6-black-ultra-concentrate-60caps-7abcdedc.webp",
+        id: "p31",
+        name: "Xtend BCAA 420g",
+        brand: "Xtend",
+        slug: "xtend-bcaa-420g",
+        benefit: "7g de BCAA 2:1:1 + électrolytes d'hydratation.",
+        priceMillimes: 139000,
+        image: "/uploads/products/xtend-bcaa-420g-f3c29f70.webp",
       },
       {
-        id: "p34",
-        name: "Gold L-Carnitine 3000 500ml",
-        brand: "FA Engineered Nutrition",
-        slug: "gold-l-carnitine-3000-500ml",
-        benefit: "Transport des graisses et endurance lipidique.",
-        priceMillimes: 99000,
-        image: "/uploads/products/gold-l-carnitine-3000-500ml-f9c4c91a.webp",
+        id: "p33",
+        name: "EAA Master Amino 390g",
+        brand: "Scenit Nutrition",
+        slug: "eaa-master-amino-390g-scenit-nutrition",
+        benefit: "9 acides aminés essentiels pour l'anti-catabolisme.",
+        priceMillimes: 139000,
+        image: "/uploads/products/eaa-master-amino-390g-scenit-nutrition-21d315c0.webp",
       },
     ],
   },
@@ -483,16 +483,6 @@ export function MegaMenu() {
         className="px-3.5 py-2 rounded-lg transition-colors hover:bg-white hover:text-primary text-ink/90"
       >
         Marques
-      </Link>
-
-      <Link
-        href="/accessoires"
-        className="px-3.5 py-2 rounded-lg transition-colors hover:bg-white hover:text-primary text-ink/90 flex items-center gap-1"
-      >
-        Accessoires
-        <span className="ml-1 text-[0.6rem] font-extrabold uppercase tracking-wide text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded-full">
-          Nouveau
-        </span>
       </Link>
 
       <Link
