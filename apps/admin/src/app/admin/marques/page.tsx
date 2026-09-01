@@ -21,6 +21,8 @@ import { ConfirmModal } from "@/components/confirm-modal";
 import { useToast } from "@/components/toast";
 import { apiClient, ApiError } from "@/lib/api-client";
 
+import { SeoCompletenessScore } from "@/components/seo-completeness-score";
+
 export default function MarquesAdminPage() {
   const { toast } = useToast();
   const [brands, setBrands] = useState<BrandModel[]>([]);
@@ -213,7 +215,7 @@ export default function MarquesAdminPage() {
 
       <div className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xs">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px] border-collapse text-left">
+          <table className="w-full min-w-[950px] border-collapse text-left">
             <thead>
               <tr className="border-b border-slate-100 bg-rose-50/30 text-[0.6875rem] font-bold uppercase tracking-wider text-slate-500">
                 <th className="py-3.5 px-4 w-10">
@@ -222,6 +224,7 @@ export default function MarquesAdminPage() {
                 <th className="px-4 py-3.5">Marque</th>
                 <th className="px-4 py-3.5">Slug URL</th>
                 <th className="px-4 py-3.5 text-center">Produits réels</th>
+                <th className="px-4 py-3.5 text-center">Score SEO</th>
                 <th className="px-4 py-3.5">Positionnement</th>
                 <th className="px-4 py-3.5">Vitrine</th>
                 <th className="px-4 py-3.5">Statut</th>
@@ -230,9 +233,9 @@ export default function MarquesAdminPage() {
             </thead>
             <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
               {loading ? (
-                <tr><td colSpan={8} className="py-14 text-center"><LoaderCircle className="mx-auto size-6 animate-spin text-[#E11D48]" aria-label="Chargement" /></td></tr>
+                <tr><td colSpan={9} className="py-14 text-center"><LoaderCircle className="mx-auto size-6 animate-spin text-[#E11D48]" aria-label="Chargement" /></td></tr>
               ) : filteredBrands.length === 0 ? (
-                <tr><td colSpan={8} className="py-12 text-center text-slate-500">Aucune marque enregistrée.</td></tr>
+                <tr><td colSpan={9} className="py-12 text-center text-slate-500">Aucune marque enregistrée.</td></tr>
               ) : filteredBrands.map((brand) => (
                 <tr key={brand.id} className={`transition-colors ${selectedIds.has(brand.id) ? "bg-rose-50/70" : "hover:bg-rose-50/20"}`}>
                   <td className="py-3.5 px-4">
@@ -246,6 +249,9 @@ export default function MarquesAdminPage() {
                   </div></td>
                   <td className="px-4 py-3.5 font-mono text-[0.6875rem]">/marques/{brand.slug}</td>
                   <td className="px-4 py-3.5 text-center font-black text-slate-900">{brand.productCount ?? 0} réf.</td>
+                  <td className="px-4 py-3.5 text-center">
+                    <SeoCompletenessScore article={brand} size="sm" />
+                  </td>
                   <td className="px-4 py-3.5"><div className="flex max-w-xs flex-wrap gap-1">{(brand.specialties ?? []).slice(0, 2).map((item) => <span key={item} className="rounded-lg bg-slate-100 px-2 py-0.5 text-[0.625rem] font-bold">{item}</span>)}</div></td>
                   <td className="px-4 py-3.5">{brand.featured ? <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[0.6875rem] font-bold text-amber-700"><Sparkles size={11} aria-hidden="true" /> Iconique</span> : "—"}</td>
                   <td className="px-4 py-3.5">{brand.status === "ACTIVE" ? <span className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-0.5 text-[0.6875rem] font-semibold text-emerald-600"><CheckCircle2 size={12} aria-hidden="true" /> Actif</span> : <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-600">{brand.status === "DRAFT" ? "Brouillon" : "Archivé"}</span>}</td>

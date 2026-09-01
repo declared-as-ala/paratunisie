@@ -3,6 +3,7 @@ import { X, Sparkles, Building2, Check, LoaderCircle, AlertCircle } from "lucide
 import { MediaUploader } from "./media-uploader";
 import { SeoFormSection } from "./seo-form-section";
 import { UnsavedChangesModal } from "./unsaved-changes-modal";
+import { SeoCompletenessScore } from "./seo-completeness-score";
 
 export interface BrandModel {
   id: string;
@@ -369,29 +370,34 @@ export function MarqueDrawer({ open, brand, onClose, onSave }: MarqueDrawerProps
             </div>
 
             {/* SECTION 4: SEO INTEGRATED */}
-            <SeoFormSection
-              data={{
-                seoTitle: form.seoTitle,
-                seoDescription: form.seoDescription,
-                canonicalUrl: form.canonicalUrl,
-                indexable: form.indexable,
-                ogTitle: form.ogTitle,
-                ogDescription: form.ogDescription,
-                seoH1: form.seoH1,
-                seoIntro: form.seoIntro,
-                seoContent: form.seoContent,
-                seoKeywords: form.seoKeywords,
-                ogImage: form.ogImage,
-                imageAlt: form.imageAlt,
-                followLinks: form.followLinks,
-              }}
-              slug={form.slug}
-              entityType="brand"
-              entityId={form.id}
-              pathPrefix="/marques"
-              entityName={form.name || "Marque"}
-              onChange={(seo) => updateForm(seo)}
-            />
+            <div className="rounded-2xl bg-white p-5 shadow-xs border border-slate-200/80 space-y-4">
+              <div className="border-b border-slate-100 pb-3">
+                <SeoCompletenessScore article={form} size="md" />
+              </div>
+              <SeoFormSection
+                data={{
+                  seoTitle: form.seoTitle,
+                  seoDescription: form.seoDescription,
+                  canonicalUrl: form.canonicalUrl,
+                  indexable: form.indexable,
+                  ogTitle: form.ogTitle,
+                  ogDescription: form.ogDescription,
+                  seoH1: form.seoH1,
+                  seoIntro: form.seoIntro,
+                  seoContent: form.seoContent,
+                  seoKeywords: form.seoKeywords,
+                  ogImage: form.ogImage,
+                  imageAlt: form.imageAlt,
+                  followLinks: form.followLinks,
+                }}
+                slug={form.slug}
+                entityType="brand"
+                entityId={form.id}
+                pathPrefix="/marques"
+                entityName={form.name || "Marque"}
+                onChange={(seo) => updateForm(seo)}
+              />
+            </div>
           </div>
         </div>
       </div>

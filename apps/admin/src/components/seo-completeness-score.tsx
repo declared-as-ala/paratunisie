@@ -4,12 +4,20 @@ interface SeoCompletenessProps {
   article: {
     seoTitle?: string | null;
     metaDescription?: string | null;
+    seoDescription?: string | null;
+    description?: string | null;
+    shortDescription?: string | null;
+    seoH1?: string | null;
+    seoIntro?: string | null;
     slug?: string | null;
     featuredImage?: string | null;
+    image?: string | null;
+    logo?: string | null;
     ogImage?: string | null;
     canonicalUrl?: string | null;
     indexable?: boolean;
     products?: { id: string }[];
+    productCount?: number;
     category?: string | null;
     authorName?: string | null;
     updatedAt?: string | null;
@@ -17,47 +25,29 @@ interface SeoCompletenessProps {
   size?: "sm" | "md";
 }
 
-const CHECKS = [
-  { key: "seoTitle", label: "Titre SEO" },
-  { key: "metaDescription", label: "Méta description" },
-  { key: "slug", label: "Slug" },
-  { key: "featuredImage", label: "Image principale" },
-  { key: "ogImage", label: "OG Image" },
-  { key: "canonical", label: "Canonical" },
-  { key: "indexable", label: "Indexable" },
-  { key: "products", label: "Produits liés" },
-  { key: "category", label: "Catégorie" },
-  { key: "author", label: "Auteur" },
-  { key: "freshness", label: "Fraîcheur (< 6 mois)" },
-] as const;
-
 export function computeSeoScore(article: SeoCompletenessProps["article"]): {
   score: number;
   total: number;
   checks: { label: string; passed: boolean }[];
 } {
-  const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  const hasDesc = !!(article.metaDescription?.trim() || article.seoDescription?.trim() || article.description?.trim());
+  const hasImage = !!(article.featuredImage?.trim() || article.image?.trim() || article.logo?.trim());
+  const hasProducts = (article.products?.length ?? 0) > 0 || (article.productCount ?? 0) > 0;
 
   const checks = [
     { label: "Titre SEO", passed: !!article.seoTitle?.trim() },
-    { label: "Méta description", passed: !!article.metaDescription?.trim() },
-    { label: "Slug", passed: !!article.slug?.trim() },
-    { label: "Image principale", passed: !!article.featuredImage?.trim() },
-    { label: "OG Image", passed: !!article.ogImage?.trim() },
-    { label: "Canonical", passed: !!article.canonicalUrl?.trim() },
-    { label: "Indexable", passed: article.indexable !== false },
-    { label: "Produits liés", passed: (article.products?.length ?? 0) > 0 },
-    { label: "Catégorie", passed: !!article.category?.trim() },
-    { label: "Auteur", passed: !!article.authorName?.trim() },
-    {
-      label: "Fraîcheur (< 6 mois)",
-      passed: !!article.updatedAt && new Date(article.updatedAt) > sixMonthsAgo,
-    },
+    { label: "Méta description", passed: hasDesc },
+    { label: "Slug URL", passed: !!article.slug?.trim() },
+    { label: "Image / Logo", passed: hasImage },
+    { label: "Balise H1", passed: !!(article.seoH1?.trim() || article.seoTitle?.trim()) },
+    { label: "Intro / Contenu", passed: !!(article.seoIntro?.trim() || article.description?.trim()) },
+    { label: "Canonical URL", passed: !!article.canonicalUrl?.trim() },
+    { label: "Indexable Robots", passed: article.indexable !== false },
+    { label: "Produits rattachés", passed: hasProducts },
   ];
 
   const score = checks.filter((c) => c.passed).length;
-  return { score, total: CHECKS.length, checks };
+  return { score, total: checks.length, checks };
 }
 
 export function SeoCompletenessScore({ article, size = "sm" }: SeoCompletenessProps) {
