@@ -250,6 +250,40 @@ export const MEGA_MENU_DATA: MegaMenuSection[] = [
         image: "/uploads/products/psychotic-pre-workout-c7dabc0f.webp",
       },
       {
+        id: "p_king_pre",
+        name: "King Real Preworkout 500g",
+        brand: "Real Pharm",
+        slug: "king-real-preworkout-500gr-real-pharm-tunisie",
+        benefit: "Formule ultra-dosée en citrulline, bêta-alanine et caféine.",
+        priceMillimes: 149000,
+        image: "https://admin.protein.tn/storage/produits/zpZL8vXTKpYgPNVjhuKLx6vjGg9Zp963RV35tsbh.webp",
+      },
+      {
+        id: "p36",
+        name: "Lipo-6 Black Ultra Concentrate",
+        brand: "Nutrex Research",
+        slug: "lipo-6-black-ultra-concentrate-60caps",
+        benefit: "Thermogénique ultra-concentré pour la sèche.",
+        priceMillimes: 140000,
+        image: "/uploads/products/lipo-6-black-ultra-concentrate-60caps-7abcdedc.webp",
+      },
+    ],
+  },
+  {
+    id: "bcaa",
+    label: "BCAA & EAA",
+    href: "/bcaa",
+    type: "products-grid",
+    editorial: {
+      eyebrow: "RÉCUPÉRATION & ANABOLISME",
+      title: "BCAA & Acides Aminés",
+      description:
+        "Acides aminés branchés et essentiels (EAA, BCAA, Glutamine) pour stopper le catabolisme, optimiser l'hydratation intra-cellulaire et réparer les fibres musculaires.",
+      ctaLabel: "Voir tous les acides aminés",
+      ctaHref: "/bcaa",
+    },
+    featuredProducts: [
+      {
         id: "p31",
         name: "Xtend BCAA 420g",
         brand: "Xtend",
@@ -266,6 +300,24 @@ export const MEGA_MENU_DATA: MegaMenuSection[] = [
         benefit: "9 acides aminés essentiels pour l'anti-catabolisme.",
         priceMillimes: 139000,
         image: "/uploads/products/eaa-master-amino-390g-scenit-nutrition-21d315c0.webp",
+      },
+      {
+        id: "p_bcaa_real",
+        name: "BCAA 8:1:1 400g",
+        brand: "Real Pharm",
+        slug: "bcaa-8-1-1-400g-real-pharm",
+        benefit: "Ratio 8:1:1 ultra-dosé en L-Leucine.",
+        priceMillimes: 119000,
+        image: "https://admin.protein.tn/storage/produits/September2023/0rVdkIRBIfZ6DXNMJnT0.webp",
+      },
+      {
+        id: "p_glutamine",
+        name: "RED REX Glutamine 300g",
+        brand: "Big Ramy Labs",
+        slug: "red-rex-glutamine-300gr-big-ramy-labs",
+        benefit: "L-Glutamine pure pour la récupération musculaire.",
+        priceMillimes: 99000,
+        image: "https://admin.protein.tn/storage/produits/SWhJdOpMhMIns3KkuSBGa4m8VAQpsjHhZtw5rsdu.webp",
       },
     ],
   },
@@ -440,12 +492,12 @@ export function MegaMenu() {
     <div
       ref={containerRef}
       onMouseLeave={handleMouseLeave}
-      className="relative flex items-center gap-0.5 text-xs font-bold text-ink"
+      className="relative flex items-center flex-wrap justify-center gap-0.5 text-[0.76rem] xl:text-xs font-bold text-ink"
     >
       {/* ── Top Level Navigation Links ─────────────────────────────────── */}
       <Link
         href="/"
-        className="px-3.5 py-2 rounded-lg transition-colors hover:bg-white hover:text-primary text-ink/90"
+        className="px-2.5 xl:px-3 py-1.5 rounded-lg transition-colors hover:bg-white hover:text-primary text-ink/90 whitespace-nowrap"
       >
         Accueil
       </Link>
@@ -460,7 +512,7 @@ export function MegaMenu() {
           >
             <Link
               href={section.href}
-              className={`flex items-center gap-1 px-3.5 py-2 rounded-lg transition-all ${
+              className={`flex items-center gap-1 px-2.5 xl:px-3 py-1.5 rounded-lg transition-all whitespace-nowrap ${
                 isOpen
                   ? "bg-white text-primary shadow-2xs font-extrabold"
                   : "text-ink/85 hover:bg-white/80 hover:text-primary"
@@ -468,7 +520,7 @@ export function MegaMenu() {
             >
               <span>{section.label}</span>
               <ChevronDown
-                size={13}
+                size={12}
                 className={`transition-transform duration-200 opacity-60 ${
                   isOpen ? "rotate-180 text-primary opacity-100" : ""
                 }`}
@@ -480,14 +532,14 @@ export function MegaMenu() {
 
       <Link
         href="/marques"
-        className="px-3.5 py-2 rounded-lg transition-colors hover:bg-white hover:text-primary text-ink/90"
+        className="px-2.5 xl:px-3 py-1.5 rounded-lg transition-colors hover:bg-white hover:text-primary text-ink/90 whitespace-nowrap"
       >
         Marques
       </Link>
 
       <Link
         href="/conseils"
-        className="px-3.5 py-2 rounded-lg transition-colors hover:bg-white hover:text-primary text-ink/90"
+        className="px-2.5 xl:px-3 py-1.5 rounded-lg transition-colors hover:bg-white hover:text-primary text-ink/90 whitespace-nowrap"
       >
         Conseils
       </Link>
