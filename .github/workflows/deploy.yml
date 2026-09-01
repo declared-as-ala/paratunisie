@@ -33,9 +33,10 @@ jobs:
             echo "=========================================================="
             cd /opt/paratunisie/app
             
-            # Fetch and reset to latest commit on main
+            # Fetch and reset to latest commit on main cleanly
             echo "📥 Pulling latest commits..."
-            git fetch origin main
+            rm -f .git/index.lock .git/refs/remotes/origin/main.lock /tmp/paratunisie-deploy.lock
+            git fetch --prune --force origin main
             git reset --hard origin/main
             
             # Make sure deployment script is executable
