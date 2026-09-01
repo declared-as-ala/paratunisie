@@ -299,8 +299,33 @@ export class CatalogueService {
   }
 
   async createProduct(data: any) {
-    const brand = await this.prisma.brand.findFirst({ where: { OR: [{ id: data.brandId || "" }, { name: data.brand || "" }] } });
-    const category = await this.prisma.category.findFirst({ where: { OR: [{ id: data.categoryId || "" }, { name: data.category || "" }] } });
+    const brandQuery = (data.brandId || data.brand || "").trim();
+    const categoryQuery = (data.categoryId || data.category || "").trim();
+
+    const brand = brandQuery
+      ? await this.prisma.brand.findFirst({
+          where: {
+            OR: [
+              { id: brandQuery },
+              { name: { equals: brandQuery, mode: "insensitive" } },
+              { slug: { equals: brandQuery, mode: "insensitive" } },
+            ],
+          },
+        })
+      : null;
+
+    const category = categoryQuery
+      ? await this.prisma.category.findFirst({
+          where: {
+            OR: [
+              { id: categoryQuery },
+              { name: { equals: categoryQuery, mode: "insensitive" } },
+              { slug: { equals: categoryQuery, mode: "insensitive" } },
+            ],
+          },
+        })
+      : null;
+
     if (!brand || !category) throw new BadRequestException("Marque ou catégorie invalide");
     const slug = String(data.slug || data.name || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
     return this.prisma.product.create({
@@ -318,15 +343,41 @@ export class CatalogueService {
   async updateProduct(id: string, data: any) {
     const existing = await this.prisma.product.findUnique({ where: { id }, include: { variants: { take: 1 } } });
     if (!existing) throw new NotFoundException("Produit introuvable");
-    const brand = data.brand ? await this.prisma.brand.findFirst({ where: { name: data.brand } }) : null;
-    const category = data.category ? await this.prisma.category.findFirst({ where: { name: data.category } }) : null;
+
+    const brandQuery = (data.brandId || data.brand || "").trim();
+    const categoryQuery = (data.categoryId || data.category || "").trim();
+
+    const brand = brandQuery
+      ? await this.prisma.brand.findFirst({
+          where: {
+            OR: [
+              { id: brandQuery },
+              { name: { equals: brandQuery, mode: "insensitive" } },
+              { slug: { equals: brandQuery, mode: "insensitive" } },
+            ],
+          },
+        })
+      : null;
+
+    const category = categoryQuery
+      ? await this.prisma.category.findFirst({
+          where: {
+            OR: [
+              { id: categoryQuery },
+              { name: { equals: categoryQuery, mode: "insensitive" } },
+              { slug: { equals: categoryQuery, mode: "insensitive" } },
+            ],
+          },
+        })
+      : null;
+
     const slug = String(data.slug || existing.slug).trim();
     const updated = await this.prisma.product.update({
       where: { id },
       data: {
         slug, name: data.name ?? undefined, benefit: data.shortDescription ?? data.benefit ?? undefined,
         description: data.description ?? undefined, usage: data.usage ?? undefined, image: data.image ?? undefined,
-        brandId: brand?.id, categoryId: category?.id, publishState: data.status ? (data.status === "ACTIVE" ? "PUBLISHED" : data.status === "ARCHIVED" ? "NOINDEX" : "DRAFT") : undefined,
+        brandId: brand ? brand.id : undefined, categoryId: category ? category.id : undefined, publishState: data.status ? (data.status === "ACTIVE" ? "PUBLISHED" : data.status === "ARCHIVED" ? "NOINDEX" : "DRAFT") : undefined,
         ...this.productSeoWriteData(data),
       },
       include: { brand: true, category: true, variants: true, images: true },

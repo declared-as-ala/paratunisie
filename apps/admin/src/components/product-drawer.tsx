@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Drawer } from "@/components/drawer";
 import { useToast } from "@/components/toast";
 import { ConfirmModal } from "@paratunisie/ui";
@@ -8,21 +8,61 @@ import { calculateMargin, marginWarningClass, formatCurrency, formatPercent, for
 import type { Product, Supplier, PurchasePriceHistory } from "@/lib/types";
 import { SeoFormSection } from "./seo-form-section";
 import { MediaUploader } from "./media-uploader";
+import { apiClient } from "@/lib/api-client";
 
 interface ProductDrawerProps {
   open: boolean;
   product: Product | null;
   onClose: () => void;
   onSave: (product: Product) => void;
+  brands?: { id?: string; name: string; slug?: string }[];
+  categories?: { id?: string; name: string; slug?: string }[];
   suppliers?: Supplier[];
   purchaseHistory?: PurchasePriceHistory[];
 }
 
-export function ProductDrawer({ open, product, onClose, onSave, suppliers = [], purchaseHistory = [] }: ProductDrawerProps) {
+export function ProductDrawer({
+  open,
+  product,
+  onClose,
+  onSave,
+  brands: initialBrands = [],
+  categories: initialCategories = [],
+  suppliers = [],
+  purchaseHistory = [],
+}: ProductDrawerProps) {
   const { toast } = useToast();
   const [form, setForm] = useState<Partial<Product>>({});
   const [isDirty, setIsDirty] = useState(false);
   const [showUnsaved, setShowUnsaved] = useState(false);
+
+  const [brandList, setBrandList] = useState<{ name: string; slug?: string }[]>(initialBrands);
+  const [categoryList, setCategoryList] = useState<{ name: string; slug?: string }[]>(initialCategories);
+
+  // Fetch real brands & categories from DB if not provided
+  useEffect(() => {
+    if (initialBrands && initialBrands.length > 0) {
+      setBrandList(initialBrands);
+    } else {
+      apiClient
+        .get<any[]>("/catalogue/brands")
+        .then((data) => {
+          if (Array.isArray(data)) setBrandList(data.map((b) => ({ name: b.name, slug: b.slug })));
+        })
+        .catch(() => {});
+    }
+
+    if (initialCategories && initialCategories.length > 0) {
+      setCategoryList(initialCategories);
+    } else {
+      apiClient
+        .get<any[]>("/catalogue/categories")
+        .then((data) => {
+          if (Array.isArray(data)) setCategoryList(data.map((c) => ({ name: c.name, slug: c.slug })));
+        })
+        .catch(() => {});
+    }
+  }, [initialBrands, initialCategories]);
 
   /* Reset the form when the drawer opens for a new target — render-time
      adjustment (React docs: "storing information from previous renders"),
@@ -81,7 +121,7 @@ export function ProductDrawer({ open, product, onClose, onSave, suppliers = [], 
 
   const handleSave = useCallback(() => {
     if (!form.name || !form.brand) {
-      toast("error", "Veuillez remplir les champs obligatoires.");
+      toast("error", "Veuillez remplir les champs obligatoires (Nom et Marque).");
       return;
     }
     onSave(form as Product);
@@ -148,17 +188,15 @@ export function ProductDrawer({ open, product, onClose, onSave, suppliers = [], 
                   onChange={(e) => update("brand", e.target.value)}
                   className="field-input"
                 >
-                  <option value="">Sélectionner…</option>
-                  <option>Bioderma</option>
-                  <option>Avène</option>
-                  <option>La Roche-Posay</option>
-                  <option>Vichy</option>
-                  <option>CeraVe</option>
-                  <option>SVR</option>
-                  <option>Mustela</option>
-                  <option>Nuxe</option>
-                  <option>Uriage</option>
-                  <option>Laboratoires Théa</option>
+                  <option value="">Sélectionner une marque…</option>
+                  {form.brand && !brandList.some((b) => b.name.toLowerCase() === form.brand?.toLowerCase()) && (
+                    <option value={form.brand}>{form.brand}</option>
+                  )}
+                  {brandList.map((b) => (
+                    <option key={b.slug || b.name} value={b.name}>
+                      {b.name}
+                    </option>
+                  ))}
                 </select>
               </Field>
               <Field label="Catégorie">
@@ -167,17 +205,15 @@ export function ProductDrawer({ open, product, onClose, onSave, suppliers = [], 
                   onChange={(e) => update("category", e.target.value)}
                   className="field-input"
                 >
-                  <option value="">Sélectionner…</option>
-                  <option>Soins du visage</option>
-                  <option>Hydratation</option>
-                  <option>Nettoyage</option>
-                  <option>Sérum</option>
-                  <option>Anti-âge</option>
-                  <option>Solaire</option>
-                  <option>Réparation</option>
-                  <option>Peaux grasses</option>
-                  <option>Eau thermale</option>
-                  <option>Bébé</option>
+                  <option value="">Sélectionner une catégorie…</option>
+                  {form.category && !categoryList.some((c) => c.name.toLowerCase() === form.category?.toLowerCase()) && (
+                    <option value={form.category}>{form.category}</option>
+                  )}
+                  {categoryList.map((c) => (
+                    <option key={c.slug || c.name} value={c.name}>
+                      {c.name}
+                    </option>
+                  ))}
                 </select>
               </Field>
             </div>

@@ -799,6 +799,8 @@ export default function ProduitsPage() {
         product={editingProduct}
         onClose={() => setDrawerOpen(false)}
         onSave={handleSave}
+        brands={availableBrands}
+        categories={availableCategories}
         suppliers={mockSuppliers}
         purchaseHistory={mockPurchaseHistory}
       />
