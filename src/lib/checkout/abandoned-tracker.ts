@@ -20,8 +20,10 @@ export interface CheckoutDraftItem {
   priceMillimes: number;
 }
 
+export type CheckoutSource = "CHECKOUT_PAGE" | "BUY_NOW_MODAL" | "PACK_ANTI_STRESS" | "LANDING_PAGE";
+
 export interface CheckoutDraftPayload {
-  source: "CHECKOUT_PAGE" | "BUY_NOW_MODAL";
+  source: CheckoutSource;
   customerName?: string;
   phone?: string;
   email?: string;
@@ -41,12 +43,13 @@ const debounceTimers: Record<string, ReturnType<typeof setTimeout>> = {};
 /**
  * Get or create a consistent checkoutSessionId for the current browser session.
  */
-export function getCheckoutSessionId(source: "CHECKOUT_PAGE" | "BUY_NOW_MODAL"): string {
+export function getCheckoutSessionId(source: CheckoutSource): string {
   if (typeof window === "undefined") return `chk_${Date.now()}`;
   const key = `_pt_chk_sid_${source}`;
   let sid = sessionStorage.getItem(key);
   if (!sid) {
-    sid = `chk_${source === "BUY_NOW_MODAL" ? "bn" : "co"}_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 9)}`;
+    const prefix = source === "BUY_NOW_MODAL" ? "bn" : source === "PACK_ANTI_STRESS" ? "pas" : "co";
+    sid = `chk_${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 9)}`;
     sessionStorage.setItem(key, sid);
   }
   return sid;
@@ -55,7 +58,7 @@ export function getCheckoutSessionId(source: "CHECKOUT_PAGE" | "BUY_NOW_MODAL"):
 /**
  * Reset checkout session after successful order confirmation.
  */
-export function resetCheckoutSession(source: "CHECKOUT_PAGE" | "BUY_NOW_MODAL"): void {
+export function resetCheckoutSession(source: CheckoutSource): void {
   if (typeof window === "undefined") return;
   sessionStorage.removeItem(`_pt_chk_sid_${source}`);
 }
@@ -138,7 +141,7 @@ export function saveCheckoutDraft(payload: CheckoutDraftPayload): void {
 /**
  * Mark current checkout draft as ABANDONED (e.g. when modal is closed or user unloads page).
  */
-export function markCheckoutAbandoned(source: "CHECKOUT_PAGE" | "BUY_NOW_MODAL"): void {
+export function markCheckoutAbandoned(source: CheckoutSource): void {
   if (typeof window === "undefined") return;
 
   const key = `_pt_chk_sid_${source}`;

@@ -64,7 +64,7 @@ export class AbandonedCheckoutsService {
           <p style="margin: 6px 0; font-size: 14px; color: #334155;"><strong>Gouvernorat :</strong> <span style="font-weight: 600;">${record.gouvernorat || "Non renseigné"}</span></p>
           <p style="margin: 6px 0; font-size: 14px; color: #334155;"><strong>Adresse :</strong> ${record.fullAddress || "Non renseignée"}</p>
           ${record.deliveryNote ? `<p style="margin: 6px 0; font-size: 14px; color: #334155;"><strong>Note du client :</strong> <em style="color: #b45309;">${record.deliveryNote}</em></p>` : ""}
-          <p style="margin: 6px 0; font-size: 12px; color: #64748b;"><strong>Source :</strong> ${record.source === "BUY_NOW_MODAL" ? "⚡ Modal 1-Clic Acheter Maintenant" : "🛒 Page Commande"}</p>
+          <p style="margin: 6px 0; font-size: 12px; color: #64748b;"><strong>Source :</strong> ${record.source === "PACK_ANTI_STRESS" ? "🌿 Landing Pack Anti-Stress" : record.source === "BUY_NOW_MODAL" ? "⚡ Modal 1-Clic Acheter Maintenant" : "🛒 Page Commande"}</p>
         </div>
         
         <div style="margin-bottom: 20px;">

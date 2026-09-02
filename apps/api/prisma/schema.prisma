@@ -1235,6 +1235,7 @@ enum AbandonedCheckoutStatus {
 enum CheckoutSource {
   CHECKOUT_PAGE
   BUY_NOW_MODAL
+  PACK_ANTI_STRESS
 }
 
 model AbandonedCheckout {

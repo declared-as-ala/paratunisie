@@ -1052,10 +1052,12 @@ function CommandesInner() {
                 ) : (
                   abandonedList.map((item) => {
                     const cleanPhone = (item.phone || "").replace(/\D/g, "");
+                    const isPackAntiStress = item.source === "PACK_ANTI_STRESS" || (item.sourceUrl && item.sourceUrl.includes("pack-anti-stress"));
+                    const waMessage = isPackAntiStress
+                      ? `Asslema 👋 nchoufou elli bdit commande Pack Anti-Stress ama ma tkamlitech. Ken t7eb, najmou n3awnouk nkamloulek talab 😊`
+                      : `Bonjour ${item.customerName || ""}, c'est l'équipe ParaTunisie ! Nous avons remarqué que vous avez commencé une commande pour vos articles de parapharmacie. Souhaitez-vous de l'aide pour finaliser votre livraison ?`;
                     const waUrl = cleanPhone
-                      ? `https://wa.me/216${cleanPhone.startsWith("216") ? cleanPhone.slice(3) : cleanPhone}?text=${encodeURIComponent(
-                          `Bonjour ${item.customerName || ""}, c'est l'équipe ParaTunisie ! Nous avons remarqué que vous avez commencé une commande pour vos articles de parapharmacie. Souhaitez-vous de l'aide pour finaliser votre livraison ?`
-                        )}`
+                      ? `https://wa.me/216${cleanPhone.startsWith("216") ? cleanPhone.slice(3) : cleanPhone}?text=${encodeURIComponent(waMessage)}`
                       : null;
 
                     return (
@@ -1144,12 +1146,18 @@ function CommandesInner() {
                         <td className="py-3.5 px-4">
                           <span
                             className={`inline-flex items-center px-2 py-0.5 rounded-full text-[0.625rem] font-extrabold ${
-                              item.source === "BUY_NOW_MODAL"
+                              item.source === "PACK_ANTI_STRESS"
+                                ? "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                                : item.source === "BUY_NOW_MODAL"
                                 ? "bg-amber-100 text-amber-800 border border-amber-200"
                                 : "bg-purple-100 text-purple-800 border border-purple-200"
                             }`}
                           >
-                            {item.source === "BUY_NOW_MODAL" ? "⚡ 1-Clic Modal" : "🛒 Page Commande"}
+                            {item.source === "PACK_ANTI_STRESS"
+                              ? "🌿 Pack Anti-Stress"
+                              : item.source === "BUY_NOW_MODAL"
+                              ? "⚡ 1-Clic Modal"
+                              : "🛒 Page Commande"}
                           </span>
                         </td>
                         <td className="py-3.5 px-4">
