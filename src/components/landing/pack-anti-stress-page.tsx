@@ -375,69 +375,6 @@ export function PackAntiStressLanding({ magnesium, ashwagandha }: PackLandingPro
             </span>
           </p>
 
-          {/* Hero Image Showcase (Both products together) */}
-          <div className="relative max-w-lg mx-auto mt-6 p-4 sm:p-6 bg-white rounded-3xl border border-[#E8E1D5] shadow-xl">
-            <div className="absolute top-3 left-3 bg-[#E8F5E9] text-[#1B4332] text-[11px] font-extrabold px-2.5 py-1 rounded-full border border-[#B7E4C7] flex items-center gap-1 shadow-2xs z-10">
-              <ShieldCheck className="size-3.5 text-[#2D6A4F]" />
-              <span>100% Authentique</span>
-            </div>
-            <div className="absolute top-3 right-3 bg-[#D8F3DC] text-[#081C15] text-[11px] font-extrabold px-2.5 py-1 rounded-full border border-[#95D5B2] flex items-center gap-1 shadow-2xs z-10">
-              <CheckCircle2 className="size-3.5 text-[#2D6A4F]" />
-              <span>En Stock Immédiat</span>
-            </div>
-
-            <div className="grid grid-cols-2 gap-3 sm:gap-6 items-center pt-5 pb-2">
-              <div className="text-center group">
-                <div className="relative aspect-square max-w-[170px] mx-auto rounded-2xl bg-[#FAF7F2] p-2 flex items-center justify-center border border-[#EAE4D9]">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={magnesium.image || "/uploads/products/magnesium-vitamin-b6-90-tablets-4a8b69cd.webp"}
-                    alt="Magnésium + Vitamine B6 90 comprimés"
-                    className="h-28 sm:h-36 w-auto object-contain transition-transform group-hover:scale-105"
-                  />
-                </div>
-                <h3 className="mt-2 text-xs sm:text-sm font-extrabold text-[#1B4332]">Magnésium + B6</h3>
-                <p className="text-[11px] text-[#52796F] font-semibold">90 Comprimés • Muscle Care</p>
-                <p className="text-xs font-black text-[#2D6A4F] mt-0.5">{formatPrice(magPrice)}</p>
-              </div>
-
-              <div className="text-center group">
-                <div className="relative aspect-square max-w-[170px] mx-auto rounded-2xl bg-[#FAF7F2] p-2 flex items-center justify-center border border-[#EAE4D9]">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={ashwagandha.image || "/uploads/products/ashwagandha-60-gelules-biotech-usa-471eea81.webp"}
-                    alt="Ashwagandha BioTechUSA 60 gélules"
-                    className="h-28 sm:h-36 w-auto object-contain transition-transform group-hover:scale-105"
-                  />
-                </div>
-                <h3 className="mt-2 text-xs sm:text-sm font-extrabold text-[#1B4332]">Ashwagandha</h3>
-                <p className="text-[11px] text-[#52796F] font-semibold">60 Gélules • BioTechUSA</p>
-                <p className="text-xs font-black text-[#2D6A4F] mt-0.5">{formatPrice(ashPrice)}</p>
-              </div>
-            </div>
-
-            {/* Price & Highlight Banner */}
-            <div className="mt-4 pt-4 border-t border-[#F0EBE1] flex flex-col sm:flex-row items-center justify-between gap-3 bg-[#FAF7F2] p-3 rounded-2xl">
-              <div className="text-left sm:text-left">
-                <p className="text-xs text-[#52796F] font-bold uppercase tracking-wider">Pack Anti-Stress Complet</p>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-black text-[#1B4332]">{formatPrice(bundlePrice)}</span>
-                  <span className="text-xs font-extrabold text-[#2D6A4F] bg-[#D8F3DC] px-2 py-0.5 rounded-md">
-                    Livraison OFFERTE 🎉
-                  </span>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => scrollToCheckout("BOTH")}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#2D6A4F] hover:bg-[#1B4332] text-white font-extrabold text-sm px-6 py-2.5 rounded-xl shadow-md transition-all active:scale-95"
-              >
-                <span>🔥 اشري الزوز</span>
-                <ArrowDown className="size-4" />
-              </button>
-            </div>
-          </div>
-
           {/* Trust Badges Row */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 pt-4 max-w-3xl mx-auto">
             <div className="bg-white/80 backdrop-blur-xs border border-[#E8E1D5] rounded-xl p-2.5 text-center">
