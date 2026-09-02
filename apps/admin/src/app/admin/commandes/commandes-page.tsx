@@ -133,7 +133,7 @@ export interface AbandonedCheckout {
   subtotalMillimes: number;
   shippingFeeMillimes: number;
   totalMillimes: number;
-  source: "CHECKOUT_PAGE" | "BUY_NOW_MODAL";
+  source: "CHECKOUT_PAGE" | "BUY_NOW_MODAL" | "PACK_ANTI_STRESS" | string;
   sourceUrl?: string | null;
   status: "DRAFT" | "ABANDONED" | "CONVERTED" | "ARCHIVED";
   convertedOrderId?: string | null;
