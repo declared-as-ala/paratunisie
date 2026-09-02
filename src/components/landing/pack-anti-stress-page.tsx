@@ -333,11 +333,11 @@ export function PackAntiStressLanding({ magnesium, ashwagandha }: PackLandingPro
           </Link>
           <div className="flex items-center gap-3">
             <a
-              href="tel:+21627612500"
+              href="tel:+21697991266"
               className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-[#1B4332] bg-[#FAF7F2] hover:bg-[#EAE4D9] border border-[#D8CFC0] px-3 py-1.5 rounded-full transition-colors"
             >
               <Phone className="size-3.5 text-[#2D6A4F]" />
-              <span className="dir-ltr">+216 27 612 500</span>
+              <span className="dir-ltr">+216 97 991 266</span>
             </a>
             <button
               type="button"
