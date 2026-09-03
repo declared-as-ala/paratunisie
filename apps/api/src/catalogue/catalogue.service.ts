@@ -71,6 +71,20 @@ export class CatalogueService {
     private meilisearchService: MeilisearchService,
   ) {}
 
+  private toPublicListingProduct(product: any) {
+    // Listing cards do not render PDP copy. Excluding it prevents unreviewed
+    // long-form content from being serialized into RSC/HTML and keeps PLPs lean.
+    const {
+      description: _description,
+      usage: _usage,
+      seoContent: _seoContent,
+      seoIntro: _seoIntro,
+      seoQualityIssues: _seoQualityIssues,
+      ...listingProduct
+    } = product;
+    return listingProduct;
+  }
+
   async findAllProducts(params?: {
     page?: number;
     limit?: number;
@@ -111,7 +125,7 @@ export class CatalogueService {
         const total = searchResult.estimatedTotalHits;
         const totalPages = Math.ceil(total / limit) || 1;
         return {
-          data: ordered,
+          data: ordered.map((product) => this.toPublicListingProduct(product)),
           meta: { page, limit, total, totalPages, hasNextPage: page < totalPages, hasPreviousPage: page > 1 },
         };
       }
@@ -233,7 +247,9 @@ export class CatalogueService {
       const totalPages = Math.ceil(total / limit) || 1;
 
       return {
-        data: dbProducts,
+        data: params?.status
+          ? dbProducts
+          : dbProducts.map((product) => this.toPublicListingProduct(product)),
         meta: {
           page,
           limit,
