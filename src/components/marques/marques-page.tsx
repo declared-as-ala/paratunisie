@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Search, X, Award, ChevronRight, Sparkles, ShieldCheck, Truck, CheckCircle2, Zap } from "lucide-react";
-import { useCallback, useMemo, useRef, useState, useEffect } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 export interface BrandItem {
   id?: string;
@@ -31,45 +31,11 @@ function firstLetter(name: string): string {
 
 const ALPHABET = ["TOUS", ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""), "#"];
 
-export function MarquesPage() {
-  const [brands, setBrands] = useState<BrandItem[]>([]);
-  const [loading, setLoading] = useState(true);
+export function MarquesPage({ initialBrands }: { initialBrands: BrandItem[] }) {
+  const brands = initialBrands;
   const [query, setQuery] = useState("");
   const [selectedLetter, setSelectedLetter] = useState<string>("TOUS");
   const letterRefs = useRef<Map<string, HTMLDivElement>>(new Map());
-
-  // Fetch real brands directly from API with product counts & logos
-  useEffect(() => {
-    async function fetchBrands() {
-      try {
-        setLoading(true);
-        const res = await fetch("/api/v1/catalogue/brands");
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data) && data.length > 0) {
-            const mapped: BrandItem[] = data.map((b: any) => ({
-              id: b.id,
-              slug: b.slug,
-              name: b.name,
-              logo: b.logo || b.image,
-              image: b.image || b.logo,
-              tagline: b.tagline || b.shortDescription,
-              description: b.description,
-              origin: b.origin,
-              featured: Boolean(b.featured) || (b.productCount && b.productCount > 5),
-              productCount: b.productCount ?? (b._count?.products ?? 0),
-            }));
-            setBrands(mapped);
-          }
-        }
-      } catch (err) {
-        console.warn("Could not fetch brands from API", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchBrands();
-  }, []);
 
   const allSorted = useMemo(() => {
     return [...brands].sort((a, b) => {
@@ -165,13 +131,13 @@ export function MarquesPage() {
           <div className="max-w-3xl">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary mb-3">
               <Award size={14} className="text-primary" />
-              Compléments & Nutrition Sportive 100% Authentiques
+              Compléments &amp; Nutrition Sportive
             </span>
             <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-ink leading-tight">
               Toutes nos marques
             </h1>
             <p className="mt-3 text-xs sm:text-sm text-ink-muted leading-relaxed max-w-2xl">
-              Découvrez les <strong>{brands.length > 0 ? brands.length : 45}+ marques officielles</strong> de compléments alimentaires, protéines, créatines et vitamines sélectionnées pour leurs performances et leur pureté.
+              Découvrez <strong>{brands.length > 0 ? brands.length : 45} marques</strong> de compléments alimentaires, protéines, créatines et vitamines présentes dans notre catalogue.
             </p>
 
             {/* ── SEARCH INPUT ───────────────────────────────────────────── */}
@@ -386,7 +352,7 @@ export function MarquesPage() {
           <div className="max-w-4xl mx-auto space-y-6">
             <div className="text-center space-y-2">
               <span className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-primary">
-                <ShieldCheck size={16} /> Authenticité Garantie & Traçabilité
+                <ShieldCheck size={16} /> Informations &amp; contrôle à réception
               </span>
               <h2 className="font-serif text-2xl sm:text-3xl font-bold text-ink">
                 Pourquoi choisir vos compléments alimentaires sur ParaTunisie ?
@@ -400,7 +366,7 @@ export function MarquesPage() {
                 </div>
                 <h3 className="font-bold text-sm text-ink">100% Produits Originaux</h3>
                 <p className="text-xs text-ink-muted leading-relaxed">
-                  Toutes nos marques sont importées légalement avec certificat de conformité, scellés d&apos;origine et traçabilité de lot stricte.
+                  Consultez la marque et le format sur chaque fiche, puis vérifiez le scellé, le lot et la date indiqués sur le produit reçu.
                 </p>
               </div>
 
@@ -418,7 +384,7 @@ export function MarquesPage() {
                 <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
                   <Zap size={20} />
                 </div>
-                <h3 className="font-bold text-sm text-ink">Meilleurs Prix Garantis</h3>
+                <h3 className="font-bold text-sm text-ink">Prix affichés clairement</h3>
                 <p className="text-xs text-ink-muted leading-relaxed">
                   Tarifs compétitifs sur les plus grands laboratoires de musculation et de santé, avec promotions régulières et programme de fidélité.
                 </p>

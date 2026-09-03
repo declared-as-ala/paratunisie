@@ -185,6 +185,9 @@ model Product {
   seoKeywords     String              @default("[]")
   seoFaq          String              @default("[]")
   seoScore        Int                 @default(0)
+  seoQualityScore Int                 @default(0)
+  seoQualityIssues String             @default("[]")
+  seoReviewedAt   DateTime?
   canonicalUrl    String?
   ogTitle         String?
   ogDescription   String?

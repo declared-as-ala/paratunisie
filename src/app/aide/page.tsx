@@ -23,7 +23,7 @@ const FAQS = [
   },
   {
     q: "Les produits sont-ils authentiques ?",
-    a: "Oui, 100% de nos soins dermo-cosmétiques proviennent directement des circuits de distribution officiels des laboratoires en Tunisie."
+    a: "Nous sélectionnons nos références auprès de fournisseurs identifiés. À la réception, vérifiez l’emballage, le numéro de lot et la date indiquée, et contactez-nous en cas d’anomalie."
   },
   {
     q: "Puis-je modifier ou annuler une commande ?",

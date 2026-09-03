@@ -130,7 +130,7 @@ export default async function BrandPage({
             <div className="flex-1 space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[0.6875rem] font-extrabold text-emerald-800 uppercase tracking-wider">
-                  ✓ Marque 100% Authentique
+                  Marque identifiée
                 </span>
                 {brand.origin && (
                   <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-[0.6875rem] font-bold text-slate-700">

@@ -6,6 +6,7 @@ describe("ReviewsService", () => {
     const prisma = {
       review: {
         findMany: jest.fn().mockResolvedValue([]),
+        findFirst: jest.fn().mockResolvedValue(null),
         count: jest.fn().mockResolvedValue(0),
         aggregate: jest.fn().mockResolvedValue({ _avg: { rating: null }, _count: { rating: 0 } }),
         findUnique: jest.fn(),
@@ -14,7 +15,7 @@ describe("ReviewsService", () => {
         delete: jest.fn(),
       },
       user: { findUnique: jest.fn().mockResolvedValue({ id: "user-1" }) },
-      product: { findUnique: jest.fn().mockResolvedValue({ id: "product-1" }) },
+      product: { findFirst: jest.fn().mockResolvedValue({ id: "product-1" }) },
       order: { findFirst: jest.fn().mockResolvedValue(null) },
       $transaction: jest.fn((operations: Promise<unknown>[]) => Promise.all(operations)),
     } as any;
@@ -29,11 +30,20 @@ describe("ReviewsService", () => {
     }));
   });
 
-  it("never returns pending or rejected reviews publicly", async () => {
+  it("queries only approved reviews linked to an eligible same-product order", async () => {
     const { prisma, service } = setup();
     await service.getReviewsByProduct("product-1");
     expect(prisma.review.findMany).toHaveBeenCalledWith(expect.objectContaining({
-      where: { productId: "product-1", status: ReviewStatus.APPROVED },
+      where: {
+        productId: "product-1",
+        status: ReviewStatus.APPROVED,
+        order: {
+          is: {
+            status: { in: [OrderStatus.CONFIRMEE, OrderStatus.PREPARATION, OrderStatus.PRETE_EXPEDITION, OrderStatus.EXPEDIEE, OrderStatus.LIVREE] },
+            items: { some: { productId: "product-1" } },
+          },
+        },
+      },
     }));
   });
 
@@ -60,11 +70,29 @@ describe("ReviewsService", () => {
     expect(prisma.review.delete).toHaveBeenCalledWith({ where: { id: "review-1" } });
   });
 
-  it("calculates public rating only from approved reviews", async () => {
+  it("calculates public rating only from reviews whose order belongs to the reviewer", async () => {
     const { prisma, service } = setup();
-    prisma.review.aggregate.mockResolvedValue({ _avg: { rating: 4.5 }, _count: { rating: 2 } });
+    prisma.review.findMany.mockResolvedValue([
+      { rating: 5, userId: "user-1", order: { userId: "user-1" } },
+      { rating: 4, userId: "user-2", order: { userId: "user-2" } },
+      { rating: 5, userId: "user-3", order: { userId: "different-user" } },
+    ]);
     await expect(service.getProductRating("product-1")).resolves.toEqual({ average: 4.5, count: 2 });
-    expect(prisma.review.aggregate.mock.calls[0][0].where.status).toBe(ReviewStatus.APPROVED);
+    expect(prisma.review.findMany.mock.calls[0][0].where.status).toBe(ReviewStatus.APPROVED);
+  });
+
+  it("does not expose an approved stored-verified review when the order belongs to another user", async () => {
+    const { prisma, service } = setup();
+    prisma.review.findMany.mockResolvedValue([
+      {
+        id: "review-1",
+        userId: "user-1",
+        verified: true,
+        order: { userId: "different-user" },
+        user: { name: "Client" },
+      },
+    ]);
+    await expect(service.getReviewsByProduct("product-1")).resolves.toEqual([]);
   });
 
   it("searches client, email, product, title and body on the backend", async () => {
@@ -98,6 +126,14 @@ describe("ReviewsService", () => {
       items: { some: { productId: "product-1" } },
     });
     expect(result).toEqual(expect.objectContaining({ verified: true, orderId: "order-1", status: ReviewStatus.PENDING }));
+  });
+
+  it("clears a stale verified flag when an updated review has no eligible order", async () => {
+    const { prisma, service } = setup();
+    prisma.review.findFirst.mockResolvedValue({ id: "review-1", orderId: null, verified: true });
+    prisma.review.update.mockImplementation(({ data }: any) => Promise.resolve(data));
+    const result = await service.createReview("user-1", "product-1", { rating: 4 });
+    expect(result).toEqual(expect.objectContaining({ verified: false, orderId: null, status: ReviewStatus.PENDING }));
   });
 
   it("uses the exact pending database count and approved-only average", async () => {

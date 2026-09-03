@@ -296,7 +296,7 @@ export default function ProduitsPage() {
         if (brandFilter) params.set("brand", brandFilter);
         if (categoryFilter) params.set("category", categoryFilter);
 
-        const res = await apiClient.get<any>(`/catalogue/products?${params.toString()}`);
+        const res = await apiClient.get<any>(`/catalogue/admin/products?${params.toString()}`);
         let rawList: any[] = [];
         let total = 0;
         let tPages = 1;

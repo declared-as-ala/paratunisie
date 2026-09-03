@@ -75,7 +75,7 @@ export function ProfileSummary({ profile, onReset }: ProfileSummaryProps) {
 
       <div className="mt-5 border-t border-border/40 pt-3 text-[0.7rem] text-ink-muted flex items-center gap-1.5">
         <ShieldCheck className="size-4 text-emerald-600 shrink-0" />
-        <span>Produits 100% authentiques issus de la base PostgreSQL ParaTunisie</span>
+        <span>Produits actuellement publiés dans le catalogue ParaTunisie</span>
       </div>
     </div>
   );

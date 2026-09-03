@@ -9,6 +9,8 @@
 import type { ProductSummary } from "@/lib/data/products";
 import { products as localProducts } from "@/lib/data/products";
 
+const MOCK_FALLBACK_ENABLED = process.env.NODE_ENV !== "production";
+
 function getApiBase() {
   if (typeof window !== "undefined") {
     return process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
@@ -106,6 +108,7 @@ function transformProduct(raw: RawProduct): ProductSummary {
     size: defaultVariant?.label || "",
     priceMillimes: defaultVariant?.priceMillimes || 0,
     category: raw.category?.name || "Nutrition Sportive",
+    categorySlug: raw.category?.slug || "nutrition-sportive",
     concerns: (raw.concerns ?? []).map((c) => c.name),
     skinTypes: parseJsonStringArray(raw.skinTypes),
     image: resolveImageUrl(primaryImage),
@@ -225,6 +228,15 @@ export async function fetchPaginatedProducts(params?: {
     };
   }
 
+  /* Development-only fallback. Production must fail closed rather than expose
+     stale fixtures after an API error or a real 404. */
+  if (!MOCK_FALLBACK_ENABLED) {
+    return {
+      products: [],
+      meta: { page: params?.page || 1, limit: params?.limit || 24, total: 0, totalPages: 1, hasNextPage: false, hasPreviousPage: false },
+    };
+  }
+
   /* Fallback: filter local mock data */
   let result = [...localProducts];
   if (params?.brand) result = result.filter((p) => p.brand.toLowerCase().replace(/\s+/g, "-") === params.brand);
@@ -282,7 +294,7 @@ export const HOMEPAGE_CATEGORY_DEFINITIONS = [
   {
     key: "whey-proteine",
     title: "Whey Protéine & Gainers",
-    subtitle: "Protéines pures et formules anaboliques pour la construction musculaire et la prise de masse.",
+    subtitle: "Whey, protéines et gainers : comparez les formats et compositions disponibles.",
     slug: "whey-proteine",
     matches: ["whey-proteine", "whey", "gainers-proteines", "gainers"]
   },
@@ -303,14 +315,14 @@ export const HOMEPAGE_CATEGORY_DEFINITIONS = [
   {
     key: "bcaa-eaa",
     title: "BCAA & Acides Aminés",
-    subtitle: "Soutien anti-catabolique, endurance et récupération musculaire accélérée.",
+    subtitle: "BCAA et acides aminés : comparez les formules et conseils d’utilisation.",
     slug: "bcaa",
     matches: ["bcaa", "eaa", "beta-alanine", "citrulline"]
   },
   {
     key: "mineraux",
     title: "Zinc & Magnésium",
-    subtitle: "Minéraux essentiels pour l'immunité, l'équilibre nerveux et la réduction de la fatigue.",
+    subtitle: "Zinc et magnésium : comparez les dosages et formats indiqués.",
     slug: "zinc",
     matches: ["zinc", "magnesium", "magnésium"]
   },
@@ -324,7 +336,7 @@ export const HOMEPAGE_CATEGORY_DEFINITIONS = [
   {
     key: "ashwagandha",
     title: "Ashwagandha & Sommeil",
-    subtitle: "Plante adaptogène premium pour réguler le cortisol, réduire le stress et optimiser la récupération.",
+    subtitle: "Ashwagandha : comparez les extraits, dosages et formats disponibles.",
     slug: "ashwagandha",
     matches: ["ashwagandha"]
   },
@@ -350,7 +362,7 @@ export async function fetchHomepageCategoryRows(): Promise<HomepageCategoryRow[]
         }
       }
 
-      if (categoryProducts.length === 0) {
+      if (categoryProducts.length === 0 && MOCK_FALLBACK_ENABLED) {
         const fallback = localProducts.filter((p) =>
           def.matches.some((m) => p.category.toLowerCase().includes(m))
         );
@@ -374,14 +386,28 @@ export async function fetchProductBySlug(slug: string): Promise<ProductSummary |
   const raw = await apiFetch<RawProduct>(`/catalogue/products/${slug}`);
   if (raw) return transformProduct(raw);
 
-  /* Fallback: find in local data */
-  return localProducts.find((p) => p.slug === slug) ?? null;
+  return MOCK_FALLBACK_ENABLED ? localProducts.find((p) => p.slug === slug) ?? null : null;
 }
 
-export async function fetchBrands(): Promise<{ name: string; slug: string }[]> {
-  const raw = await apiFetch<{ name: string; slug: string }[]>("/catalogue/brands");
+export type BrandListItem = {
+  id?: string;
+  name: string;
+  slug: string;
+  logo?: string | null;
+  image?: string | null;
+  tagline?: string | null;
+  shortDescription?: string | null;
+  description?: string | null;
+  origin?: string | null;
+  featured?: boolean;
+  productCount?: number;
+};
+
+export async function fetchBrands(): Promise<BrandListItem[]> {
+  const raw = await apiFetch<BrandListItem[]>("/catalogue/brands");
   if (raw) return raw;
 
+  if (!MOCK_FALLBACK_ENABLED) return [];
   /* Fallback: derive from local products */
   const brandSet = [...new Set(localProducts.map((p) => p.brand))].sort();
   return brandSet.map((name) => ({ name, slug: name.toLowerCase().replace(/\s+/g, "-") }));
@@ -430,6 +456,7 @@ export async function fetchCategories(): Promise<{ name: string; slug: string }[
   const raw = await apiFetch<{ name: string; slug: string }[]>("/catalogue/categories");
   if (raw) return raw;
 
+  if (!MOCK_FALLBACK_ENABLED) return [];
   /* Fallback: derive from local products */
   const catSet = [...new Set(localProducts.map((p) => p.category))].sort();
   return catSet.map((name) => ({ name, slug: name.toLowerCase() }));
@@ -447,6 +474,7 @@ export async function fetchConcerns(): Promise<{ name: string; slug: string }[]>
   const raw = await apiFetch<{ name: string; slug: string }[]>("/catalogue/concerns");
   if (raw) return raw;
 
+  if (!MOCK_FALLBACK_ENABLED) return [];
   /* Fallback: derive from local products */
   const concernSet = [...new Set(localProducts.flatMap((p) => p.concerns))].sort();
   return concernSet.map((name) => ({ name, slug: name.toLowerCase().replace(/[\s&]+/g, "-") }));

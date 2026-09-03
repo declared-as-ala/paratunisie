@@ -3,8 +3,8 @@ import { ShieldCheck, Truck, Headphones, RotateCcw } from "lucide-react";
 const TRUST_ITEMS = [
   {
     icon: ShieldCheck,
-    title: "100% Produits Authentiques",
-    description: "Issus directement des laboratoires dermatologiques officiels.",
+    title: "Produits identifiés",
+    description: "Marque, format et informations disponibles affichés sur chaque fiche.",
   },
   {
     icon: Truck,
@@ -13,8 +13,8 @@ const TRUST_ITEMS = [
   },
   {
     icon: Headphones,
-    title: "Conseil Pharmaceutique",
-    description: "Une équipe d'experts à votre écoute pour vous guider.",
+    title: "Service client",
+    description: "Une équipe à votre écoute pour les questions liées à votre commande.",
   },
   {
     icon: RotateCcw,

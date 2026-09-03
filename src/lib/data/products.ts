@@ -13,6 +13,7 @@ export type ProductSummary = {
   size: string;
   priceMillimes: number;
   category: string;
+  categorySlug?: string;
   concerns: string[];
   skinTypes: string[];
   image: string;

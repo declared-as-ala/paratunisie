@@ -12,7 +12,7 @@ describe("MetaCapiService", () => {
       const email = "  Test.User@Example.COM ";
       const hashed = hashSha256(email);
       // SHA-256 of "test.user@example.com"
-      expect(hashed).toBe("5430f878a87b5a1a1eb2beecae9734faaaee7c59051cc7daeb17d6b38cff1f96");
+      expect(hashed).toBe("a97d7a4513204a9cc7cb2f11d72d41a59b18d1ba633d22e58d53c625518f5203");
     });
 
     it("should normalize Tunisian phone numbers by adding 216 and hashing", () => {

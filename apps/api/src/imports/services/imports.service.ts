@@ -430,6 +430,10 @@ export class ImportsService {
           seoKeywords: JSON.stringify(seoPayload.keywords),
           seoFaq: JSON.stringify(seoPayload.faq),
           seoScore: seoPayload.seoScore,
+          // Import completeness is not the same as index quality. Imported
+          // products stay crawlable for customers but default to noindex
+          // until the product-quality evaluator approves them.
+          indexable: false,
           publishState: options?.autoPublish ? ProductPublishState.PUBLISHED : ProductPublishState.DRAFT,
           variants: {
             create: [

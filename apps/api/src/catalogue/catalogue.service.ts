@@ -1,9 +1,11 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
+import { ProductPublishState } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { MeilisearchService } from "../search/meilisearch.service";
 import * as fs from "fs/promises";
 import * as path from "path";
 import * as crypto from "crypto";
+import { evaluateProductSeoQuality } from "./product-seo-quality";
 
 export const fallbackProducts = [
   {
@@ -98,7 +100,7 @@ export class CatalogueService {
 
       if (searchResult) {
         const rows = await this.prisma.product.findMany({
-          where: { id: { in: searchResult.ids } },
+          where: { id: { in: searchResult.ids }, publishState: ProductPublishState.PUBLISHED },
           include: { brand: true, category: true, variants: true, images: true },
         });
         const byId = new Map(rows.map((r) => [r.id, r]));
@@ -116,7 +118,11 @@ export class CatalogueService {
       // searchResult === null → Meilisearch unavailable, fall through to Prisma `contains` below.
     }
 
-    const where: any = {};
+    const where: any = {
+      publishState: params?.status
+        ? (params.status as ProductPublishState)
+        : ProductPublishState.PUBLISHED,
+    };
 
     // 1. Category filter (supports slug, name, multiple separated by | or comma, and child categories)
     if (params?.category) {
@@ -196,9 +202,6 @@ export class CatalogueService {
       }
     }
 
-    if (params?.status) {
-      where.publishState = params.status as any;
-    }
     if (query) {
       where.OR = [
         { name: { contains: query, mode: "insensitive" } },
@@ -240,30 +243,16 @@ export class CatalogueService {
           hasPreviousPage: page > 1,
         },
       };
-    } catch {
-      return {
-        data: fallbackProducts,
-        meta: {
-          page: 1,
-          limit: fallbackProducts.length,
-          total: fallbackProducts.length,
-          totalPages: 1,
-          hasNextPage: false,
-          hasPreviousPage: false,
-        },
-      };
+    } catch (error) {
+      throw error;
     }
   }
 
   async findProductBySlug(slug: string) {
-    try {
-      const found = await this.prisma.product.findUnique({
-        where: { slug },
-        include: { brand: true, category: true, variants: true, images: true },
-      });
-      if (found) return found;
-    } catch {}
-    return fallbackProducts.find((p) => p.slug === slug) || null;
+    return this.prisma.product.findFirst({
+      where: { slug, publishState: ProductPublishState.PUBLISHED },
+      include: { brand: true, category: true, variants: true, images: true },
+    });
   }
 
   private parseJsonArray(value: unknown): string[] {
@@ -298,6 +287,31 @@ export class CatalogueService {
     };
   }
 
+  private normalizeProductTitle(value: string) {
+    return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ").trim().toLowerCase();
+  }
+
+  private async applyProductSeoGate(id: string, requestedIndexable: boolean) {
+    const [product, titles] = await Promise.all([
+      this.prisma.product.findUnique({ where: { id }, include: { brand: true, category: true, variants: true, images: true } }),
+      this.prisma.product.findMany({ select: { id: true, name: true } }),
+    ]);
+    if (!product) throw new NotFoundException("Produit introuvable");
+    const normalizedTitle = this.normalizeProductTitle(product.name);
+    const duplicateTitle = titles.some((candidate) => candidate.id !== id && this.normalizeProductTitle(candidate.name) === normalizedTitle);
+    const result = evaluateProductSeoQuality({ ...product, duplicateTitle });
+    await this.prisma.product.update({
+      where: { id },
+      data: {
+        indexable: requestedIndexable && result.eligible,
+        seoQualityScore: result.score,
+        seoQualityIssues: JSON.stringify(result.issues),
+        seoReviewedAt: new Date(),
+      },
+    });
+    return this.prisma.product.findUnique({ where: { id }, include: { brand: true, category: true, variants: true, images: true } });
+  }
+
   async createProduct(data: any) {
     const brandQuery = (data.brandId || data.brand || "").trim();
     const categoryQuery = (data.categoryId || data.category || "").trim();
@@ -328,16 +342,18 @@ export class CatalogueService {
 
     if (!brand || !category) throw new BadRequestException("Marque ou catégorie invalide");
     const slug = String(data.slug || data.name || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
-    return this.prisma.product.create({
+    const created = await this.prisma.product.create({
       data: {
         slug, name: String(data.name).trim(), benefit: data.shortDescription || data.benefit || "",
         description: data.description || "", usage: data.usage || "", image: data.image || "/assets/product-tube.webp",
         brandId: brand.id, categoryId: category.id, publishState: data.status === "ACTIVE" ? "PUBLISHED" : "DRAFT",
         ...this.productSeoWriteData(data),
+        indexable: false,
         variants: { create: { label: data.size || data.name, sku: data.sku || null, priceMillimes: Math.round(Number(data.price || 0) * 1000), stock: Number(data.stock || 0) } },
       },
       include: { brand: true, category: true, variants: true, images: true },
     });
+    return this.applyProductSeoGate(created.id, data.indexable !== false);
   }
 
   async updateProduct(id: string, data: any) {
@@ -379,6 +395,7 @@ export class CatalogueService {
         description: data.description ?? undefined, usage: data.usage ?? undefined, image: data.image ?? undefined,
         brandId: brand ? brand.id : undefined, categoryId: category ? category.id : undefined, publishState: data.status ? (data.status === "ACTIVE" ? "PUBLISHED" : data.status === "ARCHIVED" ? "NOINDEX" : "DRAFT") : undefined,
         ...this.productSeoWriteData(data),
+        indexable: false,
       },
       include: { brand: true, category: true, variants: true, images: true },
     });
@@ -386,7 +403,7 @@ export class CatalogueService {
       await this.prisma.productVariant.update({ where: { id: existing.variants[0].id }, data: { priceMillimes: data.price === undefined ? undefined : Math.round(Number(data.price) * 1000), stock: data.stock === undefined ? undefined : Number(data.stock), sku: data.sku === undefined ? undefined : data.sku || null } });
     }
     await this.recordSlugRedirect(`/produits/${existing.slug}`, `/produits/${slug}`);
-    return updated;
+    return this.applyProductSeoGate(updated.id, data.indexable !== false);
   }
 
   async findAllBrands() {
@@ -398,10 +415,7 @@ export class CatalogueService {
   }
 
   async findBrandBySlug(slug: string) {
-    try {
-      return await this.prisma.brand.findUnique({ where: { slug } });
-    } catch {}
-    return { name: "La Roche-Posay", slug };
+    return this.prisma.brand.findFirst({ where: { slug, status: "ACTIVE" } });
   }
 
   async createBrand(data: any) {
@@ -495,8 +509,7 @@ export class CatalogueService {
   }
 
   async findAllCategories() {
-    try {
-      const c = await this.prisma.category.findMany({
+    return this.prisma.category.findMany({
         include: {
           parent: true,
           _count: { select: { products: true, children: true } },
@@ -507,18 +520,10 @@ export class CatalogueService {
         },
         orderBy: { position: "asc" },
       });
-      if (c && c.length > 0) return c;
-    } catch {}
-    return [
-      { id: "c1", name: "Visage", slug: "visage", status: "ACTIVE", position: 1 },
-      { id: "c2", name: "Solaire", slug: "solaire", status: "ACTIVE", position: 2 },
-      { id: "c3", name: "Corps", slug: "corps", status: "ACTIVE", position: 3 },
-      { id: "c4", name: "Cheveux", slug: "cheveux", status: "ACTIVE", position: 4 },
-    ];
   }
 
   async findCategoryBySlug(slug: string) {
-    return this.prisma.category.findUnique({ where: { slug }, include: { parent: true, children: { where: { status: "ACTIVE" }, orderBy: { position: "asc" } } } });
+    return this.prisma.category.findFirst({ where: { slug, status: "ACTIVE" }, include: { parent: true, children: { where: { status: "ACTIVE" }, orderBy: { position: "asc" } } } });
   }
 
   async createCategory(data: any) {
@@ -771,11 +776,19 @@ export class CatalogueService {
         select: { slug: true, updatedAt: true },
       }),
       this.prisma.brand.findMany({
-        where: { status: "ACTIVE", indexable: true },
+        where: {
+          status: "ACTIVE",
+          indexable: true,
+          products: { some: { publishState: "PUBLISHED", indexable: true } },
+        },
         select: { slug: true, updatedAt: true },
       }),
       this.prisma.category.findMany({
-        where: { status: "ACTIVE", indexable: true },
+        where: {
+          status: "ACTIVE",
+          indexable: true,
+          products: { some: { publishState: "PUBLISHED", indexable: true } },
+        },
         select: { slug: true, updatedAt: true },
       }),
     ]);

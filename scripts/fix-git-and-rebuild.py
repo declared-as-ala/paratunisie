@@ -45,10 +45,8 @@ time.sleep(10)
 run("docker exec -i paratunisie-api npx prisma db push --accept-data-loss")
 run("docker exec -i paratunisie-api npx prisma generate")
 
-# 5. Seed reviews
-run("docker exec -i paratunisie-api node prisma/seed-reviews.js")
-
-# 6. Verify live page output
+# 5. Verify live page output. Synthetic review seeding is intentionally
+# prohibited; genuine reviews must be linked to real orders through the API.
 print("\n--- Live Page Verification ---")
 run("curl -s https://paratunisie.com/produits/creatine-monohydrate-ostrovit-500gr | grep -o 'Gagnez [0-9]* points'")
 run("curl -s https://paratunisie.com/produits/creatine-monohydrate-ostrovit-500gr | grep -o 'points avec cet achat'")

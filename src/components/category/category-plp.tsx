@@ -7,6 +7,7 @@ import { useCallback, useMemo, useState } from "react";
 import { ProductCard } from "@/components/product/product-card";
 import { Button } from "@/components/ui/button";
 import { type ProductSummary } from "@/lib/data/products";
+import type { PaginationMeta } from "@/lib/api/client";
 import {
   Sheet,
   SheetContent,
@@ -215,6 +216,7 @@ export function CategoryPLP({
   subcategoryMap,
   concernMap,
   searchParams,
+  meta,
 }: {
   category: CategoryData;
   products: ProductSummary[];
@@ -223,6 +225,7 @@ export function CategoryPLP({
   /** concern name → set of product IDs that match */
   concernMap: Record<string, string[]>;
   searchParams: Record<string, string | string[] | undefined>;
+  meta: PaginationMeta;
 }) {
   const parseList = (v: string | string[] | undefined): string[] =>
     Array.isArray(v) ? v : v ? [v] : [];
@@ -342,7 +345,7 @@ export function CategoryPLP({
       <div className="mt-6 flex flex-col gap-3 border-t border-border pt-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <p className="text-sm text-muted-foreground" aria-live="polite">
-            <strong className="text-ink">{filteredProducts.length}</strong> produit{filteredProducts.length === 1 ? "" : "s"}
+            <strong className="text-ink">{hasActive ? filteredProducts.length : meta.total}</strong> produit{(hasActive ? filteredProducts.length : meta.total) === 1 ? "" : "s"}
           </p>
           {hasActive && <button type="button" onClick={clearFilters} className="text-xs text-primary hover:underline">Tout effacer</button>}
         </div>
@@ -397,6 +400,15 @@ export function CategoryPLP({
               <p className="mt-1 text-xs text-muted-foreground">Essayez de modifier vos filtres pour retrouver nos soins {category.name}.</p>
               <Button variant="outline" size="lg" className="mt-6" onClick={clearFilters}>Réinitialiser les filtres</Button>
             </div>
+          )}
+          {!hasActive && meta.totalPages > 1 && (
+            <nav aria-label="Pagination" className="mt-10 flex flex-wrap items-center justify-center gap-2">
+              {meta.page > 1 && <Link rel="prev" href={meta.page === 2 ? `/${category.slug}` : `/${category.slug}?page=${meta.page - 1}`} className="rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-soft-nude">Précédent</Link>}
+              {Array.from({ length: meta.totalPages }, (_, index) => index + 1).filter((page) => page === 1 || page === meta.totalPages || Math.abs(page - meta.page) <= 2).map((page) => (
+                <Link key={page} href={page === 1 ? `/${category.slug}` : `/${category.slug}?page=${page}`} aria-current={page === meta.page ? "page" : undefined} className={`min-w-9 rounded-lg border px-3 py-2 text-center text-sm font-medium ${page === meta.page ? "border-primary bg-primary text-white" : "border-border hover:bg-soft-nude"}`}>{page}</Link>
+              ))}
+              {meta.page < meta.totalPages && <Link rel="next" href={`/${category.slug}?page=${meta.page + 1}`} className="rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-soft-nude">Suivant</Link>}
+            </nav>
           )}
         </section>
       </div>

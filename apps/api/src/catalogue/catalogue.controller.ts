@@ -36,7 +36,6 @@ export class CatalogueController {
     @Query("brand") brand?: string,
     @Query("category") category?: string,
     @Query("concern") concern?: string,
-    @Query("status") status?: string,
     @Query("sort") sort?: string,
   ) {
     return this.catalogueService.findAllProducts({
@@ -46,9 +45,24 @@ export class CatalogueController {
       brand,
       category,
       concern,
-      status,
       sort,
     });
+  }
+
+  @Get("admin/products")
+  @UseGuards(AdminAuthGuard)
+  async getAdminProducts(
+    @Query("page") page?: number,
+    @Query("limit") limit?: number,
+    @Query("search") search?: string,
+    @Query("q") q?: string,
+    @Query("brand") brand?: string,
+    @Query("category") category?: string,
+    @Query("concern") concern?: string,
+    @Query("status") status?: string,
+    @Query("sort") sort?: string,
+  ) {
+    return this.catalogueService.findAllProducts({ page, limit, search: search || q, brand, category, concern, status, sort });
   }
 
   @Get("products/:slug")

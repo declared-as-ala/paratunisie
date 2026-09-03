@@ -12,10 +12,10 @@ export function HomeFeaturedBrands() {
           <div>
             <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary mb-2 border border-primary/15">
               <Award size={13} />
-              Marques & Laboratoires Certifiés
+              Marques &amp; fabricants
             </div>
             <h2 className="font-serif text-2xl sm:text-3xl font-medium tracking-tight text-ink">
-              Marques officielles
+              Marques du catalogue
             </h2>
           </div>
           <Link

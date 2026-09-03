@@ -4,7 +4,7 @@ import { ShieldCheck, Award, Lock } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Authenticité & Qualité des Produits — ParaTunisie",
-  description: "Engagement d'authenticité 100% garanti sur tous nos produits dermo-cosmétiques en Tunisie.",
+  description: "Découvrez les engagements de ParaTunisie concernant l'identification et le contrôle des produits proposés.",
 };
 
 export default function AuthenticitePage() {
@@ -23,18 +23,18 @@ export default function AuthenticitePage() {
           <div className="size-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-4">
             <ShieldCheck size={24} />
           </div>
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-ink">Authenticité 100% Garantie</h1>
+          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-ink">Notre engagement produit</h1>
           <p className="mt-3 text-xs sm:text-sm text-ink-muted leading-relaxed">
-            Chez ParaTunisie, la santé et la beauté de votre peau ne tolèrent aucun compromis. Nous garantissons la provenance directe et la traçabilité complète de chaque produit référencé sur notre site.
+            ParaTunisie présente les informations d’identification disponibles pour chaque produit. À la réception, vérifiez l’état de l’emballage, le numéro de lot et la date indiquée avant utilisation.
           </p>
         </header>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="rounded-2xl border border-border bg-white p-6 shadow-2xs">
             <Award className="size-8 text-primary mb-3" />
-            <h2 className="font-serif text-lg font-bold text-ink mb-2">Circuit de Distribution Officiel</h2>
+            <h2 className="font-serif text-lg font-bold text-ink mb-2">Sélection des fournisseurs</h2>
             <p className="text-xs sm:text-sm text-ink-muted leading-relaxed">
-              Tous nos produits proviennent directement des filiales officielles et laboratoires distributeurs agréés en Tunisie (La Roche-Posay, Bioderma, Avène, CeraVe, Vichy, SVR, Uriage, Nuxe, etc.).
+              Nous sélectionnons nos références auprès de fournisseurs identifiés et conservons les informations commerciales associées aux produits reçus.
             </p>
           </div>
 
@@ -42,7 +42,7 @@ export default function AuthenticitePage() {
             <Lock className="size-8 text-primary mb-3" />
             <h2 className="font-serif text-lg font-bold text-ink mb-2">Contrôle des DATES & Scellés</h2>
             <p className="text-xs sm:text-sm text-ink-muted leading-relaxed">
-              Nos équipes vérifient systématiquement les numéros de lots, les opercules de protection d&apos;origine ainsi que les dates de péremption pour garantir une fraîcheur et une tolérance parfaites.
+              Nos équipes contrôlent l’état apparent des emballages et les dates indiquées lors de la réception. Contactez le service client si un produit reçu paraît endommagé ou non conforme.
             </p>
           </div>
         </div>

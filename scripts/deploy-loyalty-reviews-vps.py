@@ -45,10 +45,8 @@ def main():
     # 2. Database migration & Prisma generation in API
     run_ssh(client, f"cd {VPS_APP_PATH}/apps/api && npx prisma db push --accept-data-loss && npx prisma generate")
 
-    # 3. Seed reviews into real database
-    run_ssh(client, f"cd {VPS_APP_PATH}/apps/api && node prisma/seed-reviews.js")
-
-    # 4. Build API
+    # 3. Build API. Synthetic review seeding is intentionally prohibited;
+    # genuine reviews are created through the API and linked to real orders.
     print("\n--- Building API ---")
     run_ssh(client, f"cd {VPS_APP_PATH}/apps/api && npm run build")
 

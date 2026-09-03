@@ -42,6 +42,7 @@ export class ContentService {
     search?: string;
     productId?: string;
     brandId?: string;
+    indexable?: boolean;
   }) {
     try {
       const where: Record<string, unknown> = {};
@@ -62,6 +63,7 @@ export class ContentService {
       if (options?.brandId) {
         where.brands = { some: { brandId: options.brandId } };
       }
+      if (options?.indexable !== undefined) where.indexable = options.indexable;
 
       const articles = await this.prisma.article.findMany({
         where,
@@ -152,8 +154,8 @@ export class ContentService {
 
   async getArticleBySlug(slug: string) {
     try {
-      const article = await this.prisma.article.findUnique({
-        where: { slug },
+      const article = await this.prisma.article.findFirst({
+        where: { slug, status: "PUBLISHED" },
         include: {
           products: {
             orderBy: { position: "asc" },

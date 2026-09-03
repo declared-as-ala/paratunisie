@@ -103,7 +103,7 @@ export function HomeHero() {
 
           {/* Subtitle */}
           <p className="mt-4 max-w-xl text-sm sm:text-base md:text-lg leading-relaxed text-white/90 font-light drop-shadow-md">
-            Parapharmacie en ligne de référence en Tunisie : compléments alimentaires certifiés, créatine, whey protéine, ashwagandha, vitamines et soins 100% authentiques avec livraison rapide à domicile.
+            Boutique en ligne tunisienne de compléments alimentaires, créatine, whey protéine, ashwagandha, vitamines et soins, avec livraison à domicile.
           </p>
 
           {/* Dual CTAs */}
@@ -131,7 +131,7 @@ export function HomeHero() {
           <div className="mt-10 pt-6 border-t border-white/15 grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-xl text-xs text-white/85">
             <div className="flex items-center gap-2">
               <ShieldCheck size={16} className="text-emerald-400 shrink-0" />
-              <span>100% Authentiques</span>
+              <span>Produits identifiés</span>
             </div>
             <div className="flex items-center gap-2">
               <Truck size={16} className="text-emerald-400 shrink-0" />

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 
 import { ProductDetailView } from "@/components/product/product-detail-view";
+import { ProductRichText } from "@/components/product/product-rich-text";
 import {
   getRoutineCompletionProducts,
   getSimilarProducts,
@@ -10,6 +11,16 @@ import {
 import { fetchProductBySlug, fetchProductRating, fetchProductReviews, fetchProducts, fetchSeoRedirect } from "@/lib/api/client";
 
 const SITE_URL = "https://paratunisie.com";
+
+function normalizedCopy(value?: string | null): string {
+  return (value || "").replace(/[#*_`>\-]/g, " ").replace(/\s+/g, " ").trim().toLowerCase();
+}
+
+function hasDistinctSeoContent(description: string, seoContent?: string | null): boolean {
+  const descriptionText = normalizedCopy(description);
+  const seoText = normalizedCopy(seoContent);
+  return seoText.length >= 80 && !descriptionText.includes(seoText) && !seoText.includes(descriptionText);
+}
 
 function absoluteImageUrl(img?: string): string {
   if (!img) return `${SITE_URL}/assets/product-tube.webp`;
@@ -97,7 +108,6 @@ export default async function ProductPage({
       url: `${SITE_URL}/produits/${product.slug}`,
       priceCurrency: "TND",
       price: (product.priceMillimes / 1000).toFixed(3),
-      priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
       availability: product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       itemCondition: "https://schema.org/NewCondition",
       seller: {
@@ -127,7 +137,7 @@ export default async function ProductPage({
           worstRating: "1",
         },
         name: rev.title || `Avis sur ${product.name}`,
-        reviewBody: rev.body || `Produit très satisfaisant. Recommandé par le client.`,
+        ...(rev.body ? { reviewBody: rev.body } : {}),
       })),
     } : {}),
   };
@@ -138,7 +148,7 @@ export default async function ProductPage({
     itemListElement: [
       { "@type": "ListItem", position: 1, name: "Accueil", item: `${SITE_URL}/` },
       { "@type": "ListItem", position: 2, name: "Shop", item: `${SITE_URL}/shop` },
-      { "@type": "ListItem", position: 3, name: product.category, item: `${SITE_URL}/${product.category.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-")}` },
+      { "@type": "ListItem", position: 3, name: product.category, item: `${SITE_URL}/${product.categorySlug || product.category.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-")}` },
       { "@type": "ListItem", position: 4, name: product.name, item: `${SITE_URL}/produits/${product.slug}` },
     ],
   };
@@ -160,7 +170,7 @@ export default async function ProductPage({
         reviews={reviews}
         rating={rating}
       />
-      {product.seoContent && <section className="mx-auto max-w-[1440px] px-4 pb-14 sm:px-6 lg:px-8"><div className="max-w-3xl rounded-2xl bg-soft-nude/50 p-6"><h2 className="font-serif text-2xl text-ink">À propos de {product.name}</h2><p className="mt-3 whitespace-pre-line text-sm leading-7 text-ink-muted">{product.seoContent}</p></div></section>}
+      {hasDistinctSeoContent(product.description, product.seoContent) && <section className="mx-auto max-w-[1440px] px-4 pb-14 sm:px-6 lg:px-8"><div className="max-w-3xl rounded-2xl bg-soft-nude/50 p-6"><h2 className="font-serif text-2xl text-ink">À propos de {product.name}</h2><ProductRichText content={product.seoContent!} className="mt-3 text-sm leading-7 text-ink-muted" /></div></section>}
     </>
   );
 }

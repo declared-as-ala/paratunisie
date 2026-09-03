@@ -14,7 +14,7 @@ export function HomeSeoSection() {
             ParaTunisie : Votre Parapharmacie et Nutrition Sportive de Référence en Tunisie
           </h2>
           <p className="mt-4 text-sm sm:text-base text-ink-muted leading-relaxed">
-            Bienvenue sur <strong>ParaTunisie</strong>, votre destination parapharmaceutique en ligne numéro 1 en Tunisie. Nous réunissons une sélection rigoureuse de compléments alimentaires, nutrition sportive de haut niveau, vitamines et soins dermatologiques 100% certifiés authentiques, livrés rapidement à votre porte partout en Tunisie.
+            Bienvenue sur <strong>ParaTunisie</strong>, une boutique en ligne tunisienne consacrée aux compléments alimentaires, à la nutrition sportive, aux vitamines et aux soins. Consultez les informations, formats, prix et disponibilités avant de commander avec livraison en Tunisie.
           </p>
         </div>
 
@@ -49,7 +49,7 @@ export function HomeSeoSection() {
               Santé, Vitamines & Bien-être
             </h3>
             <p className="text-xs sm:text-sm text-ink-muted leading-relaxed mb-4">
-              Prenez soin de votre vitalité au quotidien avec des formules hautement biodisponibles : <strong>Vitamines D3 + K2</strong>, <strong>Zinc chélaté</strong>, <strong>Magnésium B6</strong>, <strong>Omega 3</strong> concentrés en EPA/DHA et <strong>Ashwagandha pure</strong> pour la régulation du stress et le sommeil réparateur.
+              Comparez les formats et compositions indiqués pour la <strong>Vitamine D3 + K2</strong>, le <strong>Zinc</strong>, le <strong>Magnésium B6</strong>, les <strong>Omega 3</strong> et l&apos;<strong>Ashwagandha</strong>. Respectez l&apos;étiquetage et demandez conseil à un professionnel de santé en cas de doute.
             </p>
             <div className="flex flex-wrap gap-2 text-[11px]">
               <Link href="/vitamines" className="px-2.5 py-1 rounded-md bg-white border border-border text-ink hover:text-primary font-medium">

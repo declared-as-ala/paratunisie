@@ -52,11 +52,8 @@ def main():
     run_ssh(client, "docker exec -i paratunisie-api npx prisma db push --accept-data-loss")
     run_ssh(client, "docker exec -i paratunisie-api npx prisma generate")
 
-    # 5. Seed reviews into production PostgreSQL database
-    print("\n--- Seeding 50 Reviews per Product into Production Database ---")
-    run_ssh(client, "docker exec -i paratunisie-api node prisma/seed-reviews.js")
-
-    # 6. Restart API and Web to pick up all changes cleanly
+    # 5. Restart API and Web to pick up all changes cleanly.
+    # Synthetic review seeding is intentionally prohibited.
     print("\n--- Reloading Docker services ---")
     run_ssh(client, "docker restart paratunisie-api paratunisie-web paratunisie-admin")
     time.sleep(10)

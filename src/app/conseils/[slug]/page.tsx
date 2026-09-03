@@ -26,7 +26,10 @@ import {
 } from "@/components/article/article-editorial-box";
 
 const SITE_URL = "https://paratunisie.com";
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+const API_URL = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
+
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 function getArticleImage(slug: string, apiImage?: string): string {
   if (apiImage && apiImage !== "/assets/hero-paratunisie.webp" && apiImage.trim() !== "") {
@@ -63,10 +66,6 @@ async function fetchArticleBySlug(slug: string): Promise<Article | null> {
   };
 }
 
-export function generateStaticParams() {
-  return articles.map((article) => ({ slug: article.slug }));
-}
-
 export async function generateMetadata({
   params,
 }: {
@@ -84,6 +83,7 @@ export async function generateMetadata({
     title,
     description,
     alternates: { canonical },
+    robots: { index: article.indexable !== false, follow: true },
     openGraph: {
       type: "article",
       title,

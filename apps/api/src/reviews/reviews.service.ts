@@ -31,18 +31,31 @@ export class ReviewsService {
   constructor(private prisma: PrismaService) {}
 
   async getReviewsByProduct(productIdOrSlug: string) {
-    let resolvedId = productIdOrSlug;
-    const prod = await this.prisma.product.findFirst({
-      where: { OR: [{ id: productIdOrSlug }, { slug: productIdOrSlug }] },
-      select: { id: true },
-    });
-    if (prod) resolvedId = prod.id;
-
-    return this.prisma.review.findMany({
-      where: { productId: resolvedId, status: ReviewStatus.APPROVED },
-      include: { user: { select: { name: true } } },
+    const productId = await this.resolveProductId(productIdOrSlug);
+    const candidates = await this.prisma.review.findMany({
+      where: {
+        productId,
+        status: ReviewStatus.APPROVED,
+        order: {
+          is: {
+            status: { in: VERIFIED_ORDER_STATUSES },
+            items: { some: { productId } },
+          },
+        },
+      },
+      include: {
+        user: { select: { name: true } },
+        order: { select: { userId: true } },
+      },
       orderBy: { createdAt: "desc" },
     });
+
+    // The stored `verified` boolean is not an authority. A public review is
+    // purchase-verified only when its linked order belongs to the same user,
+    // contains the same product, and has reached an eligible order state.
+    return candidates
+      .filter((review) => review.order?.userId === review.userId)
+      .map(({ order: _order, ...review }) => ({ ...review, verified: true }));
   }
 
   async createReview(
@@ -78,8 +91,8 @@ export class ReviewsService {
           rating: data.rating,
           title: data.title?.trim() || null,
           body: data.body?.trim() || null,
-          orderId: verifiedOrder?.id || existingReview.orderId,
-          verified: Boolean(verifiedOrder || existingReview.verified),
+          orderId: verifiedOrder?.id ?? null,
+          verified: Boolean(verifiedOrder),
           status: ReviewStatus.PENDING,
         },
       });
@@ -100,19 +113,25 @@ export class ReviewsService {
   }
 
   async getProductRating(productIdOrSlug: string) {
-    let resolvedId = productIdOrSlug;
-    const prod = await this.prisma.product.findFirst({
-      where: { OR: [{ id: productIdOrSlug }, { slug: productIdOrSlug }] },
-      select: { id: true },
+    const productId = await this.resolveProductId(productIdOrSlug);
+    const candidates = await this.prisma.review.findMany({
+      where: {
+        productId,
+        status: ReviewStatus.APPROVED,
+        order: {
+          is: {
+            status: { in: VERIFIED_ORDER_STATUSES },
+            items: { some: { productId } },
+          },
+        },
+      },
+      select: { rating: true, userId: true, order: { select: { userId: true } } },
     });
-    if (prod) resolvedId = prod.id;
-
-    const result = await this.prisma.review.aggregate({
-      where: { productId: resolvedId, status: ReviewStatus.APPROVED },
-      _avg: { rating: true },
-      _count: { rating: true },
-    });
-    return { average: result._avg.rating ?? 0, count: result._count.rating };
+    const ratings = candidates
+      .filter((review) => review.order?.userId === review.userId)
+      .map((review) => review.rating);
+    const total = ratings.reduce((sum, rating) => sum + rating, 0);
+    return { average: ratings.length > 0 ? total / ratings.length : 0, count: ratings.length };
   }
 
   async getAdminReviews(query: AdminReviewsQueryDto) {
@@ -196,6 +215,14 @@ export class ReviewsService {
       select: { id: true },
       orderBy: { createdAt: "desc" },
     });
+  }
+
+  private async resolveProductId(productIdOrSlug: string) {
+    const product = await this.prisma.product.findFirst({
+      where: { OR: [{ id: productIdOrSlug }, { slug: productIdOrSlug }] },
+      select: { id: true },
+    });
+    return product?.id ?? productIdOrSlug;
   }
 
   private buildAdminWhere(query: AdminReviewsQueryDto): Prisma.ReviewWhereInput {

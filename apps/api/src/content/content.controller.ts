@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, Query } from "@nestjs/common";
+import { Controller, Get, Post, Patch, Delete, Param, Body, Query, UseGuards } from "@nestjs/common";
 import { ContentService, CreateArticleDto, UpdateArticleDto } from "./content.service";
+import { AdminAuthGuard } from "../admin-auth/guards/admin-auth.guard";
 
 @Controller("content")
 export class ContentController {
@@ -9,16 +10,19 @@ export class ContentController {
 
   @Get("articles")
   async getArticles(
-    @Query("status") status?: string,
     @Query("category") category?: string,
-    @Query("search") search?: string,
-    @Query("productId") productId?: string,
-    @Query("brandId") brandId?: string,
   ) {
-    return this.contentService.getAllArticles({ status, category, search, productId, brandId });
+    return this.contentService.getAllArticles({ status: "PUBLISHED", category, indexable: true });
+  }
+
+  @Get("admin/articles")
+  @UseGuards(AdminAuthGuard)
+  async getAdminArticles() {
+    return this.contentService.getAllArticles();
   }
 
   @Get("articles/dashboard-stats")
+  @UseGuards(AdminAuthGuard)
   async getDashboardStats() {
     return this.contentService.getDashboardStats();
   }
@@ -29,6 +33,7 @@ export class ContentController {
   }
 
   @Get("articles/:id")
+  @UseGuards(AdminAuthGuard)
   async getArticleById(@Param("id") id: string) {
     return this.contentService.getArticleById(id);
   }
@@ -36,26 +41,31 @@ export class ContentController {
   // ── Admin write endpoints ───────────────────────────────────────────
 
   @Post("articles")
+  @UseGuards(AdminAuthGuard)
   async createArticle(@Body() dto: CreateArticleDto) {
     return this.contentService.createArticle(dto);
   }
 
   @Patch("articles/:id")
+  @UseGuards(AdminAuthGuard)
   async updateArticle(@Param("id") id: string, @Body() dto: UpdateArticleDto) {
     return this.contentService.updateArticle(id, dto);
   }
 
   @Patch("articles/:id/archive")
+  @UseGuards(AdminAuthGuard)
   async archiveArticle(@Param("id") id: string) {
     return this.contentService.archiveArticle(id);
   }
 
   @Post("articles/:id/duplicate")
+  @UseGuards(AdminAuthGuard)
   async duplicateArticle(@Param("id") id: string) {
     return this.contentService.duplicateArticle(id);
   }
 
   @Delete("articles/:id")
+  @UseGuards(AdminAuthGuard)
   async deleteArticle(@Param("id") id: string) {
     return this.contentService.deleteArticle(id);
   }

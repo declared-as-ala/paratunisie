@@ -25,10 +25,12 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://paratunisie.com"),
   title: {
     default: "ParaTunisie | Parapharmacie en Ligne en Tunisie — Soins & Nutrition",
-    template: "%s | ParaTunisie",
+    // Route metadata already carries the brand; a second suffix produced titles
+    // such as "... | ParaTunisie | ParaTunisie" in search results.
+    template: "%s",
   },
   description:
-    "ParaTunisie, votre parapharmacie en ligne de référence en Tunisie. Découvrez notre sélection de compléments alimentaires, nutrition sportive (créatine, whey, ashwagandha), vitamines et soins avec livraison rapide 24-48h partout en Tunisie.",
+    "ParaTunisie est une boutique en ligne tunisienne de compléments alimentaires, nutrition sportive, vitamines et soins, avec livraison à domicile.",
   alternates: { canonical: "/" },
   verification: {
     google: "6Rz8hRY9p1DAcNo9GsEkcKkZxxTY0pFEu4iuHN7mZQM",
@@ -42,7 +44,7 @@ export const metadata: Metadata = {
     siteName: "ParaTunisie",
     title: "ParaTunisie | Parapharmacie en Ligne en Tunisie — Soins & Nutrition",
     description:
-      "Votre parapharmacie en ligne en Tunisie : compléments alimentaires authentiques, nutrition sportive, vitamines et soins livrés partout en Tunisie.",
+      "Boutique en ligne en Tunisie : compléments alimentaires, nutrition sportive, vitamines et soins livrés à domicile.",
     url: "/",
     images: [
       {
@@ -57,7 +59,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "ParaTunisie | Parapharmacie en Ligne en Tunisie — Soins & Nutrition",
     description:
-      "Votre parapharmacie en ligne en Tunisie : compléments authentiques et livraison 24-48h.",
+      "Boutique en ligne tunisienne de compléments, nutrition sportive, vitamines et soins.",
     images: ["/assets/hero-cinematic-poster.webp"],
   },
 };
@@ -66,17 +68,17 @@ const storeJsonLd = {
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": ["OnlineStore", "Pharmacy"],
+      "@type": "OnlineStore",
       "@id": "https://paratunisie.com/#organization",
       name: "ParaTunisie",
       alternateName: ["Para Tunisie", "ParaTunisie en Ligne", "Parapharmacie Tunisie"],
       url: "https://paratunisie.com",
       logo: "https://paratunisie.com/assets/hero-cinematic-poster.webp",
-      description: "Première parapharmacie en ligne spécialisée en Tunisie : compléments alimentaires, nutrition sportive, vitamines et soins 100% authentiques.",
+      description: "Parapharmacie en ligne en Tunisie : compléments alimentaires, nutrition sportive, vitamines et soins.",
       telephone: "+21697991266",
       priceRange: "TND",
       currenciesAccepted: "TND",
-      paymentAccepted: "Cash on delivery, Cash, Credit Card",
+      paymentAccepted: "Cash on delivery, Cash",
       address: {
         "@type": "PostalAddress",
         addressCountry: "TN",

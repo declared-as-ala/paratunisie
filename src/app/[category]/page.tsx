@@ -5,7 +5,7 @@ import { Suspense } from "react";
 
 import { CategoryPLP } from "@/components/category/category-plp";
 import { categories, getCategoryBySlug } from "@/lib/data/categories";
-import { fetchCategoryBySlug, fetchProducts, fetchSeoRedirect } from "@/lib/api/client";
+import { fetchCategoryBySlug, fetchPaginatedProducts, fetchSeoRedirect } from "@/lib/api/client";
 
 const SITE_URL = "https://paratunisie.com";
 
@@ -15,10 +15,13 @@ export function generateStaticParams() {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ category: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }): Promise<Metadata> {
   const { category: slug } = await params;
+  const query = await searchParams;
   const cat = await fetchCategoryBySlug(slug);
   if (!cat) return {};
 
@@ -28,7 +31,7 @@ export async function generateMetadata({
     title: { absolute: title },
     description,
     alternates: { canonical: cat.canonicalUrl || `/${cat.slug}` },
-    robots: { index: cat.indexable !== false, follow: cat.followLinks !== false },
+    robots: { index: cat.indexable !== false && Object.keys(query).length === 0, follow: cat.followLinks !== false },
     openGraph: {
       type: "website",
       title: cat.ogTitle || title,
@@ -57,9 +60,11 @@ export default async function CategoryPage({
   const cat = localCat || { slug: dbCat!.slug, name: dbCat!.name, eyebrow: dbCat!.parent?.name, description: dbCat!.seoIntro || dbCat!.shortDescription || dbCat!.description || "", seoIntro: dbCat!.seoIntro || "", subcategories: [], concerns: [] };
 
   const params_ = await searchParams;
+  const page = Math.max(1, Number(params_.page) || 1);
 
-  /* Fetch products from the API by category */
-  const apiProducts = await fetchProducts({ category: cat.slug });
+  /* Keep collection HTML bounded and expose crawlable page links. */
+  const paginated = await fetchPaginatedProducts({ category: cat.slug, page, limit: 24 });
+  const apiProducts = paginated.products;
 
   /* Pre-compute serializable maps on the server */
   const subcategoryMap: Record<string, string[]> = {};
@@ -114,6 +119,7 @@ export default async function CategoryPage({
           subcategoryMap={subcategoryMap}
           concernMap={concernMap}
           searchParams={params_}
+          meta={paginated.meta}
         />
       </Suspense>
 

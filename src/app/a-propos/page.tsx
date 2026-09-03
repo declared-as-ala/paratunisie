@@ -5,7 +5,7 @@ import { BadgeCheck, HeartHandshake, ShieldCheck, Sparkles, Truck, Users, ArrowR
 export const metadata: Metadata = {
   title: "À Propos de ParaTunisie | Spécialiste Nutrition Sportive & Bien-être",
   description:
-    "ParaTunisie est votre parapharmacie en ligne de référence en Tunisie. Découvrez notre engagement : authenticité 100% garantie, conseils avisés et livraison rapide.",
+    "Découvrez ParaTunisie, son catalogue de nutrition sportive et de bien-être, son service client et ses modalités de livraison en Tunisie.",
   alternates: { canonical: "/a-propos" },
 };
 
@@ -22,7 +22,7 @@ export default function AProposPage() {
           À Propos de ParaTunisie
         </h1>
         <p className="mt-3 text-sm text-ink-muted sm:text-base max-w-2xl mx-auto">
-          La référence en Tunisie pour les compléments alimentaires de musculation, la micronutrition sportive et les soins de santé au quotidien.
+          Une boutique tunisienne de compléments alimentaires, nutrition sportive et produits de bien-être.
         </p>
       </div>
 
@@ -31,10 +31,10 @@ export default function AProposPage() {
         <section className="rounded-2xl border border-border bg-white p-6 sm:p-8 shadow-xs">
           <h2 className="font-serif text-xl font-bold text-ink mb-4">Notre Histoire & Vision</h2>
           <p>
-            Fondée avec la volonté de démocratiser l’accès aux meilleurs compléments alimentaires mondiaux en Tunisie, <strong>ParaTunisie</strong> s’est imposée comme une plateforme de confiance dédiée aux sportifs exigeants et aux personnes soucieuses de leur bien-être.
+            <strong>ParaTunisie</strong> a été créée pour rendre plus simple la consultation et la commande de compléments alimentaires et de produits de nutrition sportive en Tunisie.
           </p>
           <p className="mt-3">
-            Face à un marché parfois marqué par le manque de traçabilité, nous avons fait le choix de la <strong>totale transparence</strong> : chaque produit proposé sur notre site provient directement de circuits officiels vérifiés, respectant les normes de sécurité sanitaire les plus strictes.
+            Nous affichons les informations disponibles sur la marque, le format, le prix et la disponibilité. Les indications du fabricant figurant sur l’emballage restent la référence avant utilisation.
           </p>
         </section>
 
@@ -44,9 +44,9 @@ export default function AProposPage() {
             <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary mb-3">
               <BadgeCheck className="size-5" />
             </div>
-            <h3 className="font-serif text-base font-bold text-ink mb-1">Authenticité 100% Garantie</h3>
+            <h3 className="font-serif text-base font-bold text-ink mb-1">Identification des produits</h3>
             <p className="text-xs text-ink-muted leading-relaxed">
-              Toutes nos marques (Optimum Nutrition, BioTechUSA, OstroVit, Real Pharm, Quamtrax, etc.) sont originales, scellées et munies de numéros de lot traçables.
+              Les fiches indiquent la marque et le format. Vérifiez le scellé, le numéro de lot et la date présents sur le produit reçu.
             </p>
           </div>
 

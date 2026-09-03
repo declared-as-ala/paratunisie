@@ -22,7 +22,7 @@ function parseList(value: string | null) {
 const FAQ_ITEMS = [
   {
     q: "Quels produits puis-je trouver sur ParaTunisie ?",
-    a: "ParaTunisie propose des milliers de produits de parapharmacie 100% authentiques : soins du visage, dermo-cosmétiques, protection solaire, produits capillaires, gamme bébé & maternité, ainsi que du matériel orthopédique et des compléments alimentaires."
+    a: "ParaTunisie propose des produits de parapharmacie, soins du visage, dermo-cosmétiques, protection solaire, produits capillaires, matériel et compléments alimentaires. Consultez chaque fiche pour les informations disponibles."
   },
   {
     q: "Comment choisir un soin adapté à mon type de peau ou à mon besoin ?",
@@ -144,9 +144,11 @@ export function ShopPage({
     />
   );
 
-  function goToPage(newPage: number) {
-    updateParams({ page: newPage > 1 ? String(newPage) : null });
-    window.scrollTo({ top: 300, behavior: "smooth" });
+  function pageHref(newPage: number) {
+    const next = new URLSearchParams(searchParams.toString());
+    if (newPage > 1) next.set("page", String(newPage));
+    else next.delete("page");
+    return `${pathname}${next.size ? `?${next.toString()}` : ""}`;
   }
 
   return (
@@ -330,15 +332,15 @@ export function ShopPage({
                 {/* Numeric Pagination */}
                 {totalPages > 1 && (
                   <nav aria-label="Pagination" className="mt-12 flex flex-wrap justify-center items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={currentPage <= 1}
-                      onClick={() => goToPage(currentPage - 1)}
-                      className="rounded-xl text-xs font-bold gap-1 px-3 border-border"
-                    >
-                      <ChevronLeft size={14} /> <span className="hidden sm:inline">Précédent</span>
-                    </Button>
+                    {currentPage > 1 ? (
+                      <Link rel="prev" href={pageHref(currentPage - 1)} className="inline-flex h-8 items-center gap-1 rounded-xl border border-border px-3 text-xs font-bold hover:bg-soft-nude">
+                        <ChevronLeft size={14} /> <span className="hidden sm:inline">Précédent</span>
+                      </Link>
+                    ) : (
+                      <span aria-disabled="true" className="inline-flex h-8 items-center gap-1 rounded-xl border border-border px-3 text-xs font-bold opacity-50">
+                        <ChevronLeft size={14} /> <span className="hidden sm:inline">Précédent</span>
+                      </span>
+                    )}
 
                     <div className="flex items-center gap-1">
                       {Array.from({ length: Math.min(5, totalPages) }, (_, idx) => {
@@ -353,10 +355,10 @@ export function ShopPage({
                           pNum = currentPage - 2 + idx;
                         }
                         return (
-                          <button
+                          <Link
                             key={pNum}
-                            type="button"
-                            onClick={() => goToPage(pNum)}
+                            href={pageHref(pNum)}
+                            aria-current={currentPage === pNum ? "page" : undefined}
                             className={`size-8 sm:h-9 sm:min-w-9 sm:size-auto rounded-xl text-xs font-bold transition-all ${
                               currentPage === pNum
                                 ? "bg-primary text-white shadow-2xs font-extrabold"
@@ -364,30 +366,29 @@ export function ShopPage({
                             }`}
                           >
                             {pNum}
-                          </button>
+                          </Link>
                         );
                       })}
                       {totalPages > 5 && <span className="text-ink-muted px-1">...</span>}
                       {totalPages > 5 && (
-                        <button
-                          type="button"
-                          onClick={() => goToPage(totalPages)}
+                        <Link
+                          href={pageHref(totalPages)}
                           className="size-8 sm:h-9 sm:min-w-9 sm:size-auto rounded-xl text-xs font-bold bg-white border border-border text-ink hover:bg-soft-nude"
                         >
                           {totalPages}
-                        </button>
+                        </Link>
                       )}
                     </div>
 
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      disabled={currentPage >= totalPages}
-                      onClick={() => goToPage(currentPage + 1)}
-                      className="rounded-xl text-xs font-bold gap-1 px-3 border-border"
-                    >
-                      <span className="hidden sm:inline">Suivant</span> <ChevronRight size={14} />
-                    </Button>
+                    {currentPage < totalPages ? (
+                      <Link rel="next" href={pageHref(currentPage + 1)} className="inline-flex h-8 items-center gap-1 rounded-xl border border-border px-3 text-xs font-bold hover:bg-soft-nude">
+                        <span className="hidden sm:inline">Suivant</span> <ChevronRight size={14} />
+                      </Link>
+                    ) : (
+                      <span aria-disabled="true" className="inline-flex h-8 items-center gap-1 rounded-xl border border-border px-3 text-xs font-bold opacity-50">
+                        <span className="hidden sm:inline">Suivant</span> <ChevronRight size={14} />
+                      </span>
+                    )}
                   </nav>
                 )}
               </>

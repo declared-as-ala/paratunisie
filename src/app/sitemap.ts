@@ -30,10 +30,10 @@ async function fetchPublishedArticles(): Promise<{ slug: string; date?: string; 
     const res = await fetch(`${apiBase()}/content/articles?status=PUBLISHED`, { cache: "no-store" });
     if (!res.ok) throw new Error("API error");
     const data = await res.json();
-    if (Array.isArray(data) && data.length > 0) return data;
-    return localArticles;
+    if (Array.isArray(data)) return data;
+    return process.env.NODE_ENV === "production" ? [] : localArticles;
   } catch {
-    return localArticles;
+    return process.env.NODE_ENV === "production" ? [] : localArticles;
   }
 }
 

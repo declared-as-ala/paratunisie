@@ -38,7 +38,7 @@ const DEFAULT_SECTIONS = [
   { sectionKey: "seasonal_campaign", position: 8, title: "L'été sous haute protection", enabled: true, mode: "HYBRID", settings: {} },
   { sectionKey: "everyday_essentials", position: 9, title: "Les essentiels du quotidien", enabled: true, mode: "AUTOMATIC", settings: { limit: 6 } },
   { sectionKey: "shop_by_budget", position: 10, title: "Pour chaque budget", enabled: true, mode: "AUTOMATIC", settings: {} },
-  { sectionKey: "expert_advice", position: 11, title: "Conseils de nos pharmaciens", enabled: true, mode: "AUTOMATIC", settings: {} },
+  { sectionKey: "expert_advice", position: 11, title: "Guides et informations", enabled: true, mode: "AUTOMATIC", settings: {} },
   { sectionKey: "trust_reassurance", position: 12, title: "Pourquoi nous faire confiance", enabled: true, mode: "MANUAL", settings: {} },
 ];
 

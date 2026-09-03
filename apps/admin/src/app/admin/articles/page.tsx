@@ -107,7 +107,7 @@ export default function ArticlesPage() {
     setLoading(true);
     try {
       const baseUrl = getApiBaseUrl();
-      const res = await fetch(`${baseUrl}/content/articles`, { cache: "no-store" });
+      const res = await fetch(`${baseUrl}/content/admin/articles`, { cache: "no-store", credentials: "include" });
       if (!res.ok) throw new Error("API error");
       const data = await res.json();
       if (Array.isArray(data)) {
@@ -226,6 +226,7 @@ export default function ArticlesPage() {
 
       const res = await fetch(url, {
         method,
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
@@ -293,6 +294,7 @@ export default function ArticlesPage() {
     if (apiAvailable) {
       await fetch(`${baseUrl}/content/articles/${article.id}`, {
         method: "PATCH",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus }),
       });
@@ -317,7 +319,7 @@ export default function ArticlesPage() {
   async function handleDuplicate(article: Article) {
     const baseUrl = getApiBaseUrl();
     if (apiAvailable) {
-      await fetch(`${baseUrl}/content/articles/${article.id}/duplicate`, { method: "POST" });
+      await fetch(`${baseUrl}/content/articles/${article.id}/duplicate`, { method: "POST", credentials: "include" });
       await fetchArticles();
     } else {
       const copy: Article = {
@@ -339,7 +341,7 @@ export default function ArticlesPage() {
     if (!deleteTarget) return;
     const baseUrl = getApiBaseUrl();
     if (apiAvailable) {
-      await fetch(`${baseUrl}/content/articles/${deleteTarget.id}`, { method: "DELETE" });
+      await fetch(`${baseUrl}/content/articles/${deleteTarget.id}`, { method: "DELETE", credentials: "include" });
       await fetchArticles();
     } else {
       setArticles((prev) => prev.filter((a) => a.id !== deleteTarget.id));

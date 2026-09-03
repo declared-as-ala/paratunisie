@@ -44,10 +44,10 @@ const FEATURED_PRODUCTS: SplitProduct[] = [
 ];
 
 const ADVANTAGES = [
-  "Plus de 36 formules certifiées 100% authentiques et pures",
-  "Dosage micrométrique des principes actifs brevetés",
-  "Sélection rigoureuse des plus grands laboratoires internationaux",
-  "Conseils personnalisés par nos pharmaciens et préparateurs",
+  "Formats et prix clairement présentés avant la commande",
+  "Informations produit issues des fiches disponibles",
+  "Sélection de marques nationales et internationales",
+  "Service client disponible pour les questions de commande",
 ];
 
 export function HomeSplitFeature() {

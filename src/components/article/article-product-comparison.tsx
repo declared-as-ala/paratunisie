@@ -103,7 +103,7 @@ export function ArticleProductComparison({
                     {formatPrice(product.priceMillimes)}
                   </td>
                   <td className="py-3.5 px-4 text-ink-muted text-[11px] max-w-[200px] line-clamp-2">
-                    {item.highlight || product.benefit || "Formule originale certifiée"}
+                    {item.highlight || product.benefit || "Informations disponibles sur la fiche"}
                   </td>
                   <td className="py-3.5 px-4">
                     <span

@@ -2,13 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Check, ShieldCheck, Star, Truck, FileText, Sparkles, Droplets, Info } from "lucide-react";
+import { Check, ShieldCheck, Star, Truck, FileText, Sparkles, Droplets } from "lucide-react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { hasConfiguredWhatsApp, whatsappHref } from "@/lib/contact";
 import type { ProductSummary } from "@/lib/data/products";
 import type { ProductRating, PublicReview } from "@/lib/api/client";
 import { ProductReviewModal } from "./product-review-modal";
+import { ProductRichText } from "./product-rich-text";
 
 export function ProductTabs({
   product,
@@ -31,15 +32,15 @@ export function ProductTabs({
             <FileText className="size-4 text-primary shrink-0" />
             Description
           </h3>
-          <p className="leading-6 text-sm text-ink-muted">{product.description || "Aucune description disponible pour ce produit."}</p>
+          <ProductRichText content={product.description || "Aucune description disponible pour ce produit."} className="text-sm leading-6 text-ink-muted" />
           <dl className="mt-4 grid grid-cols-2 gap-3 rounded-xl border border-border/70 bg-soft-nude/40 p-3.5 text-xs">
             <div>
               <dt className="font-semibold text-ink-muted">Catégorie</dt>
               <dd className="mt-0.5 font-bold text-ink">{product.category}</dd>
             </div>
             <div>
-              <dt className="font-semibold text-ink-muted">Type de peau</dt>
-              <dd className="mt-0.5 font-bold text-ink">{product.skinTypes.length ? product.skinTypes.join(", ") : "Tous types"}</dd>
+              <dt className="font-semibold text-ink-muted">Format</dt>
+              <dd className="mt-0.5 font-bold text-ink">{product.size || "Voir les formats disponibles"}</dd>
             </div>
           </dl>
         </section>
@@ -72,17 +73,6 @@ export function ProductTabs({
             <p className="leading-6 text-xs text-ink-muted">{product.usage}</p>
           </section>
         )}
-
-        {/* Composition Section */}
-        <section className="pt-6">
-          <h3 className="flex items-center gap-2 text-base font-extrabold text-ink mb-3 font-serif">
-            <Info className="size-4 text-primary shrink-0" />
-            Composition &amp; Ingrédients
-          </h3>
-          <p className="leading-5 text-xs text-ink-muted">
-            {(product as any).ingredients || "Composition détaillée disponible sur l’emballage du produit."}
-          </p>
-        </section>
 
         {/* Livraison & Retours Section */}
         <section className="pt-6">
@@ -183,21 +173,20 @@ export function ProductTabs({
           <TabsTrigger value="description">Description</TabsTrigger>
           {product.benefits && product.benefits.length > 0 && <TabsTrigger value="benefits">Bénéfices</TabsTrigger>}
           {product.usage && <TabsTrigger value="usage">Utilisation</TabsTrigger>}
-          <TabsTrigger value="composition">Composition</TabsTrigger>
           <TabsTrigger value="delivery">Livraison &amp; retours</TabsTrigger>
           <TabsTrigger value="reviews">Avis{rating.count > 0 ? ` (${rating.count})` : ""}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="description" className="pt-6">
-          <p className="max-w-2xl leading-7 text-ink">{product.description || "Aucune description disponible pour ce produit."}</p>
+          <ProductRichText content={product.description || "Aucune description disponible pour ce produit."} className="max-w-2xl leading-7 text-ink" />
           <dl className="mt-6 grid max-w-md grid-cols-2 gap-x-6 gap-y-3 text-sm">
             <div>
               <dt className="text-ink-muted">Catégorie</dt>
               <dd className="mt-0.5 text-ink">{product.category}</dd>
             </div>
             <div>
-              <dt className="text-ink-muted">Type de peau</dt>
-              <dd className="mt-0.5 text-ink">{product.skinTypes.length ? product.skinTypes.join(", ") : "Tous types"}</dd>
+              <dt className="text-ink-muted">Format</dt>
+              <dd className="mt-0.5 text-ink">{product.size || "Voir les formats disponibles"}</dd>
             </div>
           </dl>
         </TabsContent>
@@ -221,17 +210,11 @@ export function ProductTabs({
           </TabsContent>
         )}
 
-        <TabsContent value="composition" className="pt-6">
-          <p className="max-w-2xl text-xs leading-6 text-ink-muted">
-            {(product as any).ingredients || "Composition détaillée disponible sur l’emballage du produit."}
-          </p>
-        </TabsContent>
-
         <TabsContent value="delivery" className="pt-6">
           <div className="max-w-2xl space-y-4 text-sm leading-6 text-ink">
             <p>Livraison rapide dans toute la Tunisie sous 24 à 48 heures ouvrées.</p>
             <p>Frais de livraison : 7 DT (Gratuit à partir de 99 DT d’achat).</p>
-            <p>Paiement à la livraison en espèces ou par carte bancaire selon disponibilité.</p>
+            <p>Paiement en espèces à la livraison.</p>
             <p>Retours possibles sous 7 jours pour les produits non ouverts et dans leur emballage d’origine.</p>
           </div>
         </TabsContent>

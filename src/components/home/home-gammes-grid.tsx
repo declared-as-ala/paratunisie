@@ -61,7 +61,7 @@ const GAMMES: GammeItem[] = [
     num: "5",
     title: "Brûleurs & Sèche",
     subtitle: "Déstockage Métabolique",
-    description: "L-Carnitine pure et thermogéniques haute performance pour accélérer la combustion des graisses.",
+    description: "L-Carnitine et autres compléments : comparez les compositions et conseils d’utilisation indiqués.",
     dotColor: "#B89E16",
     image: "/uploads/products/lipo-6-black-ultra-concentrate-60caps-7abcdedc.webp",
     href: "/bruleurs-de-graisse",
@@ -100,7 +100,7 @@ export function HomeGammesGrid() {
           Sept réponses ciblées à chaque besoin de votre corps
         </h2>
         <p className="text-muted-foreground text-sm sm:text-base mt-3 leading-relaxed">
-          Chaque gamme ParaTunisie est identifiée par un code couleur officiel et concentre des actifs purs aux concentrations cliniquement validées.
+          Chaque gamme regroupe les produits par usage courant afin de faciliter la comparaison des marques, formats et informations disponibles.
         </p>
       </div>
 
@@ -165,7 +165,7 @@ export function HomeGammesGrid() {
               Catalogue Complet
             </span>
             <h3 className="font-serif text-xl sm:text-2xl font-bold text-foreground mt-3 tracking-tight">
-              Tous nos compléments &amp; soins certifiés
+              Tous nos compléments &amp; soins
             </h3>
             <p className="text-xs sm:text-sm text-muted-foreground mt-3 leading-relaxed">
               Découvrez l&apos;ensemble de nos 36 formules de pointe, grandes marques internationales et nouveautés en Tunisie.

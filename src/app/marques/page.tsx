@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 
 import { MarquesPage } from "@/components/marques/marques-page";
+import { fetchBrands } from "@/lib/api/client";
 
 const SITE_URL = "https://paratunisie.com";
 
@@ -18,7 +19,11 @@ export const metadata: Metadata = {
   },
 };
 
-export default function MarquesRoute() {
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
+export default async function MarquesRoute() {
+  const brands = await fetchBrands();
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -36,7 +41,7 @@ export default function MarquesRoute() {
           __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c"),
         }}
       />
-      <MarquesPage />
+      <MarquesPage initialBrands={brands} />
     </>
   );
 }

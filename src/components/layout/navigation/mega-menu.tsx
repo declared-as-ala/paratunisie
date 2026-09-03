@@ -68,7 +68,7 @@ export const MEGA_MENU_DATA: MegaMenuSection[] = [
       eyebrow: "NUTRITION HAUTE PERFORMANCE",
       title: "Nos Catégories",
       description:
-        "Compléments alimentaires et nutrition sportive 100% authentiques en Tunisie. Formules pures pour la force, le muscle, l'énergie et la vitalité.",
+        "Compléments alimentaires et nutrition sportive disponibles en Tunisie. Comparez les marques, formats et informations produit.",
       ctaLabel: "Voir tout le catalogue",
       ctaHref: "/shop",
     },
@@ -226,7 +226,7 @@ export const MEGA_MENU_DATA: MegaMenuSection[] = [
       eyebrow: "EXPLOSIVITÉ & INTENSITÉ",
       title: "Pre-Workout & Sèche",
       description:
-        "Formules d'avant-entraînement intenses pour décupler votre focus mental, votre vasodilatation et stimuler la combustion calorique.",
+        "Formules d'avant-entraînement : comparez la caféine, les ingrédients, les formats et les conseils d’utilisation.",
       ctaLabel: "Voir tous les boosters",
       ctaHref: "/pre-workout",
     },
@@ -382,7 +382,7 @@ export const MEGA_MENU_DATA: MegaMenuSection[] = [
       eyebrow: "BIEN-ÊTRE & ANTI-STRESS",
       title: "Ashwagandha Pure",
       description:
-        "Plante adaptogène premium (Withania Somnifera) titrée en withanolides pour réguler le cortisol, réduire le stress, optimiser le sommeil et soutenir la vitalité.",
+        "Ashwagandha (Withania somnifera) : comparez la teneur indiquée en withanolides, les formats et les conseils d’utilisation.",
       ctaLabel: "Voir tout l'Ashwagandha",
       ctaHref: "/ashwagandha",
     },
