@@ -30,6 +30,9 @@ COPY --chown=nodejs:nodejs --from=builder /app/node_modules/.prisma ./node_modul
 COPY --chown=nodejs:nodejs --from=builder /app/node_modules/@prisma/client ./node_modules/@prisma/client
 COPY --chown=nodejs:nodejs --from=builder /app/dist ./dist
 COPY --chown=nodejs:nodejs --from=builder /app/prisma ./prisma
+# The production SEO maintenance script is TypeScript and imports this shared
+# evaluator directly. Keep the single source module available to ts-node.
+COPY --chown=nodejs:nodejs --from=builder /app/src/catalogue/product-seo-quality.ts ./src/catalogue/product-seo-quality.ts
 COPY --chown=nodejs:nodejs --from=builder /app/public ./public
 COPY --chown=nodejs:nodejs --from=builder /app/package.json ./package.json
 USER nodejs
