@@ -50,6 +50,15 @@ describe("evaluateProductSeoQuality", () => {
     ]));
   });
 
+  it("blocks absolute commercial claims without substantiation", () => {
+    const result = evaluateProductSeoQuality({
+      ...validProduct,
+      seoDescription: "Produit 100% authentique au meilleur prix garanti.",
+    });
+    expect(result.eligible).toBe(false);
+    expect(result.issues.map((issue) => issue.code)).toContain("UNSUPPORTED_ABSOLUTE_CLAIM");
+  });
+
   it("blocks inconsistent aggregate and variant stock", () => {
     const result = evaluateProductSeoQuality({
       ...validProduct,

@@ -11,7 +11,12 @@ export type ProductSeoQualityInput = {
   name: string;
   slug: string;
   description: string;
+  benefit?: string | null;
   usage?: string | null;
+  seoDescription?: string | null;
+  seoIntro?: string | null;
+  seoContent?: string | null;
+  ogDescription?: string | null;
   image: string;
   publishState: string;
   inStock: boolean;
@@ -79,6 +84,22 @@ export function evaluateProductSeoQuality(product: ProductSeoQualityInput): Prod
       "BLOCKER",
       55,
       "Description matches the bulk-generated placeholder template and requires editorial review.",
+    );
+  }
+  const claimText = [
+    product.description,
+    product.benefit,
+    product.seoDescription,
+    product.seoIntro,
+    product.seoContent,
+    product.ogDescription,
+  ].map(normalized).join(" ");
+  if (/(?:100\s*%\s*authentique|meilleur prix garanti|(?:n[°ºo]|num[ée]ro)\s*1)/i.test(claimText)) {
+    add(
+      "UNSUPPORTED_ABSOLUTE_CLAIM",
+      "BLOCKER",
+      45,
+      "Absolute authenticity, price, or market-leading claims require documented substantiation.",
     );
   }
   if (!image || PLACEHOLDER_IMAGES.has(image.toLowerCase())) {

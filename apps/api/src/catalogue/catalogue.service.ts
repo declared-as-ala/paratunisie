@@ -79,6 +79,8 @@ export class CatalogueService {
       usage: _usage,
       seoContent: _seoContent,
       seoIntro: _seoIntro,
+      seoDescription: _seoDescription,
+      ogDescription: _ogDescription,
       seoQualityIssues: _seoQualityIssues,
       ...listingProduct
     } = product;
