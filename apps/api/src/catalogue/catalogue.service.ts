@@ -267,10 +267,12 @@ export class CatalogueService {
   }
 
   async findProductBySlug(slug: string) {
-    return this.prisma.product.findFirst({
+    const product = await this.prisma.product.findFirst({
       where: { slug, publishState: ProductPublishState.PUBLISHED },
       include: { brand: true, category: true, variants: true, images: true },
     });
+    if (!product) throw new NotFoundException("Produit introuvable");
+    return product;
   }
 
   private parseJsonArray(value: unknown): string[] {
@@ -433,7 +435,9 @@ export class CatalogueService {
   }
 
   async findBrandBySlug(slug: string) {
-    return this.prisma.brand.findFirst({ where: { slug, status: "ACTIVE" } });
+    const brand = await this.prisma.brand.findFirst({ where: { slug, status: "ACTIVE" } });
+    if (!brand) throw new NotFoundException("Marque introuvable");
+    return brand;
   }
 
   async createBrand(data: any) {
@@ -541,7 +545,9 @@ export class CatalogueService {
   }
 
   async findCategoryBySlug(slug: string) {
-    return this.prisma.category.findFirst({ where: { slug, status: "ACTIVE" }, include: { parent: true, children: { where: { status: "ACTIVE" }, orderBy: { position: "asc" } } } });
+    const category = await this.prisma.category.findFirst({ where: { slug, status: "ACTIVE" }, include: { parent: true, children: { where: { status: "ACTIVE" }, orderBy: { position: "asc" } } } });
+    if (!category) throw new NotFoundException("Catégorie introuvable");
+    return category;
   }
 
   async createCategory(data: any) {
