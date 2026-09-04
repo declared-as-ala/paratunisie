@@ -4,8 +4,8 @@ import Link from "next/link";
 
 import { BrandProducts } from "@/components/marques/brand-products";
 import { fetchBrandBySlug, fetchProducts, fetchSeoRedirect } from "@/lib/api/client";
-
-const SITE_URL = "https://paratunisie.com";
+import { buildBrandMetadata, buildBreadcrumbsSchema, buildCanonicalUrl } from "@/lib/seo";
+import { COMPANY_CONFIG } from "@/lib/config/company";
 
 export async function generateMetadata({
   params,
@@ -16,35 +16,15 @@ export async function generateMetadata({
   const brand = await fetchBrandBySlug(slug);
   if (!brand) return {};
 
-  // Admin SEO overrides take priority — same pattern as the product page,
-  // and the same bug: these fields already existed on the Brand model and
-  // in the admin editor, but no public page ever read them back.
-  const title = brand.seoTitle || `${brand.name} Tunisie — Produits authentiques`;
-  const description =
-    brand.seoDescription ||
-    brand.shortDescription ||
-    brand.description ||
-    `Découvrez tous les produits ${brand.name} disponibles en Tunisie sur ParaTunisie : prix, disponibilité et livraison partout dans le pays.`;
-
-  return {
-    title: { absolute: title },
-    description,
-    alternates: { canonical: brand.canonicalUrl || `/marques/${brand.slug}` },
-    robots: { index: brand.indexable !== false, follow: brand.followLinks !== false },
-    openGraph: {
-      type: "website",
-      title: brand.ogTitle || title,
-      description: brand.ogDescription || description,
-      url: brand.canonicalUrl || `/marques/${brand.slug}`,
-      images: brand.ogImage ? [{ url: brand.ogImage, alt: brand.imageAlt || brand.name }] : undefined,
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: brand.ogTitle || title,
-      description: brand.ogDescription || description,
-      images: brand.ogImage ? [brand.ogImage] : undefined,
-    },
-  };
+  return buildBrandMetadata({
+    name: brand.name,
+    slug: brand.slug,
+    seoTitle: brand.seoTitle,
+    seoDescription: brand.seoDescription,
+    description: brand.shortDescription || brand.description,
+    logo: brand.ogImage || brand.image || brand.logo,
+    indexable: brand.indexable,
+  });
 }
 
 export default async function BrandPage({
@@ -62,15 +42,11 @@ export default async function BrandPage({
 
   const brandProducts = await fetchProducts({ brand: brand.slug });
 
-  const breadcrumbJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Accueil", item: `${SITE_URL}/` },
-      { "@type": "ListItem", position: 2, name: "Marques", item: `${SITE_URL}/marques` },
-      { "@type": "ListItem", position: 3, name: brand.name, item: `${SITE_URL}/marques/${brand.slug}` },
-    ],
-  };
+  const breadcrumbJsonLd = buildBreadcrumbsSchema([
+    { name: "Accueil", url: "/" },
+    { name: "Marques", url: "/marques" },
+    { name: brand.name, url: `/marques/${brand.slug}` },
+  ]);
 
   const introText =
     brand.description ||
@@ -83,8 +59,12 @@ export default async function BrandPage({
     "@context": "https://schema.org",
     "@type": "Brand",
     name: brand.name,
-    url: `${SITE_URL}/marques/${brand.slug}`,
-    logo: brandLogo,
+    url: buildCanonicalUrl(`/marques/${brand.slug}`),
+    logo: brandLogo
+      ? brandLogo.startsWith("http")
+        ? brandLogo
+        : `${COMPANY_CONFIG.siteUrl}${brandLogo.startsWith("/") ? "" : "/"}${brandLogo}`
+      : undefined,
     description: introText,
   };
 

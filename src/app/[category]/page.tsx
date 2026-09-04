@@ -6,8 +6,7 @@ import { Suspense } from "react";
 import { CategoryPLP } from "@/components/category/category-plp";
 import { categories, getCategoryBySlug } from "@/lib/data/categories";
 import { fetchCategoryBySlug, fetchPaginatedProducts, fetchSeoRedirect } from "@/lib/api/client";
-
-const SITE_URL = "https://paratunisie.com";
+import { buildCategoryMetadata, buildBreadcrumbsSchema } from "@/lib/seo";
 
 export function generateStaticParams() {
   return categories.map((category) => ({ category: category.slug }));
@@ -25,22 +24,18 @@ export async function generateMetadata({
   const cat = await fetchCategoryBySlug(slug);
   if (!cat) return {};
 
-  const title = cat.seoTitle || `${cat.name} en Tunisie | ParaTunisie`;
-  const description = cat.seoDescription || cat.seoIntro || cat.shortDescription || cat.description || `Découvrez ${cat.name} en Tunisie sur ParaTunisie.`;
-  return {
-    title: { absolute: title },
-    description,
-    alternates: { canonical: cat.canonicalUrl || `/${cat.slug}` },
-    robots: { index: cat.indexable !== false && Object.keys(query).length === 0, follow: cat.followLinks !== false },
-    openGraph: {
-      type: "website",
-      title: cat.ogTitle || title,
-      description: cat.ogDescription || description,
-      url: cat.canonicalUrl || `/${cat.slug}`,
-      images: cat.ogImage ? [{ url: cat.ogImage, alt: cat.imageAlt || cat.name }] : undefined,
-    },
-    twitter: { card: "summary_large_image", title: cat.ogTitle || title, description: cat.ogDescription || description, images: cat.ogImage ? [cat.ogImage] : undefined },
-  };
+  const page = Number(query.page) || 1;
+  const hasFilters = Object.keys(query).some((k) => k !== "page");
+
+  return buildCategoryMetadata({
+    name: cat.name,
+    slug: cat.slug,
+    seoTitle: cat.seoTitle,
+    seoDescription: cat.seoDescription || cat.seoIntro || cat.shortDescription || cat.description,
+    indexable: cat.indexable,
+    page,
+    hasFilters,
+  });
 }
 
 export default async function CategoryPage({
@@ -57,7 +52,15 @@ export default async function CategoryPage({
     if (redirect) permanentRedirect(redirect);
     notFound();
   }
-  const cat = localCat || { slug: dbCat!.slug, name: dbCat!.name, eyebrow: dbCat!.parent?.name, description: dbCat!.seoIntro || dbCat!.shortDescription || dbCat!.description || "", seoIntro: dbCat!.seoIntro || "", subcategories: [], concerns: [] };
+  const cat = localCat || {
+    slug: dbCat!.slug,
+    name: dbCat!.name,
+    eyebrow: dbCat!.parent?.name,
+    description: dbCat!.seoIntro || dbCat!.shortDescription || dbCat!.description || "",
+    seoIntro: dbCat!.seoIntro || "",
+    subcategories: [],
+    concerns: [],
+  };
 
   const params_ = await searchParams;
   const page = Math.max(1, Number(params_.page) || 1);
@@ -88,15 +91,11 @@ export default async function CategoryPage({
     concerns: cat.concerns.map((c) => ({ slug: c.slug, name: c.name })),
   };
 
-  const breadcrumbJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Accueil", item: `${SITE_URL}/` },
-      { "@type": "ListItem", position: 2, name: "Shop", item: `${SITE_URL}/shop` },
-      { "@type": "ListItem", position: 3, name: cat.name, item: `${SITE_URL}/${cat.slug}` },
-    ],
-  };
+  const breadcrumbJsonLd = buildBreadcrumbsSchema([
+    { name: "Accueil", url: "/" },
+    { name: "Shop", url: "/shop" },
+    { name: cat.name, url: `/${cat.slug}` },
+  ]);
 
   return (
     <>

@@ -8,9 +8,18 @@ import {
   getSimilarProducts,
   products,
 } from "@/lib/data/products";
-import { fetchProductBySlug, fetchProductRating, fetchProductReviews, fetchProducts, fetchSeoRedirect } from "@/lib/api/client";
-
-const SITE_URL = "https://paratunisie.com";
+import {
+  fetchProductBySlug,
+  fetchProductRating,
+  fetchProductReviews,
+  fetchProducts,
+  fetchSeoRedirect,
+} from "@/lib/api/client";
+import {
+  buildProductMetadata,
+  buildProductSchema,
+  buildBreadcrumbsSchema,
+} from "@/lib/seo";
 
 function normalizedCopy(value?: string | null): string {
   return (value || "").replace(/[#*_`>\-]/g, " ").replace(/\s+/g, " ").trim().toLowerCase();
@@ -20,12 +29,6 @@ function hasDistinctSeoContent(description: string, seoContent?: string | null):
   const descriptionText = normalizedCopy(description);
   const seoText = normalizedCopy(seoContent);
   return seoText.length >= 80 && !descriptionText.includes(seoText) && !seoText.includes(descriptionText);
-}
-
-function absoluteImageUrl(img?: string): string {
-  if (!img) return `${SITE_URL}/assets/product-tube.webp`;
-  if (img.startsWith("http://") || img.startsWith("https://")) return img;
-  return `${SITE_URL}${img.startsWith("/") ? "" : "/"}${img}`;
 }
 
 export function generateStaticParams() {
@@ -41,33 +44,18 @@ export async function generateMetadata({
   const product = await fetchProductBySlug(slug);
   if (!product) return {};
 
-  // Admin SEO overrides (product-drawer's SEO editor) take priority over the
-  // auto-generated fallback — this is the only thing that made setting them
-  // in admin actually do anything on the live page.
-  const title = product.seoTitle || `${product.name} en Tunisie | ParaTunisie`;
-  const description = product.seoDescription || product.description || `Découvrez ${product.name} de ${product.brand}, disponible en Tunisie sur ParaTunisie.`;
-  const fullImgUrl = absoluteImageUrl(product.ogImage || product.image);
-
-  return {
-    title: { absolute: title },
-    description,
-    alternates: { canonical: product.canonicalUrl || `/produits/${product.slug}` },
-    keywords: product.seoKeywords,
-    robots: { index: product.indexable !== false, follow: product.followLinks !== false },
-    openGraph: {
-      type: "website",
-      title: product.ogTitle || title,
-      description: product.ogDescription || description,
-      url: product.canonicalUrl || `/produits/${product.slug}`,
-      images: [{ url: fullImgUrl, alt: product.imageAlt || `${product.name} de ${product.brand}` }],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: product.ogTitle || title,
-      description: product.ogDescription || description,
-      images: [fullImgUrl],
-    },
-  };
+  return buildProductMetadata({
+    name: product.name,
+    slug: product.slug,
+    brandName: product.brand,
+    categoryName: product.category,
+    description: product.description,
+    seoTitle: product.seoTitle,
+    seoDescription: product.seoDescription,
+    image: product.ogImage || product.image,
+    indexable: product.indexable,
+    inStock: product.inStock,
+  });
 }
 
 export default async function ProductPage({
@@ -92,66 +80,32 @@ export default async function ProductPage({
     fetchProductRating(product.id),
   ]);
 
-  const fullImgUrl = absoluteImageUrl(product.image);
-
-  const productJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Product",
+  const productJsonLd = buildProductSchema({
     name: product.name,
-    brand: { "@type": "Brand", name: product.brand },
+    slug: product.slug,
+    image: product.image,
     description: product.description,
-    image: [fullImgUrl],
+    brandName: product.brand,
     sku: product.sku || product.id,
-    category: product.category,
-    offers: {
-      "@type": "Offer",
-      url: `${SITE_URL}/produits/${product.slug}`,
-      priceCurrency: "TND",
-      price: (product.priceMillimes / 1000).toFixed(3),
-      availability: product.inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-      itemCondition: "https://schema.org/NewCondition",
-      seller: {
-        "@type": "Organization",
-        name: "ParaTunisie",
-      },
-    },
-    ...(rating.count > 0 ? {
-      aggregateRating: {
-        "@type": "AggregateRating",
-        ratingValue: rating.average.toFixed(1),
-        reviewCount: rating.count,
-        bestRating: "5",
-        worstRating: "1",
-      },
-      review: (reviews || []).slice(0, 5).map((rev) => ({
-        "@type": "Review",
-        author: {
-          "@type": "Person",
-          name: rev.user?.name || "Client vérifié ParaTunisie",
-        },
-        datePublished: new Date(rev.createdAt).toISOString().split("T")[0],
-        reviewRating: {
-          "@type": "Rating",
-          ratingValue: rev.rating,
-          bestRating: "5",
-          worstRating: "1",
-        },
-        name: rev.title || `Avis sur ${product.name}`,
-        ...(rev.body ? { reviewBody: rev.body } : {}),
-      })),
-    } : {}),
-  };
+    priceTnd: product.priceMillimes / 1000,
+    inStock: Boolean(product.inStock),
+    categoryName: product.category,
+  });
 
-  const breadcrumbJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Accueil", item: `${SITE_URL}/` },
-      { "@type": "ListItem", position: 2, name: "Shop", item: `${SITE_URL}/shop` },
-      { "@type": "ListItem", position: 3, name: product.category, item: `${SITE_URL}/${product.categorySlug || product.category.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-")}` },
-      { "@type": "ListItem", position: 4, name: product.name, item: `${SITE_URL}/produits/${product.slug}` },
-    ],
-  };
+  const categorySlug =
+    product.categorySlug ||
+    product.category
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-");
+
+  const breadcrumbsJsonLd = buildBreadcrumbsSchema([
+    { name: "Accueil", url: "/" },
+    { name: "Boutique", url: "/shop" },
+    { name: product.category, url: `/${categorySlug}` },
+    { name: product.name, url: `/produits/${product.slug}` },
+  ]);
 
   return (
     <>
@@ -161,7 +115,7 @@ export default async function ProductPage({
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c") }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsJsonLd).replace(/</g, "\\u003c") }}
       />
       <ProductDetailView
         product={product}
@@ -170,7 +124,17 @@ export default async function ProductPage({
         reviews={reviews}
         rating={rating}
       />
-      {hasDistinctSeoContent(product.description, product.seoContent) && <section className="mx-auto max-w-[1440px] px-4 pb-14 sm:px-6 lg:px-8"><div className="max-w-3xl rounded-2xl bg-soft-nude/50 p-6"><h2 className="font-serif text-2xl text-ink">À propos de {product.name}</h2><ProductRichText content={product.seoContent!} className="mt-3 text-sm leading-7 text-ink-muted" /></div></section>}
+      {hasDistinctSeoContent(product.description, product.seoContent) && (
+        <section className="mx-auto max-w-[1440px] px-4 pb-14 sm:px-6 lg:px-8">
+          <div className="max-w-3xl rounded-2xl bg-soft-nude/50 p-6">
+            <h2 className="font-serif text-2xl text-ink">À propos de {product.name}</h2>
+            <ProductRichText
+              content={product.seoContent!}
+              className="mt-3 text-sm leading-7 text-ink-muted"
+            />
+          </div>
+        </section>
+      )}
     </>
   );
 }

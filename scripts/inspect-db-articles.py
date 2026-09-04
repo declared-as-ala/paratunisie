@@ -1,10 +1,4 @@
-import sys
 import paramiko
-
-try:
-    sys.stdout.reconfigure(encoding="utf-8")
-except Exception:
-    pass
 
 VPS_HOST = "145.223.118.9"
 VPS_USER = "root"
@@ -15,39 +9,16 @@ client = paramiko.SSHClient()
 client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 client.connect(VPS_HOST, port=VPS_PORT, username=VPS_USER, password=VPS_PASS, timeout=30)
 
-def run(cmd):
-    print("=" * 60)
-    print(f"COMMAND: {cmd}")
-    print("=" * 60)
-    stdin, stdout, stderr = client.exec_command(cmd)
-    out = stdout.read().decode(errors="replace")
-    err = stderr.read().decode(errors="replace")
-    print(out)
-    if err: print("[STDERR]", err)
-    return out
+sftp = client.open_sftp()
+with sftp.file('/tmp/inspect_articles.sql', 'w') as f:
+    f.write("""
+SELECT id, title, slug, category, "focusKeyword", indexable, "publishedAt"
+FROM "Article"
+ORDER BY id;
+""")
+sftp.close()
 
-node_cmd = """
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
-async function main() {
-  const articles = await prisma.article.findMany({
-    include: {
-      products: true,
-      brands: true,
-      concerns: true,
-      faqs: true,
-    }
-  });
-  console.log('CURRENT DB ARTICLES COUNT:', articles.length);
-  console.log(JSON.stringify(articles, null, 2));
-}
-main().catch(console.error).finally(() => prisma.$disconnect());
-"""
-
-stdin, stdout, stderr = client.exec_command("docker exec -i paratunisie-api node -e \"" + node_cmd.replace('"', '\\"') + "\"")
-out = stdout.read().decode(errors="replace")
-err = stderr.read().decode(errors="replace")
-print("OUTPUT:", out)
-if err: print("STDERR:", err)
+stdin, stdout, stderr = client.exec_command("docker exec -i paratunisie-postgres psql -U paratunisie -d paratunisie < /tmp/inspect_articles.sql")
+print(stdout.read().decode("utf-8", errors="replace"))
 
 client.close()

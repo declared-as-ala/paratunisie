@@ -8,41 +8,13 @@ import { fetchPaginatedProducts, fetchBrands, fetchCategories } from "@/lib/api/
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
-const SHOP_TITLE = "Parapharmacie en ligne Tunisie";
-const SHOP_DESCRIPTION =
-  "Découvrez les produits de parapharmacie ParaTunisie : visage, corps, cheveux, solaire, hygiène, bébé et compléments. Livraison en Tunisie.";
+import { buildShopMetadata, buildBreadcrumbsSchema, buildItemListSchema, buildFaqSchema } from "@/lib/seo";
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }): Promise<Metadata> {
   const params = await searchParams;
-  // Only the bare, unpaginated /shop collection is the canonical indexable URL —
-  // any filter/sort/page combination stays crawlable (follow) but out of the index
-  // (SEO.md faceted-navigation rule), so filter permutations never compete with it.
-  const isFiltered = Object.keys(params).length > 0;
-  return {
-    title: SHOP_TITLE,
-    description: SHOP_DESCRIPTION,
-    alternates: { canonical: "/shop" },
-    robots: isFiltered ? { index: false, follow: true } : undefined,
-    openGraph: {
-      title: `${SHOP_TITLE} | ParaTunisie`,
-      description: SHOP_DESCRIPTION,
-      url: "/shop",
-      images: [
-        {
-          url: "/assets/hero-cinematic-poster.webp",
-          width: 1920,
-          height: 1080,
-          alt: "Le Shop ParaTunisie",
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: `${SHOP_TITLE} | ParaTunisie`,
-      description: SHOP_DESCRIPTION,
-      images: ["/assets/hero-cinematic-poster.webp"],
-    },
-  };
+  const page = Number(params.page) || 1;
+  const hasFilters = Object.keys(params).length > 0;
+  return buildShopMetadata({ page, hasFilters });
 }
 
 export default async function ShopRoute({
@@ -83,46 +55,28 @@ export default async function ShopRoute({
     fetchCategories(),
   ]);
 
-  const breadcrumbJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Accueil", item: "https://paratunisie.com/" },
-      { "@type": "ListItem", position: 2, name: "Shop", item: "https://paratunisie.com/shop" },
-    ],
-  };
+  const breadcrumbJsonLd = buildBreadcrumbsSchema([
+    { name: "Accueil", url: "/" },
+    { name: "Shop", url: "/shop" },
+  ]);
 
-  // CollectionPage + ItemList — built from the same paginatedData.products
-  // that renders the grid below, so this can never drift from the visible
-  // page (CLAUDE.md §6). No ratings/reviews here — that data lives on the
-  // PDP, not fabricated at the collection level (CLAUDE.md §20).
   const collectionJsonLd = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "Le Shop | ParaTunisie",
-    description: SHOP_DESCRIPTION,
+    name: "Boutique en Ligne | ParaTunisie",
+    description: "Catalogue complet de parapharmacie et nutrition sportive en Tunisie.",
     url: "https://paratunisie.com/shop",
-    mainEntity: {
-      "@type": "ItemList",
-      numberOfItems: paginatedData.meta.total,
-      itemListElement: paginatedData.products.map((product, index) => ({
-        "@type": "ListItem",
-        position: (page - 1) * limit + index + 1,
-        url: `https://paratunisie.com/produits/${product.slug}`,
+    mainEntity: buildItemListSchema(
+      paginatedData.products.map((product, index) => ({
         name: `${product.brand} ${product.name}`,
+        url: `/produits/${product.slug}`,
+        position: (page - 1) * limit + index + 1,
       })),
-    },
+      "Catalogue ParaTunisie"
+    ),
   };
 
-  const faqJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: SHOP_FAQ.map((item) => ({
-      "@type": "Question",
-      name: item.question,
-      acceptedAnswer: { "@type": "Answer", text: item.answer },
-    })),
-  };
+  const faqJsonLd = buildFaqSchema(SHOP_FAQ);
 
   return (
     <>

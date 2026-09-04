@@ -5,11 +5,9 @@ import Image from "next/image";
 import {
   Clock,
   Calendar,
-  ChevronRight,
   Sparkles,
   ArrowRight,
   ShoppingBag,
-  Package,
 } from "lucide-react";
 
 import { articles, getArticleBySlug, type Article } from "@/lib/data/articles";
@@ -24,8 +22,13 @@ import {
   ArticleSourcesBox,
   ArticleEditorialAuthorBox,
 } from "@/components/article/article-editorial-box";
+import {
+  buildArticleMetadata,
+  buildArticleSchema,
+  buildBreadcrumbsSchema,
+  buildFaqSchema,
+} from "@/lib/seo";
 
-const SITE_URL = "https://paratunisie.com";
 const API_URL = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001/api/v1";
 
 export const dynamic = "force-dynamic";
@@ -48,7 +51,6 @@ async function fetchArticleBySlug(slug: string): Promise<Article | null> {
     if (res.ok) {
       const data = await res.json();
       if (data && data.slug) {
-        // Merge with local static full data if present
         return {
           ...local,
           ...data,
@@ -75,41 +77,17 @@ export async function generateMetadata({
   const article = await fetchArticleBySlug(slug);
   if (!article) return { title: "Article introuvable | ParaTunisie" };
 
-  const title = article.seoTitle || `${article.h1} | ParaTunisie`;
-  const description = article.seoDescription || article.excerpt;
-  const canonical = `/conseils/${article.slug}`;
-
-  return {
-    title,
-    description,
-    alternates: { canonical },
-    robots: { index: article.indexable !== false, follow: true },
-    openGraph: {
-      type: "article",
-      title,
-      description,
-      url: canonical,
-      siteName: "ParaTunisie",
-      locale: "fr_TN",
-      images: [
-        {
-          url: article.featuredImage || "/assets/hero-paratunisie.webp",
-          alt: article.imageAlt || article.title,
-        },
-      ],
-      publishedTime: article.date,
-      modifiedTime: article.updatedAt || article.date,
-      authors: ["Équipe éditoriale ParaTunisie"],
-      section: article.category,
-      tags: [article.focusKeyword, ...article.secondaryKeywords],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [article.featuredImage || "/assets/hero-paratunisie.webp"],
-    },
-  };
+  return buildArticleMetadata({
+    title: article.seoTitle || article.h1,
+    slug: article.slug,
+    metaDescription: article.seoDescription,
+    excerpt: article.excerpt,
+    image: article.featuredImage,
+    indexable: article.indexable,
+    publishedAt: article.date,
+    updatedAt: article.updatedAt,
+    tags: [article.focusKeyword, ...(article.secondaryKeywords || [])],
+  });
 }
 
 export default async function ArticleDetailPage({
@@ -136,88 +114,26 @@ export default async function ArticleDetailPage({
     level: 2 as const,
   })) || [];
 
-  // Schema.org Article / BlogPosting JSON-LD
-  const articleJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": `${SITE_URL}/conseils/${article.slug}`,
-    },
-    headline: article.h1,
+  const articleJsonLd = buildArticleSchema({
+    title: article.h1,
+    slug: article.slug,
     description: article.seoDescription || article.excerpt,
-    image: [
-      article.featuredImage?.startsWith("http")
-        ? article.featuredImage
-        : `${SITE_URL}${article.featuredImage || "/assets/hero-paratunisie.webp"}`,
-    ],
-    datePublished: article.date,
-    dateModified: article.updatedAt || article.date,
-    author: {
-      "@type": "Organization",
-      name: "Équipe éditoriale ParaTunisie",
-      url: `${SITE_URL}/politique-editoriale`,
-    },
-    publisher: {
-      "@type": "Organization",
-      name: "ParaTunisie",
-      url: SITE_URL,
-      logo: {
-        "@type": "ImageObject",
-        url: `${SITE_URL}/assets/hero-paratunisie.webp`,
-      },
-    },
-    articleSection: article.category,
-    keywords: [article.focusKeyword, ...article.secondaryKeywords].join(", "),
-  };
+    image: article.featuredImage,
+    publishedAt: article.date,
+    updatedAt: article.updatedAt,
+    authorName: article.authorName,
+  });
 
-  // Schema.org BreadcrumbList JSON-LD
-  const breadcrumbJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Accueil",
-        item: `${SITE_URL}/`,
-      },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: "Conseils",
-        item: `${SITE_URL}/conseils`,
-      },
-      {
-        "@type": "ListItem",
-        position: 3,
-        name: article.category,
-        item: `${SITE_URL}/conseils?cat=${encodeURIComponent(article.category)}`,
-      },
-      {
-        "@type": "ListItem",
-        position: 4,
-        name: article.title,
-        item: `${SITE_URL}/conseils/${article.slug}`,
-      },
-    ],
-  };
+  const breadcrumbJsonLd = buildBreadcrumbsSchema([
+    { name: "Accueil", url: "/" },
+    { name: "Conseils", url: "/conseils" },
+    { name: article.category, url: `/conseils?cat=${encodeURIComponent(article.category)}` },
+    { name: article.title, url: `/conseils/${article.slug}` },
+  ]);
 
-  // Schema.org FAQPage if FAQs exist
   const faqJsonLd =
     article.faqs && article.faqs.length > 0
-      ? {
-          "@context": "https://schema.org",
-          "@type": "FAQPage",
-          mainEntity: article.faqs.map((faq) => ({
-            "@type": "Question",
-            name: faq.question,
-            acceptedAnswer: {
-              "@type": "Answer",
-              text: faq.answer,
-            },
-          })),
-        }
+      ? buildFaqSchema(article.faqs)
       : null;
 
   return (
@@ -270,7 +186,7 @@ export default async function ArticleDetailPage({
 
         {/* Two-Column Responsive Layout */}
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px] xl:gap-14">
-          {/* Main Editorial Content (720px max readable width) */}
+          {/* Main Editorial Content */}
           <article className="min-w-0 max-w-[800px]">
             {/* Header Meta */}
             <header className="mb-8">
@@ -407,7 +323,7 @@ export default async function ArticleDetailPage({
               authorName={article.authorName}
             />
 
-            {/* Commercial Category Links (Topic Cluster Bridge) */}
+            {/* Commercial Category Links */}
             {article.relatedCategories && article.relatedCategories.length > 0 && (
               <div className="mt-8 rounded-2xl border border-primary/20 bg-linear-to-r from-primary/10 via-primary/5 to-white p-6">
                 <h4 className="font-serif text-base font-bold text-ink mb-2 flex items-center gap-2">
@@ -432,7 +348,6 @@ export default async function ArticleDetailPage({
 
           {/* Sidebar (Desktop Sticky) */}
           <aside className="hidden lg:block space-y-6">
-            {/* Quick Summary Card */}
             <div className="rounded-2xl border border-border/80 bg-white p-5 shadow-xs sticky top-24">
               <h4 className="font-serif text-sm font-bold uppercase tracking-wider text-ink mb-3 pb-2 border-b border-border/60">
                 Dans ce guide
@@ -491,7 +406,7 @@ export default async function ArticleDetailPage({
           </aside>
         </div>
 
-        {/* ── Related Articles (Topic Cluster Internal Silo) ── */}
+        {/* Related Articles */}
         {relatedArticles.length > 0 && (
           <section className="mt-16 border-t border-border/80 pt-10">
             <div className="flex items-center justify-between gap-4 mb-6">

@@ -8,6 +8,9 @@ import { MobileTabBar } from "@/components/layout/navigation/mobile-tab-bar";
 import { GlobalAiAssistant } from "@/components/layout/global-ai-assistant";
 import { AnalyticsTracker } from "@/components/analytics/analytics-tracker";
 
+import { buildCanonicalUrl } from "@/lib/seo/canonical";
+import { COMPANY_CONFIG } from "@/lib/config/company";
+
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
@@ -22,16 +25,14 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://paratunisie.com"),
+  metadataBase: new URL(COMPANY_CONFIG.siteUrl),
   title: {
     default: "ParaTunisie | Parapharmacie en Ligne en Tunisie — Soins & Nutrition",
-    // Route metadata already carries the brand; a second suffix produced titles
-    // such as "... | ParaTunisie | ParaTunisie" in search results.
     template: "%s",
   },
   description:
-    "ParaTunisie est une boutique en ligne tunisienne de compléments alimentaires, nutrition sportive, vitamines et soins, avec livraison à domicile.",
-  alternates: { canonical: "/" },
+    "ParaTunisie est votre boutique en ligne de référence en Tunisie : compléments alimentaires, nutrition sportive, vitamines et soins, avec livraison express 24-48h.",
+  alternates: { canonical: buildCanonicalUrl("/") },
   verification: {
     google: "6Rz8hRY9p1DAcNo9GsEkcKkZxxTY0pFEu4iuHN7mZQM",
     other: {
@@ -41,11 +42,11 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "fr_TN",
-    siteName: "ParaTunisie",
+    siteName: COMPANY_CONFIG.name,
     title: "ParaTunisie | Parapharmacie en Ligne en Tunisie — Soins & Nutrition",
     description:
       "Boutique en ligne en Tunisie : compléments alimentaires, nutrition sportive, vitamines et soins livrés à domicile.",
-    url: "/",
+    url: buildCanonicalUrl("/"),
     images: [
       {
         url: "/assets/hero-cinematic-poster.webp",
