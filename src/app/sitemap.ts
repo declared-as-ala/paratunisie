@@ -27,13 +27,13 @@ async function fetchSitemapData(): Promise<SitemapData | null> {
 
 async function fetchPublishedArticles(): Promise<{ slug: string; date?: string; updatedAt?: string }[]> {
   try {
-    const res = await fetch(`${apiBase()}/content/articles?status=PUBLISHED`, { cache: "no-store" });
+    const res = await fetch(`${apiBase()}/content/articles?status=PUBLISHED&indexable=true`, { cache: "no-store" });
     if (!res.ok) throw new Error("API error");
     const data = await res.json();
-    if (Array.isArray(data)) return data;
-    return process.env.NODE_ENV === "production" ? [] : localArticles;
+    if (Array.isArray(data) && data.length > 0) return data.filter((a: { indexable?: boolean }) => a.indexable !== false);
+    return localArticles.filter((a) => a.indexable);
   } catch {
-    return process.env.NODE_ENV === "production" ? [] : localArticles;
+    return localArticles.filter((a) => a.indexable);
   }
 }
 
