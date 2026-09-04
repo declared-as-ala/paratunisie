@@ -8,13 +8,13 @@ export function HomeSeoSection() {
         {/* Main SEO Header */}
         <div className="max-w-3xl mb-12">
           <span className="text-xs uppercase tracking-widest text-primary font-extrabold">
-            Parapharmacie en Ligne Tunisie
+            E-Commerce Nutrition &amp; Compléments en Tunisie
           </span>
           <h2 className="font-serif text-2xl sm:text-3xl lg:text-4xl text-ink font-bold tracking-tight mt-2">
-            ParaTunisie : Votre Parapharmacie et Nutrition Sportive de Référence en Tunisie
+            ParaTunisie : Compléments Alimentaires, Nutrition Sportive &amp; Bien-être en Tunisie
           </h2>
           <p className="mt-4 text-sm sm:text-base text-ink-muted leading-relaxed">
-            Bienvenue sur <strong>ParaTunisie</strong>, une boutique en ligne tunisienne consacrée aux compléments alimentaires, à la nutrition sportive, aux vitamines et aux soins. Consultez les informations, formats, prix et disponibilités avant de commander avec livraison en Tunisie.
+            Bienvenue sur <strong>ParaTunisie</strong>, plateforme e-commerce tunisienne spécialisée dans la nutrition sportive, les compléments alimentaires, le bien-être et une sélection de produits de parapharmacie. Commandez en ligne des références issues de grandes marques reconnues avec livraison rapide et paiement sécurisé à la livraison.
           </p>
         </div>
 

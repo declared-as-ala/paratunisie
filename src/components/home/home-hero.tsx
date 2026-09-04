@@ -41,7 +41,7 @@ export function HomeHero() {
         {/* Base Poster Image */}
         <Image
           src="/assets/hero-poster.webp"
-          alt="ParaTunisie — Parapharmacie et Nutrition sportive en Tunisie"
+          alt="ParaTunisie — Compléments alimentaires et Nutrition sportive en Tunisie"
           fill
           priority
           sizes="100vw"
@@ -70,8 +70,7 @@ export function HomeHero() {
         )}
       </div>
 
-      {/* ── 2. Cinematic Luxury Gradient Overlays (IOMA Paris Style) ─────── */}
-      {/* Lightened overlays — show more of the video */}
+      {/* ── 2. Cinematic Luxury Gradient Overlays ───────────────────────── */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"
@@ -91,19 +90,19 @@ export function HomeHero() {
           {/* Eyebrow Pill */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-white/20 bg-white/10 backdrop-blur-md text-[11px] uppercase tracking-[0.2em] text-white/90 font-medium mb-4">
             <span className="inline-block size-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399] animate-pulse" />
-            <span>ParaTunisie — Parapharmacie en Ligne en Tunisie</span>
+            <span>ParaTunisie • Nutrition Sportive &amp; Compléments en Tunisie</span>
           </div>
 
           {/* Main Display Headline */}
           <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.08] tracking-tight text-white drop-shadow-[0_4px_25px_rgba(0,0,0,0.85)]">
-            Votre Parapharmacie en Ligne
+            ParaTunisie
             <br />
-            <span className="text-white font-normal italic">en Tunisie.</span>
+            <span className="text-white font-normal italic text-2xl sm:text-3xl md:text-4xl lg:text-5xl">Compléments &amp; Nutrition Sportive en Tunisie</span>
           </h1>
 
           {/* Subtitle */}
           <p className="mt-4 max-w-xl text-sm sm:text-base md:text-lg leading-relaxed text-white/90 font-light drop-shadow-md">
-            Boutique en ligne tunisienne de compléments alimentaires, créatine, whey protéine, ashwagandha, vitamines et soins, avec livraison à domicile.
+            Plateforme e-commerce tunisienne spécialisée dans la nutrition sportive, les compléments alimentaires, le bien-être et une sélection de produits de parapharmacie.
           </p>
 
           {/* Dual CTAs */}
@@ -131,7 +130,7 @@ export function HomeHero() {
           <div className="mt-10 pt-6 border-t border-white/15 grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-xl text-xs text-white/85">
             <div className="flex items-center gap-2">
               <ShieldCheck size={16} className="text-emerald-400 shrink-0" />
-              <span>Produits identifiés</span>
+              <span>Grandes marques reconnues</span>
             </div>
             <div className="flex items-center gap-2">
               <Truck size={16} className="text-emerald-400 shrink-0" />
@@ -149,10 +148,10 @@ export function HomeHero() {
       <button
         type="button"
         onClick={scrollToContent}
-        aria-label="Découvrir les compléments et soins"
+        aria-label="Découvrir les compléments et produits"
         className="absolute bottom-5 end-4 sm:end-12 z-20 flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-white/70 hover:text-white transition-colors cursor-pointer group"
       >
-        <span className="hidden sm:inline font-medium">Découvrir les soins</span>
+        <span className="hidden sm:inline font-medium">Découvrir le catalogue</span>
         <div className="size-8 rounded-full border border-white/25 bg-white/10 flex items-center justify-center group-hover:border-white/50 group-hover:bg-white/20 transition-all shadow-sm">
           <ChevronDown size={16} className="text-white group-hover:translate-y-0.5 transition-transform" />
         </div>

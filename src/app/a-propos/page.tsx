@@ -29,12 +29,15 @@ export default function AProposPage() {
       <div className="space-y-8 text-sm leading-relaxed text-ink-muted">
         {/* Intro Card */}
         <section className="rounded-2xl border border-border bg-white p-6 sm:p-8 shadow-xs">
-          <h2 className="font-serif text-xl font-bold text-ink mb-4">Notre Histoire & Vision</h2>
+          <h2 className="font-serif text-xl font-bold text-ink mb-4">Notre Mission &amp; Engagement</h2>
           <p>
-            <strong>ParaTunisie</strong> a été créée pour rendre plus simple la consultation et la commande de compléments alimentaires et de produits de nutrition sportive en Tunisie.
+            <strong>ParaTunisie</strong> est une plateforme e-commerce tunisienne spécialisée dans la nutrition sportive, les compléments alimentaires, le bien-être et une sélection de produits de parapharmacie.
           </p>
           <p className="mt-3">
-            Nous affichons les informations disponibles sur la marque, le format, le prix et la disponibilité. Les indications du fabricant figurant sur l’emballage restent la référence avant utilisation.
+            Notre objectif est de rendre accessibles en Tunisie des références issues de grandes marques reconnues, avec une expérience d’achat en ligne simple, des informations produit transparentes et un accompagnement client réactif avant et après commande.
+          </p>
+          <p className="mt-3">
+            Nous commercialisons des produits de nutrition sportive et de micronutrition (créatine, whey, gainers, vitamines, minéraux). Les indications du fabricant figurant sur l’emballage restent la référence avant utilisation.
           </p>
         </section>
 

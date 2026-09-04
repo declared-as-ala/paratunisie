@@ -31,9 +31,8 @@ export function SiteFooter() {
         <div className="grid grid-cols-2 gap-x-6 gap-y-10 lg:grid-cols-6 lg:gap-x-8">
           <div className="col-span-2 lg:col-span-2">
             <Logo />
-            <p className="mt-3 max-w-xs text-sm text-ink-muted">
-              Votre parapharmacie en ligne en Tunisie : soins authentiques,
-              conseils d&apos;experts et livraison partout dans le pays.
+            <p className="mt-3 max-w-sm text-xs sm:text-sm text-ink-muted leading-relaxed">
+              ParaTunisie est une plateforme e-commerce tunisienne spécialisée dans la nutrition sportive, les compléments alimentaires, le bien-être et une sélection de produits de parapharmacie.
             </p>
             <div className="mt-5 flex items-center gap-3">
               <a

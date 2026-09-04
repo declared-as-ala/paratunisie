@@ -27,11 +27,11 @@ const fraunces = Fraunces({
 export const metadata: Metadata = {
   metadataBase: new URL(COMPANY_CONFIG.siteUrl),
   title: {
-    default: "ParaTunisie | Parapharmacie en Ligne en Tunisie — Soins & Nutrition",
+    default: "ParaTunisie — Compléments Alimentaires & Nutrition Sportive en Tunisie",
     template: "%s",
   },
   description:
-    "ParaTunisie est votre boutique en ligne de référence en Tunisie : compléments alimentaires, nutrition sportive, vitamines et soins, avec livraison express 24-48h.",
+    "ParaTunisie est votre plateforme e-commerce tunisienne spécialisée dans la nutrition sportive, les compléments alimentaires, le bien-être et une sélection de produits de parapharmacie.",
   alternates: { canonical: buildCanonicalUrl("/") },
   verification: {
     google: "6Rz8hRY9p1DAcNo9GsEkcKkZxxTY0pFEu4iuHN7mZQM",
@@ -43,24 +43,24 @@ export const metadata: Metadata = {
     type: "website",
     locale: "fr_TN",
     siteName: COMPANY_CONFIG.name,
-    title: "ParaTunisie | Parapharmacie en Ligne en Tunisie — Soins & Nutrition",
+    title: "ParaTunisie — Compléments Alimentaires & Nutrition Sportive en Tunisie",
     description:
-      "Boutique en ligne en Tunisie : compléments alimentaires, nutrition sportive, vitamines et soins livrés à domicile.",
+      "Plateforme e-commerce tunisienne : compléments alimentaires, nutrition sportive, vitamines et bien-être livrés à domicile.",
     url: buildCanonicalUrl("/"),
     images: [
       {
         url: "/assets/hero-cinematic-poster.webp",
         width: 1920,
         height: 1080,
-        alt: "ParaTunisie — Parapharmacie en Ligne en Tunisie",
+        alt: "ParaTunisie — Compléments Alimentaires & Nutrition Sportive en Tunisie",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "ParaTunisie | Parapharmacie en Ligne en Tunisie — Soins & Nutrition",
+    title: "ParaTunisie — Compléments Alimentaires & Nutrition Sportive en Tunisie",
     description:
-      "Boutique en ligne tunisienne de compléments, nutrition sportive, vitamines et soins.",
+      "Plateforme e-commerce tunisienne de compléments, nutrition sportive, vitamines et bien-être.",
     images: ["/assets/hero-cinematic-poster.webp"],
   },
 };
@@ -72,23 +72,22 @@ const storeJsonLd = {
       "@type": "OnlineStore",
       "@id": "https://paratunisie.com/#organization",
       name: "ParaTunisie",
-      alternateName: ["Para Tunisie", "ParaTunisie en Ligne", "Parapharmacie Tunisie"],
+      alternateName: ["Para Tunisie", "ParaTunisie.com", "ParaTunisie en Ligne"],
       url: "https://paratunisie.com",
-      logo: "https://paratunisie.com/assets/hero-cinematic-poster.webp",
-      description: "Parapharmacie en ligne en Tunisie : compléments alimentaires, nutrition sportive, vitamines et soins.",
+      logo: "https://paratunisie.com/logo.png",
+      description: "Plateforme e-commerce tunisienne spécialisée dans la nutrition sportive, les compléments alimentaires, le bien-être et une sélection de produits de parapharmacie.",
       telephone: "+21697991266",
       priceRange: "TND",
       currenciesAccepted: "TND",
       paymentAccepted: "Cash on delivery, Cash",
-      address: {
-        "@type": "PostalAddress",
-        addressCountry: "TN",
-        addressLocality: "Tunis"
-      },
       areaServed: {
         "@type": "Country",
         name: "Tunisia"
       },
+      sameAs: [
+        "https://www.facebook.com/paratunisie",
+        "https://www.instagram.com/paratunisie"
+      ],
       potentialAction: {
         "@type": "SearchAction",
         target: "https://paratunisie.com/shop?q={search_term_string}",
@@ -98,8 +97,9 @@ const storeJsonLd = {
     {
       "@type": "WebSite",
       "@id": "https://paratunisie.com/#website",
-      url: "https://paratunisie.com",
       name: "ParaTunisie",
+      url: "https://paratunisie.com",
+      description: "Plateforme e-commerce tunisienne spécialisée dans la nutrition sportive, les compléments alimentaires et le bien-être.",
       publisher: {
         "@id": "https://paratunisie.com/#organization"
       }

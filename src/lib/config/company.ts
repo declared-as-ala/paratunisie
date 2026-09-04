@@ -7,7 +7,7 @@
 export const COMPANY_CONFIG = {
   name: "ParaTunisie",
   legalName: "ParaTunisie",
-  commercialName: "ParaTunisie — Parapharmacie & Nutrition Sportive en Tunisie",
+  commercialName: "ParaTunisie — Compléments Alimentaires & Nutrition Sportive en Tunisie",
   siteUrl: "https://paratunisie.com",
   logoUrl: "https://paratunisie.com/logo.png",
   
@@ -41,7 +41,7 @@ export const COMPANY_CONFIG = {
   
   // Guarantees & Real Terms
   guarantees: {
-    authenticity: "Produits 100% Originaux et Certifiés",
+    authenticity: "Références de Grandes Marques Reconnues",
     shipping: "Livraison Express 24-48h sur toute la Tunisie",
     payment: "Paiement sécurisé à la réception du colis",
     support: "Service client à votre écoute par téléphone et WhatsApp",

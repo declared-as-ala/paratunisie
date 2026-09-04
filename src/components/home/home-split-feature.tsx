@@ -44,10 +44,10 @@ const FEATURED_PRODUCTS: SplitProduct[] = [
 ];
 
 const ADVANTAGES = [
-  "Formats et prix clairement présentés avant la commande",
-  "Informations produit issues des fiches disponibles",
-  "Sélection de marques nationales et internationales",
-  "Service client disponible pour les questions de commande",
+  "Sélection rigoureuse de grandes marques internationales",
+  "Formats, dosages et prix clairement présentés",
+  "Expédition rapide dans les 24 gouvernorats tunisiens",
+  "Service client disponible pour toute question de commande",
 ];
 
 export function HomeSplitFeature() {
@@ -59,17 +59,17 @@ export function HomeSplitFeature() {
           <div className="lg:col-span-5 space-y-6">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#8B3B62]/10 text-[#8B3B62] text-xs font-semibold uppercase tracking-widest">
               <Sparkles size={14} />
-              <span>Expertise &amp; Performance</span>
+              <span>Nutrition &amp; Performance</span>
             </div>
 
             <h2 className="font-serif text-3xl sm:text-4xl text-foreground tracking-tight leading-tight">
-              La science de votre corps,{" "}
+              Des compléments de qualité,{" "}
               <br className="hidden sm:inline" />
-              <span className="font-serif italic text-[#8B3B62]">et d&apos;aucune autre.</span>
+              <span className="font-serif italic text-[#8B3B62]">pour vos objectifs sportifs.</span>
             </h2>
 
             <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
-              Sélectionnés par des professionnels de la santé et du sport en Tunisie, nos soins et compléments combinent des principes actifs purs hautement dosés pour répondre exactement aux exigences de votre métabolisme.
+              ParaTunisie sélectionne des compléments alimentaires et produits de nutrition sportive issus de grandes marques reconnues pour accompagner vos entraînements et votre bien-être au quotidien.
             </p>
 
             <ul className="space-y-3 text-xs sm:text-sm text-foreground/90 pt-1">
@@ -108,21 +108,20 @@ export function HomeSplitFeature() {
                       src={prod.image}
                       alt={prod.name}
                       fill
-                      sizes="(max-width: 768px) 50vw, 25vw"
-                      className="object-contain p-1 group-hover:scale-105 transition-transform duration-300"
+                      sizes="(max-width: 640px) 50vw, 25vw"
+                      className="object-contain group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
-                  <h4 className="text-xs font-bold text-foreground group-hover:text-[#8B3B62] transition-colors line-clamp-1">
+                  <h3 className="text-xs font-bold text-foreground line-clamp-1 group-hover:text-[#8B3B62] transition-colors">
                     {prod.name}
-                  </h4>
-                  <p className="text-[0.6875rem] text-muted-foreground mt-0.5 line-clamp-1">
-                    {prod.subtitle}
-                  </p>
+                  </h3>
+                  <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">{prod.subtitle}</p>
                 </div>
-
-                <div className="mt-3 pt-2 border-t border-border/40 flex items-center justify-between">
-                  <span className="text-[0.75rem] font-bold text-primary">{prod.price}</span>
-                  <ArrowRight size={13} className="text-muted-foreground group-hover:text-[#8B3B62] group-hover:translate-x-0.5 transition-all" />
+                <div className="mt-3 pt-2.5 border-t border-border/50 flex items-center justify-between">
+                  <span className="text-xs font-bold text-foreground">{prod.price}</span>
+                  <span className="size-6 rounded-full bg-secondary/80 text-muted-foreground flex items-center justify-center group-hover:bg-[#8B3B62] group-hover:text-white transition-colors">
+                    <ArrowRight size={12} />
+                  </span>
                 </div>
               </Link>
             ))}

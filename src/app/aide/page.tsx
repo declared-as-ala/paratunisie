@@ -65,7 +65,7 @@ export default function AidePage() {
         <div className="rounded-3xl border border-border bg-gradient-to-r from-primary/10 to-primary/5 p-6 sm:p-8 text-center">
           <h2 className="font-serif text-xl font-bold text-ink mb-2">Besoin d&apos;une aide supplémentaire ?</h2>
           <p className="text-xs sm:text-sm text-ink-muted mb-4 max-w-md mx-auto">
-            Nos conseillers sont disponibles pour vous guider dans le choix de vos soins.
+            Notre service client est à votre disposition par WhatsApp et par téléphone pour répondre à vos questions sur vos commandes et livraisons.
           </p>
           <a
             href={whatsappHref}
