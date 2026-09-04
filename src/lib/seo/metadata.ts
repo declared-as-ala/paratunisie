@@ -270,19 +270,23 @@ export interface ShopMetadataInput {
 
 /**
  * Builds metadata for the /shop catalogue root.
+ * - Sequential pagination (/shop?page=2) is index,follow with self-referencing canonical.
+ * - Faceted/filtered variants (hasFilters: true) are noindex,follow and canonicalize to clean /shop.
  */
 export function buildShopMetadata(options?: ShopMetadataInput): Metadata {
-  const isQueryVariant = Boolean(options?.hasFilters || (options?.page && options.page > 1));
+  const page = options?.page || 1;
+  const hasUnsafeFilters = Boolean(options?.hasFilters);
+  const pageSuffix = page > 1 ? ` — Page ${page}` : "";
 
   return buildPageMetadata({
-    title: "Boutique en Ligne — Nutrition Sportive & Compléments en Tunisie",
+    title: `Boutique en Ligne — Nutrition Sportive & Compléments en Tunisie${pageSuffix}`,
     description:
-      "Explorez le catalogue complet de ParaTunisie : protéines, créatines, gainers, vitamines et compléments au meilleur prix en Tunisie.",
+      `Explorez le catalogue complet de ParaTunisie : protéines, créatines, gainers, vitamines et compléments au meilleur prix en Tunisie.${page > 1 ? ` Page ${page}.` : ""}`,
     path: "/shop",
-    noindex: isQueryVariant,
+    noindex: hasUnsafeFilters,
     canonicalOptions: {
-      page: options?.page,
-      allowPagination: false, // Root /shop is canonical
+      page: hasUnsafeFilters ? undefined : page,
+      allowPagination: !hasUnsafeFilters, // Self-referencing canonical for /shop?page=N
     },
     keywords: [
       "boutique nutrition sportive tunisie",

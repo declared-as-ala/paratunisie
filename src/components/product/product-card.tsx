@@ -43,23 +43,35 @@ export function ProductCard({ product, variant = "shop" }: ProductCardProps) {
     setTimeout(() => setLoading(false), 250);
   }, [addItem, product, isAvailable]);
 
-  // Optional mock discount calculation for visual fidelity
-  const oldPriceMillimes = Math.round(product.priceMillimes * 1.2);
-  const showDiscount = (product.id.charCodeAt(0) + product.id.length) % 3 === 0;
+  // Real promotion validation: only display discount if genuine sale data exists in database
+  const now = Date.now();
+  const hasActiveSale = Boolean(
+    product.regularPriceMillimes &&
+    product.salePriceMillimes &&
+    product.salePriceMillimes < product.regularPriceMillimes &&
+    (!product.saleStartAt || now >= new Date(product.saleStartAt).getTime()) &&
+    (!product.saleEndAt || now <= new Date(product.saleEndAt).getTime())
+  );
+  const discountPercent =
+    hasActiveSale && product.regularPriceMillimes && product.salePriceMillimes
+      ? Math.round(((product.regularPriceMillimes - product.salePriceMillimes) / product.regularPriceMillimes) * 100)
+      : 0;
+  const currentPriceMillimes = hasActiveSale && product.salePriceMillimes ? product.salePriceMillimes : product.priceMillimes;
+  const regularPriceMillimes = hasActiveSale ? product.regularPriceMillimes : undefined;
 
   return (
     <>
       {/* ── 1. HOME MOBILE HORIZONTAL CARD (variant="home" & < sm) ─────────────── */}
       {variant === "home" && (
         <article className="group relative flex w-full flex-row overflow-hidden rounded-2xl border border-border/70 bg-white p-3 gap-3 shadow-2xs hover:border-primary/40 transition-all sm:hidden">
-          {/* Top Badge: Sur Commande or Discount */}
+          {/* Top Badge: Sur Commande or Real Discount */}
           {!isAvailable ? (
             <span className="absolute start-2 top-2 z-10 rounded-full bg-amber-600 px-2 py-0.5 text-[0.6rem] font-extrabold text-white shadow-2xs">
               SUR COMMANDE
             </span>
-          ) : showDiscount ? (
+          ) : hasActiveSale && discountPercent > 0 ? (
             <span className="absolute start-2 top-2 z-10 rounded-full bg-primary px-2 py-0.5 text-[0.625rem] font-extrabold text-white shadow-2xs">
-              -15%
+              -{discountPercent}%
             </span>
           ) : null}
 
@@ -102,14 +114,14 @@ export function ProductCard({ product, variant = "shop" }: ProductCardProps) {
             <div className="mt-2 space-y-1.5">
               {/* Prices & Savings */}
               <div className="flex items-baseline gap-1.5 flex-wrap">
-                <span className="font-tabular text-sm font-extrabold text-ink">{formatPrice(product.priceMillimes)}</span>
-                {showDiscount && isAvailable && (
+                <span className="font-tabular text-sm font-extrabold text-ink">{formatPrice(currentPriceMillimes)}</span>
+                {hasActiveSale && regularPriceMillimes && isAvailable && (
                   <>
                     <span className="font-tabular text-[0.6875rem] text-ink-muted/70 line-through">
-                      {formatPrice(oldPriceMillimes)}
+                      {formatPrice(regularPriceMillimes)}
                     </span>
                     <span className="rounded-md bg-soft-nude px-1.5 py-0.5 text-[0.6rem] font-bold text-primary border border-border/50">
-                      -10 DT
+                      -{formatPrice(regularPriceMillimes - currentPriceMillimes)}
                     </span>
                   </>
                 )}
@@ -172,9 +184,9 @@ export function ProductCard({ product, variant = "shop" }: ProductCardProps) {
           <span className="absolute start-2 top-2 z-10 rounded-full bg-amber-600 px-1.5 sm:px-2 py-0.5 text-[0.6rem] sm:text-[0.625rem] font-extrabold text-white shadow-2xs">
             SUR COMMANDE
           </span>
-        ) : showDiscount ? (
+        ) : hasActiveSale && discountPercent > 0 ? (
           <span className="absolute start-2 top-2 z-10 rounded-full bg-primary px-1.5 sm:px-2 py-0.5 text-[0.6rem] sm:text-[0.625rem] font-extrabold text-white shadow-2xs">
-            -15%
+            -{discountPercent}%
           </span>
         ) : null}
 
@@ -218,14 +230,14 @@ export function ProductCard({ product, variant = "shop" }: ProductCardProps) {
 
           <div className="mt-auto pt-2 sm:pt-2.5 space-y-1 sm:space-y-1.5">
             <div className="flex items-baseline gap-1 sm:gap-1.5 flex-wrap">
-              <span className="font-tabular text-xs sm:text-sm font-extrabold text-ink">{formatPrice(product.priceMillimes)}</span>
-              {showDiscount && isAvailable && (
+              <span className="font-tabular text-xs sm:text-sm font-extrabold text-ink">{formatPrice(currentPriceMillimes)}</span>
+              {hasActiveSale && regularPriceMillimes && isAvailable && (
                 <>
                   <span className="font-tabular text-[0.6rem] sm:text-[0.65rem] text-ink-muted/70 line-through">
-                    {formatPrice(oldPriceMillimes)}
+                    {formatPrice(regularPriceMillimes)}
                   </span>
                   <span className="rounded-md bg-soft-nude px-1 sm:px-1.5 py-0.5 text-[0.55rem] sm:text-[0.6rem] font-bold text-primary border border-border/50">
-                    -10 DT
+                    -{formatPrice(regularPriceMillimes - currentPriceMillimes)}
                   </span>
                 </>
               )}

@@ -156,7 +156,13 @@ export function ConcernPLP({
   const [filterOpen, setFilterOpen] = useState(false);
 
   const allBrands = useMemo(() => getBrandsForProducts(products), [products]);
-  const allSkinTypes = useMemo(() => getSkinTypesForProducts(products), [products]);
+  const allSkinTypes = useMemo(
+    () =>
+      getSkinTypesForProducts(products).filter(
+        (st) => st !== "Tous sportifs" && st.toLowerCase() !== "tous types de peau"
+      ),
+    [products]
+  );
 
   const filteredProducts = useMemo(() => {
     let result = [...products];

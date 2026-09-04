@@ -12,6 +12,10 @@ export type ProductSummary = {
   benefit: string;
   size: string;
   priceMillimes: number;
+  regularPriceMillimes?: number;
+  salePriceMillimes?: number;
+  saleStartAt?: string;
+  saleEndAt?: string;
   category: string;
   categorySlug?: string;
   concerns: string[];

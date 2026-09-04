@@ -13,7 +13,7 @@ import { buildShopMetadata, buildBreadcrumbsSchema, buildItemListSchema, buildFa
 export async function generateMetadata({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }): Promise<Metadata> {
   const params = await searchParams;
   const page = Number(params.page) || 1;
-  const hasFilters = Object.keys(params).length > 0;
+  const hasFilters = Object.keys(params).some((k) => k !== "page" && Boolean(params[k]));
   return buildShopMetadata({ page, hasFilters });
 }
 

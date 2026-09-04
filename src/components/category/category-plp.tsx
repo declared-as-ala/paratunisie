@@ -243,7 +243,19 @@ export function CategoryPLP({
   const [filterOpen, setFilterOpen] = useState(false);
 
   const allBrands = useMemo(() => extractUnique(products, "brand"), [products]);
-  const allSkinTypes = useMemo(() => extractUnique(products, "skinTypes"), [products]);
+  const allSkinTypes = useMemo(() => {
+    const isSportsOrSupplementCategory = [
+      "creatine", "whey-proteine", "gainers-proteines", "pre-workout",
+      "bcaa-acides-amines", "vitamines-mineraux", "nutrition-sportive",
+      "complements-alimentaires", "ashwagandha", "omega-3", "pack-anti-stress"
+    ].includes(category.slug);
+
+    if (isSportsOrSupplementCategory) return [];
+
+    return extractUnique(products, "skinTypes").filter(
+      (st) => st !== "Tous sportifs" && st.toLowerCase() !== "tous types de peau"
+    );
+  }, [products, category.slug]);
   const allConcernNames = useMemo(() => {
     const set = new Set<string>();
     products.forEach((p) => p.concerns.forEach((c) => set.add(c)));

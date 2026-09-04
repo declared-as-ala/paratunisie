@@ -29,7 +29,7 @@ export const COMPANY_CONFIG = {
   freeShippingThresholdTnd: 99.0,
   
   // Payment methods
-  paymentMethods: ["Paiement à la livraison (Espèces / Cash on Delivery)"],
+  paymentMethods: ["Cash on delivery"],
   paymentMethodCode: "http://purl.org/goodrelations/v1#CashOnDelivery",
   
   // Official Social & Communication Profiles

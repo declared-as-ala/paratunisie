@@ -79,7 +79,7 @@ const storeJsonLd = {
       telephone: "+21697991266",
       priceRange: "TND",
       currenciesAccepted: "TND",
-      paymentAccepted: "Cash on delivery, Cash",
+      paymentAccepted: "Cash on delivery",
       areaServed: {
         "@type": "Country",
         name: "Tunisia"
