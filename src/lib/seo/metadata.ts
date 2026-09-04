@@ -9,24 +9,17 @@ const SITE_BRAND = "ParaTunisie";
  * Normalizes a title to prevent duplicate "| ParaTunisie" branding
  * and ensures clean display length.
  */
-export function formatSeoTitle(rawTitle: string, isAbsolute = false): string {
-  if (!rawTitle) return COMPANY_CONFIG.commercialName;
+export function formatSeoTitle(rawTitle: string): string {
+  if (!rawTitle) return `${COMPANY_CONFIG.commercialName} | ${SITE_BRAND}`;
 
   let title = rawTitle.replace(/\s+/g, " ").trim();
 
-  // Strip duplicate brand occurrences
+  // Strip duplicate or existing brand occurrences
   title = title
-    .replace(/\|\s*ParaTunisie\s*\|\s*ParaTunisie/gi, "| ParaTunisie")
-    .replace(/-\s*ParaTunisie\s*-\s*ParaTunisie/gi, "- ParaTunisie");
-
-  if (isAbsolute) {
-    return title;
-  }
-
-  // If the title already ends with | ParaTunisie or - ParaTunisie, keep it
-  if (/(?:\||-)\s*ParaTunisie$/i.test(title)) {
-    return title;
-  }
+    .replace(/\s*(?:\||-)\s*ParaTunisie.*$/gi, "")
+    .replace(/ParaTunisie/gi, "")
+    .replace(/\s*\|\s*$/, "")
+    .trim();
 
   return `${title} | ${SITE_BRAND}`;
 }
@@ -70,7 +63,7 @@ export function buildPageMetadata(input: BaseMetadataInput): Metadata {
     : DEFAULT_OG_IMAGE;
 
   return {
-    title: formattedTitle,
+    title: { absolute: formattedTitle },
     description: formattedDescription,
     alternates: {
       canonical: canonicalUrl,
