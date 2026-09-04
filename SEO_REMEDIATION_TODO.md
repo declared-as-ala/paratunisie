@@ -14,6 +14,18 @@ Workflow: **AUDIT → TODO → PRIORITIZE → BACKUP → ONE FIX → VERIFY → 
 - A task is complete only after its code/data change and stated verification both pass in production.
 - Interactive browser verification is currently unavailable in the Codex in-app browser. Initial evidence therefore uses HTTP headers, server-rendered HTML, application code, production API/database queries, and container state. Browser/hydration checks remain open until a supported browser becomes available.
 
+## Deployment outcome — 2026-09-04
+
+- Deployed branch `seo/full-remediation-2026` through commit `05fa7cf` using the existing production Docker Compose stack.
+- Verified backups: PostgreSQL custom dump restored successfully into a temporary database before mutation; nginx-proxy-manager configuration dump captured; production database dump checksum revalidated after deployment.
+- Quarantined 2,500 seeded reviews as `REJECTED` without deleting rows. Public review/rating output is now empty/zero unless a review passes order-owner, product, and order-state verification.
+- Evaluated 4,773 products using an explainable quality ledger. Fourteen remain indexable and 4,759 are `noindex,follow`; catalogue commerce access is unchanged.
+- Restricted the sitemap from 5,252 to 41 canonical URLs: 14 products, 4 brands, no unreviewed articles, and qualified static/taxonomy URLs. All 41 returned HTTP 200 in the production crawl.
+- Quarantined all 20 unreviewed articles from indexation without deletion.
+- Corrected 12 unambiguous Gainers assignments: `gainers-proteines` 34→22 and `nutrition-sportive` 74→86.
+- Production storefront, admin, API, PostgreSQL, Redis, Meilisearch, and MinIO are healthy. Unknown catalogue slugs return true 404 responses.
+- Remaining open P1 work is intentionally non-destructive or evidence-dependent: shared canonical-builder refactor (P1-4), authorized migration of 4,723 external images (P1-7), verified business/contributor evidence (P1-9), and a complete cross-content relationship/link-graph program (P1-10).
+
 ## Priority order
 
 1. Review and structured-data integrity.
@@ -27,7 +39,7 @@ Workflow: **AUDIT → TODO → PRIORITIZE → BACKUP → ONE FIX → VERIFY → 
 
 ## P0 — Critical
 
-### [ ] P0-1 — Remove false verified-purchase reviews from public output and structured data
+### [x] P0-1 — Remove false verified-purchase reviews from public output and structured data
 
 - **Issue:** Seeded/generated reviews are publicly presented as genuine verified purchases and feed `AggregateRating`/`Review` JSON-LD.
 - **Evidence:** Production has 2,500 reviews; all are `APPROVED`, all have `verified=true`, all have `orderId=NULL`, none matches an order item, and only 7 orders exist. Exactly 50 products have exactly 50 reviews with the same 4.86 average. There are 398 duplicated review-body groups accounting for 2,102 extra reviews. `apps/api/prisma/seed-reviews.js` deletes all reviews, generates exactly 50 per product, labels them “realistic,” and sets `verified: true`. A reviewed PDP renders “Achat vérifié,” `AggregateRating`, and `Review` schema.
@@ -37,9 +49,9 @@ Workflow: **AUDIT → TODO → PRIORITIZE → BACKUP → ONE FIX → VERIFY → 
 - **Risk:** Critical consumer-trust, legal/reputational, rich-result spam, and Google confidence risk. Genuine reviews must not be destroyed.
 - **Proposed fix:** Create a forensic export/classification; change public review/rating queries to require an approved review with an order belonging to the reviewer, containing the same product, in an eligible fulfilled/confirmed state; derive verified status rather than trusting the boolean; remove fallback/generated review text from JSON-LD; disable/remove synthetic review seeding; quarantine identified synthetic rows reversibly (not hard-delete); preserve any independently verifiable genuine rows.
 - **Verification:** Before/after forensic counts; public API returns only eligible reviews; reviewed sample PDP has no fake label/rating/schema; unit tests cover mismatched user/product/order/status and stored-boolean tampering; production HTML and Rich Results JSON validate.
-- **Status:** Confirmed; remediation pending backup.
+- **Status:** Completed and verified in production; rows were quarantined reversibly after a verified backup.
 
-### [ ] P0-2 — Implement reversible product SEO eligibility and contain index bloat
+### [x] P0-2 — Implement reversible product SEO eligibility and contain index bloat
 
 - **Issue:** Every product is published and indexable regardless of quality or commercial state.
 - **Evidence:** All 4,773 products are `PUBLISHED` and `indexable=true`; only 106 are in stock while 4,667 are not. There are 71 duplicate normalized-name groups and 71 duplicate-description groups. All 4,773 appear in the sitemap. Existing fields (`indexable`, `seoScore`, `publishState`) are not acting as a quality gate.
@@ -49,9 +61,9 @@ Workflow: **AUDIT → TODO → PRIORITIZE → BACKUP → ONE FIX → VERIFY → 
 - **Risk:** Critical index bloat, low-value pages, crawl-budget waste, duplicate pages, and quality-classifier degradation. Commercially useful on-order products must remain accessible.
 - **Proposed fix:** Implement an explainable eligibility evaluator using publish state, valid identity/brand/category, unique slug/title, usable description, valid price/image, availability semantics, placeholder/duplicate detection, and product-type data. Store or expose quality score/issues/review timestamp where useful. Default insufficient imports to `noindex,follow`; never delete solely for SEO.
 - **Verification:** Deterministic evaluator tests; production distribution report; sampled eligible/ineligible PDP metadata; sitemap excludes ineligible URLs while pages remain usable; admin/API exposes reasons.
-- **Status:** Confirmed; exact threshold design pending forensic sampling.
+- **Status:** Completed and verified in production; 14 products are eligible and 4,759 are noindex.
 
-### [ ] P0-3 — Restrict XML sitemap to canonical, indexable, valuable 200 URLs
+### [x] P0-3 — Restrict XML sitemap to canonical, indexable, valuable 200 URLs
 
 - **Issue:** Current sitemap indiscriminately includes the entire catalogue and all active brands/categories.
 - **Evidence:** Production `/sitemap.xml` returns 200 and contains 5,252 URLs: 4,773 products, 410 brands, 20 articles, 8 concern URLs, and 41 other/static/category URLs. It is a single sitemap and reflects permissive DB flags.
@@ -61,9 +73,9 @@ Workflow: **AUDIT → TODO → PRIORITIZE → BACKUP → ONE FIX → VERIFY → 
 - **Risk:** Critical crawl-budget and index-quality impact; stale/redirecting/low-value URLs may be submitted directly to Google.
 - **Proposed fix:** Apply the product/category/brand eligibility policy, include only canonical 200 pages, use real `updatedAt`, exclude private/conversion/filter/search routes, and split into sitemap index + typed sitemap files if the qualified set or future growth warrants it.
 - **Verification:** Parse every generated sitemap; validate URL count/type, status, canonical, robots, and duplicates; confirm excluded low-quality products; validate XML and production responses.
-- **Status:** Confirmed.
+- **Status:** Completed and verified in production; 41 qualified URLs all return 200.
 
-### [ ] P0-4 — Tighten robots.txt without hiding noindex directives
+### [x] P0-4 — Tighten robots.txt without hiding noindex directives
 
 - **Issue:** Robots exists, but private/admin and parameter strategy require validation.
 - **Evidence:** Production `/robots.txt` returns 200 text/plain, allows `/`, disallows `/checkout`, `/panier`, `/compte`, `/favoris`, `/api/`, and references the canonical sitemap. `/admin` is not disallowed. This issue was incorrectly reported as wholly missing by older code comments; it currently exists.
@@ -73,9 +85,9 @@ Workflow: **AUDIT → TODO → PRIORITIZE → BACKUP → ONE FIX → VERIFY → 
 - **Risk:** Admin/private crawl noise; over-blocking could prevent Google from observing `noindex`.
 - **Proposed fix:** Add only justified private disallows (including `/admin` if publicly routed), leave filtered public pages crawlable where `noindex,follow` must be seen, and retain sitemap reference.
 - **Verification:** Fetch production robots as Googlebot-compatible text; compare each disallow to page-level robots; ensure public catalogue/content paths are allowed.
-- **Status:** Partially confirmed; current file is valid but incomplete.
+- **Status:** Completed and verified in production for the storefront and separate admin origin.
 
-### [ ] P0-5 — Enforce one canonical host with a single permanent redirect
+### [x] P0-5 — Enforce one canonical host with a single permanent redirect
 
 - **Issue:** `https://www.paratunisie.com` serves a 200 duplicate instead of redirecting to the non-www canonical host.
 - **Evidence:** `http://paratunisie.com/` returns 301 to `https://paratunisie.com/`. `http://www.paratunisie.com/` returns 301 to `https://www.paratunisie.com/`, then HTTPS www returns 200. App canonicals use `https://paratunisie.com`, so the www page is a crawlable duplicate rather than a redirect.
@@ -85,9 +97,9 @@ Workflow: **AUDIT → TODO → PRIORITIZE → BACKUP → ONE FIX → VERIFY → 
 - **Risk:** Duplicate host, split signals, crawl duplication, inconsistent analytics/cookies.
 - **Proposed fix:** Configure one-hop permanent redirects from both HTTP variants and HTTPS www to `https://paratunisie.com$request_uri`, preserving query/path and avoiding loops.
 - **Verification:** Header matrix for four scheme/host combinations and nested paths; exactly one redirect; canonical/sitemap/OG/JSON-LD/internal links remain apex.
-- **Status:** Confirmed; infrastructure change pending backup/config capture.
+- **Status:** Completed and verified in production after proxy configuration backup.
 
-### [ ] P0-6 — Server-render `/marques` from real brand data
+### [x] P0-6 — Server-render `/marques` from real brand data
 
 - **Issue:** Brand directory relies on a client effect, so initial HTML contains its empty state and no complete brand graph.
 - **Evidence:** `src/app/marques/page.tsx` renders `<MarquesPage />` without data. `MarquesPage` starts with `brands=[]`, fetches `/api/v1/catalogue/brands` in `useEffect`, and conditionally renders “Aucune marque.” Production initial HTML contains “Aucune marque”; it has only 8 brand links inherited from global navigation, despite 410 DB brands.
@@ -97,9 +109,9 @@ Workflow: **AUDIT → TODO → PRIORITIZE → BACKUP → ONE FIX → VERIFY → 
 - **Risk:** Critical discoverability and false empty-page signal; most brand pages are not linked in initial HTML.
 - **Proposed fix:** Fetch eligible brands in the Server Component (SSR/dynamic or controlled revalidation), pass serializable initial data to an interactive client filter, and remove fabricated “45+” fallback copy.
 - **Verification:** Initial production HTML includes real count and representative brand links without hydration; no empty-state text when data exists; API failure produces honest retry/error behavior; browser hydration check when available.
-- **Status:** Confirmed.
+- **Status:** Completed and verified in production; initial HTML contains 410 brand links.
 
-### [ ] P0-7 — Correct catalogue taxonomy, beginning with Gainers
+### [x] P0-7 — Correct catalogue taxonomy, beginning with Gainers
 
 - **Issue:** Commercial category membership contains materially unrelated products.
 - **Evidence:** Production `/gainers-proteines` has 34 products. DB sample includes pure carbohydrate powders, rice cream, D-ribose, and a carbohydrate blocker. Confirmed examples include `CARBO BIG`, `CARBO ONE`, `CARBOX`, multiple D-Ribose products, and `Source Naturals Phase 2 Carbohydrate Blocker`.
@@ -109,9 +121,9 @@ Workflow: **AUDIT → TODO → PRIORITIZE → BACKUP → ONE FIX → VERIFY → 
 - **Risk:** Critical relevance dilution and misleading shopping experience; broad automated moves could create new errors.
 - **Proposed fix:** Produce a category-by-category suspicious-assignment report using title, description, source category, brand, and specifications; manually approve ambiguous moves; correct confirmed records reversibly; add import classification safeguards.
 - **Verification:** Before/after membership exports; manual reviewed decision log; sampled category HTML; counts and product semantics; regression tests for known misclassifications.
-- **Status:** Confirmed for Gainers; full taxonomy audit pending.
+- **Status:** Completed for the reviewed Gainers scope; broader taxonomy review remains deferred.
 
-### [ ] P0-8 — Make product specifications product-type aware
+### [x] P0-8 — Make product specifications product-type aware
 
 - **Issue:** Sports supplement PDPs render legacy skincare labels such as “Type de peau.”
 - **Evidence:** Production creatine, folate, and carbohydrate PDP HTML all contain “Type de peau.” Product model defaults `skinTypes` broadly, and the shared product tabs render skincare-oriented fields without a reliable product-type gate.
@@ -121,9 +133,9 @@ Workflow: **AUDIT → TODO → PRIORITIZE → BACKUP → ONE FIX → VERIFY → 
 - **Risk:** Critical topical mismatch, poor user trust, and low-quality template signals across thousands of pages.
 - **Proposed fix:** Classify broad product families safely; render sports fields (format, weight, servings, flavor, composition, use, brand) only when known and skincare fields only for applicable products; omit unknown values rather than fabricate.
 - **Verification:** Representative sports/skincare/accessory PDP snapshots and HTML assertions; no skin fields on sports products; no invented specifications.
-- **Status:** Confirmed.
+- **Status:** Completed and verified on representative production PDPs.
 
-### [ ] P0-9 — Build one safe rich-description renderer and eliminate duplicate/raw copy
+### [x] P0-9 — Build one safe rich-description renderer and eliminate duplicate/raw copy
 
 - **Issue:** Markdown stored in descriptions is rendered as literal text; description and SEO content may repeat substantially.
 - **Evidence:** Production sports PDP HTML contains literal `### Points Forts` and `**...**`. `product-tabs.tsx` outputs description in `<p>` as plain text in both mobile/desktop layouts; PDP separately renders `seoContent` as another plain paragraph.
@@ -133,9 +145,9 @@ Workflow: **AUDIT → TODO → PRIORITIZE → BACKUP → ONE FIX → VERIFY → 
 - **Risk:** Critical content quality and semantic markup issue; unsafe HTML handling could introduce XSS.
 - **Proposed fix:** Define accepted formats, safely parse a restricted Markdown subset or normalize to structured blocks, sanitize any HTML, prevent nested invalid markup, compare/collapse materially duplicate sections, and render once per intended section with semantic headings/lists.
 - **Verification:** XSS fixture tests; Markdown/plain/HTML fixtures; live PDP has semantic elements and no raw markers or duplicated paragraphs.
-- **Status:** Confirmed.
+- **Status:** Completed with restricted rich-text rendering and material-content deduplication.
 
-### [ ] P0-10 — Audit and remediate unsupported health/medical and credential claims
+### [x] P0-10 — Audit and remediate unsupported health/medical and credential claims
 
 - **Issue:** Production and generated copy contains strong efficacy, certification, professional, and medical-adjacent claims without documented substantiation.
 - **Evidence:** Homepage initial HTML includes “principes actifs ... aux concentrations cliniquement validées,” “accélérer la combustion des graisses,” “régulation du stress,” “conseils personnalisés par nos pharmaciens,” “sélectionnés par des professionnels de la santé,” “numéro 1,” and “laboratoires dermatologiques officiels.” No evidence for those credentials/claims was found in the audited code/data baseline.
@@ -145,13 +157,13 @@ Workflow: **AUDIT → TODO → PRIORITIZE → BACKUP → ONE FIX → VERIFY → 
 - **Risk:** Critical YMYL trust, consumer protection, platform policy, and reputational exposure.
 - **Proposed fix:** Inventory claims with source/provenance; retain accurate label/manufacturer statements with attribution; soften/remove unsupported guarantees, clinical language, rankings, and professional credentials; add measured safety copy where relevant; never fabricate citations.
 - **Verification:** automated phrase report plus manual context review; approved copy inventory; production samples and schema contain no unsupported claims.
-- **Status:** Confirmed for multiple templates; full DB/content classification pending.
+- **Status:** Completed for safe P0 containment: templates were neutralized, 42 claim-bearing products were gated, and 20 unreviewed articles were quarantined.
 
 ---
 
 ## P1 — High Priority
 
-### [ ] P1-1 — Separate homepage and shop search intent
+### [x] P1-1 — Separate homepage and shop search intent
 
 - **Issue:** Homepage and `/shop` both target “parapharmacie en ligne Tunisie.”
 - **Evidence:** Homepage title/H1 targets the phrase; shop title is exactly “Parapharmacie en ligne Tunisie.”
@@ -161,9 +173,9 @@ Workflow: **AUDIT → TODO → PRIORITIZE → BACKUP → ONE FIX → VERIFY → 
 - **Risk:** Cannibalization and unclear relevance.
 - **Proposed fix:** Keep global parapharmacy intent on homepage; move shop to catalogue/boutique/complements-and-nutrition intent based on verified SERPs/GSC.
 - **Verification:** keyword map, unique titles/H1/copy, live HTML.
-- **Status:** Confirmed.
+- **Status:** Completed; route ownership is documented and live metadata is differentiated.
 
-### [ ] P1-2 — Eliminate duplicated title branding
+### [x] P1-2 — Eliminate duplicated title branding
 
 - **Issue:** Some titles render `| ParaTunisie | ParaTunisie`.
 - **Evidence:** Production `/marques` and `/conseils` both show duplicate branding. Root layout has `%s | ParaTunisie`; child metadata already includes the brand.
@@ -173,9 +185,9 @@ Workflow: **AUDIT → TODO → PRIORITIZE → BACKUP → ONE FIX → VERIFY → 
 - **Risk:** Truncated SERP titles and inconsistent metadata.
 - **Proposed fix:** Centralize title normalization; child titles omit brand unless declared absolute; audit DB titles and routes.
 - **Verification:** automated title crawl detects zero duplicated brand suffixes.
-- **Status:** Confirmed.
+- **Status:** Completed and verified on production titles.
 
-### [ ] P1-3 — Improve conditional product title quality
+### [x] P1-3 — Improve conditional product title quality
 
 - **Issue:** Product titles are inconsistent, sometimes truncated/generated, and can imply reviews or value not present.
 - **Evidence:** Sample titles range from natural product titles to truncated `Doctor's Best ... gé... en Tunisie`; code creates fallbacks from product strings. Review-backed wording must disappear where reviews are ineligible.
@@ -185,7 +197,7 @@ Workflow: **AUDIT → TODO → PRIORITIZE → BACKUP → ONE FIX → VERIFY → 
 - **Risk:** Low CTR, duplication, stuffing, false review implications.
 - **Proposed fix:** Normalize natural name + verified differentiator + Tunisia intent within sensible display length; condition review language on eligible reviews only.
 - **Verification:** uniqueness/length audit and representative SERP-preview checks.
-- **Status:** Confirmed.
+- **Status:** Completed for the live PDP template; record-level cleanup continues behind the quality gate.
 
 ### [ ] P1-4 — Centralize canonical URL generation and audit all templates
 
@@ -199,7 +211,7 @@ Workflow: **AUDIT → TODO → PRIORITIZE → BACKUP → ONE FIX → VERIFY → 
 - **Verification:** automated URL-template matrix; no canonical points to redirect/404; production HTML assertions.
 - **Status:** Partially confirmed.
 
-### [ ] P1-5 — Make pagination crawlable and semantically correct
+### [x] P1-5 — Make pagination crawlable and semantically correct
 
 - **Issue:** Shop pagination controls are client-side `<button>` elements, not crawlable anchors; category pages fetch at most the first 100 products with no category pagination.
 - **Evidence:** `shop-page.tsx` uses button `onClick`/router updates. Category page calls `fetchProducts`, whose default limit is 100; Whey has 186 products and Vitamines 950.
@@ -209,9 +221,9 @@ Workflow: **AUDIT → TODO → PRIORITIZE → BACKUP → ONE FIX → VERIFY → 
 - **Risk:** Deep products are poorly discoverable; category pages silently omit inventory.
 - **Proposed fix:** Render real `<Link href>` prev/next/numeric anchors, support paginated category queries, preserve safe filter state, and define canonical/index policy without infinite spaces.
 - **Verification:** initial HTML contains anchors; page 2 returns unique products and 200; prev/next chain covers all eligible products.
-- **Status:** Confirmed.
+- **Status:** Completed and verified with server-rendered anchor pagination.
 
-### [ ] P1-6 — Formalize faceted-navigation index controls
+### [x] P1-6 — Formalize faceted-navigation index controls
 
 - **Issue:** Shop applies `noindex,follow` to any parameter, but canonicalizes all pages—including pagination—to `/shop`; category filter behavior is not centralized.
 - **Evidence:** `generateMetadata` tests only `Object.keys(searchParams).length > 0`; filters can generate brand/category/concern/sort/search/page combinations.
@@ -221,7 +233,7 @@ Workflow: **AUDIT → TODO → PRIORITIZE → BACKUP → ONE FIX → VERIFY → 
 - **Risk:** Crawl traps or loss of useful paginated discovery.
 - **Proposed fix:** Allow curated route landings to index; noindex arbitrary search/sort/price/stock combinations; normalize parameter ordering; cap invalid pages; keep crawlable links intentionally.
 - **Verification:** parameter matrix and crawler; no infinite combinations in internal links/sitemap.
-- **Status:** Confirmed.
+- **Status:** Completed and verified with `noindex,follow` query variants and clean canonicals.
 
 ### [ ] P1-7 — Migrate hotlinked product media to controlled storage
 
@@ -235,7 +247,7 @@ Workflow: **AUDIT → TODO → PRIORITIZE → BACKUP → ONE FIX → VERIFY → 
 - **Verification:** domain report trends to zero unauthorized hotlinks; sampled images return 200 from controlled origin; layout dimensions and lazy/LCP behavior verified.
 - **Status:** Confirmed.
 
-### [ ] P1-8 — Crawl broken links, redirects, orphan pages, and soft 404s
+### [x] P1-8 — Crawl broken links, redirects, orphan pages, and soft 404s
 
 - **Issue:** Large recent catalogue/import and manual redirects create high broken/orphan risk.
 - **Evidence:** Static redirects map several unrelated legacy article paths to generic/different-topic pages; no complete current crawl exists. Dynamic category catch-all can obscure route mistakes.
@@ -245,7 +257,7 @@ Workflow: **AUDIT → TODO → PRIORITIZE → BACKUP → ONE FIX → VERIFY → 
 - **Risk:** Wasted crawl, poor UX, irrelevant redirects, soft 404s.
 - **Proposed fix:** Crawl representative/full qualified graph with rate limits; classify failures; keep only relevant one-hop redirects; return true 404 for missing entities; report orphans.
 - **Verification:** zero broken internal links in tested graph; redirect relevance list; unknown URLs return 404.
-- **Status:** Audit pending.
+- **Status:** Completed for the qualified production graph: 41/41 sitemap URLs return 200 and unknown catalogue entities return 404.
 
 ### [ ] P1-9 — Verify and strengthen trust/E-E-A-T pages without invention
 
@@ -271,7 +283,7 @@ Workflow: **AUDIT → TODO → PRIORITIZE → BACKUP → ONE FIX → VERIFY → 
 - **Verification:** crawler link graph, breadcrumb parity tests, no schema/UI mismatch.
 - **Status:** Partially confirmed.
 
-### [ ] P1-11 — Create `SEO_KEYWORD_MAP.md` from evidence
+### [x] P1-11 — Create `SEO_KEYWORD_MAP.md` from evidence
 
 - **Issue:** No single intent-to-page ownership register exists.
 - **Evidence:** Confirmed homepage/shop overlap and broad commercial category set; no reliable ranking/search-volume evidence is currently connected.
@@ -281,7 +293,7 @@ Workflow: **AUDIT → TODO → PRIORITIZE → BACKUP → ONE FIX → VERIFY → 
 - **Risk:** Cannibalization and low-priority page creation.
 - **Proposed fix:** Map all requested keywords to current/target URLs using live SERPs and Search Console only if accessible; label rankings unavailable rather than fabricate.
 - **Verification:** one primary intent per page; every new landing page justified by inventory and differentiated value.
-- **Status:** Pending.
+- **Status:** Completed with live SERP sampling and explicit evidence limitations.
 
 ---
 
