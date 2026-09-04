@@ -15,7 +15,7 @@ const TEST_ROUTES = [
   { path: "/ashwagandha", expectIndex: true, desc: "Category: Ashwagandha" },
   { path: "/omega-3", expectIndex: true, desc: "Category: Oméga 3" },
   { path: "/produits/creatine-monohydrate-ostrovit-500gr", expectIndex: true, desc: "Product PDP: Creatine OstroVit" },
-  { path: "/conseils/guide-creatine-musculation-2026", expectIndex: true, desc: "Article: Guide Créatine 2026" },
+  { path: "/conseils/meilleure-creatine-tunisie", expectIndex: true, desc: "Article: Meilleure Créatine en Tunisie 2026" },
   { path: "/mentions-legales", expectIndex: true, desc: "Legal: Mentions Légales" },
   { path: "/politique-editoriale", expectIndex: true, desc: "E-E-A-T: Politique Éditoriale" },
 ];

@@ -8,23 +8,31 @@ export interface BreadcrumbItem {
 
 /**
  * Builds standard Organization schema with verified company facts.
+ * Strictly adheres to Schema.org Organization specifications without unsupported LocalBusiness properties.
  */
 export function buildOrganizationSchema() {
   return {
     "@context": "https://schema.org",
-    "@type": "OnlineStore",
+    "@type": "Organization",
+    "@id": `${COMPANY_CONFIG.siteUrl}/#organization`,
     name: COMPANY_CONFIG.name,
     legalName: COMPANY_CONFIG.legalName,
     url: COMPANY_CONFIG.siteUrl,
-    logo: COMPANY_CONFIG.logoUrl,
-    telephone: COMPANY_CONFIG.phone,
-    email: COMPANY_CONFIG.email,
-    paymentAccepted: COMPANY_CONFIG.paymentMethods.join(", "),
-    currenciesAccepted: COMPANY_CONFIG.currency,
-    priceRange: "$$",
-    areaServed: {
-      "@type": "Country",
-      name: COMPANY_CONFIG.country,
+    logo: {
+      "@type": "ImageObject",
+      "@id": `${COMPANY_CONFIG.siteUrl}/#logo`,
+      url: COMPANY_CONFIG.logoUrl,
+      contentUrl: COMPANY_CONFIG.logoUrl,
+      caption: COMPANY_CONFIG.name,
+    },
+    description:
+      "Plateforme e-commerce tunisienne spécialisée dans la nutrition sportive, les compléments alimentaires, le bien-être et une sélection de produits de parapharmacie.",
+    contactPoint: {
+      "@type": "ContactPoint",
+      telephone: COMPANY_CONFIG.phoneRaw,
+      contactType: "customer service",
+      areaServed: COMPANY_CONFIG.countryCode,
+      availableLanguage: ["fr", "ar"],
     },
     sameAs: [
       COMPANY_CONFIG.socials.facebook,
@@ -40,8 +48,14 @@ export function buildWebSiteSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": `${COMPANY_CONFIG.siteUrl}/#website`,
     name: COMPANY_CONFIG.name,
     url: COMPANY_CONFIG.siteUrl,
+    description:
+      "Plateforme e-commerce tunisienne spécialisée dans la nutrition sportive, les compléments alimentaires et le bien-être.",
+    publisher: {
+      "@id": `${COMPANY_CONFIG.siteUrl}/#organization`,
+    },
     potentialAction: {
       "@type": "SearchAction",
       target: {
@@ -121,6 +135,7 @@ export function buildProductSchema(product: ProductSchemaInput) {
         : "https://schema.org/OutOfStock",
       seller: {
         "@type": "Organization",
+        "@id": `${COMPANY_CONFIG.siteUrl}/#organization`,
         name: COMPANY_CONFIG.name,
       },
       hasMerchantReturnPolicy: {
@@ -214,9 +229,11 @@ export function buildArticleSchema(article: ArticleSchemaInput) {
     },
     publisher: {
       "@type": "Organization",
+      "@id": `${COMPANY_CONFIG.siteUrl}/#organization`,
       name: COMPANY_CONFIG.name,
       logo: {
         "@type": "ImageObject",
+        "@id": `${COMPANY_CONFIG.siteUrl}/#logo`,
         url: COMPANY_CONFIG.logoUrl,
       },
     },

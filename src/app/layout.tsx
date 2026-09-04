@@ -69,42 +69,63 @@ const storeJsonLd = {
   "@context": "https://schema.org",
   "@graph": [
     {
-      "@type": "OnlineStore",
+      "@type": "Organization",
       "@id": "https://paratunisie.com/#organization",
       name: "ParaTunisie",
       alternateName: ["Para Tunisie", "ParaTunisie.com", "ParaTunisie en Ligne"],
       url: "https://paratunisie.com",
-      logo: "https://paratunisie.com/logo.png",
-      description: "Plateforme e-commerce tunisienne spécialisée dans la nutrition sportive, les compléments alimentaires, le bien-être et une sélection de produits de parapharmacie.",
-      telephone: "+21697991266",
-      priceRange: "TND",
-      currenciesAccepted: "TND",
-      paymentAccepted: "Cash on delivery",
-      areaServed: {
-        "@type": "Country",
-        name: "Tunisia"
+      logo: {
+        "@type": "ImageObject",
+        "@id": "https://paratunisie.com/#logo",
+        url: "https://paratunisie.com/logo.png",
+        contentUrl: "https://paratunisie.com/logo.png",
+        caption: "ParaTunisie",
+      },
+      description:
+        "Plateforme e-commerce tunisienne spécialisée dans la nutrition sportive, les compléments alimentaires, le bien-être et une sélection de produits de parapharmacie.",
+      contactPoint: {
+        "@type": "ContactPoint",
+        telephone: "+21697991266",
+        contactType: "customer service",
+        areaServed: "TN",
+        availableLanguage: ["fr", "ar"],
       },
       sameAs: [
         "https://www.facebook.com/paratunisie",
-        "https://www.instagram.com/paratunisie"
+        "https://www.instagram.com/paratunisie",
       ],
-      potentialAction: {
-        "@type": "SearchAction",
-        target: "https://paratunisie.com/shop?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
+    },
+    {
+      "@type": "OnlineStore",
+      "@id": "https://paratunisie.com/#store",
+      name: "ParaTunisie",
+      url: "https://paratunisie.com",
+      description:
+        "Plateforme e-commerce tunisienne spécialisée dans la nutrition sportive, les compléments alimentaires et le bien-être.",
+      parentOrganization: {
+        "@id": "https://paratunisie.com/#organization",
+      },
     },
     {
       "@type": "WebSite",
       "@id": "https://paratunisie.com/#website",
       name: "ParaTunisie",
       url: "https://paratunisie.com",
-      description: "Plateforme e-commerce tunisienne spécialisée dans la nutrition sportive, les compléments alimentaires et le bien-être.",
+      description:
+        "Plateforme e-commerce tunisienne spécialisée dans la nutrition sportive, les compléments alimentaires et le bien-être.",
       publisher: {
-        "@id": "https://paratunisie.com/#organization"
-      }
-    }
-  ]
+        "@id": "https://paratunisie.com/#organization",
+      },
+      potentialAction: {
+        "@type": "SearchAction",
+        target: {
+          "@type": "EntryPoint",
+          urlTemplate: "https://paratunisie.com/shop?q={search_term_string}",
+        },
+        "query-input": "required name=search_term_string",
+      },
+    },
+  ],
 };
 
 export default function RootLayout({
