@@ -63,15 +63,15 @@ Every deliverable specified in the Phase 2 specification was implemented, tested
 
 ## 3. Production Deployment & Verification
 
-| Deployment Step | Status | Evidence / Verification |
-| :--- | :--- | :--- |
-| **Typecheck (`tsc`)** | ✅ Passed | 0 TypeScript errors |
-| **API Unit Tests** | ✅ Passed | 81/81 Jest tests passing in `apps/api` |
-| **Canonical Unit Tests** | ✅ Passed | 6/6 Node test suite passing |
-| **Next.js Production Build** | ✅ Passed | `next build` compiled cleanly |
-| **Git Commit & Push** | ✅ Deployed | `b8c5340` on `origin/seo/full-remediation-2026` |
-| **VPS Service Health** | ✅ Verified | All 7 production containers `Up (healthy)` |
-| **Automated Release Validator** | ✅ Passed | 10/10 URL checks passing, 0 errors, 87 sitemap URLs verified 200 OK |
+| Metric | Phase 1 Baseline | Phase 2 Start | Wave 2 Expansion (Now) |
+|---|---|---|---|
+| **Indexable Products (Tier A)** | 14 | 50 | **106** (+112% expansion) |
+| **Total Qualified Sitemap URLs** | 48 | 87 | **143** (+64% growth) |
+| **External Hotlinked Images on Indexable Products** | 0 | 0 | **0** (100% localized to `/uploads/products/*`) |
+| **All Sitemap URLs HTTP Status** | 200 OK | 200 OK | **100% 200 OK** |
+| **Canonical URL Consistency** | Mixed | Centralized | **100% Deterministic (lib/seo/canonical.ts)** |
+| **JSON-LD Schema Coverage** | Basic | Complete | **Product, Category, Article, FAQ, Breadcrumbs** |
+| **Automated Release Gate** | N/A | Active | **`scripts/validate-seo-release.py` (Passing 10/10)** |
 
 ---
 
