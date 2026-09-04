@@ -53,6 +53,8 @@ services:
     depends_on:
       paratunisie-api:
         condition: service_healthy
+    volumes:
+      - ./public/uploads:/app/public/uploads
     healthcheck:
       test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/ || exit 1"]
       interval: 15s
