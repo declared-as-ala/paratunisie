@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { MessageCircle, MapPin, Phone, Send } from "lucide-react";
+import { buildCanonicalUrl } from "@/lib/seo/canonical";
 import { phoneHref, phoneNumber, whatsappHref } from "@/lib/contact";
 
 export const metadata: Metadata = {
   title: "Contactez-nous — ParaTunisie",
   description: "Contactez l'équipe de conseil et de service client ParaTunisie par téléphone ou WhatsApp.",
+  alternates: {
+    canonical: buildCanonicalUrl("/contact"),
+  },
 };
 
 export default function ContactPage() {

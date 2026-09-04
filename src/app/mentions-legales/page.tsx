@@ -2,9 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { FileText } from "lucide-react";
 
+import { buildCanonicalUrl } from "@/lib/seo/canonical";
+
 export const metadata: Metadata = {
   title: "Mentions Légales — ParaTunisie",
   description: "Informations légales et éditoriales concernant la plateforme e-commerce ParaTunisie.",
+  alternates: {
+    canonical: buildCanonicalUrl("/mentions-legales"),
+  },
 };
 
 export default function MentionsLegalesPage() {

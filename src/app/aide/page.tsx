@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { HelpCircle, ChevronDown, MessageCircle } from "lucide-react";
+import { buildCanonicalUrl } from "@/lib/seo/canonical";
 import { whatsappHref } from "@/lib/contact";
 
 export const metadata: Metadata = {
   title: "Centre d'Aide & FAQ — ParaTunisie",
   description: "Trouvez les réponses aux questions les plus fréquentes sur vos commandes, produits et livraisons.",
+  alternates: {
+    canonical: buildCanonicalUrl("/aide"),
+  },
 };
 
 const FAQS = [
