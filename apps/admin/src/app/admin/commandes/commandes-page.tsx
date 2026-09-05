@@ -37,6 +37,8 @@ import { AramexTrackingDrawer } from "@/components/aramex/aramex-tracking-drawer
 /* ─── Types ─────────────────────────────────────────────────────────── */
 
 interface OrderItemExt {
+  productId?: string;
+  productVariantId?: string;
   productName: string;
   brand: string;
   quantity: number;
@@ -467,6 +469,8 @@ function CommandesInner() {
         if (Array.isArray(data) && data.length > 0) {
           const mapped: CustomOrder[] = data.map((o: any, idx: number) => {
             const items: OrderItemExt[] = o.items?.map((item: any) => ({
+              productId: item.productId || item.product?.id,
+              productVariantId: item.productVariantId || item.productVariant?.id,
               productName: item.product?.name || "Produit Parapharmacie",
               brand: item.product?.brand?.name || "ParaTunisie",
               quantity: item.quantity || 1,
@@ -669,6 +673,7 @@ function CommandesInner() {
 
   // Form State inside Drawer
   const [editingForm, setEditingForm] = useState<CustomOrder | null>(null);
+  const [savingOrder, setSavingOrder] = useState(false);
   const formData = editingForm ?? activeOrderObj;
 
   const handleOpenEdit = useCallback((id: string) => {
@@ -694,30 +699,76 @@ function CommandesInner() {
 
   const handleSaveOrder = useCallback(async () => {
     if (!formData) return;
-    if (!formData.id.startsWith("NEW-")) {
+    if (formData.id.startsWith("NEW-") || targetId === "new") {
+      if (!formData.customerName?.trim()) {
+        toast("error", "Veuillez renseigner le nom du client");
+        return;
+      }
+      if (!formData.phone?.trim()) {
+        toast("error", "Veuillez renseigner le numéro de téléphone");
+        return;
+      }
+      if (!formData.items || formData.items.length === 0) {
+        toast("error", "Veuillez ajouter au moins un produit à la commande");
+        return;
+      }
+
       try {
-        await apiClient.patch(`/orders/${formData.id}/status`, { status: formData.status });
+        setSavingOrder(true);
+        const nameParts = formData.customerName.trim().split(" ");
+        const firstName = nameParts[0] || "Client";
+        const lastName = nameParts.slice(1).join(" ") || "";
+
+        const payload = {
+          firstName,
+          lastName,
+          phone: formData.phone.trim(),
+          email: formData.email?.trim() || undefined,
+          gouvernorat: formData.city || "Tunis",
+          fullAddress: formData.address?.trim() || "Adresse client",
+          deliveryNote: formData.customerNote?.trim() || undefined,
+          items: formData.items.map((item) => ({
+            productId: item.productId,
+            productVariantId: item.productVariantId,
+            quantity: item.quantity || 1,
+            priceMillimes: Math.round((item.unitPrice || 0) * 1000),
+          })),
+        };
+
+        const created = await apiClient.post<any>("/orders", payload);
+        toast("success", `Commande créée avec succès (Réf: #${created.id?.slice(-5) || "NEW"})`);
         notifyOrdersChanged();
+        loadOrderCounts();
+        setOrdersRefreshKey((k) => k + 1);
+        handleCloseDrawer();
       } catch (e) {
         toast(
           "error",
-          e instanceof ApiError ? e.message : "Impossible de mettre à jour le statut de la commande",
+          e instanceof ApiError ? e.message : "Impossible de créer la commande",
         );
-        return;
+      } finally {
+        setSavingOrder(false);
       }
+      return;
     }
-    setOrders((prev) => {
-      const idx = prev.findIndex((o) => o.id === formData.id);
-      if (idx >= 0) {
-        const next = [...prev];
-        next[idx] = formData;
-        return next;
-      }
-      return [formData, ...prev];
-    });
-    toast("success", `Commande ${formData.reference} enregistrée avec succès`);
-    handleCloseDrawer();
-  }, [formData, handleCloseDrawer, toast]);
+
+    try {
+      setSavingOrder(true);
+      await apiClient.patch(`/orders/${formData.id}/status`, { status: formData.status });
+      notifyOrdersChanged();
+      loadOrderCounts();
+      setOrdersRefreshKey((k) => k + 1);
+      toast("success", `Commande ${formData.reference} mise à jour avec succès`);
+      handleCloseDrawer();
+    } catch (e) {
+      toast(
+        "error",
+        e instanceof ApiError ? e.message : "Impossible de mettre à jour le statut de la commande",
+      );
+    } finally {
+      setSavingOrder(false);
+    }
+  }, [formData, targetId, handleCloseDrawer, loadOrderCounts, toast]);
 
   const handleDelete = useCallback(async () => {
     if (!deleteTarget) return;
@@ -736,10 +787,13 @@ function CommandesInner() {
   const handleAddProductToOrder = useCallback(
     (product: CatalogProduct) => {
       if (!formData) return;
-      const variantPrice = product.variants?.[0]?.priceMillimes
-        ? Math.round(product.variants[0].priceMillimes / 1000)
+      const variant = product.variants?.[0];
+      const variantPrice = variant?.priceMillimes
+        ? Math.round(variant.priceMillimes / 1000)
         : 35;
       const newItem: OrderItemExt = {
+        productId: product.id,
+        productVariantId: variant?.id,
         productName: product.name,
         brand: product.brand?.name || "ParaTunisie",
         quantity: 1,
@@ -1419,10 +1473,12 @@ function CommandesInner() {
                 {drawerMode === "edit" && (
                   <button
                     type="button"
+                    disabled={savingOrder}
                     onClick={handleSaveOrder}
-                    className="px-4 py-1.5 rounded-xl bg-[#E11D48] text-white text-xs font-bold hover:bg-[#BE123C] transition-colors shadow-xs"
+                    className="px-4 py-1.5 rounded-xl bg-[#E11D48] text-white text-xs font-bold hover:bg-[#BE123C] transition-colors shadow-xs disabled:opacity-50 flex items-center gap-1.5"
                   >
-                    Enregistrer
+                    {savingOrder && <RefreshCw size={12} className="animate-spin" />}
+                    <span>{savingOrder ? "Enregistrement..." : "Enregistrer"}</span>
                   </button>
                 )}
                 <button
