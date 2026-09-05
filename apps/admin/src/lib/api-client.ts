@@ -19,16 +19,8 @@ export function resolveMediaUrl(value?: string | null, fallback = "/assets/produ
   if (/^(?:https?:)?\/\//i.test(value) || /^(?:data|blob):/i.test(value)) return value;
   if (!/^\/?uploads\//i.test(value)) return value;
 
-  const publicApiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
-  try {
-    const baseOrigin = new URL(
-      publicApiUrl,
-      typeof window !== "undefined" ? window.location.origin : "http://localhost:3001",
-    ).origin;
-    return `${baseOrigin}/${value.replace(/^\/+/, "")}`;
-  } catch {
-    return value;
-  }
+  const cleanPath = value.replace(/^\/+/, "");
+  return `https://paratunisie.com/${cleanPath}`;
 }
 
 export class ApiError extends Error {
