@@ -41,6 +41,18 @@ export const categories: Category[] = [
     concerns: [{ slug: "nutrition-sportive", name: "Nutrition Sportive" }],
   },
   {
+    slug: "complements-alimentaires",
+    name: "Compléments Alimentaires",
+    eyebrow: "Santé & Vitalité",
+    seoH1: "Compléments Alimentaires en Tunisie",
+    seoTitle: "Compléments Alimentaires Tunisie : Santé, Vitalité & Sport | ParaTunisie",
+    seoDescription: "Large choix de compléments alimentaires en Tunisie : vitamines, oméga 3, magnésium, ashwagandha, zinc et minéraux. Produits 100% authentiques livrés en 24-48h.",
+    description: "Compléments alimentaires de qualité pour la santé, l'immunité, la vitalité et les performances.",
+    seoIntro: "Découvrez notre gamme complète de compléments alimentaires en Tunisie : vitamines, minéraux, oméga 3, magnésium chélaté et extraits de plantes adaptogènes pour soutenir votre forme et votre bien-être au quotidien.",
+    subcategories: [{ slug: "tous", name: "Tous les produits" }],
+    concerns: [{ slug: "complements-alimentaires", name: "Compléments Alimentaires" }],
+  },
+  {
     slug: "creatine",
     name: "Créatine",
     eyebrow: "Force & Puissance",

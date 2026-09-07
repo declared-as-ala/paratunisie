@@ -107,7 +107,7 @@ export const articles: Article[] = [
         title: "Les critères objectifs pour comparer les créatines en Tunisie",
         anchor: "criteres-selection",
         content: [
-          "Face à la multitude d'offres sur le marché tunisien, il est essentiel d'évaluer les produits selon des critères transparents :",
+          "Face à la multitude d'offres sur le marché tunisien, il est essentiel d'évaluer les produits selon des critères transparents : Pour faire le bon choix, consultez [notre sélection de créatine monohydrate](/creatine) disponible avec livraison 24-48h. Vous pouvez également consulter [nos créatines pures disponibles en Tunisie](/creatine).",
           "1. La pureté de la formule : privilégiez la créatine monohydrate sans arômes ajoutés ni sucre pour obtenir 100% de matière active par cuillère.",
           "2. La micronisation : une poudre micronisée (Mesh 200) se dissout plus rapidement dans l'eau et offre un meilleur confort digestif.",
           "3. Le coût par portion : comparer le prix au kilogramme ou à la dose de 3g-5g permet de repérer les formats les plus économiques.",
@@ -235,18 +235,19 @@ export const articles: Article[] = [
         title: "Les bienfaits prouvés de la créatine monohydrate",
         anchor: "bienfaits",
         content: [
-          "La créatine monohydrate apporte des bénéfices directs et indirects sur les performances sportives :",
+          "La créatine monohydrate apporte des bénéfices directs et indirects sur les performances sportives : Pour vos besoins, découvrez [notre sélection de créatine monohydrate pure](/creatine) chez ParaTunisie.",
           "• Gain de force et de puissance explosive sur les efforts anaérobies de haute intensité.",
           "• Rétention d'eau intracellulaire positive, favorisant le volume musculaire et la synthèse protéique.",
           "• Réduction de la fatigue centrale et amélioration de la vitesse de récupération entre les séries.",
           "• Soutien cognitif émergent documenté par plusieurs études chez les sujets fatigués ou actifs.",
+          "Pour vous équiper, découvrez [nos créatines pures disponibles en Tunisie](/creatine).",
         ],
       },
       {
         title: "Dosage exact : 3g à 5g par jour sans complication",
         anchor: "dosage-exact",
         content: [
-          "La majorité des recommandations internationales préconisent une dose quotidienne unique de 3g à 5g (soit une cuillère doseuse rase).",
+          "La majorité des recommandations internationales préconisent une dose quotidienne unique de 3g à 5g (soit une cuillère doseuse rase). Vous pouvez également consulter [toutes nos créatines disponibles](/creatine).",
           "Faut-il cycler la créatine ? Non. Les études à long terme (jusqu'à 5 ans continus) ne montrent aucune baisse de la production endogène de créatine après l'arrêt de la supplémentation.",
         ],
       },
@@ -332,7 +333,7 @@ export const articles: Article[] = [
         title: "Que dit la science sur le timing de la créatine ?",
         anchor: "science-timing",
         content: [
-          "Une étude de référence menée par Antonio et Ciccone (2013) a comparé deux groupes de pratiquants de musculation consommant 5g de créatine soit immédiatement avant, soit immédiatement après l'entraînement.",
+          "Une étude de référence menée par Antonio et Ciccone (2013) a comparé deux groupes de pratiquants de musculation consommant 5g de créatine soit immédiatement avant, soit immédiatement après l'entraînement. Pour vos besoins, découvrez [notre gamme de créatines monohydrates](/creatine) chez ParaTunisie.",
           "Les résultats ont montré une légère supériorité du groupe post-entraînement sur le gain de masse maigre et la force maximale au développé couché. Après l'effort, le flux sanguin vers les muscles sollicités est maximal et la sensibilité à l'insuline est optimisée, ce qui favorise l'entrée des nutriments dans les cellules musculaires.",
         ],
       },
@@ -340,7 +341,7 @@ export const articles: Article[] = [
         title: "Peut-on la prendre avant l'entraînement ?",
         anchor: "avant-entrainement",
         content: [
-          "Prendre sa créatine 30 à 45 minutes avant la séance est également efficace. Cependant, la créatine n'ayant pas d'effet stimulant immédiat comme la caféine, il ne faut pas s'attendre à un coup de boost instantané.",
+          "Prendre sa créatine 30 à 45 minutes avant la séance est également efficace. Cependant, la créatine n'ayant pas d'effet stimulant immédiat comme la caféine, il ne faut pas s'attendre à un coup de boost instantané. Vous pouvez également consulter [notre sélection de whey protéines](/whey-proteine).",
         ],
       },
       {
@@ -421,14 +422,14 @@ export const articles: Article[] = [
         title: "Qu'est-ce que la whey et pourquoi est-elle si populaire ?",
         anchor: "definition-whey",
         content: [
-          "Issue du lactosérum du lait lors de la fabrication fromagère, la whey protéine est la protéine en poudre la plus consommée au monde. Sa popularité repose sur deux atouts majeurs : une valeur biologique exceptionnelle (riche en acides aminés essentiels et en BCAA) et une vitesse d'assimilation très rapide (environ 30 à 45 minutes).",
+          "Issue du lactosérum du lait lors de la fabrication fromagère, la whey protéine est la protéine en poudre la plus consommée au monde. Sa popularité repose sur deux atouts majeurs : une valeur biologique exceptionnelle (riche en acides aminés essentiels et en BCAA) et une vitesse d'assimilation très rapide (environ 30 à 45 minutes). Pour vos besoins, découvrez [notre sélection de whey protéines en Tunisie](/whey-proteine) chez ParaTunisie.",
         ],
       },
       {
         title: "Concentré, Isolate ou Hydrolysat : les vraies différences",
         anchor: "types-de-whey",
         content: [
-          "• Whey Concentrate (WPC) : Contient 70 à 80% de protéines, conserve de précieux peptides bioactifs du lait et offre une texture onctueuse au meilleur tarif.",
+          "• Whey Concentrate (WPC) : Contient 70 à 80% de protéines, conserve de précieux peptides bioactifs du lait et offre une texture onctueuse au meilleur tarif. Vous pouvez également consulter [toutes nos protéines disponibles en stock](/whey-proteine).",
           "• Whey Isolate (WPI) : Filtrée par microfiltration à flux croisé (CFM), elle élimine la quasi-totalité des glucides, lipides et du lactose pour atteindre 85 à 90% de pureté.",
           "• Whey Hydrolysée : Pré-digérée enzymatiquement pour une assimilation ultra-rapide, mais son coût est nettement plus élevé.",
         ],
@@ -830,7 +831,7 @@ export const articles: Article[] = [
         title: "Deux compléments aux mécanismes totalement différents",
         anchor: "mecanismes",
         content: [
-          "Il est fréquent de confondre pre-workout et créatine, mais ils ne remplissent pas la même fonction dans l'organisme :",
+          "Il est fréquent de confondre pre-workout et créatine, mais ils ne remplissent pas la même fonction dans l'organisme : Pour vos besoins, découvrez [notre gamme de pre-workouts](/pre-workout) chez ParaTunisie.",
           "• Le booster pre-workout est un excitant du système nerveux central conçu pour un effet immédiat : plus d'énergie, moins de somnolence, meilleure vasodilatation.",
           "• La créatine est un substrat énergétique cellulaire qui augmente la réserve de phosphocréatine dans les fibres musculaires. Elle ne procure aucun effet stimulant immédiat.",
         ],
@@ -839,7 +840,7 @@ export const articles: Article[] = [
         title: "Comment les combiner sans risque de surdosage ?",
         anchor: "combinaison-optimale",
         content: [
-          "Certains pre-workouts contiennent déjà 1g à 3g de créatine dans leur formule. Vérifiez l'étiquette nutritionnelle :",
+          "Certains pre-workouts contiennent déjà 1g à 3g de créatine dans leur formule. Vérifiez l'étiquette nutritionnelle : Vous pouvez également consulter [nos créatines monohydrates](/creatine).",
           "Si votre booster contient déjà de la créatine, ajustez simplement votre prise de créatine pure le reste de la journée pour atteindre 3g à 5g au total.",
         ],
       },
@@ -957,7 +958,7 @@ export const articles: Article[] = [
       "complements-avant-pendant-apres-entrainement",
       "whey-protein-tunisie-guide",
     ],
-    relatedCategories: [{ name: "BCAA & Acides Aminés", url: "/bcaa-acides-amines" }],
+    relatedCategories: [{ name: "BCAA & Acides Aminés", url: "/bcaa" }],
   },
 
   // ── ARTICLE 10 ──
@@ -1036,7 +1037,7 @@ export const articles: Article[] = [
       "bcaa-ou-eaa",
       "complements-avant-pendant-apres-entrainement",
     ],
-    relatedCategories: [{ name: "BCAA & Acides Aminés", url: "/bcaa-acides-amines" }],
+    relatedCategories: [{ name: "BCAA & Acides Aminés", url: "/bcaa" }],
   },
 
   // ── ARTICLE 11 ──
@@ -1171,14 +1172,14 @@ export const articles: Article[] = [
         title: "Prise le soir : optimiser la détente et la nuit",
         anchor: "prise-soir",
         content: [
-          "Si votre objectif prioritaire est de calmer le flux mental en fin de journée et d'améliorer la qualité de votre endormissement, prendre 1 dose d'Ashwagandha au cours du dîner (environ 1 à 2 heures avant le coucher) est la stratégie la plus couramment adoptée.",
+          "Si votre objectif prioritaire est de calmer le flux mental en fin de journée et d'améliorer la qualité de votre endormissement, prendre 1 dose d'Ashwagandha au cours du dîner (environ 1 à 2 heures avant le coucher) est la stratégie la plus couramment adoptée. Pour vos besoins, découvrez [notre sélection d'ashwagandha KSM-66](/ashwagandha) chez ParaTunisie.",
         ],
       },
       {
         title: "Prise le matin : réguler le stress quotidien",
         anchor: "prise-matin",
         content: [
-          "Si vous devez affronter des journées denses et éprouvantes, consommer votre complément le matin au petit-déjeuner aide à maintenir un niveau de calme et de concentration stable sans provoquer de somnolence.",
+          "Si vous devez affronter des journées denses et éprouvantes, consommer votre complément le matin au petit-déjeuner aide à maintenir un niveau de calme et de concentration stable sans provoquer de somnolence. Vous pouvez également consulter [tous nos compléments d'ashwagandha](/ashwagandha).",
         ],
       },
     ],
@@ -1246,14 +1247,14 @@ export const articles: Article[] = [
         title: "La synergie indispensable entre D3 et K2",
         anchor: "synergie-d3-k2",
         content: [
-          "Prendre de la vitamine D3 seule augmente l'absorption du calcium dans le sang. Mais sans vitamine K2 suffisante, ce calcium risque de se déposer de façon inappropriée dans les parois vasculaires (calcification artérielle). La vitamine K2 active la protéine Matrix GLA qui empêche ce phénomène et garantit que le calcium est intégré là où il est utile : les os et les dents.",
+          "Prendre de la vitamine D3 seule augmente l'absorption du calcium dans le sang. Mais sans vitamine K2 suffisante, ce calcium risque de se déposer de façon inappropriée dans les parois vasculaires (calcification artérielle). La vitamine K2 active la protéine Matrix GLA qui empêche ce phénomène et garantit que le calcium est intégré là où il est utile : les os et les dents. Pour vos besoins, découvrez [notre sélection de vitamines et D3+K2](/vitamines) chez ParaTunisie.",
         ],
       },
       {
         title: "Pourquoi surveiller son statut en vitamine D en Tunisie ?",
         anchor: "statut-tunisie",
         content: [
-          "Plusieurs études épidémiologiques en Afrique du Nord ont révélé une prévalence élevée de déficit en vitamine D, particulièrement en période hivernale ou chez les personnes travaillant en espaces fermés. Une supplémentation d'entretien adaptée (1000 à 2000 UI/jour) est couramment recommandée.",
+          "Plusieurs études épidémiologiques en Afrique du Nord ont révélé une prévalence élevée de déficit en vitamine D, particulièrement en période hivernale ou chez les personnes travaillant en espaces fermés. Une supplémentation d'entretien adaptée (1000 à 2000 UI/jour) est couramment recommandée. Vous pouvez également consulter [toutes nos vitamines disponibles en Tunisie](/vitamines).",
         ],
       },
     ],
@@ -1326,14 +1327,14 @@ export const articles: Article[] = [
         title: "Le rôle physiologique du zinc chez l'athlète",
         anchor: "role-physiologique",
         content: [
-          "Le zinc intervient directement dans la division cellulaire, la réparation tissulaire post-effort et le bon fonctionnement du système immunitaire. Des taux adéquats de zinc permettent de maintenir un métabolisme énergétique optimal et de limiter les risques de surentraînement.",
+          "Le zinc intervient directement dans la division cellulaire, la réparation tissulaire post-effort et le bon fonctionnement du système immunitaire. Des taux adéquats de zinc permettent de maintenir un métabolisme énergétique optimal et de limiter les risques de surentraînement. Pour vos besoins, découvrez [notre gamme de zinc chélaté](/zinc) chez ParaTunisie.",
         ],
       },
       {
         title: "Quelles formes de zinc privilégier ?",
         anchor: "formes-zinc",
         content: [
-          "Toutes les formes de zinc ne se valent pas :",
+          "Toutes les formes de zinc ne se valent pas : Vous pouvez également consulter [notre sélection de magnésium](/magnesium).",
           "• Bisglycinate de zinc : chélaté avec deux molécules de glycine, offre la meilleure tolérance gastrique et une excellente absorption.",
           "• Citrate et Picolinate de zinc : très bonnes alternatives bien assimilées.",
           "• Évitez l'oxyde de zinc, très peu absorbé par l'organisme.",
@@ -1412,14 +1413,14 @@ export const articles: Article[] = [
         title: "Pourquoi l'alimentation moderne manque d'oméga-3",
         anchor: "manque-omega-3",
         content: [
-          "Le rapport optimal entre acides gras oméga-6 (pro-inflammatoires en excès) et oméga-3 (anti-inflammatoires) devrait être proche de 3:1 ou 4:1. Dans l'alimentation courante, ce ratio dépasse souvent 15:1 en raison de la prépondérance des huiles végétales raffinées. Une supplémentation en oméga-3 marins de qualité permet de rétablir cet équilibre essentiel.",
+          "Le rapport optimal entre acides gras oméga-6 (pro-inflammatoires en excès) et oméga-3 (anti-inflammatoires) devrait être proche de 3:1 ou 4:1. Dans l'alimentation courante, ce ratio dépasse souvent 15:1 en raison de la prépondérance des huiles végétales raffinées. Une supplémentation en oméga-3 marins de qualité permet de rétablir cet équilibre essentiel. Pour vos besoins, découvrez [notre sélection d'oméga 3 concentrés](/omega-3) chez ParaTunisie.",
         ],
       },
       {
         title: "Comment décrypter l'étiquette d'un pot d'oméga-3 ?",
         anchor: "decrypter-etiquette",
         content: [
-          "Ne vous fiez pas uniquement à la mention '1000 mg d'huile de poisson'. Ce qui compte biologiquement, c'est la concentration en acide eicosapentaénoïque (EPA) et acide docosahexaénoïque (DHA). Un complément de qualité apporte au minimum 300 mg à 600 mg d'EPA/DHA réels par portion.",
+          "Ne vous fiez pas uniquement à la mention '1000 mg d'huile de poisson'. Ce qui compte biologiquement, c'est la concentration en acide eicosapentaénoïque (EPA) et acide docosahexaénoïque (DHA). Un complément de qualité apporte au minimum 300 mg à 600 mg d'EPA/DHA réels par portion. Vous pouvez également consulter [nos capsules d'huile de poisson en Tunisie](/omega-3).",
         ],
       },
     ],
@@ -1491,14 +1492,14 @@ export const articles: Article[] = [
         title: "Pourquoi l'exercice physique augmente les besoins en micronutriments",
         anchor: "besoins-micronutriments",
         content: [
-          "L'activité physique intense accélère le renouvellement cellulaire, accroît les pertes en minéraux par la transpiration et élève la demande en coenzymes vitaminiques impliqués dans la chaîne respiratoire mitochondriale. Même avec une alimentation variée, les régimes restrictifs de sèche ou les rythmes de vie chargés rendent l'apport multivitaminé particulièrement pertinent.",
+          "L'activité physique intense accélère le renouvellement cellulaire, accroît les pertes en minéraux par la transpiration et élève la demande en coenzymes vitaminiques impliqués dans la chaîne respiratoire mitochondriale. Même avec une alimentation variée, les régimes restrictifs de sèche ou les rythmes de vie chargés rendent l'apport multivitaminé particulièrement pertinent. Pour vos besoins, découvrez [nos complexes multivitamines pour sportifs](/vitamines) chez ParaTunisie.",
         ],
       },
       {
         title: "Les formules complètes recommandées",
         anchor: "formules-recommandees",
         content: [
-          "• Opti-Men (Optimum Nutrition) : Complexe complet de référence mondiale enrichi en extraits végétaux et acides aminés.",
+          "• Opti-Men (Optimum Nutrition) : Complexe complet de référence mondiale enrichi en extraits végétaux et acides aminés. Vous pouvez également consulter [notre univers de nutrition sportive](/nutrition-sportive).",
           "• One-A-Day (BioTechUSA) : Formule équilibrée en 1 seul comprimé quotidien pour couvrir 100% des valeurs nutritionnelles de référence.",
           "• Vitamin Complex Sport+ (SFD) & Pro-Vitamin (Muscle Care) : Deux options économiques très complètes pour les athlètes.",
         ],
@@ -1572,14 +1573,14 @@ export const articles: Article[] = [
         title: "Comment fonctionne biologiquement la L-Carnitine ?",
         anchor: "fonctionnement-biologique",
         content: [
-          "La L-Carnitine est un composé dérivé de deux acides aminés (la lysine et la méthionine). Sa mission biologique fondamentale est d'agir comme une 'navette moléculaire' : elle permet aux acides gras libres de traverser la membrane interne des mitochondries, les véritables centrales énergétiques de nos cellules, où les graisses sont brûlées pour produire de l'ATP.",
+          "La L-Carnitine est un composé dérivé de deux acides aminés (la lysine et la méthionine). Sa mission biologique fondamentale est d'agir comme une 'navette moléculaire' : elle permet aux acides gras libres de traverser la membrane interne des mitochondries, les véritables centrales énergétiques de nos cellules, où les graisses sont brûlées pour produire de l'ATP. Pour vos besoins, découvrez [notre sélection de L-Carnitine liquide et gélules](/l-carnitine) chez ParaTunisie.",
         ],
       },
       {
         title: "La réalité scientifique : pourquoi le déficit calorique reste roi",
         anchor: "realite-scientifique",
         content: [
-          "Prendre de la L-Carnitine tout en consommant plus de calories que vos dépenses énergétiques ne vous fera pas perdre de gras. En revanche, lorsqu'elle est combinée à un entraînement cardio-vasculaire régulier et à une alimentation contrôlée, elle peut optimiser l'utilisation des lipides comme substrat énergétique et améliorer l'endurance d'effort.",
+          "Prendre de la L-Carnitine tout en consommant plus de calories que vos dépenses énergétiques ne vous fera pas perdre de gras. En revanche, lorsqu'elle est combinée à un entraînement cardio-vasculaire régulier et à une alimentation contrôlée, elle peut optimiser l'utilisation des lipides comme substrat énergétique et améliorer l'endurance d'effort. Vous pouvez également consulter [nos brûleurs de graisse thermogéniques](/bruleurs-de-graisse).",
         ],
       },
     ],
@@ -1651,7 +1652,7 @@ export const articles: Article[] = [
         title: "Les différents types de brûleurs de graisse",
         anchor: "types-bruleurs",
         content: [
-          "• Les thermogéniques : contiennent des stimulants (caféine, extrait de thé vert, poivre noir/biopérine) qui élèvent modérément la thermogenèse et la dépense énergétique.",
+          "• Les thermogéniques : contiennent des stimulants (caféine, extrait de thé vert, poivre noir/biopérine) qui élèvent modérément la thermogenèse et la dépense énergétique. Pour vos besoins, découvrez [nos brûleurs de graisse pour la sèche](/bruleurs-de-graisse) chez ParaTunisie.",
           "• Les lipotropes (sans stimulants) : basés sur la L-carnitine ou le chrome, ils ciblent le métabolisme lipidique sans exciter le système cardiaque.",
         ],
       },
@@ -1659,7 +1660,7 @@ export const articles: Article[] = [
         title: "Précautions strictes d'utilisation",
         anchor: "precautions-securite",
         content: [
-          "Les brûleurs thermogéniques sont déconseillés aux personnes souffrant d'hypertension artérielle, de troubles cardiovasculaires ou d'insomnies sévères. Ne les consommez pas après 16h pour ne pas dégrader le sommeil.",
+          "Les brûleurs thermogéniques sont déconseillés aux personnes souffrant d'hypertension artérielle, de troubles cardiovasculaires ou d'insomnies sévères. Ne les consommez pas après 16h pour ne pas dégrader le sommeil. Vous pouvez également consulter [notre sélection de L-Carnitine](/l-carnitine).",
         ],
       },
     ],
@@ -1732,7 +1733,7 @@ export const articles: Article[] = [
         title: "1. La pyramide des priorités pour un débutant",
         anchor: "pyramide-priorites",
         content: [
-          "Lorsqu'on débute la musculation, le marketing donne souvent l'illusion que les poudres et les pilules construisent le muscle à votre place. La réalité physiologique est ordonnée ainsi :",
+          "Lorsqu'on débute la musculation, le marketing donne souvent l'illusion que les poudres et les pilules construisent le muscle à votre place. La réalité physiologique est ordonnée ainsi : Pour vos besoins, découvrez [notre sélection de whey protéines](/whey-proteine) chez ParaTunisie.",
           "1. L'entraînement structuré avec surcharge progressive.",
           "2. L'alimentation équilibrée avec apport calorique adapté et 1,6g à 2g de protéines/kg.",
           "3. La récupération nocturne (7 à 9h de sommeil).",
@@ -1743,7 +1744,7 @@ export const articles: Article[] = [
         title: "2. Les 3 seuls compléments à envisager au démarrage",
         anchor: "trois-complements",
         content: [
-          "• Whey Protéine : pour atteindre facilement son quota protéique quotidien après la séance sans devoir cuisiner en permanence.",
+          "• Whey Protéine : pour atteindre facilement son quota protéique quotidien après la séance sans devoir cuisiner en permanence. Vous pouvez également consulter [nos créatines monohydrates](/creatine).",
           "• Créatine Monohydrate : 3g à 5g par jour pour accélérer le gain de force initiale.",
           "• Multivitamines & Oméga 3 : pour soutenir le système immunitaire soumis à une nouvelle charge de fatigue physique.",
         ],
@@ -1835,14 +1836,14 @@ export const articles: Article[] = [
         title: "1. Phase AVANT l'effort (Pré-Workout) : Préparer la machine",
         anchor: "phase-avant",
         content: [
-          "L'objectif de la fenêtre pré-entraînement (30 à 45 minutes avant le début de la séance) est d'optimiser l'état d'éveil neuromusculaire et d'augmenter le débit sanguin vers les muscles. On privilégie un booster contenant de la caféine, de la L-Citrulline pour l'oxyde nitrique, et de la Bêta-Alanine pour tamponner l'acide lactique.",
+          "L'objectif de la fenêtre pré-entraînement (30 à 45 minutes avant le début de la séance) est d'optimiser l'état d'éveil neuromusculaire et d'augmenter le débit sanguin vers les muscles. On privilégie un booster contenant de la caféine, de la L-Citrulline pour l'oxyde nitrique, et de la Bêta-Alanine pour tamponner l'acide lactique. Pour vos besoins, découvrez [nos boosters pre-workout](/pre-workout) chez ParaTunisie.",
         ],
       },
       {
         title: "2. Phase PENDANT l'effort (Intra-Workout) : Soutenir l'intensité",
         anchor: "phase-pendant",
         content: [
-          "Sur des séances durant plus d'une heure en ambiance chaude, boire uniquement de l'eau peut être insuffisant pour compenser les pertes minérales. Une boisson d'intra-entraînement enrichie en électrolytes (sodium, potassium, magnésium) et en EAA/BCAA permet de maintenir la puissance contractile et d'éviter les crampes.",
+          "Sur des séances durant plus d'une heure en ambiance chaude, boire uniquement de l'eau peut être insuffisant pour compenser les pertes minérales. Une boisson d'intra-entraînement enrichie en électrolytes (sodium, potassium, magnésium) et en EAA/BCAA permet de maintenir la puissance contractile et d'éviter les crampes. Vous pouvez également consulter [nos protéines whey post-entraînement](/whey-proteine).",
         ],
       },
       {
@@ -1893,7 +1894,7 @@ export const articles: Article[] = [
     ],
     relatedCategories: [
       { name: "Pre-Workout", url: "/pre-workout" },
-      { name: "BCAA & Acides Aminés", url: "/bcaa-acides-amines" },
+      { name: "BCAA & Acides Aminés", url: "/bcaa" },
       { name: "Whey Protéine", url: "/whey-proteine" },
     ],
   },
@@ -1937,7 +1938,7 @@ export const articles: Article[] = [
         title: "Le dosage quotidien optimal : 3g à 5g par jour",
         anchor: "dosage-optimal",
         content: [
-          "Les études scientifiques internationales (notamment de l'ISSN) démontrent qu'une prise quotidienne constante de 3g à 5g de créatine monohydrate permet de saturer pleinement les réserves intramusculaires en 3 à 4 semaines.",
+          "Les études scientifiques internationales (notamment de l'ISSN) démontrent qu'une prise quotidienne constante de 3g à 5g de créatine monohydrate permet de saturer pleinement les réserves intramusculaires en 3 à 4 semaines. Pour vos besoins, découvrez [notre sélection de créatine monohydrate](/creatine) chez ParaTunisie.",
           "Il n'est pas nécessaire de surdoser : le corps élimine naturellement tout excès par voie rénale. Une seule dosette rase par jour suffit pour maximiser les stocks de phosphocréatine.",
         ],
       },
@@ -1945,7 +1946,7 @@ export const articles: Article[] = [
         title: "Faut-il faire une phase de charge ?",
         anchor: "phase-de-charge",
         content: [
-          "La phase de charge (20g par jour divisés en 4 prises pendant 5 à 7 jours) permet d'accélérer la saturation des muscles en 7 jours au lieu de 21 jours.",
+          "La phase de charge (20g par jour divisés en 4 prises pendant 5 à 7 jours) permet d'accélérer la saturation des muscles en 7 jours au lieu de 21 jours. Vous pouvez également consulter [nos créatines pures micronisées](/creatine).",
           "Cependant, cette phase est facultative et peut occasionner un inconfort digestif chez les personnes sensibles. Pour 95% des pratiquants en Tunisie, une dose fixe de 3g à 5g par jour dès le premier jour est la stratégie la plus confortable et tout aussi efficace à moyen terme.",
         ],
       },
@@ -2033,7 +2034,7 @@ export const articles: Article[] = [
         title: "La créatine fait-elle gonfler ou grossir ?",
         anchor: "mythe-gonflement",
         content: [
-          "C'est la crainte la plus fréquente chez les femmes. La créatine retient de l'eau, mais cette rétention se fait exclusivement à l'intérieur des cellules musculaires (rétention intracellulaire), et non sous la peau.",
+          "C'est la crainte la plus fréquente chez les femmes. La créatine retient de l'eau, mais cette rétention se fait exclusivement à l'intérieur des cellules musculaires (rétention intracellulaire), et non sous la peau. Pour vos besoins, découvrez [notre sélection de créatine monohydrate pure](/creatine) chez ParaTunisie.",
           "Cela donne un aspect musculaire plus tonique et plus ferme, sans aucun effet de rétention d'eau sous-cutanée disgracieuse ni prise de masse grasse.",
         ],
       },
@@ -2041,7 +2042,7 @@ export const articles: Article[] = [
         title: "Les bienfaits spécifiques pour les femmes sportives",
         anchor: "bienfaits-femmes",
         content: [
-          "1. Gain de force et de tonicité : permet de soulever des charges adaptées et de tonifier le bas du corps (fessiers, quadriceps) et le dos.",
+          "1. Gain de force et de tonicité : permet de soulever des charges adaptées et de tonifier le bas du corps (fessiers, quadriceps) et le dos. Vous pouvez également consulter [toutes nos créatines disponibles en Tunisie](/creatine).",
           "2. Récupération musculaire accélérée : diminue les courbatures après des séances de fitness, Pilates intense ou cross-training.",
           "3. Énergie cognitive : les femmes ayant naturellement des réserves de créatine légèrement inférieures aux hommes, la supplémentation montre d'excellents résultats sur l'énergie quotidienne.",
         ],
@@ -2110,14 +2111,14 @@ export const articles: Article[] = [
         title: "Qu'est-ce que le label Creapure® ?",
         anchor: "definition-creapure",
         content: [
-          "Creapure® est la référence mondiale de pureté synthétisée en Allemagne selon des normes pharmaceutiques strictes (GMP). Elle est soumise à des tests rigoureux par chromatographie en phase liquide (HPLC).",
+          "Creapure® est la référence mondiale de pureté synthétisée en Allemagne selon des normes pharmaceutiques strictes (GMP). Elle est soumise à des tests rigoureux par chromatographie en phase liquide (HPLC). Pour vos besoins, découvrez [notre sélection de créatines monohydrates certifiées](/creatine) chez ParaTunisie.",
         ],
       },
       {
         title: "L'efficacité est-elle supérieure sur les muscles ?",
         anchor: "comparaison-efficacite",
         content: [
-          "D'un point de vue physiologique, la molécule active reste la créatine monohydrate. À dosage égal (3g à 5g), Creapure® et une créatine monohydrate micronisée de qualité certifiée saturent les muscles de façon identique.",
+          "D'un point de vue physiologique, la molécule active reste la créatine monohydrate. À dosage égal (3g à 5g), Creapure® et une créatine monohydrate micronisée de qualité certifiée saturent les muscles de façon identique. Vous pouvez également consulter [nos créatines disponibles en stock](/creatine).",
         ],
       },
     ],
@@ -2182,7 +2183,7 @@ export const articles: Article[] = [
         title: "Pourquoi l'idée des cycles de 8 semaines est dépassée",
         anchor: "mythe-des-cycles",
         content: [
-          "Historiquement, les pratiquants effectuaient des cycles de 6 à 8 semaines suivis de pauses de 4 semaines par précaution. La recherche a depuis démontré que la production naturelle de créatine par le foie et les reins reprend normalement à l'arrêt sans dérèglement.",
+          "Historiquement, les pratiquants effectuaient des cycles de 6 à 8 semaines suivis de pauses de 4 semaines par précaution. La recherche a depuis démontré que la production naturelle de créatine par le foie et les reins reprend normalement à l'arrêt sans dérèglement. Pour vos besoins, découvrez [notre sélection de créatine monohydrate](/creatine) chez ParaTunisie.",
         ],
       },
     ],
@@ -2247,7 +2248,7 @@ export const articles: Article[] = [
         title: "Processus de filtration : d'où vient la différence ?",
         anchor: "filtration",
         content: [
-          "Le lactosérum liquide issu du lait subit une microfiltration. Le concentré de whey conserve une petite fraction de glucides (lactose) et de lipides. L'isolat subit une filtration supplémentaire par flux croisé (CFM) qui isole presque purement les peptides de protéines.",
+          "Le lactosérum liquide issu du lait subit une microfiltration. Le concentré de whey conserve une petite fraction de glucides (lactose) et de lipides. L'isolat subit une filtration supplémentaire par flux croisé (CFM) qui isole presque purement les peptides de protéines. Pour vos besoins, découvrez [notre sélection de whey protéines concentrées et isolats](/whey-proteine) chez ParaTunisie.",
         ],
       },
     ],
@@ -2312,7 +2313,7 @@ export const articles: Article[] = [
         title: "Comment calculer votre apport protéique journalier",
         anchor: "calcul-proteines",
         content: [
-          "Exemple pour un pratiquant de 75 kg : 75 × 1,8g = 135g de protéines totales par jour. Si vos repas fournissent 95g de protéines, un seul shaker de 30g de whey (apportant ~24g de protéine pure) suffit pour atteindre l'objectif.",
+          "Exemple pour un pratiquant de 75 kg : 75 × 1,8g = 135g de protéines totales par jour. Si vos repas fournissent 95g de protéines, un seul shaker de 30g de whey (apportant ~24g de protéine pure) suffit pour atteindre l'objectif. Pour vos besoins, découvrez [notre sélection de whey protéines](/whey-proteine) chez ParaTunisie.",
         ],
       },
     ],
@@ -2377,7 +2378,7 @@ export const articles: Article[] = [
         title: "La vérité sur la fenêtre anabolique",
         anchor: "fenetre-anabolique",
         content: [
-          "La fameuse fenêtre anabolique de 30 minutes n'est pas aussi étroite qu'on le pensait. La sensibilité musculaire aux acides aminés reste élevée pendant plusieurs heures après l'effort. Prendre son shaker dans l'heure suivant l'entraînement est idéal et confortable.",
+          "La fameuse fenêtre anabolique de 30 minutes n'est pas aussi étroite qu'on le pensait. La sensibilité musculaire aux acides aminés reste élevée pendant plusieurs heures après l'effort. Prendre son shaker dans l'heure suivant l'entraînement est idéal et confortable. Pour vos besoins, découvrez [notre sélection de whey protéines en Tunisie](/whey-proteine) chez ParaTunisie.",
         ],
       },
     ],
@@ -2442,7 +2443,7 @@ export const articles: Article[] = [
         title: "Les 3 erreurs à éviter lors de son premier achat",
         anchor: "erreurs-debutant",
         content: [
-          "1. Acheter un gainer ultra-calorique sans faire d'effort physique suffisant.",
+          "1. Acheter un gainer ultra-calorique sans faire d'effort physique suffisant. Pour vos besoins, découvrez [notre sélection de whey protéines pour débutants](/whey-proteine) chez ParaTunisie.",
           "2. Penser que la whey remplace les repas complets.",
           "3. Choisir des marques non certifiées sans étiquetage nutritionnel transparent.",
         ],
@@ -2509,7 +2510,7 @@ export const articles: Article[] = [
         title: "Hard Gainer vs Lean Gainer : Quelle différence ?",
         anchor: "hard-vs-lean",
         content: [
-          "Un hard gainer apporte 800 à 1200 kcal par portion avec un ratio d'environ 4g de glucides pour 1g de protéine. Un lean gainer apporte 400 à 600 kcal avec une part protéique plus élevée pour une prise de masse plus propre.",
+          "Un hard gainer apporte 800 à 1200 kcal par portion avec un ratio d'environ 4g de glucides pour 1g de protéine. Un lean gainer apporte 400 à 600 kcal avec une part protéique plus élevée pour une prise de masse plus propre. Pour vos besoins, découvrez [nos mass gainers pour la prise de masse](/gainers-proteines) chez ParaTunisie.",
         ],
       },
     ],
@@ -2574,7 +2575,7 @@ export const articles: Article[] = [
         title: "La méthode des demi-doses pour une digestion légère",
         anchor: "demi-doses",
         content: [
-          "Prendre 300g de poudre d'un coup peut surcharger le système digestif. Prendre 100g le matin et 100g après l'entraînement permet une assimilation graduelle et une énergie constante.",
+          "Prendre 300g de poudre d'un coup peut surcharger le système digestif. Prendre 100g le matin et 100g après l'entraînement permet une assimilation graduelle et une énergie constante. Pour vos besoins, découvrez [notre gamme de gainers pour la prise de masse](/gainers-proteines) chez ParaTunisie.",
         ],
       },
     ],
@@ -2639,7 +2640,7 @@ export const articles: Article[] = [
         title: "Menu type pour 3000 kcal par jour en Tunisie",
         anchor: "menu-type",
         content: [
-          "Petit-déjeuner : 100g de flocons d'avoine + 3 œufs entiers + 1 banane + 1 cuillère de miel.",
+          "Petit-déjeuner : 100g de flocons d'avoine + 3 œufs entiers + 1 banane + 1 cuillère de miel. Pour vos besoins, découvrez [nos mass gainers et formules prise de masse](/gainers-proteines) chez ParaTunisie.",
           "Collation 10h : 1 shaker de whey ou gainer + 30g d'amandes.",
           "Déjeuner : 150g de riz basmati pesé cru + 150g d'escalope de dinde grillée + légumes à l'huile d'olive.",
           "Collation 16h (pré-séance) : 4 dattes + 1 café ou pré-workout.",
@@ -2674,7 +2675,7 @@ export const articles: Article[] = [
       },
     ],
     relatedSlugs: ["prise-de-masse-tunisie-guide", "meilleur-gainer-tunisie"],
-    relatedCategories: [{ name: "Nutrition Sportive", url: "/shop" }],
+    relatedCategories: [{ name: "Nutrition Sportive", url: "/nutrition-sportive" }],
   },
 
   // ── ARTICLE 32 ──
@@ -2715,7 +2716,7 @@ export const articles: Article[] = [
         title: "Pourquoi commencer par une demi-dose ?",
         anchor: "tester-tolerance",
         content: [
-          "Les formules pré-workout renferment souvent 150 à 300 mg de caféine anhydre par portion, soit l'équivalent de 2 à 4 espressos. Tester une demi-dose permet d'éviter les palpitations, la nervosité excessive et les troubles gastriques.",
+          "Les formules pré-workout renferment souvent 150 à 300 mg de caféine anhydre par portion, soit l'équivalent de 2 à 4 espressos. Tester une demi-dose permet d'éviter les palpitations, la nervosité excessive et les troubles gastriques. Pour vos besoins, découvrez [nos formules pre-workout disponibles en Tunisie](/pre-workout) chez ParaTunisie.",
         ],
       },
     ],
@@ -2780,7 +2781,7 @@ export const articles: Article[] = [
         title: "Le rôle des vasodilatateurs dans la congestion",
         anchor: "vasodilatation",
         content: [
-          "La L-Citrulline se convertit en arginine dans les reins, augmentant la production d'oxyde nitrique (NO). Ce mécanisme détend la paroi des vaisseaux sanguins, augmentant le débit sanguin musculaire et la sensation de plénitude (pump).",
+          "La L-Citrulline se convertit en arginine dans les reins, augmentant la production d'oxyde nitrique (NO). Ce mécanisme détend la paroi des vaisseaux sanguins, augmentant le débit sanguin musculaire et la sensation de plénitude (pump). Pour vos besoins, découvrez [nos pre-workouts sans caféine et boosters pump](/pre-workout) chez ParaTunisie.",
         ],
       },
     ],
@@ -2845,7 +2846,7 @@ export const articles: Article[] = [
         title: "Pourquoi l'oxyde de magnésium est-il mal absorbé ?",
         anchor: "oxyde-vs-bisglycinate",
         content: [
-          "L'oxyde de magnésium (fréquent dans les formules d'entrée de gamme) présente un taux d'absorption réel inférieur à 5%. Les 95% restants restent dans l'intestin et attirent l'eau, provoquant des selles liquides. Le bisglycinate présente une biodisponibilité documentée de plus de 80%.",
+          "L'oxyde de magnésium (fréquent dans les formules d'entrée de gamme) présente un taux d'absorption réel inférieur à 5%. Les 95% restants restent dans l'intestin et attirent l'eau, provoquant des selles liquides. Le bisglycinate présente une biodisponibilité documentée de plus de 80%. Pour vos besoins, découvrez [notre gamme de magnésium bisglycinate hautement assimilable](/magnesium) chez ParaTunisie.",
         ],
       },
     ],
@@ -2870,7 +2871,7 @@ export const articles: Article[] = [
       },
     ],
     relatedSlugs: ["types-de-magnesium-comparatif", "routine-sommeil-recuperation"],
-    relatedCategories: [{ name: "Pack Anti-Stress", url: "/pack-anti-stress" }],
+    relatedCategories: [{ name: "Pack Anti-Stress", url: "/magnesium" }],
   },
 
   // ── ARTICLE 35 ──
@@ -2911,7 +2912,7 @@ export const articles: Article[] = [
         title: "Tableau récapitulatif des formes de magnésium",
         anchor: "tableau-comparatif",
         content: [
-          "1. Bisglycinate : Biodisponibilité ++++ / Confort digestif ++++ / Action relaxation & sommeil.",
+          "1. Bisglycinate : Biodisponibilité ++++ / Confort digestif ++++ / Action relaxation & sommeil. Pour vos besoins, découvrez [notre sélection de magnésium chélaté et bisglycinate](/magnesium) chez ParaTunisie.",
           "2. Citrate : Biodisponibilité +++ / Confort digestif ++ / Action transit & énergie.",
           "3. Marin (oxyde/hydroxyde) : Biodisponibilité + / Confort digestif + / Forme naturelle mais faible assimilation.",
         ],
@@ -2938,7 +2939,7 @@ export const articles: Article[] = [
       },
     ],
     relatedSlugs: ["magnesium-bisglycinate-bienfaits", "ashwagandha-tunisie-guide"],
-    relatedCategories: [{ name: "Pack Anti-Stress", url: "/pack-anti-stress" }],
+    relatedCategories: [{ name: "Pack Anti-Stress", url: "/magnesium" }],
   },
 
   // ── ARTICLE 36 ──
@@ -2978,7 +2979,7 @@ export const articles: Article[] = [
         title: "Pourquoi le label KSM-66® est-il la référence ?",
         anchor: "label-ksm66",
         content: [
-          "KSM-66® est un extrait de racine à spectre complet obtenu par un procédé d'extraction sans solvants chimiques agressifs. Il conserve l'équilibre naturel des composants de la plante avec la plus haute concentration de withanolides stables.",
+          "KSM-66® est un extrait de racine à spectre complet obtenu par un procédé d'extraction sans solvants chimiques agressifs. Il conserve l'équilibre naturel des composants de la plante avec la plus haute concentration de withanolides stables. Pour vos besoins, découvrez [notre sélection d'ashwagandha KSM-66 et extraits purs](/ashwagandha) chez ParaTunisie.",
         ],
       },
     ],
@@ -3009,7 +3010,7 @@ export const articles: Article[] = [
       },
     ],
     relatedSlugs: ["ashwagandha-tunisie-guide", "quand-prendre-ashwagandha"],
-    relatedCategories: [{ name: "Pack Anti-Stress", url: "/pack-anti-stress" }],
+    relatedCategories: [{ name: "Pack Anti-Stress", url: "/magnesium" }],
   },
 
   // ── ARTICLE 37 ──
@@ -3049,7 +3050,7 @@ export const articles: Article[] = [
         title: "L'impact du manque de sommeil sur la force et la masse",
         anchor: "impact-sommeil",
         content: [
-          "Dormir moins de 7 heures par nuit augmente le cortisol (hormone catabolisante) et réduit la sensibilité à l'insuline, freinant directement les gains musculaires et augmentant la fatigue.",
+          "Dormir moins de 7 heures par nuit augmente le cortisol (hormone catabolisante) et réduit la sensibilité à l'insuline, freinant directement les gains musculaires et augmentant la fatigue. Pour vos besoins, découvrez [notre sélection de magnésium bisglycinate](/magnesium) chez ParaTunisie.",
         ],
       },
     ],
@@ -3080,7 +3081,7 @@ export const articles: Article[] = [
       },
     ],
     relatedSlugs: ["magnesium-bisglycinate-bienfaits", "ashwagandha-tunisie-guide"],
-    relatedCategories: [{ name: "Pack Anti-Stress", url: "/pack-anti-stress" }],
+    relatedCategories: [{ name: "Pack Anti-Stress", url: "/magnesium" }],
   },
 
   // ── ARTICLE 38 ──
@@ -3120,7 +3121,7 @@ export const articles: Article[] = [
         title: "La différence cruciale entre EPA et DHA",
         anchor: "epa-vs-dha",
         content: [
-          "L'EPA (acide eicosapentaénoïque) joue un rôle clé dans la réponse anti-inflammatoire et la santé cardiaque. Le DHA (acide docosahexaénoïque) est un composant structurel fondamental du cerveau et de la rétine.",
+          "L'EPA (acide eicosapentaénoïque) joue un rôle clé dans la réponse anti-inflammatoire et la santé cardiaque. Le DHA (acide docosahexaénoïque) est un composant structurel fondamental du cerveau et de la rétine. Pour vos besoins, découvrez [notre sélection d'oméga 3 concentrés en EPA et DHA](/omega-3) chez ParaTunisie.",
         ],
       },
     ],
@@ -3151,7 +3152,7 @@ export const articles: Article[] = [
       },
     ],
     relatedSlugs: ["omega-3-tunisie-guide", "vitamine-d3-k2-tunisie"],
-    relatedCategories: [{ name: "Boutique", url: "/shop" }],
+    relatedCategories: [{ name: "Boutique", url: "/nutrition-sportive" }],
   },
 
   // ── ARTICLE 39 ──
@@ -3191,7 +3192,7 @@ export const articles: Article[] = [
         title: "Pourquoi les besoins en micronutriments augmentent avec le sport",
         anchor: "besoins-sportifs",
         content: [
-          "L'entraînement régulier accélère le renouvellement cellulaire et accroît l'élimination de minéraux par la sueur. Une alimentation saine couplée à un multivitamine complet permet d'éviter les baisses d'énergie et les baisses de régime.",
+          "L'entraînement régulier accélère le renouvellement cellulaire et accroît l'élimination de minéraux par la sueur. Une alimentation saine couplée à un multivitamine complet permet d'éviter les baisses d'énergie et les baisses de régime. Pour vos besoins, découvrez [nos complexes de vitamines et minéraux](/vitamines) chez ParaTunisie.",
         ],
       },
     ],
@@ -3222,7 +3223,7 @@ export const articles: Article[] = [
       },
     ],
     relatedSlugs: ["multivitamines-sportifs", "vitamine-d3-k2-tunisie"],
-    relatedCategories: [{ name: "Boutique", url: "/shop" }],
+    relatedCategories: [{ name: "Boutique", url: "/nutrition-sportive" }],
   },
 
   // ── ARTICLE 40 ──
@@ -3262,7 +3263,7 @@ export const articles: Article[] = [
         title: "L'importance du zinc pour la récupération musculaire",
         anchor: "zinc-recuperation",
         content: [
-          "Le zinc intervient dans plus de 300 réactions enzymatiques de l'organisme. Chez les sportifs s'entraînant dans le climat chaud de la Tunisie, la sueur entraîne une perte accrue de zinc qui mérite d'être compensée par un apport adapté de 10 à 15 mg par jour.",
+          "Le zinc intervient dans plus de 300 réactions enzymatiques de l'organisme. Chez les sportifs s'entraînant dans le climat chaud de la Tunisie, la sueur entraîne une perte accrue de zinc qui mérite d'être compensée par un apport adapté de 10 à 15 mg par jour. Pour vos besoins, découvrez [notre sélection de zinc chélaté et bisglycinate](/zinc) chez ParaTunisie.",
         ],
       },
     ],
@@ -3293,7 +3294,7 @@ export const articles: Article[] = [
       },
     ],
     relatedSlugs: ["zinc-sportif-musculation", "vitamines-pour-sportifs-guide"],
-    relatedCategories: [{ name: "Boutique", url: "/shop" }],
+    relatedCategories: [{ name: "Boutique", url: "/nutrition-sportive" }],
   },
 ];
 

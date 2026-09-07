@@ -78,6 +78,46 @@ export const CATEGORY_GUIDES: Record<string, CategoryGuide> = {
       },
     ],
   },
+  "complements-alimentaires": {
+    title: "Guide d'Achat : Compléments Alimentaires en Tunisie",
+    intro: "Les compléments alimentaires regroupent les vitamines, minéraux, acides gras essentiels et plantes adaptogènes formulés pour optimiser la santé, renforcer l'immunité et combler les carences nutritionnelles du quotidien en Tunisie.",
+    relatedGuide: {
+      title: "Les Vitamines Essentielles pour les Sportifs : Quels Compléments Privilégier ?",
+      slug: "vitamines-pour-sportifs-guide",
+      label: "Consulter notre guide des vitamines et minéraux",
+    },
+    sections: [
+      {
+        heading: "Comment choisir ses compléments alimentaires ?",
+        type: "points",
+        points: [
+          "Identifiez vos besoins ciblés : immunité et vitalité (vitamines D3+K2, C, complexes), gestion du stress (magnésium bisglycinate, ashwagandha), santé cardiovasculaire (oméga 3).",
+          "Privilégiez des formes hautement biodisponibles (minéraux chélatés au bisglycinate, extraits titrés KSM-66).",
+          "Vérifiez l'authenticité et la traçabilité des marques certifiées sans métaux lourds ni additifs controversés.",
+        ],
+      },
+      {
+        heading: "Prix des compléments alimentaires en Tunisie",
+        type: "dynamic-price",
+        content: "Sur ParaTunisie, accédez à une sélection de compléments alimentaires purs et certifiés {dynamicPriceText} avec livraison rapide 24-48h partout en Tunisie.",
+      },
+      {
+        heading: "Garantie d'authenticité et sécurité",
+        type: "text",
+        content: "Tous nos compléments proviennent directement de circuits de distribution officiels et répondent aux normes internationales de sécurité alimentaire (HACCP, GMP, ISO).",
+      },
+    ],
+    faqs: [
+      {
+        question: "Quand prendre ses compléments alimentaires ?",
+        answer: "Les vitamines liposolubles (D3, E, K2) et les oméga 3 se prennent idéalement au cours d'un repas contenant des graisses. Les minéraux comme le magnésium peuvent être pris le soir pour favoriser la détente.",
+      },
+      {
+        question: "Peut-on combiner plusieurs compléments ?",
+        answer: "Oui, certaines associations sont très bénéfiques (ex: Vitamine D3 + K2, ou Magnésium + Zinc). Veillez toutefois à respecter les doses journalières recommandées.",
+      },
+    ],
+  },
   "whey-proteine": {
     title: "Guide d'Achat : Whey Protein en Tunisie",
     intro: "La whey protein (protéine de lactosérum) est la référence incontournable en Tunisie pour soutenir la construction musculaire, combler vos besoins quotidiens en protéines et optimiser votre récupération après l'effort.",
