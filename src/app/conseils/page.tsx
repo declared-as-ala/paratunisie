@@ -3,18 +3,19 @@ import Link from "next/link";
 import { Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
 import { articles, articleCategories, type Article } from "@/lib/data/articles";
 import { BlogHubClient } from "@/components/blog/blog-hub-client";
+import { buildCanonicalUrl } from "@/lib/seo/canonical";
 
 export const metadata: Metadata = {
   title: "Blog Nutrition Sportive & Compléments en Tunisie | ParaTunisie",
   description:
     "Conseils, guides et actualités : whey protéine, créatine monohydrate, prise de masse, brûleurs de graisse et vitamines en Tunisie.",
-  alternates: { canonical: "/conseils" },
+  alternates: { canonical: buildCanonicalUrl("/conseils") },
   openGraph: {
     type: "website",
     title: "Blog Nutrition Sportive & Compléments | ParaTunisie",
     description:
       "Guides d'experts, comparatifs de créatines, protéines, pre-workouts et vitamines disponibles en Tunisie.",
-    url: "/conseils",
+    url: buildCanonicalUrl("/conseils"),
   },
 };
 
@@ -69,6 +70,17 @@ const COMMERCIAL_HUBS = [
 
 export default async function ConseilsHubPage() {
   const publishedArticles = await fetchPublishedArticles();
+  const initialCardSummaries = publishedArticles.map((art) => ({
+    slug: art.slug,
+    title: art.title,
+    excerpt: art.excerpt,
+    category: art.category,
+    readTime: art.readTime,
+    date: art.date,
+    featuredImage: art.featuredImage,
+    imageAlt: art.imageAlt,
+    focusKeyword: art.focusKeyword,
+  }));
 
   return (
     <div className="min-h-screen bg-slate-50/60 pb-20">
@@ -88,7 +100,7 @@ export default async function ConseilsHubPage() {
       <div className="container max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 space-y-16">
         {/* ── Main Interactive Blog Hub ── */}
         <BlogHubClient
-          initialArticles={publishedArticles}
+          initialArticles={initialCardSummaries}
           categories={articleCategories}
         />
 

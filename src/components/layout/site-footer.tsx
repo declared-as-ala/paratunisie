@@ -37,6 +37,8 @@ export function SiteFooter() {
             <div className="mt-5 flex items-center gap-3">
               <a
                 href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label={
                   hasConfiguredWhatsApp
                     ? "Contacter ParaTunisie sur WhatsApp"

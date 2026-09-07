@@ -97,7 +97,7 @@ export function HomeHero() {
           <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.08] tracking-tight text-white drop-shadow-[0_4px_25px_rgba(0,0,0,0.85)]">
             ParaTunisie
             <br />
-            <span className="text-white font-normal italic text-2xl sm:text-3xl md:text-4xl lg:text-5xl">Compléments &amp; Nutrition Sportive en Tunisie</span>
+            <span className="text-white font-normal italic text-2xl sm:text-3xl md:text-4xl lg:text-5xl">Parapharmacie en Ligne &amp; Nutrition Sportive en Tunisie</span>
           </h1>
 
           {/* Subtitle */}

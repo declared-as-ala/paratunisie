@@ -2,9 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Scroll } from "lucide-react";
 
+import { buildCanonicalUrl } from "@/lib/seo/canonical";
+
 export const metadata: Metadata = {
   title: "Conditions Générales de Vente (CGV) — ParaTunisie",
   description: "Conditions générales de vente applicables aux commandes passées sur ParaTunisie.",
+  alternates: {
+    canonical: buildCanonicalUrl("/cgv"),
+  },
 };
 
 export default function CGVPage() {

@@ -2,9 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { RotateCcw, CheckCircle, AlertCircle } from "lucide-react";
 
+import { buildCanonicalUrl } from "@/lib/seo/canonical";
+
 export const metadata: Metadata = {
   title: "Retours & Remboursements — ParaTunisie",
   description: "Découvrez notre politique de retour et d'échange sous 7 jours pour vos commandes sur ParaTunisie.",
+  alternates: {
+    canonical: buildCanonicalUrl("/retours"),
+  },
 };
 
 export default function RetoursPage() {

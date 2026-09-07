@@ -64,13 +64,13 @@ articles_data = [
   },
   {
     "slug": "meilleur-pre-workout-tunisie",
-    "seoTitle": "Meilleur Pre-Workout en Tunisie : Comparatif Boosters d'Énergie & Focus",
-    "metaDescription": "Top des pre-workouts et boosters d'entraînement disponibles en Tunisie. Ingrédients clés (caféine, citrulline, bêta-alanine) et critères de choix.",
+    "seoTitle": "Quel Pre-Workout Choisir ? Guide & Comparatif Tunisie | ParaTunisie",
+    "metaDescription": "Comment choisir le meilleur pre-workout selon vos objectifs ? Comparatif des formules avec ou sans caféine, dosages en citrulline, bêta-alanine et conseils.",
     "canonicalUrl": "/conseils/meilleur-pre-workout-tunisie",
-    "targetKeyword": "meilleur pre workout booster tunisie",
-    "ogTitle": "Meilleur Pre-Workout en Tunisie : Boosters & Énergie",
-    "ogDescription": "Sélection des meilleurs boosters pre-workout avec ou sans stimulants en Tunisie.",
-    "ogImage": "https://paratunisie.com/assets/hero-paratunisie.webp"
+    "targetKeyword": "comment choisir un pre workout",
+    "ogTitle": "Quel Pre-Workout Choisir ? Guide & Comparatif Tunisie",
+    "ogDescription": "Guide et comparatif pour bien choisir son booster pre-workout selon ses objectifs.",
+    "ogImage": "https://paratunisie.com/assets/blog/meilleur-pre-workout-tunisie.webp"
   },
   {
     "slug": "pre-workout-ou-creatine",

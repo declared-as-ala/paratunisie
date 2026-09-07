@@ -280,7 +280,11 @@ export function ShopPage({
                       className="inline-flex items-center gap-1.5 rounded-full bg-soft-nude px-2.5 py-1 text-xs font-bold text-ink border border-border/70"
                     >
                       {cat}
-                      <button type="button" onClick={() => removeFilterChip("categories", cat)} className="hover:text-rose-600 transition-colors">
+                      <button
+                        type="button"
+                        onClick={() => removeFilterChip("categories", cat)}
+                        className="hover:text-rose-600 transition-colors"
+                      >
                         <X size={12} />
                       </button>
                     </span>
@@ -324,8 +328,8 @@ export function ShopPage({
             ) : products.length > 0 ? (
               <>
                 <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-                  {products.map((product) => (
-                    <ProductCard key={product.id} product={product} variant="shop" />
+                  {products.map((product, idx) => (
+                    <ProductCard key={product.id} product={product} variant="shop" priority={idx < 4} />
                   ))}
                 </div>
 

@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { ZoomIn, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
+import Image from "next/image";
+
 export function ProductGallery({ image, alt }: { image: string; alt: string }) {
   const [imgSrc, setImgSrc] = useState(image || "/assets/product-tube.webp");
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -17,17 +19,20 @@ export function ProductGallery({ image, alt }: { image: string; alt: string }) {
       <button
         type="button"
         onClick={() => dialogRef.current?.showModal()}
-        className="group relative flex aspect-square w-full max-h-[320px] sm:max-h-[420px] lg:max-h-[560px] items-center justify-center overflow-hidden rounded-2xl bg-white p-4 sm:p-6 border border-border/80 shadow-xs focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none cursor-zoom-in"
+        className="group relative flex aspect-square w-full max-h-[320px] sm:max-h-[420px] lg:max-h-[560px] items-center justify-center overflow-hidden rounded-2xl bg-white border border-border/80 shadow-xs focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none cursor-zoom-in"
         aria-label={`Agrandir l'image : ${alt}`}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={imgSrc}
           alt={alt}
-          className="max-h-full max-w-full object-contain transition-transform duration-[var(--duration-large)] ease-[var(--ease-out-standard)] group-hover:scale-105"
+          fill
+          priority
+          fetchPriority="high"
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 560px"
+          className="object-contain p-4 sm:p-6 transition-transform duration-[var(--duration-large)] ease-[var(--ease-out-standard)] group-hover:scale-105"
           onError={() => setImgSrc("/assets/product-tube.webp")}
         />
-        <span className="absolute end-3 bottom-3 sm:end-4 sm:bottom-4 flex size-9 sm:size-11 items-center justify-center rounded-full bg-white/90 backdrop-blur-xs text-ink shadow-sm border border-border/60">
+        <span className="absolute end-3 bottom-3 sm:end-4 sm:bottom-4 z-10 flex size-9 sm:size-11 items-center justify-center rounded-full bg-white/90 backdrop-blur-xs text-ink shadow-sm border border-border/60">
           <ZoomIn className="size-4 sm:size-5" aria-hidden />
         </span>
       </button>

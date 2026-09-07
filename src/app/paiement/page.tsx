@@ -2,9 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { CreditCard, Banknote, ShieldCheck } from "lucide-react";
 
+import { buildCanonicalUrl } from "@/lib/seo/canonical";
+
 export const metadata: Metadata = {
   title: "Paiement à la Livraison — ParaTunisie",
   description: "Payez votre commande en espèces en toute simplicité et sécurité lors de la livraison.",
+  alternates: {
+    canonical: buildCanonicalUrl("/paiement"),
+  },
 };
 
 export default function PaiementPage() {

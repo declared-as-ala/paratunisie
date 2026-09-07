@@ -8,7 +8,7 @@ import { FormEvent, useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { productCategories, formatPrice, type ProductSummary } from "@/lib/data/products";
-import { articles } from "@/lib/data/articles";
+import { articleSummaries } from "@/lib/data/article-summaries";
 import { popularSearches } from "@/lib/data/navigation";
 import { logMerchandisingEvent } from "@/lib/telemetry";
 import { fetchBrands, fetchPaginatedProducts } from "@/lib/api/client";
@@ -93,7 +93,7 @@ export function SearchOverlay({
       .map(([k, label]) => ({ key: k, label }))
       .slice(0, 3);
 
-    const matchedArticles = articles
+    const matchedArticles = articleSummaries
       .filter((a) => normalize(`${a.title} ${a.excerpt} ${a.category}`).includes(query))
       .slice(0, 2);
 

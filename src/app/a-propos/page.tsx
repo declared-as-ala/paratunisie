@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BadgeCheck, HeartHandshake, ShieldCheck, Sparkles, Truck, Users, ArrowRight } from "lucide-react";
 
+import { buildCanonicalUrl } from "@/lib/seo/canonical";
+
 export const metadata: Metadata = {
   title: "À Propos de ParaTunisie | Spécialiste Nutrition Sportive & Bien-être",
   description:
     "Découvrez ParaTunisie, son catalogue de nutrition sportive et de bien-être, son service client et ses modalités de livraison en Tunisie.",
-  alternates: { canonical: "/a-propos" },
+  alternates: { canonical: buildCanonicalUrl("/a-propos") },
 };
 
 export default function AProposPage() {

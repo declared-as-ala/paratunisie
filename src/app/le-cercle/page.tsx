@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import { LoyaltyPage } from "@/components/account/loyalty-page";
 
+import { buildCanonicalUrl } from "@/lib/seo/canonical";
+
 const SITE_URL = "https://paratunisie.com";
 
 export const metadata: Metadata = {
   title: "Le Cercle ParaTunisie — Programme de fidélité",
   description: "Accumulez des points à chaque commande et profitez d'avantages exclusifs. Programme de fidélité ParaTunisie.",
-  alternates: { canonical: "/le-cercle" },
-  openGraph: { type: "website", title: "Le Cercle ParaTunisie | ParaTunisie", url: "/le-cercle" },
+  alternates: { canonical: buildCanonicalUrl("/le-cercle") },
+  openGraph: { type: "website", title: "Le Cercle ParaTunisie | ParaTunisie", url: buildCanonicalUrl("/le-cercle") },
 };
 
 export default function LeCerclePage() {

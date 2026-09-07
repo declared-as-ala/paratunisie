@@ -45,6 +45,8 @@ export default function ContactPage() {
               </div>
               <a
                 href={whatsappHref}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="mt-3 inline-flex items-center justify-center w-full rounded-xl bg-emerald-600 text-white text-xs font-bold py-2.5 gap-2 hover:bg-emerald-700 transition-colors"
               >
                 <MessageCircle size={16} />

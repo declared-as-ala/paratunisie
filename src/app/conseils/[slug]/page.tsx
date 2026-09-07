@@ -34,6 +34,37 @@ const API_URL = process.env.API_URL ?? process.env.NEXT_PUBLIC_API_URL ?? "http:
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
+function renderFormattedText(text: string) {
+  const parts: (string | React.ReactNode)[] = [];
+  const regex = /\[([^\]]+)\]\(([^)]+)\)|\*\*([^*]+)\*\*/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    if (match[1] && match[2]) {
+      parts.push(
+        <Link
+          key={match.index}
+          href={match[2]}
+          className="font-bold text-primary underline underline-offset-2 hover:text-primary/80 transition-colors"
+        >
+          {match[1]}
+        </Link>
+      );
+    } else if (match[3]) {
+      parts.push(<strong key={match.index} className="font-bold text-ink">{match[3]}</strong>);
+    }
+    lastIndex = match.index + match[0].length;
+  }
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+  return parts.length > 0 ? parts : text;
+}
+
 function getArticleImage(slug: string, apiImage?: string): string {
   if (apiImage && apiImage !== "/assets/hero-paratunisie.webp" && apiImage.trim() !== "") {
     return apiImage;
@@ -258,7 +289,7 @@ export default async function ArticleDetailPage({
                   <div className="space-y-4 text-ink-muted">
                     {section.content.map((p, idx) => (
                       <p key={idx} className="leading-relaxed">
-                        {p}
+                        {renderFormattedText(p)}
                       </p>
                     ))}
                   </div>
@@ -271,7 +302,7 @@ export default async function ArticleDetailPage({
                       <div className="space-y-3 text-ink-muted">
                         {sub.content.map((p, idx) => (
                           <p key={idx} className="leading-relaxed">
-                            {p}
+                            {renderFormattedText(p)}
                           </p>
                         ))}
                       </div>

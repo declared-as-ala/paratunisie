@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { BookOpen, CheckCircle, ShieldCheck, Sparkles, AlertTriangle, FileText, ArrowRight } from "lucide-react";
 
+import { buildCanonicalUrl } from "@/lib/seo/canonical";
+
 export const metadata: Metadata = {
   title: "Politique Éditoriale & Charte de Confiance | ParaTunisie",
   description:
     "Découvrez les standards de rédaction, la méthodologie de recherche scientifique et la charte de transparence de l'équipe éditoriale de ParaTunisie.",
-  alternates: { canonical: "/politique-editoriale" },
+  alternates: { canonical: buildCanonicalUrl("/politique-editoriale") },
 };
 
 export default function PolitiqueEditorialePage() {

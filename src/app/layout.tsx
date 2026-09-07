@@ -32,7 +32,6 @@ export const metadata: Metadata = {
   },
   description:
     "ParaTunisie est votre plateforme e-commerce tunisienne spécialisée dans la nutrition sportive, les compléments alimentaires, le bien-être et une sélection de produits de parapharmacie.",
-  alternates: { canonical: buildCanonicalUrl("/") },
   verification: {
     google: "6Rz8hRY9p1DAcNo9GsEkcKkZxxTY0pFEu4iuHN7mZQM",
     other: {

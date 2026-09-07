@@ -73,6 +73,8 @@ export default function AidePage() {
           </p>
           <a
             href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-xl bg-primary text-white px-5 py-3 text-xs font-bold shadow-sm hover:bg-primary/90 transition-all"
           >
             <MessageCircle size={16} />

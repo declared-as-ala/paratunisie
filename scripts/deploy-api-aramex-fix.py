@@ -27,7 +27,8 @@ def run(cmd):
 # Pull latest code
 run("cd /opt/paratunisie/app && git fetch origin && git reset --hard origin/main")
 
-# Build and restart paratunisie-api
-run("cd /opt/paratunisie/app && docker compose -f docker-compose.prod.yml build paratunisie-api && docker compose -f docker-compose.prod.yml up -d paratunisie-api")
+# Recreate paratunisie-api with new volume mount
+run("cd /opt/paratunisie/app && docker compose -f docker-compose.prod.yml up -d --no-deps paratunisie-api")
+run("docker network connect sobitas-full-project_sobitas-net paratunisie-api 2>/dev/null || true")
 
 client.close()

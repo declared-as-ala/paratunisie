@@ -5,18 +5,20 @@ import { ArrowUpRight } from "lucide-react";
 import { concernPages } from "@/lib/data/concerns";
 import { getProductsForConcern } from "@/lib/data/concerns";
 
+import { buildCanonicalUrl } from "@/lib/seo/canonical";
+
 const SITE_URL = "https://paratunisie.com";
 
 export const metadata: Metadata = {
   title: "Nos besoins — Trouvez le soin adapté | ParaTunisie",
   description:
     "Explorez nos catégories de besoins : peau sensible, imperfections, hydratation, anti-âge, chute de cheveux et protection solaire. Trouvez les soins adaptés à votre peau.",
-  alternates: { canonical: "/besoins" },
+  alternates: { canonical: buildCanonicalUrl("/besoins") },
   openGraph: {
     type: "website",
     title: "Nos besoins | ParaTunisie",
     description: "Les soins adaptés à chaque besoin de peau.",
-    url: "/besoins",
+    url: buildCanonicalUrl("/besoins"),
   },
 };
 

@@ -17,8 +17,10 @@ client.connect(VPS_HOST, port=VPS_PORT, username=VPS_USER, password=VPS_PASS, ti
 
 commands = [
     "cd /opt/paratunisie/app && git fetch origin && git reset --hard origin/main",
-    "cd /opt/paratunisie/app && docker compose -f docker-compose.prod.yml build paratunisie-api paratunisie-web",
-    "cd /opt/paratunisie/app && docker compose -f docker-compose.prod.yml up -d --no-deps paratunisie-api paratunisie-web",
+    "cd /opt/paratunisie/app && docker compose -f docker-compose.prod.yml build paratunisie-web paratunisie-admin",
+    "cd /opt/paratunisie/app && docker compose -f docker-compose.prod.yml up -d --no-deps paratunisie-web paratunisie-admin",
+    "docker network connect sobitas-full-project_sobitas-net paratunisie-web 2>/dev/null || true",
+    "docker network connect sobitas-full-project_sobitas-net paratunisie-admin 2>/dev/null || true",
 ]
 
 for cmd in commands:

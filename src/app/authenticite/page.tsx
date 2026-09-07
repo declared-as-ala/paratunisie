@@ -2,9 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ShieldCheck, Award, Lock } from "lucide-react";
 
+import { buildCanonicalUrl } from "@/lib/seo/canonical";
+
 export const metadata: Metadata = {
   title: "Authenticité & Qualité des Produits — ParaTunisie",
   description: "Découvrez les engagements de ParaTunisie concernant l'identification et le contrôle des produits proposés.",
+  alternates: {
+    canonical: buildCanonicalUrl("/authenticite"),
+  },
 };
 
 export default function AuthenticitePage() {

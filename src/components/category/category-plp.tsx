@@ -403,7 +403,9 @@ export function CategoryPLP({
         <section aria-label={`Produits ${category.name}`}>
           {filteredProducts.length > 0 ? (
             <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3 xl:grid-cols-4">
-              {filteredProducts.map((product) => <ProductCard key={product.id} product={product} variant="shop" />)}
+              {filteredProducts.map((product, idx) => (
+                <ProductCard key={product.id} product={product} variant="shop" priority={idx < 4} />
+              ))}
             </div>
           ) : (
             <div className="flex flex-col items-center py-16 text-center">

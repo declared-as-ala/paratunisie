@@ -2,9 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Lock } from "lucide-react";
 
+import { buildCanonicalUrl } from "@/lib/seo/canonical";
+
 export const metadata: Metadata = {
   title: "Politique de Confidentialité — ParaTunisie",
   description: "Protection de vos données personnelles et politique de confidentialité sur ParaTunisie.",
+  alternates: {
+    canonical: buildCanonicalUrl("/confidentialite"),
+  },
 };
 
 export default function ConfidentialitePage() {

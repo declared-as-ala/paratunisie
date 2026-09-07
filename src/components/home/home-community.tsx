@@ -97,6 +97,8 @@ export function HomeCommunity() {
           </div>
           <a
             href={whatsappHref}
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-md bg-background px-6 py-3 text-sm font-medium text-primary transition-transform hover:-translate-y-0.5 focus-visible:ring-3 focus-visible:ring-brand-blush focus-visible:outline-none active:translate-y-0"
             aria-label={
               hasConfiguredWhatsApp

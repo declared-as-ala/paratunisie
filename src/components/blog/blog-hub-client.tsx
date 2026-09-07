@@ -4,10 +4,10 @@ import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Clock, ArrowRight, Search, Calendar, Sparkles } from "lucide-react";
-import type { Article } from "@/lib/data/articles";
+import type { ArticleCardSummary } from "@/lib/data/article-summaries";
 
 interface BlogHubClientProps {
-  initialArticles: Article[];
+  initialArticles: ArticleCardSummary[];
   categories: string[];
 }
 
@@ -28,7 +28,7 @@ export function BlogHubClient({ initialArticles, categories }: BlogHubClientProp
         (a) =>
           a.title.toLowerCase().includes(q) ||
           a.excerpt.toLowerCase().includes(q) ||
-          a.focusKeyword.toLowerCase().includes(q) ||
+          Boolean(a.focusKeyword?.toLowerCase().includes(q)) ||
           a.category.toLowerCase().includes(q)
       );
     }

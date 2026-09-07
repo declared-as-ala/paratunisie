@@ -2,9 +2,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Truck, ShieldCheck, Clock, MapPin } from "lucide-react";
 
+import { buildCanonicalUrl } from "@/lib/seo/canonical";
+
 export const metadata: Metadata = {
   title: "Livraison partout en Tunisie — ParaTunisie",
   description: "Découvrez nos modes et délais de livraison rapide (24h-48h) sur les 24 gouvernorats de la Tunisie.",
+  alternates: {
+    canonical: buildCanonicalUrl("/livraison"),
+  },
 };
 
 export default function LivraisonPage() {

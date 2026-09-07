@@ -27,17 +27,20 @@ export function HomeSeoSection() {
               Compléments & Nutrition Sportive
             </h3>
             <p className="text-xs sm:text-sm text-ink-muted leading-relaxed mb-4">
-              Retrouvez les meilleures marques mondiales (<em>Optimum Nutrition, BioTechUSA, OstroVit, Real Pharm, Eric Favre</em>) : <strong>créatine monohydrate</strong> micronisée pour la force, <strong>whey isolate</strong> pour le muscle sec, <strong>gainers</strong> pour la prise de masse, <strong>pre-workout</strong> et <strong>BCAA / EAA</strong>.
+              Retrouvez des marques reconnues (<em>Optimum Nutrition, BioTechUSA, OstroVit, Real Pharm, Eric Favre</em>) : <strong>créatine monohydrate</strong> micronisée pour la force, <strong>whey isolate</strong> pour le muscle sec, <strong>gainers</strong> pour la prise de masse, <strong>pre-workout</strong> et <strong>BCAA / EAA</strong>.
             </p>
             <div className="flex flex-wrap gap-2 text-[11px]">
-              <Link href="/creatine" className="px-2.5 py-1 rounded-md bg-white border border-border text-ink hover:text-primary font-medium">
-                Créatine Tunisie
+              <Link href="/nutrition-sportive" className="px-2.5 py-1 rounded-md bg-white border border-border text-ink hover:text-primary font-medium">
+                Nutrition Sportive
               </Link>
               <Link href="/whey-proteine" className="px-2.5 py-1 rounded-md bg-white border border-border text-ink hover:text-primary font-medium">
                 Whey Protéine
               </Link>
-              <Link href="/ashwagandha" className="px-2.5 py-1 rounded-md bg-white border border-border text-ink hover:text-primary font-medium">
-                Ashwagandha
+              <Link href="/creatine" className="px-2.5 py-1 rounded-md bg-white border border-border text-ink hover:text-primary font-medium">
+                Créatine Tunisie
+              </Link>
+              <Link href="/pre-workout" className="px-2.5 py-1 rounded-md bg-white border border-border text-ink hover:text-primary font-medium">
+                Pre-Workout
               </Link>
             </div>
           </div>
@@ -93,11 +96,12 @@ export function HomeSeoSection() {
           <div className="flex flex-wrap gap-2">
             {[
               { label: "Parapharmacie Tunisie", href: "/" },
+              { label: "Nutrition Sportive", href: "/nutrition-sportive" },
               { label: "Créatine Monohydrate Tunisie", href: "/creatine" },
               { label: "Whey Protéine Tunisie", href: "/whey-proteine" },
               { label: "Ashwagandha Tunisie", href: "/ashwagandha" },
               { label: "Gainer Prise de Masse", href: "/gainers-proteines" },
-              { label: "Pre-Workout Booster", href: "/pre-workout" },
+              { label: "Pre-Workout Tunisie", href: "/pre-workout" },
               { label: "BCAA & EAA Récupération", href: "/bcaa" },
               { label: "Vitamines C & D3+K2", href: "/vitamines" },
               { label: "Zinc & Magnésium", href: "/zinc" },
