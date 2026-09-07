@@ -1,59 +1,54 @@
-# ParaTunisie SEO Keyword Map
+# Master Keyword → Search Intent → Page Ownership Map
+**ParaTunisie — SEO Growth Sprint #2**
 
-Date: 2026-09-04
-Market/language: Tunisia, French
-Method: live Google-result sampling for commercial French queries plus current catalog architecture. No search-volume figures are claimed because no first-party Search Console or paid keyword-volume export was supplied.
-
-## Mapping rules
-
-- One primary commercial intent per indexable collection URL.
-- Product-detail pages target the exact product + brand + format; they do not target generic category head terms.
-- Editorial pages answer comparison/how-to questions and link to the matching commercial collection; they must not reuse the collection's exact title/H1.
-- Filter, sort, search and pagination URLs are `noindex,follow` with the clean collection canonical.
-- A brand page is indexable only while it has at least one eligible indexable product.
-- Do not publish claims such as “best”, “official”, “certified”, medical outcomes, or numeric price ranges unless they are supported and dated.
-
-## Core URL map
-
-| URL | Search intent | Primary target | Secondary/supporting terms | Recommended title | H1 | Meta-description direction |
-|---|---|---|---|---|---|---|
-| `/` | Store discovery | parapharmacie en ligne Tunisie | compléments alimentaires Tunisie; nutrition sportive Tunisie; livraison Tunisie | ParaTunisie — Parapharmacie en ligne en Tunisie | Parapharmacie en ligne et nutrition sportive en Tunisie | Describe the real ranges, current delivery area and cash-on-delivery without superlatives. |
-| `/shop` | Browse all products | compléments alimentaires Tunisie | parapharmacie Tunisie prix; nutrition sportive prix | Compléments alimentaires en Tunisie — Prix & catalogue | Compléments alimentaires et parapharmacie | Emphasize current prices, formats, stock state and category filters. |
-| `/creatine` | Buy/compare | créatine Tunisie | créatine monohydrate Tunisie; prix créatine Tunisie; acheter créatine | Créatine en Tunisie — Monohydrate, prix & formats | Créatine en Tunisie | Compare real brands, formats, current prices and availability; link to the buying guide. |
-| `/whey-proteine` | Buy/compare | whey protéine Tunisie | whey Tunisie prix; whey isolate Tunisie; protéine musculation Tunisie | Whey protéine en Tunisie — Prix, formats & marques | Whey protéine en Tunisie | Explain concentrate/isolate as product types, then show real price and stock data. |
-| `/whey-isolate` | Buy a subtype | whey isolate Tunisie | isolate protéine Tunisie; whey sans lactose Tunisie | Whey isolate en Tunisie — Prix & formats | Whey isolate en Tunisie | Keep scope strictly to products classified as isolate; do not duplicate `/whey-proteine`. |
-| `/gainers-proteines` | Buy/compare | mass gainer Tunisie | gainer Tunisie prix; prise de masse gainer; gainer protéine | Mass gainer en Tunisie — Prix, formats & marques | Mass gainers en Tunisie | Show only genuine mass-gainer formulas; explain how to compare label calories/protein/carbohydrates without outcome promises. |
-| `/pre-workout` | Buy/compare | pre workout Tunisie | booster entraînement Tunisie; pre workout prix; avec/sans caféine | Pre-workout en Tunisie — Prix & formules | Pre-workout en Tunisie | Invite comparison of caffeine, listed ingredients, serving size and warnings. |
-| `/bcaa` | Buy/compare | BCAA Tunisie | BCAA prix Tunisie; acides aminés branchés | BCAA en Tunisie — Prix & formats | BCAA en Tunisie | Compare ratios and formats only where shown on labels. |
-| `/eaa` | Buy subtype | EAA Tunisie | acides aminés essentiels Tunisie; EAA prix | EAA en Tunisie — Acides aminés essentiels | EAA en Tunisie | Keep separate from BCAA by explaining the product-label distinction. |
-| `/amino-acides` | Browse broader class | acides aminés Tunisie | compléments acides aminés; glutamine; arginine | Acides aminés en Tunisie — Catalogue & prix | Acides aminés en Tunisie | Broad hub linking to BCAA, EAA, citrulline and other valid child collections. |
-| `/vitamines` | Buy/browse | vitamines Tunisie | compléments vitamines Tunisie; multivitamines Tunisie; prix vitamines | Vitamines en Tunisie — Prix, formats & marques | Vitamines en Tunisie | Describe available vitamin types and label-based comparison; avoid deficiency/treatment claims. |
-| `/magnesium` | Buy | magnésium Tunisie | magnésium prix Tunisie; magnésium B6 | Magnésium en Tunisie — Prix & formats | Magnésium en Tunisie | Compare form, quantity and label dosage; include supplement disclaimer. |
-| `/zinc` | Buy | zinc Tunisie | zinc prix Tunisie; complément zinc | Zinc en Tunisie — Prix & formats | Zinc en Tunisie | Focus on product form, quantity, current price and directions on label. |
-| `/omega-3` | Buy | omega 3 Tunisie | omega 3 prix Tunisie; huile de poisson Tunisie; EPA DHA | Oméga 3 en Tunisie — Prix & formats | Oméga 3 en Tunisie | Compare EPA/DHA only where product data provides it; no cardiovascular treatment promises. |
-| `/ashwagandha` | Buy/compare | ashwagandha Tunisie | ashwagandha prix Tunisie; withanolides; gélules ashwagandha | Ashwagandha en Tunisie — Prix, extraits & formats | Ashwagandha en Tunisie | Compare extract, label strength and format; avoid cortisol, anxiety or sleep-treatment claims. |
-| `/l-carnitine` | Buy | L-carnitine Tunisie | carnitine prix Tunisie; carnitine liquide | L-carnitine en Tunisie — Prix & formats | L-carnitine en Tunisie | Describe formats and instructions only; do not promise fat loss. |
-| `/bruleurs-de-graisse` | Browse a marketed class | brûleur de graisse Tunisie | compléments minceur Tunisie; thermogénique Tunisie | Compléments minceur en Tunisie — Prix & informations | Compléments minceur en Tunisie | Use neutral product-class language, clear warnings and no guaranteed weight-loss claims. |
-| `/accessoires` | Buy equipment | accessoires musculation Tunisie | shaker Tunisie; ceinture musculation; gants musculation | Accessoires de musculation en Tunisie | Accessoires de sport et musculation | Cover real equipment types, prices and stock. |
-| `/marques` | Brand discovery | marques compléments alimentaires Tunisie | marques nutrition sportive; marques parapharmacie | Marques de compléments & parapharmacie — ParaTunisie | Marques du catalogue ParaTunisie | Render brand links and product counts in initial HTML; no “official” status unless documented. |
-| `/conseils` | Informational hub | conseils compléments alimentaires | guide créatine; guide whey; nutrition sportive | Guides nutrition sportive & compléments — ParaTunisie | Guides et conseils | Describe editorial scope, review process, dates and authorship. |
-
-## Product and brand templates
-
-| Page type | Primary target pattern | Title pattern | H1 pattern | Index rule |
-|---|---|---|---|---|
-| Product | `{exact product name} {brand} Tunisie` | `{Exact product name} — Prix en Tunisie | ParaTunisie` | Exact normalized product name | Index only if published, uniquely titled, substantial, correctly classified, priced, internally imaged and availability-consistent. |
-| Brand | `{brand} Tunisie` | `{Brand} en Tunisie — Produits & prix | ParaTunisie` | `{Brand} en Tunisie` | Index only with at least one eligible product and useful unique brand copy. |
-| Article | Question/comparison intent | Natural question or comparison + `| ParaTunisie` | Article subject, not the commercial collection H1 | Index only with named/dated authorship, sources where claims require them, and no unsupported medical advice. |
-
-## Cannibalization assignments
-
-- `/creatine` owns “créatine Tunisie”; `/conseils/meilleure-creatine-tunisie` owns comparison/selection questions and must link to `/creatine`.
-- `/whey-proteine` owns “whey protéine Tunisie”; whey guides own “comment choisir”, “prix comparatif”, or ingredient questions.
-- `/gainers-proteines` owns “mass gainer Tunisie”; broader `/nutrition-sportive` must not use Mass Gainer as its H1/title.
-- `/vitamines` is the broad vitamin hub; `/zinc`, `/magnesium`, and `/omega-3` own their exact ingredient terms.
-- `/shop` owns broad catalog intent; homepage owns brand/store intent, not every category keyword.
-
-## SERP observations used
-
-The sampled Tunisian results consistently used combinations of the product class, “Tunisie”, “prix”, brands/formats and delivery. Examples observed on 2026-09-04 include Protein.tn and local category pages for whey/pre-workout/mass-gainer, Muscle Rock Nutrition for whey/créatine, GainLab for créatine/mass-gainer, Vitamin Shop Tunisia for whey/mass-gainer, and Primini for vitamin/complément price-comparison intent. These are directional observations, not traffic or volume estimates.
+| Keyword | Intent | Semrush Volume | KD (%) | Current Position (Sep 7, 2026) | Existing Ranking URL | Target URL | Existing/New | Priority | Action & Cannibalization Prevention Rule |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| `parapharmacie tunisie` | Commercial | 3,600 | 43% | Tracking | `/` | `/` | Existing | P0 | Homepage primary owner. Do NOT create `/parapharmacie-tunisie`. |
+| `parapharmacie en ligne tunisie` | Commercial | 720 | 39% | Tracking | `/` | `/` | Existing | P0 | Homepage primary owner. Strengthen homepage commercial authority and trust signals. |
+| `whey protein tunisie` | Commercial | 1,200 | 6% | #55 | `/whey-proteine` | `/whey-proteine` | Existing | P0 | Primary commercial category owner. Strict intent separation from blog guides. |
+| `whey tunisie` | Commercial | 590 | 5% | Tracking | `/whey-proteine` | `/whey-proteine` | Existing | P0 | Commercial variant owned by `/whey-proteine`. |
+| `whey protein prix tunisie` | Commercial | 480 | 7% | Tracking | `/whey-proteine` | `/whey-proteine` | Existing | P0 | Commercial pricing intent. Dynamic catalog starting price on `/whey-proteine`. |
+| `whey isolate tunisie` | Commercial | 320 | 5% | Tracking | `/whey-proteine` | `/whey-proteine` | Existing | P1 | Commercial isolate intent. Filter/section on `/whey-proteine`. |
+| `proteine tunisie` | Commercial | 880 | 8% | Tracking | `/whey-proteine` | `/whey-proteine` | Existing | P0 | Broad commercial intent routed to primary protein category. |
+| `proteine prix tunisie` | Commercial | 390 | 6% | Tracking | `/whey-proteine` | `/whey-proteine` | Existing | P0 | Commercial category pricing intent on `/whey-proteine`. |
+| `creatine monohydrate tunisie` | Commercial | 390 | 4% | Tracking | `/creatine` | `/creatine` | Existing | P0 | Primary commercial owner for all creatine queries. Do not create separate monohydrate page. |
+| `creatine monohydrate prix tunisie`| Commercial | 210 | 4% | Tracking | `/creatine` | `/creatine` | Existing | P0 | Commercial pricing intent owned by `/creatine`. |
+| `creatine tunisie` | Commercial | 480 | 5% | Tracking | `/creatine` | `/creatine` | Existing | P0 | Commercial category intent owned by `/creatine`. |
+| `creatine prix tunisie` | Commercial | 260 | 4% | Tracking | `/creatine` | `/creatine` | Existing | P0 | Commercial pricing intent owned by `/creatine`. |
+| `pre workout tunisie` | Commercial | 320 | 4% | #93 | `/pre-workout` | `/pre-workout` | Existing | P0 | Strict commercial owner. Separated from comparison article (fixed in sprint 2026-09-07). |
+| `nutrition sportive tunisie` | Commercial Hub | 480 | 12% | Tracking | `/nutrition-sportive` | `/nutrition-sportive` | Existing | P1 | Pillar sports nutrition hub linking down to whey, creatine, pre-workout, gainers, BCAA. |
+| `complements alimentaires tunisie` | Commercial Hub | 590 | 14% | Tracking | `/complements-alimentaires` | `/complements-alimentaires` | Existing | P1 | Pillar general supplement hub linking down to vitamins, omega-3, ashwagandha, magnesium. |
+| `ashwagandha tunisie` | Commercial | 260 | 5% | Tracking | `/ashwagandha` | `/ashwagandha` | Existing | P1 | Dedicated commercial category owner. |
+| `ashwagandha prix tunisie` | Commercial | 140 | 4% | Tracking | `/ashwagandha` | `/ashwagandha` | Existing | P1 | Commercial pricing intent on `/ashwagandha`. |
+| `omega 3 tunisie` | Commercial | 320 | 6% | Tracking | `/omega-3` | `/omega-3` | Existing | P1 | Dedicated commercial category owner. |
+| `omega 3 prix tunisie` | Commercial | 170 | 5% | Tracking | `/omega-3` | `/omega-3` | Existing | P1 | Commercial pricing intent on `/omega-3`. |
+| `magnesium tunisie` | Commercial | 390 | 7% | Tracking | `/magnesium` | `/magnesium` | Existing | P1 | Dedicated commercial category owner. |
+| `magnesium prix tunisie` | Commercial | 210 | 5% | Tracking | `/magnesium` | `/magnesium` | Existing | P1 | Commercial pricing intent on `/magnesium`. |
+| `magnesium bisglycinate tunisie` | Commercial | 170 | 4% | Tracking | `/magnesium` | `/magnesium` | Existing | P1 | Commercial high-absorption intent on `/magnesium`. |
+| `vitamine d3 prix tunisie` | Commercial | 390 | 9% | Tracking | `/vitamines` | `/vitamines` | Existing | P1 | Commercial vitamins & D3+K2 intent on `/vitamines`. |
+| `gold standard whey tunisie` | Transactional | 140 | 3% | Tracking | `/produits/100-whey-gold-standard-2-27kg-optimum-nutrition` | `/produits/100-whey-gold-standard-2-27kg-optimum-nutrition` | Existing | P1 | Real product PDP owner. Not targeted by generic category. |
+| `creatine optimum nutrition tunisie`| Transactional | 110 | 2% | Tracking | `/produits/micronized-creatine-powder-317g-optimum-nutrition` | `/produits/micronized-creatine-powder-317g-optimum-nutrition` | Existing | P1 | Real product PDP owner. |
+| `optimum nutrition tunisie` | Brand Intent | 210 | 6% | Tracking | `/marques/optimum-nutrition` | `/marques/optimum-nutrition` | Existing | P1 | Official brand hub owner. |
+| `whey isolate vs concentrate` | Informational | 170 | 2% | Tracking | `/conseils/whey-isolate-vs-concentrate` | `/conseils/whey-isolate-vs-concentrate` | Existing | P2 | Educational comparison guide. Links to `/whey-proteine`. |
+| `combien de whey par jour` | Informational | 140 | 2% | Tracking | `/conseils/combien-de-whey-par-jour` | `/conseils/combien-de-whey-par-jour` | Existing | P2 | Dosage & calculation guide. Links to `/whey-proteine`. |
+| `quand prendre la whey` | Informational | 210 | 3% | Tracking | `/conseils/quand-prendre-la-whey` | `/conseils/quand-prendre-la-whey` | Existing | P2 | Timing guide (morning vs post-workout). Links to `/whey-proteine`. |
+| `whey pour debutant` | Informational | 110 | 2% | Tracking | `/conseils/whey-pour-debutant` | `/conseils/whey-pour-debutant` | Existing | P2 | Beginner selection guide. Links to `/whey-proteine`. |
+| `meilleure creatine tunisie` | Informational | 260 | 3% | Tracking | `/conseils/meilleure-creatine-tunisie` | `/conseils/meilleure-creatine-tunisie` | Existing | P2 | Objective brand comparison. Prominent links to `/creatine`. |
+| `comment prendre creatine` | Informational | 210 | 2% | Tracking | `/conseils/comment-prendre-creatine` | `/conseils/comment-prendre-creatine` | Existing | P2 | Practical timing & dosage guide. Links to `/creatine`. |
+| `creapure vs creatine monohydrate`| Informational | 90 | 1% | Tracking | `/conseils/creapure-vs-creatine-monohydrate` | `/conseils/creapure-vs-creatine-monohydrate` | Existing | P3 | Label & purity comparison. Links to `/creatine`. |
+| `creatine femme` | Informational | 110 | 2% | Tracking | `/conseils/creatine-femme` | `/conseils/creatine-femme` | Existing | P3 | Female fitness myths & reality guide. Links to `/creatine`. |
+| `combien de temps prendre creatine`| Informational | 90 | 1% | Tracking | `/conseils/combien-de-temps-prendre-creatine` | `/conseils/combien-de-temps-prendre-creatine` | Existing | P3 | Continuous vs cycle intake science. Links to `/creatine`. |
+| `meilleur pre workout tunisie` | Informational | 170 | 2% | #68 | `/conseils/meilleur-pre-workout-tunisie` | `/conseils/meilleur-pre-workout-tunisie` | Existing | P2 | Repositioned guide to comparison intent. Links to `/pre-workout`. |
+| `comment utiliser pre workout` | Informational | 90 | 1% | Tracking | `/conseils/comment-utiliser-pre-workout` | `/conseils/comment-utiliser-pre-workout` | Existing | P3 | Safe usage, tolerance, half-life guide. Links to `/pre-workout`. |
+| `pre workout sans cafeine` | Informational | 110 | 2% | Tracking | `/conseils/pre-workout-sans-cafeine-pump` | `/conseils/pre-workout-sans-cafeine-pump` | Existing | P3 | Evening workouts & pump guide. Links to `/pre-workout`. |
+| `ashwagandha bienfaits musculation`| Informational | 140 | 2% | Tracking | `/conseils/ashwagandha-bienfaits-musculation` | `/conseils/ashwagandha-bienfaits-musculation` | Existing | P2 | Cortisol & recovery guide. Links to `/ashwagandha`. |
+| `quand prendre ashwagandha` | Informational | 110 | 2% | Tracking | `/conseils/quand-prendre-ashwagandha` | `/conseils/quand-prendre-ashwagandha` | Existing | P2 | Morning vs night timing. Links to `/ashwagandha`. |
+| `comment choisir ashwagandha` | Informational | 90 | 1% | Tracking | `/conseils/comment-choisir-ashwagandha` | `/conseils/comment-choisir-ashwagandha` | Existing | P2 | KSM-66 standardization & dosage. Links to `/ashwagandha`. |
+| `omega 3 tunisie guide` | Informational | 140 | 3% | Tracking | `/conseils/omega-3-tunisie-guide` | `/conseils/omega-3-tunisie-guide` | Existing | P2 | EPA/DHA health guide. Links to `/omega-3`. |
+| `comment choisir omega 3` | Informational | 110 | 2% | Tracking | `/conseils/comment-choisir-omega-3-epa-dha` | `/conseils/comment-choisir-omega-3-epa-dha` | Existing | P2 | Triglyceride form & IFOS purity criteria. Links to `/omega-3`. |
+| `magnesium bisglycinate bienfaits`| Informational | 170 | 2% | Tracking | `/conseils/magnesium-bisglycinate-bienfaits` | `/conseils/magnesium-bisglycinate-bienfaits` | Existing | P2 | High bioavailability guide. Links to `/magnesium`. |
+| `types de magnesium` | Informational | 140 | 2% | Tracking | `/conseils/types-de-magnesium-comparatif` | `/conseils/types-de-magnesium-comparatif` | Existing | P2 | Citrate vs Oxide vs Bisglycinate guide. Links to `/magnesium`. |
+| `vitamine d3 k2 tunisie` | Informational | 140 | 2% | Tracking | `/conseils/vitamine-d3-k2-tunisie` | `/conseils/vitamine-d3-k2-tunisie` | Existing | P2 | Synergy & dosage guide. Links to `/vitamines`. |
+| `meilleur gainer tunisie` | Informational | 140 | 2% | Tracking | `/conseils/meilleur-gainer-tunisie` | `/conseils/meilleur-gainer-tunisie` | Existing | P2 | Lean mass vs mass gainer comparison. Links to `/gainers-proteines`. |
+| `comment prendre un mass gainer` | Informational | 110 | 1% | Tracking | `/conseils/comment-prendre-un-mass-gainer` | `/conseils/comment-prendre-un-mass-gainer` | Existing | P2 | Practical calorie intake & timing. Links to `/gainers-proteines`. |
+| `bcaa vs acides amines essentiels`| Informational | 110 | 2% | Tracking | `/conseils/bcaa-vs-acides-amines-essentiels` | `/conseils/bcaa-vs-acides-amines-essentiels` | Existing | P2 | Comparison guide. Links to `/bcaa` and `/eaa`. |
