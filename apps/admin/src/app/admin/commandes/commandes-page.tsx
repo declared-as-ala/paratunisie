@@ -30,7 +30,7 @@ import { ConfirmModal } from "@/components/confirm-modal";
 import { apiClient, ApiError, resolveMediaUrl } from "@/lib/api-client";
 import { formatCurrency, formatPercent } from "@/lib/utils";
 import { notifyOrdersChanged, onOrdersChanged } from "@/lib/order-events";
-import { AramexBadge } from "@/components/aramex/aramex-badge";
+import { AramexBadge, getAramexStatusConfig } from "@/components/aramex/aramex-badge";
 import { AramexShipmentModal } from "@/components/aramex/aramex-shipment-modal";
 import { AramexTrackingDrawer } from "@/components/aramex/aramex-tracking-drawer";
 
@@ -57,7 +57,16 @@ export interface ShipmentExt {
   hawb?: string;
   labelUrl?: string | null;
   status?: string;
-  lastTrackingUpdate?: string;
+  trackingStatus?: string | null;
+  trackingCode?: string | null;
+  trackingLabel?: string | null;
+  trackingDescription?: string | null;
+  trackingLocation?: string | null;
+  trackingEvents?: string | null;
+  lastAramexSync?: string | null;
+  lastTrackingUpdate?: string | null;
+  deliveredAt?: string | null;
+  returnedAt?: string | null;
   weightKg?: number;
   pieces?: number;
   codAmountMillimes?: number;
@@ -363,6 +372,7 @@ function CommandesInner() {
   const [activeTab, setActiveTab] = useState<"NORMAL" | "ABANDONNEES" | "SUPPRIMEES">("NORMAL");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [aramexFilter, setAramexFilter] = useState<string>("ALL");
   const [periodFilter, setPeriodFilter] = useState<string>("ALL");
   const [deleteTarget, setDeleteTarget] = useState<CustomOrder | null>(null);
   const [orderCounts, setOrderCounts] = useState<OrderCounts | null>(null);
@@ -379,6 +389,7 @@ function CommandesInner() {
     hawb: string;
     labelUrl?: string | null;
   } | null>(null);
+  const [drawerAramexSyncing, setDrawerAramexSyncing] = useState(false);
 
   // Abandoned Checkouts States
   const [abandonedList, setAbandonedList] = useState<AbandonedCheckout[]>([]);
@@ -509,7 +520,16 @@ function CommandesInner() {
                     hawb: o.shipment.hawb || o.shipment.tracking,
                     labelUrl: o.shipment.labelUrl,
                     status: o.shipment.status,
-                    lastTrackingUpdate: o.shipment.lastTrackingUpdate,
+                    trackingStatus: o.shipment.trackingStatus || null,
+                    trackingCode: o.shipment.trackingCode || null,
+                    trackingLabel: o.shipment.trackingLabel || null,
+                    trackingDescription: o.shipment.trackingDescription || null,
+                    trackingLocation: o.shipment.trackingLocation || null,
+                    trackingEvents: o.shipment.trackingEvents || null,
+                    lastAramexSync: o.shipment.lastAramexSync || null,
+                    lastTrackingUpdate: o.shipment.lastTrackingUpdate || null,
+                    deliveredAt: o.shipment.deliveredAt || null,
+                    returnedAt: o.shipment.returnedAt || null,
                     weightKg: o.shipment.weightKg,
                     pieces: o.shipment.pieces,
                     codAmountMillimes: o.shipment.codAmountMillimes,
@@ -697,6 +717,75 @@ function CommandesInner() {
     router.push(`/admin/commandes`, { scroll: false });
   }, [router]);
 
+  const handleShipmentUpdated = useCallback((updatedShipment: any) => {
+    if (!updatedShipment) return;
+    setOrders((prev) =>
+      prev.map((ord) => {
+        if (
+          ord.id === updatedShipment.orderId ||
+          ord.shipment?.id === updatedShipment.id ||
+          ord.shipment?.hawb === updatedShipment.hawb
+        ) {
+          return {
+            ...ord,
+            shipment: {
+              ...ord.shipment,
+              id: updatedShipment.id || ord.shipment?.id,
+              carrier: updatedShipment.carrier || "aramex",
+              tracking: updatedShipment.tracking || updatedShipment.hawb,
+              hawb: updatedShipment.hawb || updatedShipment.tracking,
+              labelUrl: updatedShipment.labelUrl || ord.shipment?.labelUrl,
+              status: updatedShipment.status || ord.shipment?.status,
+              trackingStatus: updatedShipment.trackingStatus,
+              trackingCode: updatedShipment.trackingCode,
+              trackingLabel: updatedShipment.trackingLabel,
+              trackingDescription: updatedShipment.trackingDescription,
+              trackingLocation: updatedShipment.trackingLocation,
+              trackingEvents: updatedShipment.trackingEvents,
+              lastAramexSync: updatedShipment.lastAramexSync,
+              lastTrackingUpdate: updatedShipment.lastTrackingUpdate,
+              deliveredAt: updatedShipment.deliveredAt,
+              returnedAt: updatedShipment.returnedAt,
+            },
+          };
+        }
+        return ord;
+      })
+    );
+    setEditingForm((prev) => {
+      if (!prev) return null;
+      if (
+        prev.id === updatedShipment.orderId ||
+        prev.shipment?.id === updatedShipment.id ||
+        prev.shipment?.hawb === updatedShipment.hawb
+      ) {
+        return {
+          ...prev,
+          shipment: {
+            ...prev.shipment,
+            id: updatedShipment.id || prev.shipment?.id,
+            carrier: updatedShipment.carrier || "aramex",
+            tracking: updatedShipment.tracking || updatedShipment.hawb,
+            hawb: updatedShipment.hawb || updatedShipment.tracking,
+            labelUrl: updatedShipment.labelUrl || prev.shipment?.labelUrl,
+            status: updatedShipment.status || prev.shipment?.status,
+            trackingStatus: updatedShipment.trackingStatus,
+            trackingCode: updatedShipment.trackingCode,
+            trackingLabel: updatedShipment.trackingLabel,
+            trackingDescription: updatedShipment.trackingDescription,
+            trackingLocation: updatedShipment.trackingLocation,
+            trackingEvents: updatedShipment.trackingEvents,
+            lastAramexSync: updatedShipment.lastAramexSync,
+            lastTrackingUpdate: updatedShipment.lastTrackingUpdate,
+            deliveredAt: updatedShipment.deliveredAt,
+            returnedAt: updatedShipment.returnedAt,
+          },
+        };
+      }
+      return prev;
+    });
+  }, []);
+
   const handleSaveOrder = useCallback(async () => {
     if (!formData) return;
     if (formData.id.startsWith("NEW-") || targetId === "new") {
@@ -853,6 +942,42 @@ function CommandesInner() {
   const abandonedCount = orderCounts?.abandoned ?? (abandonedList.length > 0 ? abandonedList.length : abandonedCountLocal);
   const deletedCount = orderCounts?.deleted ?? deletedCountLocal;
 
+  // Real Aramex Delivery Status Counters
+  const aramexCounts = useMemo(() => {
+    let notShipped = 0;
+    let created = 0;
+    let inTransit = 0;
+    let outForDelivery = 0;
+    let delivered = 0;
+    let attempts = 0;
+    let returns = 0;
+    let returned = 0;
+
+    for (const o of orders) {
+      const s = (o.shipment?.trackingStatus || (o.shipment?.hawb ? "CREATED" : "")).toUpperCase();
+      if (!o.shipment?.hawb && !o.shipment?.tracking) {
+        notShipped++;
+      } else if (s === "DELIVERED") {
+        delivered++;
+      } else if (s === "OUT_FOR_DELIVERY") {
+        outForDelivery++;
+      } else if (s === "IN_TRANSIT" || s === "PICKED_UP" || s === "PICKUP_REQUESTED") {
+        inTransit++;
+      } else if (s === "DELIVERY_ATTEMPT" || s === "REFUSED" || s === "EXCEPTION") {
+        attempts++;
+      } else if (s === "RETURN_REQUESTED" || s === "RETURNING") {
+        returns++;
+      } else if (s === "RETURNED") {
+        returned++;
+        returns++;
+      } else {
+        created++;
+      }
+    }
+
+    return { notShipped, created, inTransit, outForDelivery, delivered, attempts, returns, returned };
+  }, [orders]);
+
   // Filtered List
   const filteredOrders = useMemo(() => {
     let list = [...orders];
@@ -877,8 +1002,48 @@ function CommandesInner() {
     if (statusFilter !== "ALL") {
       list = list.filter((o) => o.status === statusFilter);
     }
+
+    if (aramexFilter !== "ALL") {
+      if (aramexFilter === "NOT_SHIPPED") {
+        list = list.filter((o) => !o.shipment?.hawb && !o.shipment?.tracking);
+      } else if (aramexFilter === "IN_TRANSIT") {
+        list = list.filter((o) => {
+          const s = (o.shipment?.trackingStatus || "").toUpperCase();
+          return s === "IN_TRANSIT" || s === "PICKED_UP" || s === "PICKUP_REQUESTED";
+        });
+      } else if (aramexFilter === "OUT_FOR_DELIVERY") {
+        list = list.filter((o) => (o.shipment?.trackingStatus || "").toUpperCase() === "OUT_FOR_DELIVERY");
+      } else if (aramexFilter === "DELIVERED") {
+        list = list.filter((o) => (o.shipment?.trackingStatus || "").toUpperCase() === "DELIVERED");
+      } else if (aramexFilter === "DELIVERY_ATTEMPT") {
+        list = list.filter((o) => {
+          const s = (o.shipment?.trackingStatus || "").toUpperCase();
+          return s === "DELIVERY_ATTEMPT" || s === "REFUSED";
+        });
+      } else if (aramexFilter === "EXCEPTION") {
+        list = list.filter((o) => {
+          const s = (o.shipment?.trackingStatus || "").toUpperCase();
+          return s === "EXCEPTION" || s === "REFUSED";
+        });
+      } else if (aramexFilter === "RETURNING") {
+        list = list.filter((o) => {
+          const s = (o.shipment?.trackingStatus || "").toUpperCase();
+          return s === "RETURNING" || s === "RETURN_REQUESTED";
+        });
+      } else if (aramexFilter === "RETURNED") {
+        list = list.filter((o) => (o.shipment?.trackingStatus || "").toUpperCase() === "RETURNED");
+      } else if (aramexFilter === "CREATED") {
+        list = list.filter((o) => {
+          const s = (o.shipment?.trackingStatus || "").toUpperCase();
+          return s === "CREATED" || (!s && Boolean(o.shipment?.hawb));
+        });
+      } else if (aramexFilter === "CANCELLED") {
+        list = list.filter((o) => (o.shipment?.trackingStatus || "").toUpperCase() === "CANCELLED");
+      }
+    }
+
     return list;
-  }, [orders, activeTab, search, statusFilter]);
+  }, [orders, activeTab, search, statusFilter, aramexFilter]);
 
   const visibleOrderIds = useMemo(() => filteredOrders.map((order) => order.id), [filteredOrders]);
   const visibleSelectedCount = useMemo(
@@ -1025,9 +1190,107 @@ function CommandesInner() {
         </button>
       </div>
 
+      {/* ── Live Aramex Shipment Operational Counters ─────────────────── */}
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+        <button
+          type="button"
+          onClick={() => setAramexFilter(aramexFilter === "IN_TRANSIT" ? "ALL" : "IN_TRANSIT")}
+          className={`p-3 rounded-2xl border text-left transition-all ${
+            aramexFilter === "IN_TRANSIT"
+              ? "bg-purple-100/90 border-purple-400 ring-2 ring-purple-400/40 shadow-xs"
+              : "bg-white border-slate-200/80 hover:bg-purple-50/50 shadow-2xs"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black text-purple-800 flex items-center gap-1.5">
+              <span>🚚</span> En transit
+            </span>
+            <span className="text-xs font-black text-purple-900 bg-purple-100 px-2 py-0.5 rounded-full">
+              {aramexCounts.inTransit}
+            </span>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setAramexFilter(aramexFilter === "OUT_FOR_DELIVERY" ? "ALL" : "OUT_FOR_DELIVERY")}
+          className={`p-3 rounded-2xl border text-left transition-all ${
+            aramexFilter === "OUT_FOR_DELIVERY"
+              ? "bg-amber-100/90 border-amber-400 ring-2 ring-amber-400/40 shadow-xs"
+              : "bg-white border-slate-200/80 hover:bg-amber-50/50 shadow-2xs"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black text-amber-800 flex items-center gap-1.5">
+              <span>📦</span> En livraison
+            </span>
+            <span className="text-xs font-black text-amber-900 bg-amber-100 px-2 py-0.5 rounded-full">
+              {aramexCounts.outForDelivery}
+            </span>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setAramexFilter(aramexFilter === "DELIVERED" ? "ALL" : "DELIVERED")}
+          className={`p-3 rounded-2xl border text-left transition-all ${
+            aramexFilter === "DELIVERED"
+              ? "bg-emerald-100/90 border-emerald-400 ring-2 ring-emerald-400/40 shadow-xs"
+              : "bg-white border-slate-200/80 hover:bg-emerald-50/50 shadow-2xs"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black text-emerald-800 flex items-center gap-1.5">
+              <span>✅</span> Livrées
+            </span>
+            <span className="text-xs font-black text-emerald-900 bg-emerald-100 px-2 py-0.5 rounded-full">
+              {aramexCounts.delivered}
+            </span>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setAramexFilter(aramexFilter === "DELIVERY_ATTEMPT" ? "ALL" : "DELIVERY_ATTEMPT")}
+          className={`p-3 rounded-2xl border text-left transition-all ${
+            aramexFilter === "DELIVERY_ATTEMPT"
+              ? "bg-yellow-100/90 border-yellow-400 ring-2 ring-yellow-400/40 shadow-xs"
+              : "bg-white border-slate-200/80 hover:bg-yellow-50/50 shadow-2xs"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black text-yellow-800 flex items-center gap-1.5">
+              <span>⚠️</span> Tentatives / Pb
+            </span>
+            <span className="text-xs font-black text-yellow-900 bg-yellow-100 px-2 py-0.5 rounded-full">
+              {aramexCounts.attempts}
+            </span>
+          </div>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setAramexFilter(aramexFilter === "RETURNING" ? "ALL" : "RETURNING")}
+          className={`p-3 rounded-2xl border text-left transition-all ${
+            aramexFilter === "RETURNING"
+              ? "bg-rose-100/90 border-rose-400 ring-2 ring-rose-400/40 shadow-xs"
+              : "bg-white border-slate-200/80 hover:bg-rose-50/50 shadow-2xs"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black text-rose-800 flex items-center gap-1.5">
+              <span>↩</span> Retours
+            </span>
+            <span className="text-xs font-black text-rose-900 bg-rose-100 px-2 py-0.5 rounded-full">
+              {aramexCounts.returns}
+            </span>
+          </div>
+        </button>
+      </div>
+
       {/* ── Filter Bar ───────────────────────────────────────────────── */}
       <div className="rounded-2xl bg-white p-3.5 shadow-xs border border-slate-200/80 flex items-center gap-3 flex-wrap">
-        <div className="relative flex-1 min-w-[240px] max-w-md">
+        <div className="relative flex-1 min-w-[220px] max-w-sm">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
             type="search"
@@ -1041,9 +1304,9 @@ function CommandesInner() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-[#E11D48]"
+          className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-[#E11D48]"
         >
-          <option value="ALL">Toutes ({totalCount})</option>
+          <option value="ALL">Statut Commande : Tous ({totalCount})</option>
           <option value="EN_ATTENTE">En attente ({enAttenteCount})</option>
           <option value="CONFIRMEE">Confirmée ({confirmeeCount})</option>
           <option value="TENTATIVE_CONTACT">Tentative ({tentativeCount})</option>
@@ -1051,9 +1314,27 @@ function CommandesInner() {
         </select>
 
         <select
+          value={aramexFilter}
+          onChange={(e) => setAramexFilter(e.target.value)}
+          className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-[#E11D48]"
+        >
+          <option value="ALL">Expédition Aramex : Toutes</option>
+          <option value="NOT_SHIPPED">Non expédiées ({aramexCounts.notShipped})</option>
+          <option value="CREATED">Créées ({aramexCounts.created})</option>
+          <option value="IN_TRANSIT">En transit ({aramexCounts.inTransit})</option>
+          <option value="OUT_FOR_DELIVERY">En cours de livraison ({aramexCounts.outForDelivery})</option>
+          <option value="DELIVERED">Livrées ({aramexCounts.delivered})</option>
+          <option value="DELIVERY_ATTEMPT">Tentatives de livraison ({aramexCounts.attempts})</option>
+          <option value="EXCEPTION">Problèmes / Exceptions</option>
+          <option value="RETURNING">En cours de retour ({aramexCounts.returns})</option>
+          <option value="RETURNED">Retournées ({aramexCounts.returned})</option>
+          <option value="CANCELLED">Annulées</option>
+        </select>
+
+        <select
           value={periodFilter}
           onChange={(e) => setPeriodFilter(e.target.value)}
-          className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-[#E11D48]"
+          className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-[#E11D48]"
         >
           <option value="ALL">Toute la période</option>
           <option value="today">Aujourd&apos;hui</option>
@@ -1405,8 +1686,14 @@ function CommandesInner() {
                       </td>
                       <td className="py-3.5 px-4">
                         <AramexBadge
+                          orderId={order.id}
                           hawb={order.shipment?.hawb || order.shipment?.tracking}
                           labelUrl={order.shipment?.labelUrl}
+                          trackingStatus={order.shipment?.trackingStatus}
+                          trackingLabel={order.shipment?.trackingLabel}
+                          trackingLocation={order.shipment?.trackingLocation}
+                          lastTrackingUpdate={order.shipment?.lastTrackingUpdate}
+                          lastAramexSync={order.shipment?.lastAramexSync}
                           onOpenCreate={() => setAramexModalOrder(order)}
                           onOpenTrack={() =>
                             setAramexTrackingTarget({
@@ -1415,6 +1702,7 @@ function CommandesInner() {
                               labelUrl: order.shipment?.labelUrl,
                             })
                           }
+                          onSyncShipment={(updatedShipment) => handleShipmentUpdated(updatedShipment)}
                         />
                       </td>
                       <td className="py-3.5 px-4 font-black text-slate-900">{typeof order.total === "number" ? order.total.toFixed(3) : order.total} DT</td>
@@ -1651,14 +1939,14 @@ function CommandesInner() {
               </div>
 
               {/* SECTION: EXPÉDITION ARAMEX & BORDEREAU */}
-              <div className="rounded-2xl bg-white p-5 shadow-xs border border-slate-200/80 space-y-3">
+              <div className="rounded-2xl bg-white p-5 shadow-xs border border-slate-200/80 space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div className="flex items-center gap-2">
                     <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-red-600 text-white shadow-2xs">
                       <Truck size={15} />
                     </div>
                     <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider">
-                      EXPÉDITION ARAMEX & BORDEREAU
+                      EXPÉDITION ARAMEX & SUIVI EN DIRECT
                     </h3>
                   </div>
                   {formData.shipment?.hawb && (
@@ -1669,42 +1957,116 @@ function CommandesInner() {
                 </div>
 
                 {formData.shipment?.hawb ? (
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between p-3.5 rounded-xl bg-slate-50 border border-slate-200">
-                      <div>
-                        <p className="text-xs font-bold text-slate-800">
-                          Colis pris en charge par Aramex
-                        </p>
-                        <p className="text-[0.6875rem] text-slate-500 font-mono mt-0.5">
-                          N° de suivi (HAWB) :{" "}
-                          <strong className="text-red-600">{formData.shipment.hawb}</strong>
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setAramexTrackingTarget({
-                              orderId: formData.id,
-                              hawb: formData.shipment?.hawb || "",
-                              labelUrl: formData.shipment?.labelUrl,
-                            })
-                          }
-                          className="rounded-xl bg-white border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-2xs transition-colors"
-                        >
-                          Suivi en direct
-                        </button>
-                        {formData.shipment.labelUrl && (
-                          <a
-                            href={formData.shipment.labelUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="rounded-xl bg-red-600 text-white px-3 py-1.5 text-xs font-bold hover:bg-red-700 shadow-2xs transition-colors"
+                  <div className="space-y-3.5">
+                    {/* Status Pill Card */}
+                    {(() => {
+                      const cfg = getAramexStatusConfig(
+                        formData.shipment.trackingStatus,
+                        formData.shipment.trackingLabel
+                      );
+                      return (
+                        <div className={`p-4 rounded-xl border flex items-center justify-between shadow-2xs ${cfg.badgeClass}`}>
+                          <div className="flex items-center gap-3">
+                            <span className={`h-3 w-3 rounded-full ${cfg.dotColor} shrink-0 animate-pulse`} />
+                            <div>
+                              <p className="text-[0.625rem] font-extrabold uppercase tracking-wide opacity-70">
+                                Statut Livraison Aramex
+                              </p>
+                              <p className="text-sm font-black">
+                                {cfg.label}
+                              </p>
+                            </div>
+                          </div>
+                          <span className="text-lg font-bold">{cfg.icon}</span>
+                        </div>
+                      );
+                    })()}
+
+                    {/* Meta Details & Action Row */}
+                    <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div>
+                          <p className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                            <Truck size={14} className="text-red-600" />
+                            <span>Colis pris en charge par Aramex</span>
+                          </p>
+                          <p className="text-[0.6875rem] text-slate-500 font-mono mt-0.5">
+                            N° de suivi (HAWB) :{" "}
+                            <strong className="text-red-600 font-bold">{formData.shipment.hawb}</strong>
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            disabled={drawerAramexSyncing}
+                            onClick={async () => {
+                              if (!formData.id && !formData.shipment?.hawb) return;
+                              setDrawerAramexSyncing(true);
+                              try {
+                                const target = formData.shipment?.hawb || formData.id;
+                                const res = await apiClient.post<any>(`/orders/${target}/aramex/sync`);
+                                if (res.shipment) {
+                                  handleShipmentUpdated(res.shipment);
+                                  toast("success", `Suivi Aramex actualisé : ${res.normalized?.label || res.shipment?.trackingLabel || "Succès"}`);
+                                }
+                              } catch (err: any) {
+                                toast("error", err instanceof ApiError ? err.message : "Erreur actualisation Aramex");
+                              } finally {
+                                setDrawerAramexSyncing(false);
+                              }
+                            }}
+                            className="rounded-xl bg-white border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-2xs transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                            title="Actualiser les données de suivi auprès d'Aramex"
                           >
-                            Imprimer Bordereau
-                          </a>
-                        )}
+                            <RefreshCw size={12} className={drawerAramexSyncing ? "animate-spin text-red-600" : ""} />
+                            <span>Actualiser</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setAramexTrackingTarget({
+                                orderId: formData.id,
+                                hawb: formData.shipment?.hawb || "",
+                                labelUrl: formData.shipment?.labelUrl,
+                              })
+                            }
+                            className="rounded-xl bg-white border border-slate-200 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-2xs transition-colors"
+                          >
+                            Timeline complète
+                          </button>
+
+                          {formData.shipment.labelUrl && (
+                            <a
+                              href={formData.shipment.labelUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="rounded-xl bg-red-600 text-white px-3 py-1.5 text-xs font-bold hover:bg-red-700 shadow-2xs transition-colors flex items-center gap-1.5"
+                            >
+                              <ExternalLink size={12} />
+                              <span>Bordereau PDF</span>
+                            </a>
+                          )}
+                        </div>
                       </div>
+
+                      {/* Location & Last Update */}
+                      {(formData.shipment.trackingLocation || formData.shipment.lastTrackingUpdate || formData.shipment.trackingDescription) && (
+                        <div className="pt-2 border-t border-slate-200/80 flex flex-wrap items-center gap-x-4 gap-y-1 text-[0.6875rem] text-slate-600 font-medium">
+                          {formData.shipment.trackingLocation && (
+                            <span>📍 {formData.shipment.trackingLocation}</span>
+                          )}
+                          {formData.shipment.trackingDescription && (
+                            <span>📋 {formData.shipment.trackingDescription}</span>
+                          )}
+                          {formData.shipment.lastTrackingUpdate && (
+                            <span className="text-slate-400">
+                              🕒 {new Date(formData.shipment.lastTrackingUpdate).toLocaleString("fr-FR", { timeZone: "Africa/Tunis" })}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ) : (
@@ -2368,6 +2730,7 @@ function CommandesInner() {
         hawb={aramexTrackingTarget?.hawb || null}
         labelUrl={aramexTrackingTarget?.labelUrl || null}
         onClose={() => setAramexTrackingTarget(null)}
+        onTrackingUpdated={(shipment) => handleShipmentUpdated(shipment)}
       />
     </div>
   );
