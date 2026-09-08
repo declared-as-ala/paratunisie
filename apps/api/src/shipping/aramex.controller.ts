@@ -20,6 +20,16 @@ export class AramexController {
     return this.aramexService.trackShipment(orderId);
   }
 
+  @Post(":id/aramex/sync")
+  async syncShipment(@Param("id") orderId: string) {
+    return this.aramexService.syncShipmentTracking(orderId);
+  }
+
+  @Post("aramex/sync-all")
+  async syncAllShipments(@Body() body?: { hawbs?: string[] }) {
+    return this.aramexService.batchSyncShipments(body?.hawbs);
+  }
+
   @Get("aramex/label/:hawb")
   async getLabel(@Param("hawb") hawb: string) {
     return this.aramexService.printLabel(hawb);
