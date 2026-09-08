@@ -382,7 +382,17 @@ model Shipment {
   hawb               String?
   labelUrl           String?
   pickupGuid         String?
-  lastTrackingUpdate DateTime?
+  // Aramex Tracking fields
+  trackingStatus     String?   // DELIVERED, OUT_FOR_DELIVERY, IN_TRANSIT, PICKED_UP, PICKUP_REQUESTED, CREATED, DELIVERY_ATTEMPT, REFUSED, RETURNING, RETURNED, EXCEPTION, CANCELLED
+  trackingCode       String?   // Aramex raw update code: SH005, SH069, etc.
+  trackingLabel      String?   // French label: "Livrée", "En cours de livraison", "En transit", "Retournée", etc.
+  trackingDescription String?  // Aramex raw description: "Delivered", "Returned to Shipper", etc.
+  trackingLocation   String?   // Location: "Tunis, Tunisia", "Nabeul branch", etc.
+  trackingEvents     String?   // JSON serialized array of checkpoints
+  lastAramexSync     DateTime? // When last synchronized with Aramex API
+  lastTrackingUpdate DateTime? // Latest event timestamp from Aramex
+  deliveredAt        DateTime?
+  returnedAt         DateTime?
   rawResponse        String?
   weightKg           Float     @default(1.0)
   pieces             Int       @default(1)
