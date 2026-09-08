@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { X, Truck, Printer, RotateCw, MapPin, Calendar, Clock, CheckCircle, Package } from "lucide-react";
+import { X, Truck, Printer, RotateCw, MapPin, Clock, Package } from "lucide-react";
 import { apiClient, ApiError } from "@/lib/api-client";
 import { useToast } from "@/components/toast";
+import { getAramexStatusConfig } from "./aramex-badge";
 
 interface Checkpoint {
   date: string;
@@ -19,6 +20,7 @@ interface AramexTrackingDrawerProps {
   hawb: string | null;
   labelUrl?: string | null;
   onClose: () => void;
+  onTrackingUpdated?: (shipment: any) => void;
 }
 
 export function AramexTrackingDrawer({
@@ -27,11 +29,15 @@ export function AramexTrackingDrawer({
   hawb,
   labelUrl,
   onClose,
+  onTrackingUpdated,
 }: AramexTrackingDrawerProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [checkpoints, setCheckpoints] = useState<Checkpoint[]>([]);
   const [activeHawb, setActiveHawb] = useState<string | null>(hawb);
+  const [normalizedStatus, setNormalizedStatus] = useState<string | null>(null);
+  const [normalizedLabel, setNormalizedLabel] = useState<string | null>(null);
+  const [lastSyncTime, setLastSyncTime] = useState<string | null>(null);
 
   const fetchTracking = useCallback(async () => {
     if (!orderId && !hawb) return;
@@ -39,25 +45,46 @@ export function AramexTrackingDrawer({
 
     try {
       const target = hawb || orderId;
-      const res = await apiClient.get<any>(`/orders/${target}/aramex/track`);
+      const res = await apiClient.post<any>(`/orders/${target}/aramex/sync`);
       setCheckpoints(res.checkpoints || []);
       if (res.hawb) setActiveHawb(res.hawb);
+      if (res.normalized?.status || res.shipment?.trackingStatus) {
+        setNormalizedStatus(res.normalized?.status || res.shipment?.trackingStatus);
+        setNormalizedLabel(res.normalized?.label || res.shipment?.trackingLabel);
+      }
+      setLastSyncTime(new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }));
+      if (res.shipment) {
+        onTrackingUpdated?.(res.shipment);
+      }
     } catch (err: any) {
-      toast("error", err instanceof ApiError ? err.message : "Impossible de charger le suivi Aramex");
+      // If sync failed, try get fallback
+      try {
+        const target = hawb || orderId;
+        const res = await apiClient.get<any>(`/orders/${target}/aramex/track`);
+        setCheckpoints(res.checkpoints || []);
+        if (res.hawb) setActiveHawb(res.hawb);
+      } catch {
+        toast("error", err instanceof ApiError ? err.message : "Impossible de charger le suivi Aramex");
+      }
     } finally {
       setLoading(false);
     }
-  }, [orderId, hawb, toast]);
+  }, [orderId, hawb, onTrackingUpdated, toast]);
 
   useEffect(() => {
     if (isOpen) {
+      setActiveHawb(hawb);
       fetchTracking();
     } else {
       setCheckpoints([]);
+      setNormalizedStatus(null);
+      setNormalizedLabel(null);
     }
-  }, [isOpen, fetchTracking]);
+  }, [isOpen, hawb, fetchTracking]);
 
   if (!isOpen) return null;
+
+  const statusCfg = getAramexStatusConfig(normalizedStatus, normalizedLabel);
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden bg-black/50 backdrop-blur-xs">
@@ -89,17 +116,24 @@ export function AramexTrackingDrawer({
             </button>
           </div>
 
-          {/* Action Bar */}
+          {/* Action Bar & Current Status */}
           <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/70 px-6 py-3">
-            <button
-              type="button"
-              onClick={fetchTracking}
-              disabled={loading}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50"
-            >
-              <RotateCw size={13} className={loading ? "animate-spin" : ""} />
-              Actualiser
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={fetchTracking}
+                disabled={loading}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors disabled:opacity-50 shadow-2xs"
+              >
+                <RotateCw size={12} className={loading ? "animate-spin text-red-600" : ""} />
+                Actualiser
+              </button>
+              {lastSyncTime && (
+                <span className="text-[0.625rem] font-medium text-slate-400">
+                  Mis à jour à {lastSyncTime}
+                </span>
+              )}
+            </div>
 
             {labelUrl && (
               <a
@@ -109,14 +143,34 @@ export function AramexTrackingDrawer({
                 className="inline-flex items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-red-700 transition-colors"
               >
                 <Printer size={13} />
-                Imprimer Bordereau
+                Bordereau PDF
               </a>
             )}
           </div>
 
+          {/* Current Status Pill Banner */}
+          {normalizedStatus && (
+            <div className="px-6 pt-4 pb-1">
+              <div className={`flex items-center justify-between p-3 rounded-xl border shadow-2xs ${statusCfg.badgeClass}`}>
+                <div className="flex items-center gap-2.5">
+                  <span className={`h-2.5 w-2.5 rounded-full ${statusCfg.dotColor} shrink-0 animate-pulse`} />
+                  <div>
+                    <p className="text-[0.6875rem] font-extrabold uppercase tracking-wide opacity-75">
+                      Statut Actuel Aramex
+                    </p>
+                    <p className="text-xs font-black">
+                      {statusCfg.label}
+                    </p>
+                  </div>
+                </div>
+                <span className="text-base">{statusCfg.icon}</span>
+              </div>
+            </div>
+          )}
+
           {/* Timeline Content */}
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
-            {loading ? (
+            {loading && checkpoints.length === 0 ? (
               <div className="py-16 text-center">
                 <RotateCw size={28} className="mx-auto animate-spin text-red-600 mb-3" />
                 <p className="text-xs font-semibold text-slate-500">
@@ -136,14 +190,14 @@ export function AramexTrackingDrawer({
                 </p>
               </div>
             ) : (
-              <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
+              <div className="relative pl-6 space-y-5 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-200">
                 {checkpoints.map((cp, idx) => {
                   const isLatest = idx === 0;
                   return (
                     <div key={idx} className="relative group">
                       {/* Dot */}
                       <div
-                        className={`absolute -left-6 top-1 h-3 w-3 rounded-full ring-4 ring-white ${
+                        className={`absolute -left-6 top-1.5 h-3 w-3 rounded-full ring-4 ring-white ${
                           isLatest ? "bg-red-600 ring-red-100" : "bg-slate-400 ring-slate-100"
                         }`}
                       />
