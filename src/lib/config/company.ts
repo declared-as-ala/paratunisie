@@ -8,6 +8,7 @@ export const COMPANY_CONFIG = {
   name: "ParaTunisie",
   legalName: "ParaTunisie",
   commercialName: "ParaTunisie — Compléments Alimentaires & Nutrition Sportive en Tunisie",
+  alternateNames: ["Para Tunisie", "ParaTunisie.com", "ParaTunisie en Ligne"],
   siteUrl: "https://paratunisie.com",
   logoUrl: "https://paratunisie.com/logo.png",
   

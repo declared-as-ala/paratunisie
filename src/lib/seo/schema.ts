@@ -17,6 +17,7 @@ export function buildOrganizationSchema() {
     "@id": `${COMPANY_CONFIG.siteUrl}/#organization`,
     name: COMPANY_CONFIG.name,
     legalName: COMPANY_CONFIG.legalName,
+    alternateName: [...COMPANY_CONFIG.alternateNames],
     url: COMPANY_CONFIG.siteUrl,
     logo: {
       "@type": "ImageObject",
@@ -38,6 +39,24 @@ export function buildOrganizationSchema() {
       COMPANY_CONFIG.socials.facebook,
       COMPANY_CONFIG.socials.instagram,
     ],
+  };
+}
+
+/**
+ * Builds OnlineStore schema, nested under the Organization via parentOrganization.
+ */
+export function buildOnlineStoreSchema() {
+  return {
+    "@context": "https://schema.org",
+    "@type": "OnlineStore",
+    "@id": `${COMPANY_CONFIG.siteUrl}/#store`,
+    name: COMPANY_CONFIG.name,
+    url: COMPANY_CONFIG.siteUrl,
+    description:
+      "Plateforme e-commerce tunisienne spécialisée dans la nutrition sportive, les compléments alimentaires et le bien-être.",
+    parentOrganization: {
+      "@id": `${COMPANY_CONFIG.siteUrl}/#organization`,
+    },
   };
 }
 
@@ -91,6 +110,7 @@ export interface ProductSchemaInput {
   brandName?: string | null;
   sku?: string | null;
   priceTnd: number;
+  rating?: { average: number; count: number };
   inStock: boolean;
   categoryName?: string | null;
 }
@@ -111,11 +131,12 @@ export function buildProductSchema(product: ProductSchemaInput) {
     "@context": "https://schema.org",
     "@type": "Product",
     name: product.name,
-    image: [imageUrl],
-    description: product.description || product.name,
+    ...(product.image && !product.image.includes("product-unavailable") ? { image: [imageUrl] } : {}),
+    ...(product.rating && product.rating.count > 0 && product.rating.average >= 1 && product.rating.average <= 5 ? { aggregateRating: { "@type": "AggregateRating", ratingValue: product.rating.average, reviewCount: product.rating.count, bestRating: 5, worstRating: 1 } } : {}),
+    description: (product.description || product.name).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim(),
     sku: product.sku || product.slug,
     url: productUrl,
-    ...(product.brandName
+    ...(product.brandName && !/non renseign|unknown/i.test(product.brandName)
       ? {
           brand: {
             "@type": "Brand",
@@ -167,6 +188,33 @@ export function buildProductSchema(product: ProductSchemaInput) {
         },
       },
     },
+  };
+}
+
+export interface BrandSchemaInput {
+  name: string;
+  slug: string;
+  logo?: string | null;
+  description?: string | null;
+}
+
+/**
+ * Builds Brand schema for a brand hub page.
+ */
+export function buildBrandSchema(brand: BrandSchemaInput) {
+  const logoUrl = brand.logo
+    ? brand.logo.startsWith("http")
+      ? brand.logo
+      : `${COMPANY_CONFIG.siteUrl}${brand.logo.startsWith("/") ? "" : "/"}${brand.logo}`
+    : undefined;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "Brand",
+    name: brand.name,
+    url: buildCanonicalUrl(`/marques/${brand.slug}`),
+    ...(logoUrl ? { logo: logoUrl } : {}),
+    description: brand.description || brand.name,
   };
 }
 
