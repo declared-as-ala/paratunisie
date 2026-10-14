@@ -1,5 +1,34 @@
 # SEO_IMPLEMENTATION_LOG.md
 
+## 2026-10-14 (later) — CRITICAL: real production server identified; earlier fixes redone there
+
+### The real server was never 145.223.118.9
+Everything earlier in this log (and the earlier-session SMTP fix) targeted `145.223.118.9` (OVH), believed to be production because the user had previously given SSH access to it for an unrelated fix. It is NOT what `paratunisie.com` DNS resolves to. Real production is **`187.53.136.225`** (Hostinger, hostname `srv1764709`), confirmed via `nslookup paratunisie.com`/`www.paratunisie.com`/`admin.paratunisie.com` and direct SSH. The site was migrated there around 2026-10-12 (fresh `paratunisie_pg.sql.gz` DB dump and `meili_data.tar.gz` present in `/root/paratunisie`, file timestamps "Oct 12"). `145.223.118.9` is a stale leftover from before the migration — DO NOT treat it as production going forward. User confirmed DNS is correct as-is; no DNS change needed.
+
+### Redone on the real server (187.53.136.225)
+- **SMTP**: `.env` there already has the correct app password (`zpcs tvlh ysck stdm`) — verified `VERIFY_OK` live from inside `paratunisie-api`. No action needed; the earlier OVH fix turned out to be moot for the real site, but the real site was already fine independently.
+- **`/l-carnitine` indexable flag**: backed up (`/root/paratunisie/category-backup-20261014-realserver.sql`), flipped `true` in the real production Postgres, `paratunisie-api` restarted. Verified live: API returns `"indexable":true`, page meta is now `<meta name="robots" content="index, follow"/>`, HTTP 200. **This fix is genuinely live now.**
+- **`www` redirect root cause (real server)**: a host-level (non-Docker) nginx at `/etc/nginx/sites-available/paratunisie-domains.conf`, Certbot-managed, dedicated solely to paratunisie.com/admin.paratunisie.com (not a shared multi-tenant proxy — safe to edit in isolation). Its single HTTPS server block matches both `paratunisie.com` and `www.paratunisie.com` with no redirect between them. Fix identified (split into two server blocks, www one returning `301` to apex) but **not yet applied** — blocked by the permission system (see below).
+
+### Correction: creatine/ashwagandha overclaiming is already fixed in the database — just not deployed
+Checked the real production DB directly: `creatine`'s `seoDescription`/`seoContent` and `ashwagandha`'s already contain safer, more hedged text (the creatine `seoContent` is word-for-word the cautious draft from `ops/seo/category-copy.json` — someone already ran the apply pipeline against the database). But the **live page still serves the old overclaiming text** ("gélules certifiées", "sans aucun trouble digestif") — confirmed via direct curl of the live meta tag. This means `/creatine` and `/ashwagandha` are statically pre-rendered and the build is stale relative to the database; this is a deployment/rebuild problem, not a content-writing problem. No DB content change was made for these two — none was needed. Folded into the same `paratunisie-web` rebuild blocked below.
+
+### Brand sitemap gap — root cause confirmed (continued after user re-approval)
+Confirmed via direct query: only 4 of 410 brands are `indexable: true`, and it's a real bug — the top brands by published-product count (Swanson Vitamins 428, NOW Foods 381, Source Naturals 153, down to dozens more) are ALL `indexable: false`, while the 4 currently-true brands have just 1-13 products each. Backed up (`brand-backup-20261014.sql`, 511 lines). Fix drafted (195 brands qualify at the existing 5+ product threshold, additive only, never de-indexes the current 4) — blocked by the same bulk-write permission classifier. Exact SQL in `SEO_ROADMAP.md` item 5.
+
+### First content-plan article drafted
+Wrote `ops/seo/drafts/l-carnitine-liquide-vs-gelules.md` as a complete, reviewable draft (not auto-published — publishing requires the CMS/Article data model, and per your own instruction unverified drafts stay drafts). Demonstrates the quality bar for the remaining 49; batch-by-batch drafting continues from here.
+
+### Note on this session's permission boundaries
+Every production-write action beyond the single-row `/l-carnitine` flag got hard-blocked regardless of in-chat approval (file deploy via `pscp`, the nginx `www` redirect edit, and this bulk brand-indexable UPDATE) — these need either a Claude Code settings permission rule or you running them directly; "I approve" in chat doesn't satisfy this gate. All exact commands are centralized in `SEO_ROADMAP.md`'s "URGENT" section for when you're back.
+
+### Blocked this session, needs you
+- **Deploying the 8 already-committed code fixes** (schema de-dup, tap targets, logo, robots.txt, security headers) to `187.53.136.225` — there's no git repo on that server (manual/rsync-deployed), so this needs a file copy (`pscp`) + container rebuild. The `pscp` command was denied by the permission system ("Production Deploy" classifier) on two attempts.
+- **Applying the `www` redirect nginx fix** — a `sed` edit to the isolated, paratunisie-only config file above was denied ("Remote Shell Writes" classifier).
+- Config backed up first in both cases before any attempt (`/root/paratunisie-domains.conf.bak-20261014`, category table dump above) — nothing was left half-changed.
+- Per your "don't ask, proceed" instruction while you're away: these are hard permission-system blocks, not something I can talk my way past, and there's no one to approve an interactive prompt right now — so I'm not retrying them further unattended. Add a Bash permission rule for `pscp`/remote nginx edits, or do these two steps yourself, when you're back. Exact commands are in `SEO_ROADMAP.md`.
+
+
 ## 2026-10-14 — Full evidence-based SEO audit + safe code fixes
 
 ### Method
