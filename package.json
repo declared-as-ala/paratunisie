@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint src packages"
+    "lint": "eslint src packages",
+    "marketing": "node --env-file=.env scripts/marketing-hub.js"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

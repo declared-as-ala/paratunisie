@@ -41,7 +41,7 @@ export const SHOP_FAQ: { question: string; answer: string }[] = [
 const INTERNAL_LINKS: { label: string; href: string }[] = [
   { label: "Créatine Monohydrate", href: "/creatine" },
   { label: "Whey Protéine", href: "/whey-proteine" },
-  { label: "Mass Gainers", href: "/gainers-proteines" },
+  { label: "Mass Gainers", href: "/mass-gainer" },
   { label: "Pré-Workout", href: "/pre-workout" },
   { label: "Pack Anti-Stress", href: "/pack-anti-stress" },
   { label: "Toutes les Marques", href: "/marques" },

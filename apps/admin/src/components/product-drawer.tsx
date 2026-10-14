@@ -6,6 +6,7 @@ import { useToast } from "@/components/toast";
 import { ConfirmModal } from "@paratunisie/ui";
 import { calculateMargin, marginWarningClass, formatCurrency, formatPercent, formatDate } from "@/lib/utils";
 import type { Product, Supplier, PurchasePriceHistory } from "@/lib/types";
+import { SeoScore } from "./seo-checklist";
 import { SeoFormSection } from "./seo-form-section";
 import { MediaUploader } from "./media-uploader";
 import { apiClient } from "@/lib/api-client";
@@ -438,6 +439,7 @@ export function ProductDrawer({
               />
             </Field>
           </Section>
+          <SeoScore id={form.id} editing />
           <SeoFormSection
             data={{ seoTitle: form.seoTitle, seoDescription: form.seoDescription ?? form.metaDescription, seoH1: form.seoH1, seoIntro: form.seoIntro, seoContent: form.seoContent, seoKeywords: form.seoKeywords, canonicalUrl: form.canonicalUrl, ogTitle: form.ogTitle, ogDescription: form.ogDescription, ogImage: form.ogImage, imageAlt: form.imageAlt, indexable: form.indexable, followLinks: form.followLinks }}
             slug={form.slug || ""}

@@ -30,6 +30,8 @@ backups/
 *.sql
 *.tar.gz
 scratch/
+__pycache__/
+*.pyc
 
 # typescript
 *.tsbuildinfo

@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { Award, ChevronRight } from "lucide-react";
-import { brands } from "@/lib/data/brands";
+import { fetchBrands } from "@/lib/api/client";
 
-export function HomeFeaturedBrands() {
-  const featuredBrands = brands.slice(0, 8);
+export async function HomeFeaturedBrands() {
+  const featuredBrands = (await fetchBrands()).filter((brand) => (brand.productCount || 0) > 0).slice(0, 8);
 
   return (
     <section className="bg-soft-nude/40 py-12 sm:py-16 border-b border-border/50">
@@ -38,7 +38,7 @@ export function HomeFeaturedBrands() {
                 {b.name}
               </span>
               <span className="text-[0.625rem] font-medium text-ink-muted mt-1 line-clamp-1">
-                {b.tagline || "Dermatologie"}
+                {b.tagline || "Produits du catalogue"}
               </span>
               <span className="text-[0.625rem] text-primary font-semibold mt-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
                 Voir produits <ChevronRight size={10} />

@@ -14,6 +14,15 @@ const validProduct: ProductSeoQualityInput = {
 };
 
 describe("evaluateProductSeoQuality", () => {
+  it("does not interpret the product name Amino1 as a number-one claim", () => {
+    const result = evaluateProductSeoQuality({ ...validProduct, description: `${validProduct.description} La gamme Amino1.` });
+    expect(result.issues.map((issue) => issue.code)).not.toContain("UNSUPPORTED_ABSOLUTE_CLAIM");
+  });
+
+  it("recognizes the clearly labelled missing-photo placeholder", () => {
+    const result = evaluateProductSeoQuality({ ...validProduct, image: '/assets/product-unavailable.svg' });
+    expect(result.issues.map((issue) => issue.code)).toContain('MISSING_OR_PLACEHOLDER_IMAGE');
+  });
   it("approves a complete, internally hosted product", () => {
     const result = evaluateProductSeoQuality(validProduct);
     expect(result.eligible).toBe(true);

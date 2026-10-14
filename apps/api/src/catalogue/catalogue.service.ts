@@ -5,6 +5,7 @@ import { MeilisearchService } from "../search/meilisearch.service";
 import * as fs from "fs/promises";
 import * as path from "path";
 import * as crypto from "crypto";
+import { categoryTreeIds } from "./category-tree";
 import { evaluateProductSeoQuality } from "./product-seo-quality";
 
 export const fallbackProducts = [
@@ -97,8 +98,8 @@ export class CatalogueService {
     status?: string;
     sort?: string;
   }) {
-    const page = Math.max(1, Number(params?.page) || 1);
-    const limit = Math.max(1, Math.min(100, Number(params?.limit) || 24));
+    const page = Math.max(1, Math.floor(Number(params?.page) || 1));
+    const limit = Math.max(1, Math.min(100, Math.floor(Number(params?.limit) || 24)));
     const skip = (page - 1) * limit;
     const query = params?.search?.trim();
 
@@ -106,7 +107,7 @@ export class CatalogueService {
     // `contains` fallback below (D-0031). Only for the public, published-only
     // path: admin's `status` filter (e.g. browsing DRAFT products) keeps
     // using Prisma directly since the index only ever holds PUBLISHED docs.
-    if (query && !params?.status) {
+    if (query && !params?.status && !params?.category && !params?.concern && !params?.sort) {
       const searchResult = await this.meilisearchService.searchProducts(query, {
         limit,
         offset: skip,
@@ -140,39 +141,12 @@ export class CatalogueService {
         : ProductPublishState.PUBLISHED,
     };
 
-    // 1. Category filter (supports slug, name, multiple separated by | or comma, and child categories)
+    // Resolve the complete tree once: collection filters must match every depth.
     if (params?.category) {
-      const catTokens = params.category.split(/[|,]/).map((s) => s.trim()).filter(Boolean);
-      if (catTokens.length > 0) {
-        const matchedCats = await this.prisma.category.findMany({
-          where: {
-            OR: [
-              { slug: { in: catTokens.map((t) => t.toLowerCase()) } },
-              { name: { in: catTokens, mode: "insensitive" } },
-              ...catTokens.map((t) => ({ slug: { equals: t, mode: "insensitive" as const } })),
-            ],
-          },
-          select: { id: true },
-        });
-
-        const matchedCatIds = matchedCats.map((c) => c.id);
-
-        if (matchedCatIds.length > 0) {
-          const childCats = await this.prisma.category.findMany({
-            where: { parentId: { in: matchedCatIds } },
-            select: { id: true },
-          });
-          const allCatIds = Array.from(new Set([...matchedCatIds, ...childCats.map((c) => c.id)]));
-          where.categoryId = { in: allCatIds };
-        } else {
-          where.category = {
-            OR: [
-              { slug: { in: catTokens.map((t) => t.toLowerCase()) } },
-              { name: { in: catTokens, mode: "insensitive" } },
-            ],
-          };
-        }
-      }
+      const categories = await this.prisma.category.findMany({
+        select: { id: true, slug: true, name: true, parentId: true },
+      });
+      where.categoryId = { in: categoryTreeIds(categories, params.category.split(/[|,]/)) };
     }
 
     // 2. Brand filter (supports slug, name, multiple separated by | or comma)
@@ -227,11 +201,32 @@ export class CatalogueService {
       ];
     }
 
-    let orderBy: any[] = [{ inStock: "desc" }, { createdAt: "desc" }];
+    let orderBy: any[] = [{ inStock: "desc" }, { createdAt: "desc" }, { id: "asc" }];
     if (params?.sort === "name_asc" || params?.sort === "name") {
       orderBy = [{ inStock: "desc" }, { name: "asc" }];
     } else if (params?.sort === "newest") {
       orderBy = [{ inStock: "desc" }, { createdAt: "desc" }];
+    }
+
+    if (params?.sort === "price_asc" || params?.sort === "price_desc") {
+      // Sort the entire matching set before slicing a page. Only price/id data
+      // is loaded here; full descriptions and media stay out of this projection.
+      const candidates = await this.prisma.product.findMany({
+        where, select: { id: true, variants: { select: { priceMillimes: true } } },
+      });
+      const direction = params.sort === "price_desc" ? -1 : 1;
+      candidates.sort((a, b) => direction * ((a.variants[0]?.priceMillimes ?? 0) - (b.variants[0]?.priceMillimes ?? 0)) || a.id.localeCompare(b.id));
+      const ids = candidates.slice(skip, skip + limit).map((product) => product.id);
+      const rows = await this.prisma.product.findMany({
+        where: { ...where, id: { in: ids } }, include: { brand: true, category: true, variants: true, images: true },
+      });
+      const byId = new Map(rows.map((row) => [row.id, row]));
+      const total = candidates.length;
+      const totalPages = Math.ceil(total / limit) || 1;
+      return {
+        data: ids.map((id) => byId.get(id)).filter(Boolean).map((product) => params.status ? product : this.toPublicListingProduct(product)),
+        meta: { page, limit, total, totalPages, hasNextPage: page < totalPages, hasPreviousPage: page > 1 },
+      };
     }
 
     try {
@@ -577,7 +572,17 @@ export class CatalogueService {
 
   async resolveRedirect(path: string) {
     if (!path) return null;
-    return this.prisma.seoRedirect.findUnique({ where: { oldPath: path }, select: { newPath: true } });
+    const seen = new Set<string>();
+    let current = path;
+    for (let depth = 0; depth < 20; depth++) {
+      if (seen.has(current)) return null;
+      seen.add(current);
+      const redirect = await this.prisma.seoRedirect.findUnique({ where: { oldPath: current }, select: { newPath: true } });
+      if (!redirect) return current === path ? null : { newPath: current };
+      if (!redirect.newPath.startsWith("/") || redirect.newPath.startsWith("//")) return null;
+      current = redirect.newPath;
+    }
+    return null;
   }
 
   async deleteCategory(id: string) {
@@ -794,29 +799,28 @@ export class CatalogueService {
 
   /** Minimal slug + lastmod projection for sitemap.xml — see controller comment. */
   async getSitemapData() {
-    const [products, brands, categories] = await Promise.all([
-      this.prisma.product.findMany({
-        where: { publishState: "PUBLISHED", indexable: true },
-        select: { slug: true, updatedAt: true },
-      }),
-      this.prisma.brand.findMany({
-        where: {
-          status: "ACTIVE",
-          indexable: true,
-          products: { some: { publishState: "PUBLISHED", indexable: true } },
-        },
-        select: { slug: true, updatedAt: true },
-      }),
-      this.prisma.category.findMany({
-        where: {
-          status: "ACTIVE",
-          indexable: true,
-          products: { some: { publishState: "PUBLISHED", indexable: true } },
-        },
-        select: { slug: true, updatedAt: true },
-      }),
+    const [productRows, brandRows, tree] = await Promise.all([
+      this.prisma.product.findMany({ where: { publishState: "PUBLISHED", indexable: true }, select: { slug: true, updatedAt: true, categoryId: true, brandId: true, canonicalUrl: true } }),
+      this.prisma.brand.findMany({ where: { status: "ACTIVE", indexable: true }, select: { id: true, slug: true, updatedAt: true, canonicalUrl: true } }),
+      this.prisma.category.findMany({ select: { id: true, slug: true, name: true, parentId: true, status: true, indexable: true, updatedAt: true, canonicalUrl: true } }),
     ]);
-    return { products, brands, categories };
+    const selfCanonical = (canonical: string | null, path: string) => {
+      if (!canonical) return true;
+      try { const url = new URL(canonical, "https://paratunisie.com"); return url.hostname.replace(/^www\./, "") === "paratunisie.com" && url.pathname.replace(/\/$/, "") === path; } catch { return false; }
+    };
+    const latest = (date: Date, rows: { updatedAt: Date }[]) => new Date(Math.max(date.getTime(), ...rows.map((row) => row.updatedAt.getTime())));
+    const products = productRows.filter((product) => selfCanonical(product.canonicalUrl, `/produits/${product.slug}`));
+    const brands = brandRows.filter((brand) => selfCanonical(brand.canonicalUrl, `/marques/${brand.slug}`) && products.some((product) => product.brandId === brand.id))
+      .map((brand) => ({ slug: brand.slug, updatedAt: latest(brand.updatedAt, products.filter((product) => product.brandId === brand.id)) }));
+    const categories = tree.filter((category) => {
+      if (category.status !== "ACTIVE" || !category.indexable || !selfCanonical(category.canonicalUrl, `/${category.slug}`)) return false;
+      const ids = new Set(categoryTreeIds(tree, [category.id]));
+      return products.some((product) => ids.has(product.categoryId));
+    }).map((category) => {
+      const ids = new Set(categoryTreeIds(tree, [category.id]));
+      return { slug: category.slug, updatedAt: latest(category.updatedAt, products.filter((product) => ids.has(product.categoryId))) };
+    });
+    return { products: products.map(({ slug, updatedAt }) => ({ slug, updatedAt })), brands, categories };
   }
 
   /**

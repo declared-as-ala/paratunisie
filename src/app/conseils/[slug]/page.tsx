@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -12,6 +12,7 @@ import {
 
 import { articles, getArticleBySlug, type Article } from "@/lib/data/articles";
 import { getProductBySlug, formatPrice } from "@/lib/data/products";
+import { fetchProductBySlug, fetchSeoRedirect } from "@/lib/api/client";
 import { ArticleProductCard } from "@/components/article/article-product-card";
 import { ArticleProductComparison } from "@/components/article/article-product-comparison";
 import { ArticleTableOfContents } from "@/components/article/article-table-of-contents";
@@ -76,23 +77,44 @@ async function fetchArticleBySlug(slug: string): Promise<Article | null> {
   const local = getArticleBySlug(slug);
   try {
     const res = await fetch(`${API_URL}/content/articles/by-slug/${slug}`, {
-      next: { revalidate: 300 },
-      signal: AbortSignal.timeout(1000),
+      cache: "no-store",
+      signal: AbortSignal.timeout(5000),
     });
     if (res.ok) {
       const data = await res.json();
       if (data && data.slug) {
+        let blocks: { type?: string; text?: string }[] = [];
+        try { blocks = JSON.parse(data.content || "[]"); } catch {}
+        const sections: Article['sections'] = [];
+        const catalogueResponse = await fetch(`${API_URL}/catalogue/sitemap-data`, { cache: 'no-store' });
+        const catalogue = catalogueResponse.ok ? await catalogueResponse.json() : { products: [] };
+        const productPaths = new Set((catalogue.products || []).map((product: { slug: string }) => `/produits/${product.slug}`));
+        for (const block of Array.isArray(blocks) ? blocks : []) {
+          if (!block.text) continue;
+          if (block.type === 'heading' || !sections.length) sections.push({ title: block.type === 'heading' ? block.text : data.title, anchor: `section-${sections.length + 1}`, content: [] });
+          if (block.type !== 'heading') sections[sections.length - 1].content.push(block.text.replace(/\[([^\]]+)\]\((\/produits\/[^)]+)\)/g, (match, label, path) => productPaths.has(path) ? match : label));
+        }
         return {
           ...local,
           ...data,
+          h1: data.title,
+          seoDescription: data.metaDescription || data.excerpt,
+          focusKeyword: (data.targetKeyword || "").split(",")[0].trim(),
+          secondaryKeywords: (data.targetKeyword || "").split(",").slice(1).map((value: string) => value.trim()),
+          imageAlt: data.title,
+          sections,
+          takeaways: local?.takeaways || [], sources: local?.sources || [], relatedSlugs: local?.relatedSlugs || [], relatedCategories: local?.relatedCategories || [],
+          products: (data.products || []).map((item: { product?: { slug: string; name: string }; rationale?: string }) => ({ productSlug: item.product?.slug, productName: item.product?.name, rationale: item.rationale })),
           featuredImage: getArticleImage(slug, data.featuredImage || local?.featuredImage),
         };
       }
+      return null;
     }
   } catch {
+    if (process.env.NODE_ENV === 'production') throw new Error('Article service unavailable');
     // fallback to static
   }
-  if (!local) return null;
+  if (!local || process.env.NODE_ENV === 'production') return null;
   return {
     ...local,
     featuredImage: getArticleImage(slug, local.featuredImage),
@@ -109,6 +131,7 @@ export async function generateMetadata({
   if (!article) return { title: "Article introuvable | ParaTunisie" };
 
   return buildArticleMetadata({
+    ...article,
     title: article.seoTitle || article.h1,
     slug: article.slug,
     metaDescription: article.seoDescription,
@@ -128,7 +151,14 @@ export default async function ArticleDetailPage({
 }) {
   const { slug } = await params;
   const article = await fetchArticleBySlug(slug);
-  if (!article) notFound();
+  if (!article) {
+    const target = await fetchSeoRedirect(`/conseils/${slug}`);
+    if (target) permanentRedirect(target);
+    notFound();
+  }
+  const linkedProducts = await Promise.all((article.products || []).map(async (item) => item.productSlug ? fetchProductBySlug(item.productSlug) : null));
+  const liveProducts = new Map(linkedProducts.filter((product) => product !== null).map((product) => [product.slug, product]));
+  article.products = (article.products || []).filter((item) => item.productSlug && liveProducts.has(item.productSlug));
 
   // Related articles
   const relatedArticles = article.relatedSlugs
@@ -324,6 +354,7 @@ export default async function ArticleDetailPage({
                 <div className="space-y-4">
                   {article.products.map((item, idx) => (
                     <ArticleProductCard
+                      initialProduct={item.productSlug ? liveProducts.get(item.productSlug) : undefined}
                       key={item.productSlug || idx}
                       productSlug={item.productSlug}
                       rationale={item.rationale}
@@ -404,7 +435,7 @@ export default async function ArticleDetailPage({
                   </span>
                   <div className="space-y-2">
                     {article.products.map((item, idx) => {
-                      const prod = item.productSlug ? getProductBySlug(item.productSlug) : null;
+                      const prod = item.productSlug ? liveProducts.get(item.productSlug) : null;
                       if (!prod) return null;
                       return (
                         <Link

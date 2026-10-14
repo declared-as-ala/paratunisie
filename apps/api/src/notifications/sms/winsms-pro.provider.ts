@@ -101,7 +101,7 @@ export class WinSmsProProvider {
         const httpStatus = res.status;
         const text = await res.text();
 
-        let parsed: { code?: string; message?: string; id?: string; msg_id?: string } = {};
+        let parsed: { code?: string | number; message?: string; id?: string; msg_id?: string } = {};
         try {
           parsed = JSON.parse(text);
         } catch {
@@ -112,24 +112,20 @@ export class WinSmsProProvider {
         // Success: code "200" or "100" or "ok" or returns message ID / reference
         // Sender ID error: code "106", message "Invalid Sender id"
         // License/credits error: code "555", message "licence end"
-        const isCodeSuccess =
-          parsed.code === "200" ||
-          parsed.code === "100" ||
-          parsed.code?.toLowerCase() === "ok" ||
-          text.toLowerCase().includes("successfully") ||
-          text.toLowerCase().includes("ok") ||
-          text.toLowerCase().includes("success");
-        const senderIdAccepted = parsed.code !== "106";
+        const code = parsed.code == null ? "" : String(parsed.code).toLowerCase();
+        const isCodeSuccess = ["200", "100", "ok"].includes(code) ||
+          (!code && /^(ok|success|successfully sent|sms sent successfully)[.!\s]*$/i.test(text.trim()));
+        const senderIdAccepted = code !== "106";
         const messageId = parsed.id || parsed.msg_id || (parsed as any).reference || undefined;
 
-        const isSuccess = isCodeSuccess;
+        const isSuccess = res.ok && isCodeSuccess;
 
         lastResult = {
           success: isSuccess,
           providerMessageId: messageId,
-          errorCode: parsed.code || String(httpStatus),
+          errorCode: code || String(httpStatus),
           errorMessage: parsed.message || (isSuccess ? "Sent" : text),
-          senderIdUsed: effectiveSenderId,
+          senderIdUsed: currentSender,
           senderIdAccepted,
           httpStatus,
           rawResponse: text,
@@ -143,7 +139,7 @@ export class WinSmsProProvider {
 
         // If WinSMS rejects custom sender ID (e.g. PARATUNISIE not yet approved by telco on WinSMS account),
         // automatically fallback to the account's registered sender (SOBITAS) so the customer receives the SMS.
-        if (parsed.code === "106" && currentSender !== "SOBITAS") {
+        if (code === "106" && currentSender !== "SOBITAS") {
           this.logger.warn(
             `WinSMS Pro rejected sender "${currentSender}" (106: Invalid Sender id). Falling back to registered sender "SOBITAS" for recipient ${maskPhone(toPhone)}.`
           );

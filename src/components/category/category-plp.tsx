@@ -245,7 +245,7 @@ export function CategoryPLP({
   const allBrands = useMemo(() => extractUnique(products, "brand"), [products]);
   const allSkinTypes = useMemo(() => {
     const isSportsOrSupplementCategory = [
-      "creatine", "whey-proteine", "gainers-proteines", "pre-workout",
+      "creatine", "whey-proteine", "mass-gainer", "pre-workout",
       "bcaa-acides-amines", "vitamines-mineraux", "nutrition-sportive",
       "complements-alimentaires", "ashwagandha", "omega-3", "pack-anti-stress"
     ].includes(category.slug);

@@ -100,7 +100,7 @@ export function HomeSeoSection() {
               { label: "Créatine Monohydrate Tunisie", href: "/creatine" },
               { label: "Whey Protéine Tunisie", href: "/whey-proteine" },
               { label: "Ashwagandha Tunisie", href: "/ashwagandha" },
-              { label: "Gainer Prise de Masse", href: "/gainers-proteines" },
+              { label: "Gainer Prise de Masse", href: "/mass-gainer" },
               { label: "Pre-Workout Tunisie", href: "/pre-workout" },
               { label: "BCAA & EAA Récupération", href: "/bcaa" },
               { label: "Vitamines C & D3+K2", href: "/vitamines" },

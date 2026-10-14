@@ -3,13 +3,15 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 
 import { concernPages } from "@/lib/data/concerns";
-import { getProductsForConcern } from "@/lib/data/concerns";
+import { fetchPaginatedProducts } from "@/lib/api/client";
 
 import { buildCanonicalUrl } from "@/lib/seo/canonical";
 
 const SITE_URL = "https://paratunisie.com";
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: true },
   title: "Nos besoins — Trouvez le soin adapté | ParaTunisie",
   description:
     "Explorez nos catégories de besoins : peau sensible, imperfections, hydratation, anti-âge, chute de cheveux et protection solaire. Trouvez les soins adaptés à votre peau.",
@@ -22,7 +24,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function BesoinsPage() {
+export default async function BesoinsPage() {
+  const counts = new Map(await Promise.all(concernPages.map(async (concern) => [concern.slug, (await fetchPaginatedProducts({ concern: concern.slug, limit: 1 })).meta.total] as const)));
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
@@ -64,7 +67,7 @@ export default function BesoinsPage() {
 
         <div className="mt-10 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {concernPages.map((concern) => {
-            const count = getProductsForConcern(concern).length;
+            const count = counts.get(concern.slug) || 0;
             return (
               <Link
                 key={concern.slug}

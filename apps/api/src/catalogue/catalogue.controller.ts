@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Patch, Delete, Param, Query, Body, UseGuards, UseInterceptors, UploadedFile } from "@nestjs/common";
 import { FileInterceptor } from "@nestjs/platform-express";
 import { CatalogueService } from "./catalogue.service";
+import { SeoChecklistService } from "./seo-checklist.service";
 import { CatalogueSeoService, SeoEntityType } from "./catalogue-seo.service";
 import { AdminAuthGuard } from "../admin-auth/guards/admin-auth.guard";
 import { ArrayMaxSize, ArrayMinSize, IsArray, IsString } from "class-validator";
@@ -18,6 +19,7 @@ export class CatalogueController {
   constructor(
     private readonly catalogueService: CatalogueService,
     private readonly catalogueSeoService: CatalogueSeoService,
+    private readonly seoChecklistService: SeoChecklistService,
   ) {}
 
   @Post("upload-image")
@@ -47,6 +49,18 @@ export class CatalogueController {
       concern,
       sort,
     });
+  }
+
+  @Get("seo/checklist/:type")
+  @UseGuards(AdminAuthGuard)
+  getChecklist(@Param("type") type: string) {
+    return this.seoChecklistService.report(type);
+  }
+
+  @Post("seo/checklist/:type/:id")
+  @UseGuards(AdminAuthGuard)
+  optimizeChecklist(@Param("type") type: string, @Param("id") id: string, @Body() body: { repair?: boolean }) {
+    return this.seoChecklistService.optimize(type, id, body.repair !== false);
   }
 
   @Get("admin/products")

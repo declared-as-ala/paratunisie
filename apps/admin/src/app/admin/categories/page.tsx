@@ -17,7 +17,7 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { CategoryDrawer, type CategoryModel } from "@/components/category-drawer";
-import { BulkSeoGenerator } from "@/components/bulk-seo-generator";
+import { SeoChecklistProvider, SeoScore, SeoBulkOptimizer } from "@/components/seo-checklist";
 import { ConfirmModal } from "@/components/confirm-modal";
 import { useToast } from "@/components/toast";
 import { apiClient, resolveMediaUrl } from "@/lib/api-client";
@@ -100,7 +100,9 @@ const initialCategories: CategoryModel[] = [
   },
 ];
 
-export default function CategoriesAdminPage() {
+export default function CategoriesAdminPage() { return <SeoChecklistProvider type="category"><ChecklistPage /></SeoChecklistProvider>; }
+
+function ChecklistPage() {
   const { toast } = useToast();
   const [categories, setCategories] = useState<CategoryModel[]>([]);
   const [viewMode, setViewMode] = useState<"tree" | "table">("tree");
@@ -119,6 +121,12 @@ export default function CategoriesAdminPage() {
       try {
         const data = await apiClient.get<any[]>("/catalogue/categories");
         if (Array.isArray(data)) {
+          const countProducts = (id: string, seen = new Set<string>()): number => {
+            if (seen.has(id)) return 0;
+            seen.add(id);
+            const node = data.find(category => category.id === id);
+            return (node?._count?.products ?? 0) + data.filter(category => category.parentId === id).reduce((sum, child) => sum + countProducts(child.id, seen), 0);
+          };
           const mapped: CategoryModel[] = data.map((c) => ({
             id: c.id,
             name: c.name,
@@ -130,12 +138,12 @@ export default function CategoriesAdminPage() {
             position: c.position || 1,
             featured: Boolean(c.featured),
             status: c.status || "ACTIVE",
-            productCount: c._count?.products ?? c.productCount ?? 0,
+            productCount: countProducts(c.id),
             subcategoriesCount: c.children?.length ?? c._count?.children ?? 0,
             subcategories: (c.children || []).map((sub: any) => ({
               name: sub.name,
               slug: sub.slug,
-              productCount: sub._count?.products ?? 0,
+              productCount: countProducts(sub.id),
             })),
             seoTitle: c.seoTitle,
             seoDescription: c.seoDescription,
@@ -320,7 +328,7 @@ export default function CategoriesAdminPage() {
       </div>
 
       {/* ── Filter Bar & View Toggle ─────────────────────────────────── */}
-      <BulkSeoGenerator type="category" label="toutes les catégories" />
+      <SeoBulkOptimizer />
       <div className="rounded-2xl bg-white p-3.5 shadow-xs border border-slate-200/80 flex items-center justify-between gap-3 flex-wrap">
         <div className="relative flex-1 min-w-[240px] max-w-md">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -400,7 +408,7 @@ export default function CategoriesAdminPage() {
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <h2 className="font-extrabold text-slate-900 text-sm">{cat.name}</h2>
+                        <h2 className="font-extrabold text-slate-900 text-sm">{cat.name}</h2><SeoScore id={cat.id} />
                         <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200/80 px-2.5 py-0.5 text-[0.625rem] font-bold">
                           <CheckCircle2 size={11} /> Actif
                         </span>
@@ -450,7 +458,7 @@ export default function CategoriesAdminPage() {
                         key={sub.slug}
                         className="flex items-center justify-between rounded-xl bg-slate-50 border border-slate-200/60 px-3.5 py-2 text-xs font-semibold text-slate-800"
                       >
-                        <span className="truncate">{sub.name}</span>
+                        <span className="min-w-0"><span className="block truncate">{sub.name}</span><SeoScore id={categories.find(category => category.slug === sub.slug)?.id} /></span>
                         <span className="font-bold text-slate-500 text-[0.6875rem]">
                           {sub.productCount} ref
                         </span>
@@ -477,7 +485,8 @@ export default function CategoriesAdminPage() {
                   <th className="py-3.5 px-4 text-center">SOUS-CATÉGORIES</th>
                   <th className="py-3.5 px-4 text-center">PRODUITS</th>
                   <th className="py-3.5 px-4">STATUT</th>
-                  <th className="py-3.5 px-4 text-right">ACTIONS</th>
+                  <th className="py-3.5 px-4">SEO</th>
+                <th className="py-3.5 px-4 text-right">ACTIONS</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
@@ -517,6 +526,7 @@ export default function CategoriesAdminPage() {
                         <CheckCircle2 size={12} /> Actif
                       </span>
                     </td>
+                    <td className="py-3.5 px-4"><SeoScore id={c.id} /></td>
                     <td className="py-3.5 px-4 text-right">
                       <div className="flex items-center justify-end gap-2 text-slate-400">
                         <button

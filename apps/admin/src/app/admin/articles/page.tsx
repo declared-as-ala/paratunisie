@@ -48,6 +48,8 @@ interface Article {
   canonicalUrl?: string;
   indexable: boolean;
   ogImage?: string;
+  ogTitle?: string;
+  ogDescription?: string;
   targetKeyword?: string;
   products?: { productId: string; productName?: string }[];
   brands?: { brandId: string }[];
@@ -371,8 +373,8 @@ export default function ArticlesPage() {
       metaDescription: article.metaDescription ?? "",
       canonicalUrl: article.canonicalUrl ?? "",
       indexable: article.indexable,
-      ogTitle: "",
-      ogDescription: "",
+      ogTitle: article.ogTitle ?? "",
+      ogDescription: article.ogDescription ?? "",
       ogImage: article.ogImage ?? "",
       targetKeyword: article.targetKeyword ?? "",
       products: (article.products ?? []).map((p) => ({

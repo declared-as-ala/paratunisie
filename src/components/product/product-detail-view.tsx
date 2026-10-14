@@ -33,7 +33,7 @@ export function ProductDetailView({
             </li>
             <li aria-hidden>/</li>
             <li>
-              <Link href={`/shop?categories=${encodeURIComponent(product.category)}`} className="hover:text-primary">
+              <Link href={`/${product.categorySlug}`} className="hover:text-primary">
                 {product.category}
               </Link>
             </li>

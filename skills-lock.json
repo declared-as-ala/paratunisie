@@ -7,6 +7,18 @@
       "skillPath": "skills/4k-vfx/SKILL.md",
       "computedHash": "e02ac772ab7daf8ba4737f7fde4706b897ad79512ea62f63070bd5994764384d"
     },
+    "ai-prompt-research": {
+      "source": "every-app/open-seo",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/ai-prompt-research/SKILL.md",
+      "computedHash": "cb4f08a5f3a14b3f25db235d6095b45bf2ad68c196b3a0eb9481b7aefecfc220"
+    },
+    "ai-visibility-audit": {
+      "source": "every-app/open-seo",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/ai-visibility-audit/SKILL.md",
+      "computedHash": "9a4a55186d0fbf27da2acd37607f40b60549f3d675b56f655a6e87132ef7cedb"
+    },
     "anime-soccer": {
       "source": "Pika-Labs/Pika-Plugins",
       "sourceType": "github",
@@ -36,6 +48,18 @@
       "sourceType": "github",
       "skillPath": "skills/build-a-brand/SKILL.md",
       "computedHash": "3f92a1f6e9694c30df6b8e6cf0120e2fdc43cafeabbb365cf87ce2d5ffe9c95c"
+    },
+    "competitive-landscape": {
+      "source": "every-app/open-seo",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/competitive-landscape/SKILL.md",
+      "computedHash": "72378a015246e1d8d28cfb0c4f585c80735c4b1f8b9baa274dad29c0757a7a0b"
+    },
+    "competitor-analysis": {
+      "source": "every-app/open-seo",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/competitor-analysis/SKILL.md",
+      "computedHash": "68ffdeed7d261cc31dc194085566bffee5ea1b0036e76ea4ca326b2b18fce594"
     },
     "content-director": {
       "source": "Pika-Labs/Pika-Plugins",
@@ -121,6 +145,18 @@
       "skillPath": "higgsfield-youtube-thumbnail/SKILL.md",
       "computedHash": "f549199d92da66913a1f7987ba812a51b40515b001def50c22252531215d43a9"
     },
+    "keyword-clustering": {
+      "source": "every-app/open-seo",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/keyword-clustering/SKILL.md",
+      "computedHash": "dace5ceb1f01ca9cef1bc11b80b4226872a65a7156cfab9a449fe1f1bf1be66d"
+    },
+    "keyword-research": {
+      "source": "every-app/open-seo",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/keyword-research/SKILL.md",
+      "computedHash": "5c2970f4221c5bc40356b18baa109374fa54ee66d974edd5065eaab5787122fe"
+    },
     "kiss-cam": {
       "source": "Pika-Labs/Pika-Plugins",
       "sourceType": "github",
@@ -133,6 +169,18 @@
       "skillPath": "skills/language-swap/SKILL.md",
       "computedHash": "37ec5718148f2f329fb1b99016b9f4018ea63c00f1ff50b21f79c7c7842dc537"
     },
+    "link-prospecting": {
+      "source": "every-app/open-seo",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/link-prospecting/SKILL.md",
+      "computedHash": "226bd387cd752a03dd9c24ae662c5f8e253e64a4474a164c4eebd3b2df3bdb84"
+    },
+    "local-seo": {
+      "source": "every-app/open-seo",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/local-seo/SKILL.md",
+      "computedHash": "9dee609c80927eedb2b1e13eefdcdbe5531304da25023d59cfb821f7eaea65e3"
+    },
     "persona-builder": {
       "source": "Pika-Labs/Pika-Plugins",
       "sourceType": "github",
@@ -144,6 +192,36 @@
       "sourceType": "github",
       "skillPath": "skills/podcast/SKILL.md",
       "computedHash": "ffa1909f8a75bbd9c5dfb56ff608d416a6bfda5fa6e434fb04aee2367b29caa7"
+    },
+    "seo-audit": {
+      "source": "every-app/open-seo",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/seo-audit/SKILL.md",
+      "computedHash": "7a38fb55220890d7b776cfb2f6689814710c9da9cca6c44c84179142ed7e7ece"
+    },
+    "seo-coach": {
+      "source": "every-app/open-seo",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/seo-coach/SKILL.md",
+      "computedHash": "5c1a397c93c03ef8212d7f3e14d9f331937b94d2799ad203e51cd7e95b2d068e"
+    },
+    "seo-project-setup": {
+      "source": "every-app/open-seo",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/seo-project-setup/SKILL.md",
+      "computedHash": "409db40759df8b86d12dcd6819f35b05c147eeb2f1c6b4539d433753bf809429"
+    },
+    "seo-report": {
+      "source": "every-app/open-seo",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/seo-report/SKILL.md",
+      "computedHash": "3a0d276423040ff7867ded735b110b2646c1d135622c11c674945dc6451a0500"
+    },
+    "simple-issue-description": {
+      "source": "every-app/open-seo",
+      "sourceType": "github",
+      "skillPath": ".agents/skills/simple-issue-description/SKILL.md",
+      "computedHash": "7d97b412347c8954d666a9a2c015a404ea32efce4efbbecc55a4419db68074c5"
     },
     "stagefight": {
       "source": "Pika-Labs/Pika-Plugins",

@@ -26,7 +26,7 @@ function getApiBase() {
  * /api/v1/uploads/... URL that doesn't exist.
  */
 function resolveImageUrl(rawImage: string | null | undefined): string {
-  if (!rawImage) return "/assets/product-tube.webp";
+  if (!rawImage) return "/assets/product-unavailable.svg";
   if (
     rawImage.startsWith("http://") ||
     rawImage.startsWith("https://") ||
@@ -103,6 +103,7 @@ function transformProduct(raw: RawProduct): ProductSummary {
     sku: raw.variants?.[0]?.sku || raw.id,
     slug: raw.slug,
     brand: raw.brand?.name || "ParaTunisie",
+    brandSlug: raw.brand?.slug,
     name: raw.name,
     benefit: raw.benefit || "",
     size: defaultVariant?.label || "",
@@ -148,24 +149,22 @@ function parseJsonStringArray(value?: string): string[] {
 
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T | null> {
   const url = `${getApiBase()}${path}`;
-  console.log(`[API FETCH] ${init?.method || "GET"} ${url}`);
+  const criticalCatalogue = typeof window === "undefined" && process.env.NODE_ENV === "production" && /^\/catalogue\/(products|categories|brands)(?:[/?]|$)/.test(path);
   try {
     const res = await fetch(url, {
       cache: "no-store",
-      signal: AbortSignal.timeout(2000),
+      signal: AbortSignal.timeout(5000),
       ...init,
     });
-    console.log(`[API FETCH] Response status for ${url}: ${res.status}`);
     if (!res.ok) {
-      const errText = await res.text().catch(() => "");
-      console.error(`[API FETCH] HTTP ${res.status} error for ${url}:`, errText);
+      if (criticalCatalogue && res.status >= 500) throw new Error(`Catalogue HTTP ${res.status}`);
       return null;
     }
     const json = await res.json();
-    console.log(`[API FETCH] Success JSON for ${url}:`, json);
     return json;
   } catch (err: any) {
     console.error(`[API FETCH] Exception for ${url}:`, err.message);
+    if (criticalCatalogue) throw err;
     return null;
   }
 }
@@ -296,14 +295,14 @@ export const HOMEPAGE_CATEGORY_DEFINITIONS = [
     title: "Whey Protéine & Gainers",
     subtitle: "Whey, protéines et gainers : comparez les formats et compositions disponibles.",
     slug: "whey-proteine",
-    matches: ["whey-proteine", "whey", "gainers-proteines", "gainers"]
+    matches: ["whey-proteine"]
   },
   {
     key: "pre-workout",
     title: "Pre-Workout & Énergie",
     subtitle: "Boosters d'entraînement puissants pour une énergie explosive et une congestion maximale.",
     slug: "pre-workout",
-    matches: ["pre-workout", "boosters-hormonaux", "boosters"]
+    matches: ["pre-workout"]
   },
   {
     key: "vitamines",

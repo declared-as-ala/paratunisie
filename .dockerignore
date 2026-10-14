@@ -11,6 +11,7 @@
 
 # env — never baked into images (compose injects at runtime)
 **/.env
+**/.env*
 **/.env*.local
 
 # database files
@@ -23,6 +24,13 @@ backups
 # misc
 .git
 .gitignore
+certbot/
+scratch/
+scripts/
+source.tgz
+media.tgz
+deploy.log
+**/*.log
 *.md
 Dockerfile
 **/Dockerfile

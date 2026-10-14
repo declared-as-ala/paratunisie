@@ -230,7 +230,7 @@ export const CATEGORY_GUIDES: Record<string, CategoryGuide> = {
       },
     ],
   },
-  "gainers-proteines": {
+  "mass-gainer": {
     title: "Guide d'Achat : Gainer & Prise de Masse en Tunisie",
     intro: "Les gainers (mass gainers) sont des formules riches en calories, glucides complexes et protéines, conçues pour faciliter le surplus calorique chez les personnes ayant un métabolisme rapide ou des difficultés à prendre du poids.",
     relatedGuide: {

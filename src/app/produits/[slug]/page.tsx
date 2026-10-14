@@ -12,7 +12,7 @@ import {
   fetchProductBySlug,
   fetchProductRating,
   fetchProductReviews,
-  fetchProducts,
+  fetchPaginatedProducts,
   fetchSeoRedirect,
 } from "@/lib/api/client";
 import {
@@ -31,9 +31,7 @@ function hasDistinctSeoContent(description: string, seoContent?: string | null):
   return seoText.length >= 80 && !descriptionText.includes(seoText) && !seoText.includes(descriptionText);
 }
 
-export function generateStaticParams() {
-  return products.map((product) => ({ slug: product.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -45,6 +43,7 @@ export async function generateMetadata({
   if (!product) return {};
 
   return buildProductMetadata({
+    ...product,
     name: product.name,
     slug: product.slug,
     brandName: product.brand,
@@ -72,7 +71,7 @@ export default async function ProductPage({
   }
 
   /* Fetch all products for "similar" and "routine completion" rails */
-  const allProducts = await fetchProducts();
+  const allProducts = (await fetchPaginatedProducts({ category: product.categorySlug, limit: 12 })).products;
   const routineCompletion = getRoutineCompletionProducts(product, 4, allProducts);
   const similar = getSimilarProducts(product, 4, allProducts);
   const [reviews, rating] = await Promise.all([
@@ -81,6 +80,7 @@ export default async function ProductPage({
   ]);
 
   const productJsonLd = buildProductSchema({
+    rating,
     name: product.name,
     slug: product.slug,
     image: product.image,
@@ -102,7 +102,6 @@ export default async function ProductPage({
 
   const breadcrumbsJsonLd = buildBreadcrumbsSchema([
     { name: "Accueil", url: "/" },
-    { name: "Boutique", url: "/shop" },
     { name: product.category, url: `/${categorySlug}` },
     { name: product.name, url: `/produits/${product.slug}` },
   ]);

@@ -39,7 +39,9 @@ export class NotificationsService {
       // 1. Send SMS to Customer
       if (order.customerPhone) {
         console.log(`[NOTIFICATIONS] Delivering SMS to ${order.customerPhone}...`);
-        await this.deliverSmsNotification(order, type);
+        await this.deliverSmsNotification(order, type).catch((error) => {
+          this.logger.error(`SMS delivery failed for order #${orderId}: ${error.message}`);
+        });
       } else {
         console.log(`[NOTIFICATIONS] No phone number for order #${orderId}, skipping SMS.`);
       }
@@ -47,12 +49,14 @@ export class NotificationsService {
       // 2. Send Email to Customer if Email exists
       if (order.customerEmail) {
         console.log(`[NOTIFICATIONS] Delivering Customer Email to ${order.customerEmail}...`);
-        await this.deliverEmailNotification(order, type, false);
+        await this.deliverEmailNotification(order, type, false).catch((error) => {
+          this.logger.error(`Customer email delivery failed for order #${orderId}: ${error.message}`);
+        });
       } else {
         console.log(`[NOTIFICATIONS] No customer email for order #${orderId}, skipping customer email.`);
       }
 
-      // 3. Send Notification Email to Admin (alamissaoui.dev@gmail.com)
+      // 3. Send the admin notification by email only.
       const adminEmail = process.env.ADMIN_EMAIL || "alamissaoui.dev@gmail.com";
       console.log(`[NOTIFICATIONS] Delivering Admin Email to ${adminEmail}...`);
       await this.deliverEmailNotification(order, type, true, adminEmail);
@@ -306,27 +310,6 @@ export class NotificationsService {
       this.logger.warn(`Prisma fetch failed in notification builder: ${e.message}`);
     }
 
-    // Return synthetic fallback object if database query returned null
-    return {
-      id: orderId,
-      orderNumber: `PT-${orderId}`,
-      status: "EN_ATTENTE",
-      totalMillimes: 58900,
-      totalTnd: "58,900",
-      gouvernorat: "Tunis",
-      fullAddress: "Le Kram, Tunis",
-      deliveryNote: null,
-      customerName: "Client ParaTunisie",
-      customerPhone: "27578505",
-      customerEmail: "client@paratunisie.tn",
-      items: [
-        {
-          productName: "Produit Parapharmacie",
-          quantity: 1,
-          priceTnd: "58,900",
-          subtotalTnd: "58,900",
-        },
-      ],
-    };
+    return null;
   }
 }

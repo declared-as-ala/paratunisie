@@ -1,11 +1,14 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
 
 function inline(text: string): ReactNode[] {
-  return text.split(/(\*\*[^*]+\*\*)/g).filter(Boolean).map((part, index) =>
-    part.startsWith("**") && part.endsWith("**")
+  return text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\(\/(?!\/)[^\s)]+\))/g).filter(Boolean).map((part, index) => {
+    const link = part.match(/^\[([^\]]+)\]\((\/(?!\/)[^\s)]+)\)$/);
+    if (link) return <Link key={index} href={link[2]} className="underline underline-offset-2 hover:text-primary">{link[1]}</Link>;
+    return part.startsWith("**") && part.endsWith("**")
       ? <strong key={index}>{part.slice(2, -2)}</strong>
-      : part,
-  );
+      : part;
+  });
 }
 
 /** Renders the small Markdown subset used by imported product copy without raw HTML. */

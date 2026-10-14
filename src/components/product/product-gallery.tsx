@@ -7,11 +7,11 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 
 export function ProductGallery({ image, alt }: { image: string; alt: string }) {
-  const [imgSrc, setImgSrc] = useState(image || "/assets/product-tube.webp");
+  const [imgSrc, setImgSrc] = useState(image || "/assets/product-unavailable.svg");
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
-    setImgSrc(image || "/assets/product-tube.webp");
+    setImgSrc(image || "/assets/product-unavailable.svg");
   }, [image]);
 
   return (
@@ -30,7 +30,7 @@ export function ProductGallery({ image, alt }: { image: string; alt: string }) {
           fetchPriority="high"
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 560px"
           className="object-contain p-4 sm:p-6 transition-transform duration-[var(--duration-large)] ease-[var(--ease-out-standard)] group-hover:scale-105"
-          onError={() => setImgSrc("/assets/product-tube.webp")}
+          onError={() => setImgSrc("/assets/product-unavailable.svg")}
         />
         <span className="absolute end-3 bottom-3 sm:end-4 sm:bottom-4 z-10 flex size-9 sm:size-11 items-center justify-center rounded-full bg-white/90 backdrop-blur-xs text-ink shadow-sm border border-border/60">
           <ZoomIn className="size-4 sm:size-5" aria-hidden />
@@ -51,7 +51,7 @@ export function ProductGallery({ image, alt }: { image: string; alt: string }) {
             src={imgSrc}
             alt={alt}
             className="max-h-full max-w-full object-contain"
-            onError={() => setImgSrc("/assets/product-tube.webp")}
+            onError={() => setImgSrc("/assets/product-unavailable.svg")}
           />
         </div>
         <Button

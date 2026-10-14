@@ -269,7 +269,7 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
   return (
     <div className="w-full max-w-full min-w-0">
       <Link
-        href={`/marques/${product.brand.toLowerCase().replace(/\s+/g, "-")}`}
+        href={`/marques/${product.brandSlug || product.brand.toLowerCase().replace(/\s+/g, "-")}`}
         className="text-[0.6875rem] sm:text-xs font-semibold tracking-[0.14em] text-primary uppercase hover:underline"
       >
         {product.brand}
@@ -290,7 +290,7 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
         </div>
       )}
 
-      <p className="mt-1.5 sm:mt-2 text-xs sm:text-base leading-relaxed text-ink-muted">{product.benefit}</p>
+      <p className="mt-1.5 sm:mt-2 text-xs sm:text-base leading-relaxed text-ink-muted">{product.seoIntro || product.benefit}</p>
 
       {/* Stock + Delivery indicators */}
       <div className="mt-2.5 sm:mt-3 flex flex-wrap items-center gap-2">
