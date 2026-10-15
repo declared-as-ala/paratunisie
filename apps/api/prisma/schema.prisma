@@ -637,6 +637,7 @@ model Article {
   authorName     String?
   expertReviewer String?
   featuredImage  String?
+  imagePrompt    String?
   publishedAt    DateTime?
   scheduledFor   DateTime?
   createdAt      DateTime  @default(now())
