@@ -6,12 +6,25 @@ import { useEffect, useRef } from "react";
 import { Menu, ChevronDown } from "lucide-react";
 import { storefrontNavigation, mobileNavigationGroups } from "@/lib/data/storefront-navigation";
 
-const linkClass = "flex min-h-11 items-center rounded-lg px-3 text-sm font-semibold transition-colors hover:bg-white hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary";
+const linkClass = "relative flex min-h-11 items-center rounded-lg px-3.5 text-sm font-semibold transition-colors duration-150 hover:bg-white hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary after:absolute after:inset-x-3.5 after:bottom-1 after:h-[2px] after:rounded-full after:bg-primary after:transition-transform after:duration-200 after:content-['']";
 
 export function MegaMenu() {
   const pathname = usePathname();
-  return <ul className="flex w-full flex-wrap items-center justify-center gap-x-0.5 gap-y-1 py-1">
-    {storefrontNavigation.map((item) => <li key={item.href}><Link href={item.href} aria-current={pathname === item.href ? "page" : undefined} className={`${linkClass} ${pathname === item.href ? "bg-white text-primary" : "text-ink"}`}>{item.label}</Link></li>)}
+  return <ul className="flex w-full flex-wrap items-center justify-center gap-x-1 gap-y-1 py-1">
+    {storefrontNavigation.map((item) => {
+      const active = pathname === item.href;
+      return (
+        <li key={item.href}>
+          <Link
+            href={item.href}
+            aria-current={active ? "page" : undefined}
+            className={`${linkClass} ${active ? "text-primary after:scale-x-100" : "text-ink after:scale-x-0 hover:after:scale-x-100"}`}
+          >
+            {item.label}
+          </Link>
+        </li>
+      );
+    })}
   </ul>;
 }
 

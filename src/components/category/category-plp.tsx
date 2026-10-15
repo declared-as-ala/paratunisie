@@ -6,6 +6,7 @@ import { useCallback, useMemo, useState } from "react";
 
 import { ProductCard } from "@/components/product/product-card";
 import { Button } from "@/components/ui/button";
+import { PaginationNav } from "@/components/ui/pagination-nav";
 import { type ProductSummary } from "@/lib/data/products";
 import type { PaginationMeta } from "@/lib/api/client";
 import {
@@ -415,14 +416,12 @@ export function CategoryPLP({
               <Button variant="outline" size="lg" className="mt-6" onClick={clearFilters}>Réinitialiser les filtres</Button>
             </div>
           )}
-          {!hasActive && meta.totalPages > 1 && (
-            <nav aria-label="Pagination" className="mt-10 flex flex-wrap items-center justify-center gap-2">
-              {meta.page > 1 && <Link rel="prev" href={meta.page === 2 ? `/${category.slug}` : `/${category.slug}?page=${meta.page - 1}`} className="rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-soft-nude">Précédent</Link>}
-              {Array.from({ length: meta.totalPages }, (_, index) => index + 1).filter((page) => page === 1 || page === meta.totalPages || Math.abs(page - meta.page) <= 2).map((page) => (
-                <Link key={page} href={page === 1 ? `/${category.slug}` : `/${category.slug}?page=${page}`} aria-current={page === meta.page ? "page" : undefined} className={`min-w-9 rounded-lg border px-3 py-2 text-center text-sm font-medium ${page === meta.page ? "border-primary bg-primary text-white" : "border-border hover:bg-soft-nude"}`}>{page}</Link>
-              ))}
-              {meta.page < meta.totalPages && <Link rel="next" href={`/${category.slug}?page=${meta.page + 1}`} className="rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-soft-nude">Suivant</Link>}
-            </nav>
+          {!hasActive && (
+            <PaginationNav
+              currentPage={meta.page}
+              totalPages={meta.totalPages}
+              pageHref={(page) => (page === 1 ? `/${category.slug}` : `/${category.slug}?page=${page}`)}
+            />
           )}
         </section>
       </div>

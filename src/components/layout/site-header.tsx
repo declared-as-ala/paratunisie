@@ -83,7 +83,7 @@ export function SiteHeader() {
             <Link
               href="/compte"
               aria-label="Mon compte"
-              className="hidden sm:flex flex-col items-center justify-center text-ink hover:text-primary transition-colors group p-1"
+              className="hidden sm:flex min-h-11 min-w-11 flex-col items-center justify-center rounded-lg text-ink transition-colors hover:bg-soft-nude hover:text-primary group"
             >
               <User size={20} className="group-hover:scale-105 transition-transform" />
               <span className="text-[0.6875rem] font-medium mt-0.5">Compte</span>
@@ -93,7 +93,7 @@ export function SiteHeader() {
             <Link
               href="/favoris"
               aria-label="Favoris"
-              className="hidden sm:flex flex-col items-center justify-center text-ink hover:text-primary transition-colors group relative p-1"
+              className="hidden sm:flex min-h-11 min-w-11 flex-col items-center justify-center rounded-lg text-ink transition-colors hover:bg-soft-nude hover:text-primary group relative"
             >
               <div className="relative">
                 <Heart size={20} className="group-hover:scale-105 transition-transform" />
@@ -111,7 +111,7 @@ export function SiteHeader() {
               type="button"
               onClick={() => setCartOpen(true)}
               aria-label={`Panier${itemCount > 0 ? ` — ${itemCount} article${itemCount === 1 ? "" : "s"}` : ""}`}
-              className="flex flex-col items-center justify-center text-ink hover:text-primary transition-colors group relative p-1"
+              className="flex min-h-11 min-w-11 flex-col items-center justify-center rounded-lg text-ink transition-colors hover:bg-soft-nude hover:text-primary group relative"
             >
               <div className="relative">
                 <ShoppingBag size={20} className="group-hover:scale-105 transition-transform" />

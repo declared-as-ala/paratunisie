@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { SlidersHorizontal, X, ChevronLeft, ChevronRight, ShoppingBag, ChevronDown } from "lucide-react";
+import { SlidersHorizontal, X, ShoppingBag, ChevronDown } from "lucide-react";
 import { useMemo, useState, useTransition } from "react";
 
 import { ProductCard } from "@/components/product/product-card";
@@ -10,6 +10,7 @@ import { FilterControls, type ShopFilters } from "@/components/shop/filter-contr
 import { SearchOverlay } from "@/components/layout/navigation/search-overlay";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { PaginationNav } from "@/components/ui/pagination-nav";
 import { type ProductSummary } from "@/lib/data/products";
 import type { PaginationMeta } from "@/lib/api/client";
 
@@ -334,67 +335,7 @@ export function ShopPage({
                 </div>
 
                 {/* Numeric Pagination */}
-                {totalPages > 1 && (
-                  <nav aria-label="Pagination" className="mt-12 flex flex-wrap justify-center items-center gap-2">
-                    {currentPage > 1 ? (
-                      <Link rel="prev" href={pageHref(currentPage - 1)} className="inline-flex h-8 items-center gap-1 rounded-xl border border-border px-3 text-xs font-bold hover:bg-soft-nude">
-                        <ChevronLeft size={14} /> <span className="hidden sm:inline">Précédent</span>
-                      </Link>
-                    ) : (
-                      <span aria-disabled="true" className="inline-flex h-8 items-center gap-1 rounded-xl border border-border px-3 text-xs font-bold opacity-50">
-                        <ChevronLeft size={14} /> <span className="hidden sm:inline">Précédent</span>
-                      </span>
-                    )}
-
-                    <div className="flex items-center gap-1">
-                      {Array.from({ length: Math.min(5, totalPages) }, (_, idx) => {
-                        let pNum = currentPage;
-                        if (totalPages <= 5) {
-                          pNum = idx + 1;
-                        } else if (currentPage <= 3) {
-                          pNum = idx + 1;
-                        } else if (currentPage >= totalPages - 2) {
-                          pNum = totalPages - 4 + idx;
-                        } else {
-                          pNum = currentPage - 2 + idx;
-                        }
-                        return (
-                          <Link
-                            key={pNum}
-                            href={pageHref(pNum)}
-                            aria-current={currentPage === pNum ? "page" : undefined}
-                            className={`size-8 sm:h-9 sm:min-w-9 sm:size-auto rounded-xl text-xs font-bold transition-all ${
-                              currentPage === pNum
-                                ? "bg-primary text-white shadow-2xs font-extrabold"
-                                : "bg-white border border-border text-ink hover:bg-soft-nude"
-                            }`}
-                          >
-                            {pNum}
-                          </Link>
-                        );
-                      })}
-                      {totalPages > 5 && <span className="text-ink-muted px-1">...</span>}
-                      {totalPages > 5 && (
-                        <Link
-                          href={pageHref(totalPages)}
-                          className="size-8 sm:h-9 sm:min-w-9 sm:size-auto rounded-xl text-xs font-bold bg-white border border-border text-ink hover:bg-soft-nude"
-                        >
-                          {totalPages}
-                        </Link>
-                      )}
-                    </div>
-
-                    {currentPage < totalPages ? (
-                      <Link rel="next" href={pageHref(currentPage + 1)} className="inline-flex h-8 items-center gap-1 rounded-xl border border-border px-3 text-xs font-bold hover:bg-soft-nude">
-                        <span className="hidden sm:inline">Suivant</span> <ChevronRight size={14} />
-                      </Link>
-                    ) : (
-                      <span aria-disabled="true" className="inline-flex h-8 items-center gap-1 rounded-xl border border-border px-3 text-xs font-bold opacity-50">
-                        <span className="hidden sm:inline">Suivant</span> <ChevronRight size={14} />
-                      </span>
-                    )}
-                  </nav>
-                )}
+                <PaginationNav currentPage={currentPage} totalPages={totalPages} pageHref={pageHref} />
               </>
             ) : (
               <div className="rounded-2xl border border-border bg-white px-6 py-16 text-center shadow-xs">

@@ -110,7 +110,7 @@ export function HomeHero() {
             {/* Primary CTA */}
             <Link
               href="/shop"
-              className="group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-[#8B3B62] hover:bg-[#a64775] text-white uppercase tracking-widest font-semibold shadow-[0_4px_25px_rgba(139,59,98,0.5)] transition-all hover:scale-[1.02] active:scale-[0.98] px-6 py-3.5 text-xs sm:text-sm gap-2"
+              className="group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-primary hover:bg-primary-hover text-primary-foreground uppercase tracking-widest font-semibold shadow-[0_4px_25px_rgba(123,47,82,0.45)] transition-all hover:scale-[1.02] active:scale-[0.98] px-6 py-3.5 text-xs sm:text-sm gap-2"
             >
               <Sparkles size={16} className="text-white" />
               <span>Découvrir nos produits</span>
