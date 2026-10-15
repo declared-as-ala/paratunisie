@@ -23,7 +23,7 @@ export async function HomeSplitFeature() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Column: Editorial Brand Story & Bullet Points (5 cols) */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#8B3B62]/10 text-[#8B3B62] text-xs font-semibold uppercase tracking-widest">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold uppercase tracking-widest">
               <Sparkles size={14} />
               <span>Nutrition &amp; Performance</span>
             </div>
@@ -31,7 +31,7 @@ export async function HomeSplitFeature() {
             <h2 className="font-serif text-3xl sm:text-4xl text-foreground tracking-tight leading-tight">
               Des compléments de qualité,{" "}
               <br className="hidden sm:inline" />
-              <span className="font-serif italic text-[#8B3B62]">pour vos objectifs sportifs.</span>
+              <span className="font-serif italic text-primary">pour vos objectifs sportifs.</span>
             </h2>
 
             <p className="text-muted-foreground text-sm sm:text-base leading-relaxed">
@@ -41,7 +41,7 @@ export async function HomeSplitFeature() {
             <ul className="space-y-3 text-xs sm:text-sm text-foreground/90 pt-1">
               {ADVANTAGES.map((adv) => (
                 <li key={adv} className="flex items-center gap-2.5">
-                  <span className="size-4 rounded-full bg-[#8B3B62]/15 text-[#8B3B62] flex items-center justify-center shrink-0">
+                  <span className="size-4 rounded-full bg-primary/15 text-primary flex items-center justify-center shrink-0">
                     <Check size={11} className="stroke-[3]" />
                   </span>
                   <span>{adv}</span>
@@ -52,7 +52,7 @@ export async function HomeSplitFeature() {
             <div className="pt-4 flex flex-wrap gap-3.5">
               <Link
                 href="/shop"
-                className="group/button inline-flex shrink-0 items-center justify-center rounded-lg bg-[#8B3B62] hover:bg-[#a64775] text-white uppercase tracking-widest text-xs font-semibold px-6 py-3.5 shadow-md gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                className="group/button inline-flex shrink-0 items-center justify-center rounded-lg bg-primary hover:bg-primary-hover text-white uppercase tracking-widest text-xs font-semibold px-6 py-3.5 shadow-md gap-2 transition-all hover:scale-[1.02] active:scale-[0.98]"
               >
                 <span>Découvrir le catalogue</span>
                 <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
@@ -66,7 +66,7 @@ export async function HomeSplitFeature() {
               <Link
                 key={prod.name}
                 href={prod.href}
-                className="group flex flex-col justify-between p-4 rounded-xl border border-border/80 bg-card hover:border-[#8B3B62]/50 hover:shadow-xl transition-all duration-300"
+                className="group flex flex-col justify-between p-4 rounded-xl border border-border/80 bg-card hover:border-primary/50 hover:shadow-xl transition-all duration-300"
               >
                 <div>
                   <div className="relative aspect-square w-full rounded-lg overflow-hidden bg-white p-2 mb-3">
@@ -78,14 +78,14 @@ export async function HomeSplitFeature() {
                       className="object-contain group-hover:scale-105 transition-transform duration-300"
                     />
                   </div>
-                  <h3 className="text-xs font-bold text-foreground line-clamp-1 group-hover:text-[#8B3B62] transition-colors">
+                  <h3 className="text-xs font-bold text-foreground line-clamp-1 group-hover:text-primary transition-colors">
                     {prod.name}
                   </h3>
                   <p className="text-[11px] text-muted-foreground mt-0.5 line-clamp-1">{prod.subtitle}</p>
                 </div>
                 <div className="mt-3 pt-2.5 border-t border-border/50 flex items-center justify-between">
                   <span className="text-xs font-bold text-foreground">{prod.price}</span>
-                  <span className="size-6 rounded-full bg-secondary/80 text-muted-foreground flex items-center justify-center group-hover:bg-[#8B3B62] group-hover:text-white transition-colors">
+                  <span className="size-6 rounded-full bg-secondary/80 text-muted-foreground flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-colors">
                     <ArrowRight size={12} />
                   </span>
                 </div>

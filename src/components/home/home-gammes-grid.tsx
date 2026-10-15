@@ -94,7 +94,7 @@ export async function HomeGammesGrid() {
     <section className="py-20 sm:py-24 max-w-[1440px] mx-auto px-4 md:px-6 lg:px-8">
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
-        <span className="text-xs uppercase tracking-widest text-[#8B3B62] font-extrabold">
+        <span className="text-xs uppercase tracking-widest text-primary font-extrabold">
           Sélection par Objectif
         </span>
         <h2 className="font-serif text-3xl sm:text-4xl text-foreground mt-2 font-bold tracking-tight">
@@ -145,12 +145,12 @@ export async function HomeGammesGrid() {
             </div>
 
             <div className="mt-4 pt-3 border-t border-border/40 flex items-center justify-between">
-              <span className="text-xs font-bold text-foreground group-hover:text-[#8B3B62] transition-colors">
+              <span className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
                 Explorer {gamme.title.split("&")[0].trim()}
               </span>
               <ArrowRight
                 size={14}
-                className="text-muted-foreground group-hover:text-[#8B3B62] group-hover:translate-x-1 transition-all"
+                className="text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all"
               />
             </div>
           </Link>
@@ -159,10 +159,10 @@ export async function HomeGammesGrid() {
         {/* 8th Card: Catalogue Complet (Dashed Outline) */}
         <Link
           href="/shop"
-          className="group flex flex-col justify-between rounded-xl border-2 border-dashed border-border/90 bg-muted/20 p-6 transition-all duration-300 hover:border-[#8B3B62] hover:bg-[#8B3B62]/5 hover:shadow-lg"
+          className="group flex flex-col justify-between rounded-xl border-2 border-dashed border-border/90 bg-muted/20 p-6 transition-all duration-300 hover:border-primary hover:bg-primary/5 hover:shadow-lg"
         >
           <div>
-            <span className="text-[0.7rem] font-bold uppercase tracking-widest text-[#8B3B62]">
+            <span className="text-[0.7rem] font-bold uppercase tracking-widest text-primary">
               Catalogue Complet
             </span>
             <h3 className="font-serif text-xl sm:text-2xl font-bold text-foreground mt-3 tracking-tight">
@@ -174,12 +174,12 @@ export async function HomeGammesGrid() {
           </div>
 
           <div className="mt-6 pt-4 border-t border-border/60 flex items-center justify-between">
-            <span className="text-xs font-bold text-foreground group-hover:text-[#8B3B62] transition-colors">
+            <span className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
               Voir tout le catalogue
             </span>
             <ArrowRight
               size={15}
-              className="text-[#8B3B62] group-hover:translate-x-1.5 transition-transform"
+              className="text-primary group-hover:translate-x-1.5 transition-transform"
             />
           </div>
         </Link>
