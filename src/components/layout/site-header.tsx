@@ -11,7 +11,7 @@ import { useWishlist } from "@/hooks/use-wishlist";
 import { useCartDrawer } from "@/hooks/use-cart-drawer";
 import { Logo } from "@/components/layout/logo";
 import { SearchOverlay } from "@/components/layout/navigation/search-overlay";
-import { MegaMenu } from "@/components/layout/navigation/mega-menu";
+import { MegaMenu, MobileNavigation } from "@/components/layout/navigation/mega-menu";
 import { CartDrawer } from "@/components/cart/cart-drawer";
 import { phoneHref, phoneNumber, whatsappHref } from "@/lib/contact";
 
@@ -129,11 +129,12 @@ export function SiteHeader() {
         {/* ── ROW 3: Desktop Mega Menu Navigation (lg+) ───────────────── */}
         <div className="hidden lg:block border-t border-border/50 bg-soft-nude/30">
           <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-            <nav className="flex items-center justify-center py-1">
+            <nav aria-label="Navigation principale" className="flex items-center justify-center py-1">
               <MegaMenu />
             </nav>
           </div>
         </div>
+        <MobileNavigation />
       </div>
 
       <CartDrawer />

@@ -4,6 +4,7 @@ import { Sparkles, ArrowRight, ShieldCheck } from "lucide-react";
 import { articles, articleCategories, type Article } from "@/lib/data/articles";
 import { BlogHubClient } from "@/components/blog/blog-hub-client";
 import { buildCanonicalUrl } from "@/lib/seo/canonical";
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Blog Nutrition Sportive & Compléments en Tunisie | ParaTunisie",
@@ -19,7 +20,7 @@ export const metadata: Metadata = {
   },
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+const API_URL = process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
 
 function getArticleImage(slug: string, apiImage?: string): string {
   if (apiImage && apiImage !== "/assets/hero-paratunisie.webp" && apiImage.trim() !== "") {
@@ -33,9 +34,9 @@ async function fetchPublishedArticles(): Promise<Article[]> {
     const res = await fetch(`${API_URL}/content/articles?status=PUBLISHED`, {
       cache: "no-store",
     });
-    if (!res.ok) return articles.map(a => ({ ...a, featuredImage: getArticleImage(a.slug, a.featuredImage) }));
+    if (!res.ok) throw new Error('Article catalogue unavailable');
     const data = await res.json();
-    if (Array.isArray(data) && data.length > 0) {
+    if (Array.isArray(data)) {
       // Merge with static metadata for rich rendering
       return data.map((apiArt) => {
         const local = articles.find((a) => a.slug === apiArt.slug);
@@ -53,6 +54,7 @@ async function fetchPublishedArticles(): Promise<Article[]> {
     }
     return articles.map(a => ({ ...a, featuredImage: getArticleImage(a.slug, a.featuredImage) }));
   } catch {
+    if (process.env.NODE_ENV === 'production') throw new Error('Article catalogue unavailable');
     return articles.map(a => ({ ...a, featuredImage: getArticleImage(a.slug, a.featuredImage) }));
   }
 }

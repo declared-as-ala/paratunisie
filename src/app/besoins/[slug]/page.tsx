@@ -9,13 +9,11 @@ import {
   getAllConcernSlugs,
 } from "@/lib/data/concerns";
 import { categories } from "@/lib/data/categories";
-import { fetchProducts } from "@/lib/api/client";
+import { fetchPaginatedProducts } from "@/lib/api/client";
 
 const SITE_URL = "https://paratunisie.com";
 
-export function generateStaticParams() {
-  return getAllConcernSlugs().map((slug) => ({ slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -25,10 +23,12 @@ export async function generateMetadata({
   const { slug } = await params;
   const concern = getConcernBySlug(slug);
   if (!concern) return {};
+  const listing = await fetchPaginatedProducts({ concern: slug, limit: 1 });
 
   const title = `${concern.name} — ParaTunisie`;
   return {
     title,
+    robots: { index: listing.meta.total > 0, follow: true },
     description: concern.seoIntro,
     alternates: { canonical: `/besoins/${concern.slug}` },
     openGraph: {
@@ -50,8 +50,7 @@ export default async function ConcernPage({
   if (!concern) notFound();
 
   /* Fetch all products from the API, then filter using the concern's match function */
-  const allProducts = await fetchProducts();
-  const concernProducts = allProducts.filter(concern.match);
+  const concernProducts = (await fetchPaginatedProducts({ concern: slug, limit: 100 })).products;
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",

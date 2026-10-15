@@ -19,7 +19,7 @@ export function ArticleProductCard({
   highlightBadge,
   initialProduct,
 }: ArticleProductCardProps) {
-  const product = initialProduct || (productSlug ? getProductBySlug(productSlug) : null);
+  const product = initialProduct;
 
   if (!product) {
     // Graceful fallback if product is deleted or unavailable

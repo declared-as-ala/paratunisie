@@ -18,7 +18,7 @@ export interface ProductCardProps {
 }
 
 export function ProductCard({ product, variant = "shop", priority = false }: ProductCardProps) {
-  const [imgSrc, setImgSrc] = useState(product.image || "/assets/product-tube.webp");
+  const [imgSrc, setImgSrc] = useState(product.image || "/assets/product-unavailable.svg");
   const [prevImage, setPrevImage] = useState(product.image);
   const { isWishlisted, toggle } = useWishlist();
   const saved = isWishlisted(product.id);
@@ -30,7 +30,7 @@ export function ProductCard({ product, variant = "shop", priority = false }: Pro
   // Sync image state whenever product image prop changes
   if (prevImage !== product.image) {
     setPrevImage(product.image);
-    setImgSrc(product.image || "/assets/product-tube.webp");
+    setImgSrc(product.image || "/assets/product-unavailable.svg");
   }
 
   const isAvailable = product.inStock !== false;
@@ -83,7 +83,7 @@ export function ProductCard({ product, variant = "shop", priority = false }: Pro
           aria-label={saved ? `Retirer ${product.name} des favoris` : `Ajouter ${product.name} aux favoris`}
           aria-pressed={saved}
           onClick={() => toggle(product.id)}
-          className="absolute end-2 top-2 z-10 flex size-7 sm:size-7.5 items-center justify-center rounded-full bg-white/90 shadow-2xs border border-border/60 text-ink-muted hover:text-primary transition-all active:scale-95"
+          className="absolute end-2 top-2 z-10 flex size-11 sm:size-7.5 items-center justify-center rounded-full bg-white/90 shadow-2xs border border-border/60 text-ink-muted hover:text-primary transition-all active:scale-95"
         >
           <Heart size={14} className={saved ? "fill-primary text-primary" : "text-ink-muted"} />
         </button>
@@ -103,7 +103,7 @@ export function ProductCard({ product, variant = "shop", priority = false }: Pro
               fetchPriority={priority ? "high" : "auto"}
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 250px"
               className="object-contain p-1 transition-transform duration-300 group-hover:scale-105"
-              onError={() => setImgSrc("/assets/product-tube.webp")}
+              onError={() => setImgSrc("/assets/product-unavailable.svg")}
             />
           </Link>
         </div>
@@ -152,7 +152,7 @@ export function ProductCard({ product, variant = "shop", priority = false }: Pro
                 variant={added ? "secondary" : "default"}
                 onClick={handleAdd}
                 aria-label={added ? `${product.name} ajouté` : `Ajouter ${product.name}`}
-                className={`w-full h-8.5 sm:h-9 rounded-xl font-bold text-[0.7rem] sm:text-xs gap-1 sm:gap-1.5 shadow-2xs transition-all ${
+                className={`w-full h-11 sm:h-9 rounded-xl font-bold text-[0.7rem] sm:text-xs gap-1 sm:gap-1.5 shadow-2xs transition-all ${
                   added
                     ? "bg-success-bg text-success border border-success/30 hover:bg-success-bg/80"
                     : "bg-primary text-white hover:bg-primary-hover active:scale-[0.98]"
@@ -167,7 +167,7 @@ export function ProductCard({ product, variant = "shop", priority = false }: Pro
                 size="sm"
                 onClick={() => setDemanderOpen(true)}
                 aria-label={`Demander ${product.name}`}
-                className="w-full h-8.5 sm:h-9 rounded-xl font-bold text-[0.7rem] sm:text-xs gap-1 sm:gap-1.5 shadow-2xs bg-amber-600 text-white hover:bg-amber-700 active:scale-[0.98]"
+                className="w-full h-11 sm:h-9 rounded-xl font-bold text-[0.7rem] sm:text-xs gap-1 sm:gap-1.5 shadow-2xs bg-amber-600 text-white hover:bg-amber-700 active:scale-[0.98]"
               >
                 <Mail size={13} />
                 <span>Demander</span>

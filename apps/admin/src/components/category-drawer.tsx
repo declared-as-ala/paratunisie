@@ -1,6 +1,7 @@
 import { useState, useCallback, useMemo } from "react";
 import { X, Tags } from "lucide-react";
 import { MediaUploader } from "./media-uploader";
+import { SeoScore } from "./seo-checklist";
 import { SeoFormSection } from "./seo-form-section";
 import { UnsavedChangesModal } from "./unsaved-changes-modal";
 
@@ -296,7 +297,8 @@ export function CategoryDrawer({
             </div>
 
             {/* SECTION 3: SEO INTEGRATED */}
-            <SeoFormSection
+            <SeoScore id={form.id} editing />
+          <SeoFormSection
               data={{
                 seoTitle: form.seoTitle,
                 seoDescription: form.seoDescription,

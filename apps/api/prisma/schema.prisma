@@ -231,6 +231,13 @@ model SeoRedirect {
   createdAt DateTime @default(now())
 }
 
+model SeoChecklistAudit {
+  key        String   @id
+  sourceHash String
+  evidence   Json
+  checkedAt  DateTime @default(now())
+}
+
 model ProductVariant {
   id            String  @id @default(cuid())
   productId     String

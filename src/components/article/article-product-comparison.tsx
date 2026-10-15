@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Check, CheckCircle2, Star, Sparkles } from "lucide-react";
 import { getProductBySlug, formatPrice, type ProductSummary } from "@/lib/data/products";
+import { fetchProductBySlug } from "@/lib/api/client";
 
 interface ComparisonItem {
   slug: string;
@@ -18,7 +19,7 @@ interface ArticleProductComparisonProps {
   items: (string | ComparisonItem)[];
 }
 
-export function ArticleProductComparison({
+export async function ArticleProductComparison({
   title = "Tableau Comparatif des Produits Disponibles",
   description = "Comparatif en temps réel basé sur les stocks et tarifs actuels en Tunisie :",
   items,
@@ -27,12 +28,12 @@ export function ArticleProductComparison({
     typeof it === "string" ? { slug: it } : it,
   );
 
-  const productData = normalizedItems
-    .map((item) => {
-      const product = getProductBySlug(item.slug);
+  const productData = (await Promise.all(normalizedItems
+    .map(async (item) => {
+      const product = await fetchProductBySlug(item.slug);
       if (!product) return null;
       return { item, product };
-    })
+    })))
     .filter((entry): entry is { item: ComparisonItem; product: ProductSummary } => entry !== null);
 
   if (productData.length === 0) return null;

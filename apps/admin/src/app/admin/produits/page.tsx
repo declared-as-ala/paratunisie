@@ -14,7 +14,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { ProductDrawer } from "@/components/product-drawer";
-import { BulkSeoGenerator } from "@/components/bulk-seo-generator";
+import { SeoChecklistProvider, SeoScore, SeoBulkOptimizer } from "@/components/seo-checklist";
 import { ConfirmModal } from "@/components/confirm-modal";
 import { useToast } from "@/components/toast";
 import { apiClient, resolveMediaUrl } from "@/lib/api-client";
@@ -244,7 +244,9 @@ const mockSuppliers: Supplier[] = [
 
 const mockPurchaseHistory: PurchasePriceHistory[] = [];
 
-export default function ProduitsPage() {
+export default function ProduitsPage() { return <SeoChecklistProvider type="product"><ChecklistPage /></SeoChecklistProvider>; }
+
+function ChecklistPage() {
   const { toast } = useToast();
   const [products, setProducts] = useState<(Product & { image?: string })[]>([]);
   const [loading, setLoading] = useState(true);
@@ -522,7 +524,7 @@ export default function ProduitsPage() {
       </div>
 
       {/* ── Filter Bar matching Commandes ────────────────────────────── */}
-      <BulkSeoGenerator type="product" label="tous les produits" />
+      <SeoBulkOptimizer />
       <div className="rounded-2xl bg-white p-3.5 shadow-xs border border-slate-200/80 flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 min-w-[240px] max-w-md">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -593,6 +595,7 @@ export default function ProduitsPage() {
                 <th className="py-3.5 px-4">PRIX</th>
                 <th className="py-3.5 px-4">STOCK</th>
                 <th className="py-3.5 px-4">STATUT</th>
+                <th className="py-3.5 px-4">SEO</th>
                 <th className="py-3.5 px-4 text-right">ACTIONS</th>
               </tr>
             </thead>
@@ -637,7 +640,7 @@ export default function ProduitsPage() {
                 ))
               ) : products.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="py-8 text-center text-slate-500 font-semibold">
+                  <td colSpan={9} className="py-8 text-center text-slate-500 font-semibold">
                     Aucun produit trouvé.
                   </td>
                 </tr>
@@ -694,6 +697,7 @@ export default function ProduitsPage() {
                         </span>
                       )}
                     </td>
+                    <td className="py-3.5 px-4"><SeoScore id={product.id} /></td>
                     <td className="py-3.5 px-4 text-right">
                       <div className="flex items-center justify-end gap-1">
                         <button

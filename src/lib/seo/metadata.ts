@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { buildCanonicalUrl, type CanonicalOptions } from "./canonical";
 import { COMPANY_CONFIG } from "../config/company";
 
-const DEFAULT_OG_IMAGE = "https://paratunisie.com/logo.png";
+const DEFAULT_OG_IMAGE = "https://paratunisie.com/assets/logo.png";
 const SITE_BRAND = "ParaTunisie";
 
 /**
@@ -28,14 +28,24 @@ export function formatSeoTitle(rawTitle: string): string {
  * Normalizes a meta description to prevent truncated or empty descriptions.
  */
 export function formatSeoDescription(rawDescription?: string | null, fallback?: string): string {
-  const text = (rawDescription || fallback || "").replace(/\s+/g, " ").trim();
+  const text = (rawDescription || fallback || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
   if (text.length > 160) {
     return text.slice(0, 157) + "...";
   }
   return text;
 }
 
-export interface BaseMetadataInput {
+export interface StoredSeo {
+  canonicalUrl?: string | null;
+  ogTitle?: string | null;
+  ogDescription?: string | null;
+  ogImage?: string | null;
+  imageAlt?: string | null;
+  followLinks?: boolean;
+  seoKeywords?: string[] | string;
+}
+
+export interface BaseMetadataInput extends StoredSeo {
   title: string;
   description?: string | null;
   path: string;
@@ -54,12 +64,18 @@ export interface BaseMetadataInput {
 export function buildPageMetadata(input: BaseMetadataInput): Metadata {
   const formattedTitle = formatSeoTitle(input.title);
   const formattedDescription = formatSeoDescription(input.description, COMPANY_CONFIG.commercialName);
-  const canonicalUrl = buildCanonicalUrl(input.path, input.canonicalOptions);
+  const canonicalUrl = buildCanonicalUrl(input.canonicalUrl || input.path, input.canonicalOptions);
+  let keywords = input.keywords;
+  if (Array.isArray(input.seoKeywords) && input.seoKeywords.length) keywords = input.seoKeywords;
+  else if (typeof input.seoKeywords === 'string' && input.seoKeywords) {
+    try { const parsed = JSON.parse(input.seoKeywords); if (Array.isArray(parsed) && parsed.length) keywords = parsed; } catch { keywords = input.seoKeywords.split(',').map((value) => value.trim()).filter(Boolean); }
+  }
 
-  const ogImage = input.image
-    ? input.image.startsWith("http")
-      ? input.image
-      : `https://paratunisie.com${input.image.startsWith("/") ? "" : "/"}${input.image}`
+  const sourceImage = input.ogImage || input.image;
+  const ogImage = sourceImage
+    ? sourceImage.startsWith("http")
+      ? sourceImage
+      : `https://paratunisie.com${sourceImage.startsWith("/") ? "" : "/"}${sourceImage}`
     : DEFAULT_OG_IMAGE;
 
   return {
@@ -68,31 +84,31 @@ export function buildPageMetadata(input: BaseMetadataInput): Metadata {
     alternates: {
       canonical: canonicalUrl,
     },
-    keywords: input.keywords,
+    keywords,
     robots: input.noindex
       ? {
           index: false,
-          follow: true,
+          follow: input.followLinks !== false,
           nocache: true,
           googleBot: {
             index: false,
-            follow: true,
+            follow: input.followLinks !== false,
           },
         }
       : {
           index: true,
-          follow: true,
+          follow: input.followLinks !== false,
           googleBot: {
             index: true,
-            follow: true,
+            follow: input.followLinks !== false,
             "max-video-preview": -1,
             "max-image-preview": "large",
             "max-snippet": -1,
           },
         },
     openGraph: {
-      title: formattedTitle,
-      description: formattedDescription,
+      title: input.ogTitle || formattedTitle,
+      description: formatSeoDescription(input.ogDescription) || formattedDescription,
       url: canonicalUrl,
       siteName: SITE_BRAND,
       locale: "fr_TN",
@@ -100,9 +116,7 @@ export function buildPageMetadata(input: BaseMetadataInput): Metadata {
       images: [
         {
           url: ogImage,
-          width: 1200,
-          height: 630,
-          alt: input.title,
+          alt: input.imageAlt || input.title,
         },
       ],
       ...(input.publishedTime ? { publishedTime: input.publishedTime } : {}),
@@ -110,14 +124,14 @@ export function buildPageMetadata(input: BaseMetadataInput): Metadata {
     },
     twitter: {
       card: "summary_large_image",
-      title: formattedTitle,
-      description: formattedDescription,
+      title: input.ogTitle || formattedTitle,
+      description: formatSeoDescription(input.ogDescription) || formattedDescription,
       images: [ogImage],
     },
   };
 }
 
-export interface ProductMetadataInput {
+export interface ProductMetadataInput extends StoredSeo {
   name: string;
   slug: string;
   brandName?: string | null;
@@ -142,6 +156,7 @@ export function buildProductMetadata(product: ProductMetadataInput): Metadata {
   const description = product.seoDescription || product.description || defaultDesc;
 
   return buildPageMetadata({
+    ...product,
     title,
     description,
     path: `/produits/${product.slug}`,
@@ -158,7 +173,7 @@ export function buildProductMetadata(product: ProductMetadataInput): Metadata {
   });
 }
 
-export interface CategoryMetadataInput {
+export interface CategoryMetadataInput extends StoredSeo {
   name: string;
   slug: string;
   seoTitle?: string | null;
@@ -179,17 +194,18 @@ export function buildCategoryMetadata(category: CategoryMetadataInput): Metadata
   const defaultDesc = `Découvrez notre sélection de ${category.name.toLowerCase()} en Tunisie chez ParaTunisie. Produits 100% authentiques, livraison 24-48h.`;
   const description = category.seoDescription || category.description || defaultDesc;
 
-  // If query parameters or page > 1 or thin category, mark noindex
-  const shouldNoindex = category.indexable === false || category.hasFilters || (category.page && category.page > 1);
+  // Filter variants are noindex; real pagination has its own canonical.
+  const shouldNoindex = category.indexable === false || category.hasFilters;
 
   return buildPageMetadata({
-    title,
+    ...category,
+    title: `${title.replace(/\s*\|\s*ParaTunisie\s*$/i, "")}${category.page && category.page > 1 ? ` — Page ${category.page}` : ""}`,
     description,
     path: `/${category.slug}`,
     noindex: Boolean(shouldNoindex),
     canonicalOptions: {
-      page: category.page,
-      allowPagination: false, // Category canonical points to clean root
+      page: category.hasFilters ? undefined : category.page,
+      allowPagination: !category.hasFilters,
     },
     keywords: [
       category.name.toLowerCase(),
@@ -200,7 +216,7 @@ export function buildCategoryMetadata(category: CategoryMetadataInput): Metadata
   });
 }
 
-export interface BrandMetadataInput {
+export interface BrandMetadataInput extends StoredSeo {
   name: string;
   slug: string;
   seoTitle?: string | null;
@@ -221,6 +237,7 @@ export function buildBrandMetadata(brand: BrandMetadataInput): Metadata {
   const description = brand.seoDescription || brand.description || defaultDesc;
 
   return buildPageMetadata({
+    ...brand,
     title,
     description,
     path: `/marques/${brand.slug}`,
@@ -234,7 +251,7 @@ export function buildBrandMetadata(brand: BrandMetadataInput): Metadata {
   });
 }
 
-export interface ArticleMetadataInput {
+export interface ArticleMetadataInput extends StoredSeo {
   title: string;
   slug: string;
   metaDescription?: string | null;
@@ -251,6 +268,7 @@ export interface ArticleMetadataInput {
  */
 export function buildArticleMetadata(article: ArticleMetadataInput): Metadata {
   return buildPageMetadata({
+    ...article,
     title: article.title,
     description: article.metaDescription || article.excerpt,
     path: `/conseils/${article.slug}`,

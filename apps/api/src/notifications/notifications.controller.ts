@@ -1,9 +1,11 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+import { AdminAuthGuard } from "../admin-auth/guards/admin-auth.guard";
 import { NotificationsService } from "./notifications.service";
 import { WinSmsProProvider } from "./sms/winsms-pro.provider";
 import { EmailService } from "./email/email.service";
 
 @Controller("notifications")
+@UseGuards(AdminAuthGuard)
 export class NotificationsController {
   constructor(
     private readonly notificationsService: NotificationsService,

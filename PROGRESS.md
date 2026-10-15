@@ -2,6 +2,57 @@
 
 Mandatory, updated after every meaningful development task (`CLAUDE.md` §15). Newest entry first.
 
+## 2026-10-14 (continued) — Corrected www-redirect root cause; added security headers, tap-target, robots.txt and logo fixes; merged 3 more specialist audits
+
+### Correction to the entry below
+The earlier `ops/ovh/nginx.conf` "www redirect fix" in this session's first pass does **nothing in production**. SSH'd into the VPS (password re-confirmed with the user mid-session after the first one stopped working) and found the real public-facing proxy is a shared Nginx Proxy Manager instance (`sobitas-npm`) serving several unrelated client sites on the same box — its generated config proxies `paratunisie.com`/`www.paratunisie.com` as one block directly to `paratunisie-web:3000`, bypassing `paratunisie-gateway` and every file in `ops/ovh/` entirely. The real fix is an NPM "Redirection Host" entry — shared infrastructure, not touched without explicit approval. `ops/ovh/nginx.conf`'s edit was left in place (harmless) but `SEO_AUDIT.md`/`SEO_ROADMAP.md`/`SEO_IMPLEMENTATION_LOG.md` were corrected to not claim it as a fix.
+
+### Additional fixes this pass (typecheck/lint/build all clean, verified live against local dev server)
+- `src/components/layout/logo.tsx`: raw `<img>` → `next/image` (CLAUDE.md §18).
+- `src/components/product/product-card.tsx`: favorite button and add-to-cart/"Demander" buttons were 28-36px on mobile; now 44px (CLAUDE.md §5), every product card sitewide.
+- `src/app/robots.ts`: added `Disallow` for `?sort=`/`?q=`/`?brand=` facet permutations per `SEO.md`'s crawl-budget rule.
+- `next.config.ts`: added HSTS/`X-Content-Type-Options`/`X-Frame-Options`/`Referrer-Policy` headers, disabled `X-Powered-By`. Full CSP deferred (needs GTM/Pixel allowlisting first).
+
+### Also merged in from 3 more specialist audits that ran in parallel with the first pass
+- Live overclaiming confirmed on `/creatine` ("gélules certifiées" — no certifier named; "sans aucun trouble digestif" — absolute safety claim) and `/ashwagandha` (meta description states cortisol/stress/sleep benefit as fact) — production DB content, CLAUDE.md §21 issue, fix text drafted in `SEO_ROADMAP.md` item 3, not applied without sign-off on wording.
+- `ops/seo/category-copy.json`'s hedged draft copy for creatine does not match what's actually live — likely a stale/superseded file, flagged for reconciliation.
+- TTFB is ~800ms (confirmed via repeated `curl -w` timing) vs. the documented 120-180ms baseline — `force-dynamic` with zero caching on `/[category]`; flagged as a P1 roadmap item (ISR conversion needs a product decision on staleness tolerance, not a blind fix).
+- `FAQPage` JSON-LD on commercial category pages is valid and correctly data-driven, but won't earn Google rich results (restricted to gov/health sites since Aug 2023) — documentation correction, not a code defect.
+
+### Verification
+- `npx tsc --noEmit`, `npm run lint` (0 errors), `npm run build` — all clean after this pass's changes too.
+- `curl` against a local dev server confirmed `robots.txt` and the new response headers render correctly, not just compile.
+
+## 2026-10-14 — Full evidence-based SEO audit via live Google Search Console + schema/www-host code fixes
+
+### What existed before
+`SEO_REMEDIATION_TODO.md`/`SEO_REMEDIATION_REPORT.md` claimed all P0-P3 SEO remediation "completed and verified in production" as of 2026-09-04. No live Google Search Console connection existed, so the keyword map (`SEO_KEYWORD_MAP.md`) used "Tracking" placeholders instead of real rank data. A large Growth Sprint 2 rewrite (96 files) was already staged/uncommitted in the working tree, predating this session.
+
+### Completed
+Connected GSC live (service account, see earlier session history for `.mcp.json`/credentials setup) and ran 4 parallel specialist audits (technical, schema, sitemap, content) against production + codebase, cross-referenced with real query/page/index data. Full findings: `SEO_AUDIT.md`. Updated `SEO_KEYWORD_MAP.md` with real positions (all target clusters: position 25-100+, zero clicks — a materially worse picture than the September placeholders implied). New `SEO_ROADMAP.md`, `SEO_MONITORING.md`, `SEO_IMPLEMENTATION_LOG.md`.
+
+Fixed in code this session (typecheck/lint/build all clean):
+- De-duplicated Organization/WebSite/Brand JSON-LD — `layout.tsx` and `marques/[slug]/page.tsx` had hand-written schema bypassing the `schema.ts` builders entirely (dead code). Added missing `buildOnlineStoreSchema()`/`buildBrandSchema()`, added `alternateName` support so nothing was lost in the consolidation.
+- Added a `www.paratunisie.com` → apex 301 redirect in `ops/ovh/nginx.conf` (verified the live cert's SAN covers `www` first, so no TLS mismatch). **Not deployed** — repo-only change pending approval, since `www` was found serving live content directly (duplicate host) instead of redirecting.
+
+### Key findings not yet actioned (see `SEO_ROADMAP.md` for full list)
+- `/l-carnitine` (a named target keyword) is `noindex` + absent from the sitemap despite being fully built — confirmed via GSC URL Inspection ("URL is unknown to Google"). Single DB flag, needs a quick go-ahead since it's a production data write.
+- Only 4 of ~410 active brands appear in the sitemap — needs investigation (real gap vs. join bug).
+- Several real product pages (alopexy-5, minoxidil-5, capixy, etc.) disappeared from search between periods — confirmed as legitimate stock-eligibility delisting (404/noindex), not a bug, but they hard-404 instead of redirecting to category, losing link equity.
+- 3 category pages (magnésium, vitamines, compléments alimentaires) have a severe content-depth-to-catalogue-size mismatch (1-2 FAQ items for 952-3,988 products each).
+- Ashwagandha's "réduire/réguler le cortisol" phrasing is more assertive than sibling pages — flagged for a CLAUDE.md §21 compliance look, not changed without sign-off.
+
+### Verification
+- `npx tsc --noEmit` — clean.
+- `npm run lint` — 0 errors, 138 pre-existing warnings, none in touched files.
+- `npm run build` — clean, exit 0, all routes compiled (93s compile + 61s typecheck + 24 static pages).
+
+### Not done this pass (explicitly, not silently)
+No paid SEO API used (DataForSEO declined by user). No production deploy or DB write performed — the www-redirect and l-carnitine fixes are ready/identified but held pending explicit approval per instruction. The pre-existing uncommitted Growth Sprint 2 work was left untouched. CWV/Lighthouse not measured (no Chrome available in the audit environment) — explicitly flagged as unverified, not claimed as a pass.
+
+### Next task
+User decision needed on: (1) deploying the nginx www-redirect, (2) flipping the l-carnitine indexable flag, (3) whether/when to commit+deploy the existing Growth Sprint 2 working tree.
+
 ## 2026-08-15 — Diagnostic Phase 2: Real Groq vision provider (Llama 4 Scout), private MinIO storage, zero retention, and signal merging (D-0030)
 
 ### What existed before

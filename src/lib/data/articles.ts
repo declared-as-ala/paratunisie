@@ -47,6 +47,9 @@ export type Article = {
   seoTitle: string;
   seoDescription: string;
   canonicalUrl: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogImage?: string;
   indexable: boolean;
   status: "PUBLISHED" | "DRAFT" | "SCHEDULED" | "ARCHIVED";
   takeaways: string[];
@@ -2510,7 +2513,7 @@ export const articles: Article[] = [
         title: "Hard Gainer vs Lean Gainer : Quelle différence ?",
         anchor: "hard-vs-lean",
         content: [
-          "Un hard gainer apporte 800 à 1200 kcal par portion avec un ratio d'environ 4g de glucides pour 1g de protéine. Un lean gainer apporte 400 à 600 kcal avec une part protéique plus élevée pour une prise de masse plus propre. Pour vos besoins, découvrez [nos mass gainers pour la prise de masse](/gainers-proteines) chez ParaTunisie.",
+          "Un hard gainer apporte 800 à 1200 kcal par portion avec un ratio d'environ 4g de glucides pour 1g de protéine. Un lean gainer apporte 400 à 600 kcal avec une part protéique plus élevée pour une prise de masse plus propre. Pour vos besoins, découvrez [nos mass gainers pour la prise de masse](/mass-gainer) chez ParaTunisie.",
         ],
       },
     ],
@@ -2535,7 +2538,7 @@ export const articles: Article[] = [
       },
     ],
     relatedSlugs: ["whey-ou-gainer-prise-de-masse", "prise-de-masse-tunisie-guide"],
-    relatedCategories: [{ name: "Gainers", url: "/gainers-proteines" }],
+    relatedCategories: [{ name: "Gainers", url: "/mass-gainer" }],
   },
 
   // ── ARTICLE 30 ──
@@ -2575,7 +2578,7 @@ export const articles: Article[] = [
         title: "La méthode des demi-doses pour une digestion légère",
         anchor: "demi-doses",
         content: [
-          "Prendre 300g de poudre d'un coup peut surcharger le système digestif. Prendre 100g le matin et 100g après l'entraînement permet une assimilation graduelle et une énergie constante. Pour vos besoins, découvrez [notre gamme de gainers pour la prise de masse](/gainers-proteines) chez ParaTunisie.",
+          "Prendre 300g de poudre d'un coup peut surcharger le système digestif. Prendre 100g le matin et 100g après l'entraînement permet une assimilation graduelle et une énergie constante. Pour vos besoins, découvrez [notre gamme de gainers pour la prise de masse](/mass-gainer) chez ParaTunisie.",
         ],
       },
     ],
@@ -2600,7 +2603,7 @@ export const articles: Article[] = [
       },
     ],
     relatedSlugs: ["meilleur-gainer-tunisie", "whey-ou-gainer-prise-de-masse"],
-    relatedCategories: [{ name: "Gainers", url: "/gainers-proteines" }],
+    relatedCategories: [{ name: "Gainers", url: "/mass-gainer" }],
   },
 
   // ── ARTICLE 31 ──
@@ -2640,7 +2643,7 @@ export const articles: Article[] = [
         title: "Menu type pour 3000 kcal par jour en Tunisie",
         anchor: "menu-type",
         content: [
-          "Petit-déjeuner : 100g de flocons d'avoine + 3 œufs entiers + 1 banane + 1 cuillère de miel. Pour vos besoins, découvrez [nos mass gainers et formules prise de masse](/gainers-proteines) chez ParaTunisie.",
+          "Petit-déjeuner : 100g de flocons d'avoine + 3 œufs entiers + 1 banane + 1 cuillère de miel. Pour vos besoins, découvrez [nos mass gainers et formules prise de masse](/mass-gainer) chez ParaTunisie.",
           "Collation 10h : 1 shaker de whey ou gainer + 30g d'amandes.",
           "Déjeuner : 150g de riz basmati pesé cru + 150g d'escalope de dinde grillée + légumes à l'huile d'olive.",
           "Collation 16h (pré-séance) : 4 dattes + 1 café ou pré-workout.",

@@ -73,7 +73,7 @@ export class CatalogueSeoService {
       seoIsCustom: false,
       seoGeneratedAt: new Date(),
     };
-    generated.seoScore = score(generated);
+
     return generated;
   }
 

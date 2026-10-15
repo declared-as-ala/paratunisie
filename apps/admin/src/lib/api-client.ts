@@ -1,15 +1,6 @@
 function getApiBaseUrl() {
   if (typeof window !== "undefined") {
-    const host = window.location.hostname;
-    // If accessing via VPS IP directly
-    if (host === "145.223.118.9") {
-      return `http://145.223.118.9:3013/api/v1`;
-    }
-    // If accessing on production domain
-    if (host.includes("paratunisie.com")) {
-      return "https://paratunisie.com/api/v1";
-    }
-    return process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
+    return process.env.NEXT_PUBLIC_API_URL || "/api/v1";
   }
   return process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://paratunisie-api:3001/api/v1";
 }
@@ -20,7 +11,7 @@ export function resolveMediaUrl(value?: string | null, fallback = "/assets/produ
   if (!/^\/?uploads\//i.test(value)) return value;
 
   const cleanPath = value.replace(/^\/+/, "");
-  return `https://paratunisie.com/${cleanPath}`;
+  return `/${cleanPath}`;
 }
 
 export class ApiError extends Error {
@@ -54,6 +45,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
     throw new ApiError(Array.isArray(message) ? message.join(", ") : message, res.status);
   }
 
+  if (typeof window !== "undefined" && options.method !== "GET" && /^\/catalogue\/(?:products|categories)(?:\/|$)/.test(path)) window.dispatchEvent(new Event("catalogue-saved"));
   if (res.status === 204) return undefined as T;
   return res.json() as Promise<T>;
 }

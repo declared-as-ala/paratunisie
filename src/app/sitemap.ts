@@ -1,9 +1,10 @@
 import type { MetadataRoute } from "next";
-import { getAllCategorySlugs } from "@/lib/data/categories";
 import { getAllConcernSlugs } from "@/lib/data/concerns";
 import { articles as localArticles } from "@/lib/data/articles";
+import { fetchPaginatedProducts } from "@/lib/api/client";
 
 const SITE_URL = "https://paratunisie.com";
+export const dynamic = "force-dynamic";
 
 function apiBase() {
   return process.env.API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:3001/api/v1";
@@ -30,9 +31,10 @@ async function fetchPublishedArticles(): Promise<{ slug: string; date?: string; 
     const res = await fetch(`${apiBase()}/content/articles?status=PUBLISHED&indexable=true`, { cache: "no-store" });
     if (!res.ok) throw new Error("API error");
     const data = await res.json();
-    if (Array.isArray(data) && data.length > 0) return data.filter((a: { indexable?: boolean }) => a.indexable !== false);
-    return localArticles.filter((a) => a.indexable);
+    if (Array.isArray(data)) return data.filter((a: { indexable?: boolean }) => a.indexable !== false);
+    throw new Error('Invalid article catalogue');
   } catch {
+    if (process.env.NODE_ENV === 'production') throw new Error('Article sitemap unavailable');
     return localArticles.filter((a) => a.indexable);
   }
 }
@@ -40,12 +42,13 @@ async function fetchPublishedArticles(): Promise<{ slug: string; date?: string; 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [data, articles] = await Promise.all([fetchSitemapData(), fetchPublishedArticles()]);
 
+  if (!data) throw new Error("Catalogue unavailable: refusing to publish an incomplete sitemap");
+
   const staticPages: MetadataRoute.Sitemap = [
     { url: SITE_URL, changeFrequency: "daily", priority: 1 },
     { url: `${SITE_URL}/shop`, changeFrequency: "daily", priority: 0.9 },
     { url: `${SITE_URL}/marques`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/conseils`, changeFrequency: "weekly", priority: 0.7 },
-    { url: `${SITE_URL}/besoins`, changeFrequency: "weekly", priority: 0.6 },
     { url: `${SITE_URL}/a-propos`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${SITE_URL}/politique-editoriale`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${SITE_URL}/livraison`, changeFrequency: "monthly", priority: 0.4 },
@@ -61,7 +64,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/fidelite`, changeFrequency: "monthly", priority: 0.3 },
   ];
 
-  const categorySource: { slug: string; updatedAt?: string }[] = data?.categories?.length ? data.categories : getAllCategorySlugs().map((slug) => ({ slug }));
+  const categorySource: { slug: string; updatedAt?: string }[] = data?.categories ?? [];
   const categoryUrls: MetadataRoute.Sitemap = categorySource.map((category) => ({
     url: `${SITE_URL}/${category.slug}`,
     lastModified: category.updatedAt ? new Date(category.updatedAt) : undefined,
@@ -69,7 +72,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  const concernUrls: MetadataRoute.Sitemap = getAllConcernSlugs().map((slug) => ({
+  const liveConcerns = (await Promise.all(getAllConcernSlugs().map(async (slug) => ({ slug, total: (await fetchPaginatedProducts({ concern: slug, limit: 1 })).meta.total })))).filter((concern) => concern.total > 0);
+  const concernUrls: MetadataRoute.Sitemap = liveConcerns.map(({ slug }) => ({
     url: `${SITE_URL}/besoins/${slug}`,
     changeFrequency: "weekly",
     priority: 0.6,
@@ -91,7 +95,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const articleUrls: MetadataRoute.Sitemap = articles.map((a) => ({
     url: `${SITE_URL}/conseils/${a.slug}`,
-    lastModified: a.date ? new Date(a.date) : undefined,
+    lastModified: a.updatedAt || a.date ? new Date(a.updatedAt || a.date!) : undefined,
     changeFrequency: "monthly",
     priority: 0.4,
   }));

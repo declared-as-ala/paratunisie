@@ -77,7 +77,7 @@ export const categories: Category[] = [
     concerns: [{ slug: "whey-proteine", name: "Whey Protéine" }],
   },
   {
-    slug: "gainers-proteines",
+    slug: "mass-gainer",
     name: "Gainers",
     eyebrow: "Prise de Masse",
     seoH1: "Gainer & Prise de Masse en Tunisie",
@@ -86,7 +86,7 @@ export const categories: Category[] = [
     description: "Formules riches en protéines et glucides complexes pour une prise de masse rapide et efficace.",
     seoIntro: "Nos gainers caloriques et protéinés aident les profils ectomorphes et sportifs à prendre du poids et développer leur masse musculaire de manière équilibrée.",
     subcategories: [{ slug: "tous", name: "Tous les produits" }],
-    concerns: [{ slug: "gainers-proteines", name: "Gainers" }],
+    concerns: [{ slug: "mass-gainer", name: "Gainers" }],
   },
   {
     slug: "pre-workout",

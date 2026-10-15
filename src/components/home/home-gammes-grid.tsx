@@ -1,6 +1,5 @@
-"use client";
-
 import Image from "next/image";
+import { fetchPaginatedProducts } from "@/lib/api/client";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
@@ -88,7 +87,9 @@ const GAMMES: GammeItem[] = [
   },
 ];
 
-export function HomeGammesGrid() {
+export async function HomeGammesGrid() {
+  const rows = await Promise.all(GAMMES.map((item) => fetchPaginatedProducts({ category: item.href.slice(1), limit: 1 })));
+  const gammes = GAMMES.map((item, index) => ({ ...item, image: rows[index].products[0]?.image || "/assets/product-unavailable.svg" }));
   return (
     <section className="py-20 sm:py-24 max-w-[1440px] mx-auto px-4 md:px-6 lg:px-8">
       {/* Header */}
@@ -106,7 +107,7 @@ export function HomeGammesGrid() {
 
       {/* 8 Cards Grid (2 rows of 4) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-        {GAMMES.map((gamme) => (
+        {gammes.map((gamme) => (
           <Link
             key={gamme.id}
             href={gamme.href}

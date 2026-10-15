@@ -1,47 +1,9 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import { Sparkles, ArrowRight, Check } from "lucide-react";
 
-interface SplitProduct {
-  name: string;
-  subtitle: string;
-  price: string;
-  image: string;
-  href: string;
-}
-
-const FEATURED_PRODUCTS: SplitProduct[] = [
-  {
-    name: "Micronised Creatine",
-    subtitle: "Optimum Nutrition • 317g",
-    price: "179.000 DT",
-    image: "/uploads/products/micronised-creatine-optimum-nutrition-317g-b84738f3.webp",
-    href: "/produits/micronised-creatine-optimum-nutrition-317g",
-  },
-  {
-    name: "Anabolic Whey 80",
-    subtitle: "ProActive • 2.25kg",
-    price: "259.000 DT",
-    image: "/uploads/products/anabolic-whey-80-2-25kg-proactive-d1e70098.webp",
-    href: "/produits/anabolic-whey-80-2-25kg-proactive",
-  },
-  {
-    name: "One-A-Day Vitamines",
-    subtitle: "BioTechUSA • 100 Tabs",
-    price: "109.000 DT",
-    image: "/uploads/products/one-a-day-biotech-usa-635bcef6.webp",
-    href: "/produits/one-a-day-biotech-usa",
-  },
-  {
-    name: "Lipo-6 Black Ultra",
-    subtitle: "Nutrex Research • 60 Caps",
-    price: "140.000 DT",
-    image: "/uploads/products/lipo-6-black-ultra-concentrate-60caps-7abcdedc.webp",
-    href: "/produits/lipo-6-black-ultra-concentrate-60caps",
-  },
-];
+import { fetchPaginatedProducts } from "@/lib/api/client";
+import { formatPrice } from "@/lib/data/products";
 
 const ADVANTAGES = [
   "Sélection rigoureuse de grandes marques internationales",
@@ -50,7 +12,11 @@ const ADVANTAGES = [
   "Service client disponible pour toute question de commande",
 ];
 
-export function HomeSplitFeature() {
+export async function HomeSplitFeature() {
+  const rows = await Promise.all(["creatine", "whey-proteine", "vitamines", "omega-3"].map((category) => fetchPaginatedProducts({ category, limit: 1 })));
+  const featuredProducts = rows.flatMap((row) => row.products).map((product) => ({
+    name: product.name, subtitle: `${product.brand} - ${product.size}`, price: formatPrice(product.priceMillimes), image: product.image, href: `/produits/${product.slug}`,
+  }));
   return (
     <section className="bg-gradient-to-b from-[#FAF7F5]/80 via-white to-background py-20 sm:py-24 border-y border-border/70">
       <div className="mx-auto max-w-[1440px] px-4 md:px-6 lg:px-8">
@@ -96,7 +62,7 @@ export function HomeSplitFeature() {
 
           {/* Right Column: 4 Curated Product Cards Grid (7 cols) */}
           <div className="lg:col-span-7 grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {FEATURED_PRODUCTS.map((prod) => (
+            {featuredProducts.map((prod) => (
               <Link
                 key={prod.name}
                 href={prod.href}

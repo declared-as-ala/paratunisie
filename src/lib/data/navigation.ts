@@ -18,7 +18,7 @@ export const primaryCategories: NavCategory[] = [
   },
   {
     label: "Gainers",
-    href: "/gainers-proteines",
+    href: "/mass-gainer",
     description: "Formules caloriques pour prise de masse rapide.",
   },
   {
@@ -75,7 +75,7 @@ export const primaryCategories: NavCategory[] = [
 
 export const concerns: { label: string; href: string }[] = [
   { label: "Prise de muscle", href: "/creatine" },
-  { label: "Prise de masse", href: "/gainers-proteines" },
+  { label: "Prise de masse", href: "/mass-gainer" },
   { label: "Énergie & Focus", href: "/pre-workout" },
   { label: "Récupération", href: "/bcaa" },
   { label: "Immunité & Santé", href: "/vitamines" },
@@ -86,12 +86,12 @@ export const concerns: { label: string; href: string }[] = [
 export const featuredBrands: { label: string; href: string }[] = [
   { label: "OstroVit", href: "/marques/ostrovit" },
   { label: "Optimum Nutrition", href: "/marques/optimum-nutrition" },
-  { label: "BioTechUSA", href: "/marques/biotechusa" },
+  { label: "BioTechUSA", href: "/marques/biotech-usa" },
   { label: "Real Pharm", href: "/marques/real-pharm" },
   { label: "Quamtrax", href: "/marques/quamtrax" },
   { label: "Eric Favre", href: "/marques/eric-favre" },
   { label: "Challenger Nutrition", href: "/marques/challenger-nutrition" },
-  { label: "Zumub", href: "/marques/zumub" },
+  { label: "Scenit Nutrition", href: "/marques/scenit-nutrition" },
 ];
 
 export const secondaryNav: { label: string; href: string }[] = [

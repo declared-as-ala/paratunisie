@@ -205,6 +205,7 @@ export class ContentService {
 
   async updateArticle(id: string, dto: UpdateArticleDto) {
     const { productIds, brandIds, concernIds, faqs, ...data } = dto;
+    const before = await this.prisma.article.findUnique({ where: { id }, select: { slug: true } });
 
     const updateData: Record<string, unknown> = { ...data };
 
@@ -219,6 +220,13 @@ export class ContentService {
       where: { id },
       data: updateData,
     });
+    if (before && before.slug !== article.slug) {
+      await this.prisma.seoRedirect.upsert({
+        where: { oldPath: `/conseils/${before.slug}` },
+        create: { oldPath: `/conseils/${before.slug}`, newPath: `/conseils/${article.slug}` },
+        update: { newPath: `/conseils/${article.slug}` },
+      });
+    }
 
     // Update products
     if (productIds !== undefined) {

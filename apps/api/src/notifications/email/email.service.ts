@@ -48,9 +48,9 @@ export class EmailService {
           user: username,
           pass: password,
         },
-        tls: {
-          rejectUnauthorized: false,
-        },
+        connectionTimeout: 15000,
+        greetingTimeout: 15000,
+        socketTimeout: 30000,
       });
 
       const info = await transporter.sendMail({

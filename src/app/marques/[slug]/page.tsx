@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import Link from "next/link";
+import { ProductRichText } from "@/components/product/product-rich-text";
 
 import { BrandProducts } from "@/components/marques/brand-products";
-import { fetchBrandBySlug, fetchProducts, fetchSeoRedirect } from "@/lib/api/client";
-import { buildBrandMetadata, buildBreadcrumbsSchema, buildCanonicalUrl } from "@/lib/seo";
-import { COMPANY_CONFIG } from "@/lib/config/company";
+import { fetchBrandBySlug, fetchProducts, fetchSeoRedirect, fetchPaginatedProducts } from "@/lib/api/client";
+import { buildBrandMetadata, buildBreadcrumbsSchema, buildBrandSchema } from "@/lib/seo";
 
 export async function generateMetadata({
   params,
@@ -15,15 +15,17 @@ export async function generateMetadata({
   const { slug } = await params;
   const brand = await fetchBrandBySlug(slug);
   if (!brand) return {};
+  const listing = await fetchPaginatedProducts({ brand: slug, limit: 1 });
 
   return buildBrandMetadata({
+    ...brand,
     name: brand.name,
     slug: brand.slug,
     seoTitle: brand.seoTitle,
     seoDescription: brand.seoDescription,
     description: brand.shortDescription || brand.description,
     logo: brand.ogImage || brand.image || brand.logo,
-    indexable: brand.indexable,
+    indexable: brand.indexable !== false && listing.meta.total > 0,
   });
 }
 
@@ -49,24 +51,19 @@ export default async function BrandPage({
   ]);
 
   const introText =
+    brand.seoIntro ||
     brand.description ||
     brand.shortDescription ||
     `Découvrez la sélection ${brand.name} disponible en Tunisie : produits authentiques, prix et livraison partout dans le pays.`;
 
   const brandLogo = brand.image || brand.logo || undefined;
 
-  const brandJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Brand",
+  const brandJsonLd = buildBrandSchema({
     name: brand.name,
-    url: buildCanonicalUrl(`/marques/${brand.slug}`),
-    logo: brandLogo
-      ? brandLogo.startsWith("http")
-        ? brandLogo
-        : `${COMPANY_CONFIG.siteUrl}${brandLogo.startsWith("/") ? "" : "/"}${brandLogo}`
-      : undefined,
+    slug: brand.slug,
+    logo: brandLogo,
     description: introText,
-  };
+  });
 
   return (
     <>
@@ -137,9 +134,7 @@ export default async function BrandPage({
             <h2 className="font-serif text-2xl font-bold text-ink">
               À propos des compléments {brand.name} en Tunisie
             </h2>
-            <p className="mt-3 whitespace-pre-line text-xs sm:text-sm leading-relaxed text-ink-muted">
-              {brand.seoContent}
-            </p>
+            <ProductRichText content={brand.seoContent} className="mt-3 text-sm leading-relaxed text-ink-muted" />
           </section>
         )}
       </div>

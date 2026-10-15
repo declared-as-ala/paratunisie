@@ -35,6 +35,7 @@ export type ProductSeoQualityResult = {
 const PLACEHOLDER_IMAGES = new Set([
   "",
   "/assets/product-tube.webp",
+  "/assets/product-unavailable.svg",
   "/assets/placeholder.webp",
   "/placeholder.svg",
 ]);
@@ -94,7 +95,7 @@ export function evaluateProductSeoQuality(product: ProductSeoQualityInput): Prod
     product.seoContent,
     product.ogDescription,
   ].map(normalized).join(" ");
-  if (/(?:100\s*%\s*authentique|meilleur prix garanti|(?:n[°ºo]|num[ée]ro)\s*1)/i.test(claimText)) {
+  if (/(?:100\s*%\s*authentique|meilleur prix garanti|\b(?:n[°ºo]|num[ée]ro)\s*1\b)/i.test(claimText)) {
     add(
       "UNSUPPORTED_ABSOLUTE_CLAIM",
       "BLOCKER",

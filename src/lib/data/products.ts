@@ -8,6 +8,7 @@ export type ProductSummary = {
   sku?: string;
   slug: string;
   brand: string;
+  brandSlug?: string;
   name: string;
   benefit: string;
   size: string;
