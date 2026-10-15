@@ -29,48 +29,48 @@ Status legend: **Outline ready** = topic, keyword, angle, and sources are define
 | 2 | L-Carnitine et Perte de Poids : Ce Que Dit Vraiment la Science | l-carnitine perte de poids tunisie | Informational | `l-carnitine-science-perte-de-poids` | `/l-carnitine`, existing `l-carnitine-perte-graisse` | Outline ready |
 | 3 | Dosage de la L-Carnitine : Combien et Quand en Prendre | dosage l-carnitine | Informational | `dosage-l-carnitine-quand-prendre` | `/l-carnitine` | Outline ready |
 | 4 | L-Carnitine Tartrate vs Acétyl-L-Carnitine : Les Différences | l-carnitine tartrate acetyl | Informational | `l-carnitine-tartrate-vs-acetyl` | `/l-carnitine` | Outline ready |
-| 5 | Comment Lire l'Étiquette d'un Complément Alimentaire | comment lire étiquette complément | Informational | `comment-lire-etiquette-complement-alimentaire` | `/complements-alimentaires` | Outline ready |
-| 6 | Comprendre les Formes de Créatine sur l'Étiquette (Monohydrate, HCL, Buffered) | formes de créatine étiquette | Informational | `comprendre-formes-creatine-etiquette` | `/creatine` | Outline ready |
-| 7 | Additifs et Édulcorants dans les Whey : Ce qu'il Faut Vérifier | additifs whey protéine | Informational | `additifs-edulcorants-whey-etiquette` | `/whey-proteine` | Outline ready |
-| 8 | Optimum Nutrition en Tunisie : Gamme Disponible et Guide d'Achat | optimum nutrition tunisie | Commercial/brand | `optimum-nutrition-tunisie-guide-achat` | `/marques/optimum-nutrition`, `/whey-proteine`, `/creatine` | Outline ready |
-| 9 | Real Pharm en Tunisie : Que Vaut la Marque ? | real pharm tunisie avis | Commercial/brand | `real-pharm-tunisie-guide` | `/marques/real-pharm` | Outline ready |
-| 10 | OstroVit en Tunisie : Gamme et Rapport Qualité-Prix | ostrovit tunisie | Commercial/brand | `ostrovit-tunisie-guide` | `/marques/ostrovit` | Outline ready |
-| 11 | BiotechUSA en Tunisie : Guide des Produits Disponibles | biotechusa tunisie | Commercial/brand | `biotechusa-tunisie-guide` | `/marques/biotechusa` | Outline ready |
-| 12 | Quelle Marque de Whey Choisir en Tunisie : Comparatif Honnête | meilleure marque whey tunisie | Commercial | `meilleure-marque-whey-tunisie-comparatif` | `/whey-proteine` | Outline ready |
-| 13 | BCAA vs EAA : Lequel Est Vraiment Utile ? (approfondi) | bcaa vs eaa utile | Informational | `bcaa-vs-eaa-approfondi` | `/bcaa`, `/eaa` | Outline ready |
-| 14 | Ratio BCAA 2:1:1 vs 4:1:1 vs 8:1:1 : Ce Que Ça Change | ratio bcaa 2:1:1 4:1:1 | Informational | `ratio-bcaa-comparatif` | `/bcaa` | Outline ready |
-| 15 | EAA : Faut-il les Prendre si On Consomme Déjà de la Whey ? | eaa et whey ensemble | Informational | `eaa-faut-il-avec-whey` | `/eaa`, `/whey-proteine` | Outline ready |
-| 16 | Whey Protéine pour Femme : Ce Qui Change (ou Ne Change Pas) | whey protéine femme | Informational | `whey-proteine-femme-guide` | `/whey-proteine` | Outline ready |
-| 17 | Créatine pour Femme : Reprendre les Idées Reçues (complément à l'article existant) | créatine femme musculation | Informational | `creatine-femme-idees-recues` | `/creatine`, existing `creatine-femme` | Outline ready |
-| 18 | Fer et Sport Chez la Femme : Pourquoi C'est Souvent Négligé | fer sportive carence | Informational | `fer-femme-sportive-carence` | `/vitamines` | Outline ready |
-| 19 | Magnésium et Cycle Menstruel : Ce Que l'on Sait | magnésium cycle menstruel sport | Informational | `magnesium-cycle-menstruel-sport` | `/magnesium` | Outline ready |
-| 20 | S'entraîner et Se Nourrir Pendant le Ramadan : Guide Pratique | nutrition sportive ramadan | Informational | `nutrition-sportive-ramadan-guide` | `/nutrition-sportive` | Outline ready |
-| 21 | Quels Compléments Prendre au Suhoor et à l'Iftar pour la Musculation | compléments ramadan musculation | Commercial/informational | `complements-ramadan-musculation` | `/nutrition-sportive`, `/magnesium` | Outline ready |
-| 22 | Reprendre la Whey et la Créatine Après le Ramadan | reprise whey créatine après ramadan | Informational | `reprise-whey-creatine-apres-ramadan` | `/whey-proteine`, `/creatine` | Outline ready |
-| 23 | Débuter la Musculation en Tunisie avec un Petit Budget : Que Prendre en Premier | compléments débutant budget tunisie | Commercial/informational | `debuter-musculation-petit-budget-tunisie` | `/nutrition-sportive`, `/whey-proteine`, `/creatine` | Outline ready |
-| 24 | Whey ou Créatine en Premier : Par Quoi Commencer Quand On Débute | whey ou créatine débutant | Informational | `whey-ou-creatine-par-quoi-commencer` | `/whey-proteine`, `/creatine` | Outline ready |
-| 25 | Le Stack Minimal pour un Débutant : 3 Compléments, Pas Plus | stack minimal débutant musculation | Commercial/informational | `stack-minimal-debutant-musculation` | `/nutrition-sportive` | Outline ready |
-| 26 | Magnésium : Sources Alimentaires vs Complément, Faut-il Vraiment Supplémenter ? | magnésium alimentation ou complément | Informational | `magnesium-alimentation-vs-complement` | `/magnesium` | Outline ready |
-| 27 | Oméga-3 : Combien de Poisson Faut-il Manger pour Égaler une Gélule ? | oméga 3 poisson vs gélule | Informational | `omega-3-poisson-vs-gelule` | `/omega-3` | Outline ready |
-| 28 | Vitamine D en Tunisie : Pourquoi la Carence Est Fréquente Même au Soleil | vitamine d tunisie carence | Informational | `vitamine-d-tunisie-carence-soleil` | `/vitamines` | Outline ready |
-| 29 | Magnésium pour les Étudiants et le Stress des Examens | magnésium stress examens étudiant | Informational | `magnesium-etudiants-stress-examens` | `/magnesium` | Outline ready |
-| 30 | Compléments pour le Travail de Bureau : Ce Qui a du Sens (et Ce Qui N'en a Pas) | compléments travail bureau fatigue | Informational | `complements-travail-bureau-fatigue` | `/vitamines`, `/magnesium` | Outline ready |
-| 31 | Hydratation et Électrolytes à l'Entraînement en Tunisie (Climat Chaud) | électrolytes sport chaleur tunisie | Informational | `hydratation-electrolytes-chaleur-tunisie` | `/nutrition-sportive` | Outline ready |
-| 32 | Que Manger et Prendre dans l'Heure Après l'Entraînement | nutrition post entraînement fenêtre anabolique | Informational | `nutrition-post-entrainement-guide` | `/whey-proteine`, `/creatine` | Outline ready |
-| 33 | Courbatures (DOMS) : Les Compléments Qui Aident Vraiment, et Ceux Qui Ne Servent à Rien | courbatures doms compléments | Informational | `courbatures-doms-complements-utiles` | `/nutrition-sportive` | Outline ready |
-| 34 | Whey Isolate vs Whey Hydrolysée : Pour Qui et Pourquoi | whey isolate vs hydrolysée | Informational | `whey-isolate-vs-hydrolysee` | `/whey-proteine` | Outline ready |
-| 35 | Pre-Workout Stimulant vs Sans Stimulant : Comment Choisir | pre workout avec ou sans stimulant | Informational | `pre-workout-stimulant-vs-sans` | `/pre-workout` | Outline ready |
-| 36 | Gainer Propre vs Gainer Classique : Les Vraies Différences | clean gainer vs gainer classique | Informational | `clean-gainer-vs-gainer-classique` | `/gainers-proteines` | Outline ready |
-| 37 | Ectomorphe en Tunisie : Guide de Prise de Masse pour Morphologie Difficile | prise de masse ectomorphe tunisie | Informational | `prise-de-masse-ectomorphe-tunisie` | `/gainers-proteines` | Outline ready |
-| 38 | Peut-on Remplacer un Gainer par de la Nourriture Maison ? | gainer maison vs commercial | Informational | `gainer-maison-vs-commercial` | `/gainers-proteines` | Outline ready |
-| 39 | Ashwagandha : Combien de Temps Avant de Sentir des Effets ? | ashwagandha délai effet | Informational | `ashwagandha-delai-effet` | `/ashwagandha` | Outline ready |
-| 40 | Ashwagandha et Sommeil : Ce Que Dit la Recherche (Sans Promesse de Guérison) | ashwagandha sommeil recherche | Informational | `ashwagandha-sommeil-recherche` | `/ashwagandha` | Outline ready |
-| 41 | Zinc et Magnésium (ZMA) : Faut-il les Prendre Ensemble ? | zma zinc magnesium ensemble | Informational | `zma-zinc-magnesium-ensemble` | `/magnesium`, `/vitamines` | Outline ready |
-| 42 | BCAA Scenit Nutrition, Real Pharm, OstroVit : Comparatif des Formules Disponibles | bcaa comparatif marques tunisie | Commercial | `bcaa-comparatif-marques-tunisie` | `/bcaa` | Outline ready |
-| 43 | Quamtrax et Eric Favre en Tunisie : Présentation des Gammes | quamtrax eric favre tunisie | Commercial/brand | `quamtrax-eric-favre-tunisie` | `/marques` | Outline ready |
-| 44 | Multivitamines vs Compléments Ciblés : Lequel Choisir Selon Son Profil | multivitamines ou complements cibles | Informational | `multivitamines-vs-complements-cibles` | `/vitamines`, `/complements-alimentaires` | Outline ready |
-| 45 | Combien de Temps Conserver ses Compléments Après Ouverture | conservation complement alimentaire ouvert | Informational | `conservation-complements-apres-ouverture` | `/complements-alimentaires` | Outline ready |
-| 46 | Peut-on Mélanger Plusieurs Compléments dans le Même Shaker ? | mélanger compléments shaker | Informational | `melanger-complements-shaker` | `/nutrition-sportive` | Outline ready |
+| 5 | Comment Lire l'Étiquette d'un Complément Alimentaire | comment lire étiquette complément | Informational | `comment-lire-etiquette-complement-alimentaire` | `/complements-alimentaires` | Drafted |
+| 6 | Comprendre les Formes de Créatine sur l'Étiquette (Monohydrate, HCL, Buffered) | formes de créatine étiquette | Informational | `comprendre-formes-creatine-etiquette` | `/creatine` | Drafted |
+| 7 | Additifs et Édulcorants dans les Whey : Ce qu'il Faut Vérifier | additifs whey protéine | Informational | `additifs-edulcorants-whey-etiquette` | `/whey-proteine` | Drafted |
+| 8 | Optimum Nutrition en Tunisie : Gamme Disponible et Guide d'Achat | optimum nutrition tunisie | Commercial/brand | `optimum-nutrition-tunisie-guide-achat` | `/marques/optimum-nutrition`, `/whey-proteine`, `/creatine` | Drafted |
+| 9 | Real Pharm en Tunisie : Que Vaut la Marque ? | real pharm tunisie avis | Commercial/brand | `real-pharm-tunisie-guide` | `/marques/real-pharm` | Drafted |
+| 10 | OstroVit en Tunisie : Gamme et Rapport Qualité-Prix | ostrovit tunisie | Commercial/brand | `ostrovit-tunisie-guide` | `/marques/ostrovit` | Drafted |
+| 11 | BiotechUSA en Tunisie : Guide des Produits Disponibles | biotechusa tunisie | Commercial/brand | `biotechusa-tunisie-guide` | `/marques/biotechusa` | Drafted |
+| 12 | Quelle Marque de Whey Choisir en Tunisie : Comparatif Honnête | meilleure marque whey tunisie | Commercial | `meilleure-marque-whey-tunisie-comparatif` | `/whey-proteine` | Drafted |
+| 13 | BCAA vs EAA : Lequel Est Vraiment Utile ? (approfondi) | bcaa vs eaa utile | Informational | `bcaa-vs-eaa-approfondi` | `/bcaa`, `/eaa` | Drafted |
+| 14 | Ratio BCAA 2:1:1 vs 4:1:1 vs 8:1:1 : Ce Que Ça Change | ratio bcaa 2:1:1 4:1:1 | Informational | `ratio-bcaa-comparatif` | `/bcaa` | Drafted |
+| 15 | EAA : Faut-il les Prendre si On Consomme Déjà de la Whey ? | eaa et whey ensemble | Informational | `eaa-faut-il-avec-whey` | `/eaa`, `/whey-proteine` | Drafted |
+| 16 | Whey Protéine pour Femme : Ce Qui Change (ou Ne Change Pas) | whey protéine femme | Informational | `whey-proteine-femme-guide` | `/whey-proteine` | Drafted |
+| 17 | Créatine pour Femme : Reprendre les Idées Reçues (complément à l'article existant) | créatine femme musculation | Informational | `creatine-femme-idees-recues` | `/creatine`, existing `creatine-femme` | Drafted |
+| 18 | Fer et Sport Chez la Femme : Pourquoi C'est Souvent Négligé | fer sportive carence | Informational | `fer-femme-sportive-carence` | `/vitamines` | Drafted |
+| 19 | Magnésium et Cycle Menstruel : Ce Que l'on Sait | magnésium cycle menstruel sport | Informational | `magnesium-cycle-menstruel-sport` | `/magnesium` | Drafted |
+| 20 | S'entraîner et Se Nourrir Pendant le Ramadan : Guide Pratique | nutrition sportive ramadan | Informational | `nutrition-sportive-ramadan-guide` | `/nutrition-sportive` | Drafted |
+| 21 | Quels Compléments Prendre au Suhoor et à l'Iftar pour la Musculation | compléments ramadan musculation | Commercial/informational | `complements-ramadan-musculation` | `/nutrition-sportive`, `/magnesium` | Drafted |
+| 22 | Reprendre la Whey et la Créatine Après le Ramadan | reprise whey créatine après ramadan | Informational | `reprise-whey-creatine-apres-ramadan` | `/whey-proteine`, `/creatine` | Drafted |
+| 23 | Débuter la Musculation en Tunisie avec un Petit Budget : Que Prendre en Premier | compléments débutant budget tunisie | Commercial/informational | `debuter-musculation-petit-budget-tunisie` | `/nutrition-sportive`, `/whey-proteine`, `/creatine` | Drafted |
+| 24 | Whey ou Créatine en Premier : Par Quoi Commencer Quand On Débute | whey ou créatine débutant | Informational | `whey-ou-creatine-par-quoi-commencer` | `/whey-proteine`, `/creatine` | Drafted |
+| 25 | Le Stack Minimal pour un Débutant : 3 Compléments, Pas Plus | stack minimal débutant musculation | Commercial/informational | `stack-minimal-debutant-musculation` | `/nutrition-sportive` | Drafted |
+| 26 | Magnésium : Sources Alimentaires vs Complément, Faut-il Vraiment Supplémenter ? | magnésium alimentation ou complément | Informational | `magnesium-alimentation-vs-complement` | `/magnesium` | Drafted |
+| 27 | Oméga-3 : Combien de Poisson Faut-il Manger pour Égaler une Gélule ? | oméga 3 poisson vs gélule | Informational | `omega-3-poisson-vs-gelule` | `/omega-3` | Drafted |
+| 28 | Vitamine D en Tunisie : Pourquoi la Carence Est Fréquente Même au Soleil | vitamine d tunisie carence | Informational | `vitamine-d-tunisie-carence-soleil` | `/vitamines` | Drafted |
+| 29 | Magnésium pour les Étudiants et le Stress des Examens | magnésium stress examens étudiant | Informational | `magnesium-etudiants-stress-examens` | `/magnesium` | Drafted |
+| 30 | Compléments pour le Travail de Bureau : Ce Qui a du Sens (et Ce Qui N'en a Pas) | compléments travail bureau fatigue | Informational | `complements-travail-bureau-fatigue` | `/vitamines`, `/magnesium` | Drafted |
+| 31 | Hydratation et Électrolytes à l'Entraînement en Tunisie (Climat Chaud) | électrolytes sport chaleur tunisie | Informational | `hydratation-electrolytes-chaleur-tunisie` | `/nutrition-sportive` | Drafted |
+| 32 | Que Manger et Prendre dans l'Heure Après l'Entraînement | nutrition post entraînement fenêtre anabolique | Informational | `nutrition-post-entrainement-guide` | `/whey-proteine`, `/creatine` | Drafted |
+| 33 | Courbatures (DOMS) : Les Compléments Qui Aident Vraiment, et Ceux Qui Ne Servent à Rien | courbatures doms compléments | Informational | `courbatures-doms-complements-utiles` | `/nutrition-sportive` | Drafted |
+| 34 | Whey Isolate vs Whey Hydrolysée : Pour Qui et Pourquoi | whey isolate vs hydrolysée | Informational | `whey-isolate-vs-hydrolysee` | `/whey-proteine` | Drafted |
+| 35 | Pre-Workout Stimulant vs Sans Stimulant : Comment Choisir | pre workout avec ou sans stimulant | Informational | `pre-workout-stimulant-vs-sans` | `/pre-workout` | Drafted |
+| 36 | Gainer Propre vs Gainer Classique : Les Vraies Différences | clean gainer vs gainer classique | Informational | `clean-gainer-vs-gainer-classique` | `/gainers-proteines` | Drafted |
+| 37 | Ectomorphe en Tunisie : Guide de Prise de Masse pour Morphologie Difficile | prise de masse ectomorphe tunisie | Informational | `prise-de-masse-ectomorphe-tunisie` | `/gainers-proteines` | Drafted |
+| 38 | Peut-on Remplacer un Gainer par de la Nourriture Maison ? | gainer maison vs commercial | Informational | `gainer-maison-vs-commercial` | `/gainers-proteines` | Drafted |
+| 39 | Ashwagandha : Combien de Temps Avant de Sentir des Effets ? | ashwagandha délai effet | Informational | `ashwagandha-delai-effet` | `/ashwagandha` | Drafted |
+| 40 | Ashwagandha et Sommeil : Ce Que Dit la Recherche (Sans Promesse de Guérison) | ashwagandha sommeil recherche | Informational | `ashwagandha-sommeil-recherche` | `/ashwagandha` | Drafted |
+| 41 | Zinc et Magnésium (ZMA) : Faut-il les Prendre Ensemble ? | zma zinc magnesium ensemble | Informational | `zma-zinc-magnesium-ensemble` | `/magnesium`, `/vitamines` | Drafted |
+| 42 | BCAA Scenit Nutrition, Real Pharm, OstroVit : Comparatif des Formules Disponibles | bcaa comparatif marques tunisie | Commercial | `bcaa-comparatif-marques-tunisie` | `/bcaa` | Drafted — note: OstroVit n'a pas de BCAA dédié confirmé sur le catalogue au moment de la rédaction, signalé honnêtement dans l'article |
+| 43 | Quamtrax et Eric Favre en Tunisie : Présentation des Gammes | quamtrax eric favre tunisie | Commercial/brand | `quamtrax-eric-favre-tunisie` | `/marques` | Drafted |
+| 44 | Multivitamines vs Compléments Ciblés : Lequel Choisir Selon Son Profil | multivitamines ou complements cibles | Informational | `multivitamines-vs-complements-cibles` | `/vitamines`, `/complements-alimentaires` | Drafted |
+| 45 | Combien de Temps Conserver ses Compléments Après Ouverture | conservation complement alimentaire ouvert | Informational | `conservation-complements-apres-ouverture` | `/complements-alimentaires` | Drafted |
+| 46 | Peut-on Mélanger Plusieurs Compléments dans le Même Shaker ? | mélanger compléments shaker | Informational | `melanger-complements-shaker` | `/nutrition-sportive` | Drafted |
 | 47 | Compléments Alimentaires et Interactions Médicamenteuses : Quand Consulter | compléments interactions médicaments | Informational (YMYL — needs professional review before publish) | `complements-interactions-medicaments` | `/complements-alimentaires` | Outline ready — flagged for professional review |
 | 48 | Grossesse et Compléments Sportifs : Ce Qu'il Faut Éviter | compléments sportifs grossesse | Informational (YMYL — needs professional review before publish) | `complements-sportifs-grossesse` | `/complements-alimentaires` | Outline ready — flagged for professional review |
 | 49 | Adolescents et Musculation : Quels Compléments Sont Appropriés ? | musculation ado compléments | Informational (YMYL — needs professional review before publish) | `musculation-adolescent-complements` | `/nutrition-sportive` | Outline ready — flagged for professional review |
