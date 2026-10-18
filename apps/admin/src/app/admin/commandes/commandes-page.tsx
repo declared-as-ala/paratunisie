@@ -32,6 +32,8 @@ import { formatCurrency, formatPercent } from "@/lib/utils";
 import { notifyOrdersChanged, onOrdersChanged } from "@/lib/order-events";
 import { AramexBadge, getAramexStatusConfig } from "@/components/aramex/aramex-badge";
 import { AramexShipmentModal } from "@/components/aramex/aramex-shipment-modal";
+import { canTransition } from "@/lib/order-state";
+import { aramexBucket, countAramexBuckets, matchesAramexFilter, matchesPeriod, type AramexFilter } from "@/lib/order-filters";
 import { AramexTrackingDrawer } from "@/components/aramex/aramex-tracking-drawer";
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
@@ -77,6 +79,7 @@ interface CustomOrder {
   reference: string;
   customerName: string;
   isRegularClient?: boolean;
+  createdAt?: string;
   date: string;
   phone: string;
   phone2?: string;
@@ -348,13 +351,21 @@ const TUNISIA_CITIES = [
   "Zaghouan",
 ];
 
-const STATUS_OPTIONS = [
-  { value: "DEFAULT", label: "— Par défaut —" },
+const STATUS_OPTIONS: { value: OrderStatus; label: string }[] = [
   { value: "EN_ATTENTE", label: "En attente" },
+  { value: "TENTATIVE_CONTACT", label: "Tentative de contact" },
   { value: "CONFIRMEE", label: "Confirmée" },
-  { value: "TENTATIVE", label: "Tentative" },
+  { value: "PREPARATION", label: "En préparation" },
+  { value: "PRETE_EXPEDITION", label: "Prête à expédier" },
+  { value: "EXPEDIEE", label: "Expédiée" },
+  { value: "LIVREE", label: "Livrée" },
+  { value: "ECHEC_LIVRAISON", label: "Échec de livraison" },
+  { value: "RETOURNEE", label: "Retournée" },
   { value: "ANNULEE", label: "Annulée" },
+  { value: "REFUSEE", label: "Refusée" },
 ];
+const STATUS_LABEL: Record<string, string> = Object.fromEntries(STATUS_OPTIONS.map((o) => [o.value, o.label]));
+
 
 /* ─── Page Component ─────────────────────────────────────────────────── */
 
@@ -373,6 +384,7 @@ function CommandesInner() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [aramexFilter, setAramexFilter] = useState<string>("ALL");
+  const [statusReason, setStatusReason] = useState("");
   const [periodFilter, setPeriodFilter] = useState<string>("ALL");
   const [deleteTarget, setDeleteTarget] = useState<CustomOrder | null>(null);
   const [orderCounts, setOrderCounts] = useState<OrderCounts | null>(null);
@@ -502,8 +514,9 @@ function CommandesInner() {
               reference: `#${o.id?.slice(-5) || 53380 + idx}`,
               customerName: o.user?.name || "Client ParaTunisie",
               isRegularClient: Boolean(o.user?.orders && o.user.orders.length > 1),
+              createdAt: o.createdAt || undefined,
               date: new Date(o.createdAt || Date.now()).toLocaleDateString("fr-FR"),
-              phone: o.user?.phone || "27578505",
+              phone: o.user?.phone || "",
               phone2: "",
               email: o.user?.email || "",
               city: o.gouvernorat || "Tunis",
@@ -535,15 +548,7 @@ function CommandesInner() {
                     codAmountMillimes: o.shipment.codAmountMillimes,
                   }
                 : null,
-              items: items.length > 0 ? items : [
-                {
-                  productName: "Anthelios Fluide Invisible SPF50+",
-                  brand: "La Roche-Posay",
-                  quantity: 1,
-                  unitPrice: 58,
-                  lineTotal: 58,
-                },
-              ],
+              items,
             };
           });
           setOrders(mapped);
@@ -843,7 +848,20 @@ function CommandesInner() {
 
     try {
       setSavingOrder(true);
-      await apiClient.patch(`/orders/${formData.id}/status`, { status: formData.status });
+      const current = orders.find((o) => o.id === formData.id)?.status;
+      if (current && current !== formData.status) {
+        const isNormal = canTransition(current as OrderStatus, formData.status as OrderStatus);
+        if (!isNormal && statusReason.trim().length < 5) {
+          toast("error", "Indiquez un motif (5 caractères minimum) pour la correction du statut.");
+          setSavingOrder(false);
+          return;
+        }
+        await apiClient.patch(`/orders/${formData.id}/status`, {
+          status: formData.status,
+          ...(isNormal ? {} : { override: true, note: statusReason.trim() }),
+        });
+        setStatusReason("");
+      }
       notifyOrdersChanged();
       loadOrderCounts();
       setOrdersRefreshKey((k) => k + 1);
@@ -857,7 +875,7 @@ function CommandesInner() {
     } finally {
       setSavingOrder(false);
     }
-  }, [formData, targetId, handleCloseDrawer, loadOrderCounts, toast]);
+  }, [formData, targetId, orders, statusReason, handleCloseDrawer, loadOrderCounts, toast]);
 
   const handleDelete = useCallback(async () => {
     if (!deleteTarget) return;
@@ -942,45 +960,11 @@ function CommandesInner() {
   const abandonedCount = orderCounts?.abandoned ?? (abandonedList.length > 0 ? abandonedList.length : abandonedCountLocal);
   const deletedCount = orderCounts?.deleted ?? deletedCountLocal;
 
-  // Real Aramex Delivery Status Counters
-  const aramexCounts = useMemo(() => {
-    let notShipped = 0;
-    let created = 0;
-    let inTransit = 0;
-    let outForDelivery = 0;
-    let delivered = 0;
-    let attempts = 0;
-    let returns = 0;
-    let returned = 0;
-
-    for (const o of orders) {
-      const s = (o.shipment?.trackingStatus || (o.shipment?.hawb ? "CREATED" : "")).toUpperCase();
-      if (!o.shipment?.hawb && !o.shipment?.tracking) {
-        notShipped++;
-      } else if (s === "DELIVERED") {
-        delivered++;
-      } else if (s === "OUT_FOR_DELIVERY") {
-        outForDelivery++;
-      } else if (s === "IN_TRANSIT" || s === "PICKED_UP" || s === "PICKUP_REQUESTED") {
-        inTransit++;
-      } else if (s === "DELIVERY_ATTEMPT" || s === "REFUSED" || s === "EXCEPTION") {
-        attempts++;
-      } else if (s === "RETURN_REQUESTED" || s === "RETURNING") {
-        returns++;
-      } else if (s === "RETURNED") {
-        returned++;
-        returns++;
-      } else {
-        created++;
-      }
-    }
-
-    return { notShipped, created, inTransit, outForDelivery, delivered, attempts, returns, returned };
-  }, [orders]);
-
-  // Filtered List
-  const filteredOrders = useMemo(() => {
-    let list = [...orders];
+  // Scope shared by the summary cards, dropdown counters AND the table: tab + search + commercial
+  // status + period. Only the Aramex filter is applied after, so a card's number is always the
+  // number of rows it shows.
+  const scopedOrders = useMemo(() => {
+    let list = orders;
     if (activeTab === "NORMAL") {
       list = list.filter((o) => (o.status as string) !== "ABANDONNEE" && (o.status as string) !== "SUPPRIMEE");
     } else if (activeTab === "ABANDONNEES") {
@@ -988,62 +972,46 @@ function CommandesInner() {
     } else if (activeTab === "SUPPRIMEES") {
       list = list.filter((o) => (o.status as string) === "SUPPRIMEE");
     }
-
-    if (search) {
-      const q = search.toLowerCase();
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      const digits = q.replace(/\D/g, "");
       list = list.filter(
         (o) =>
           o.reference.toLowerCase().includes(q) ||
+          o.id.toLowerCase().includes(q) ||
           o.customerName.toLowerCase().includes(q) ||
-          o.phone.includes(q) ||
+          (digits.length > 0 && o.phone.replace(/\D/g, "").includes(digits)) ||
           o.city.toLowerCase().includes(q)
       );
     }
-    if (statusFilter !== "ALL") {
-      list = list.filter((o) => o.status === statusFilter);
-    }
-
-    if (aramexFilter !== "ALL") {
-      if (aramexFilter === "NOT_SHIPPED") {
-        list = list.filter((o) => !o.shipment?.hawb && !o.shipment?.tracking);
-      } else if (aramexFilter === "IN_TRANSIT") {
-        list = list.filter((o) => {
-          const s = (o.shipment?.trackingStatus || "").toUpperCase();
-          return s === "IN_TRANSIT" || s === "PICKED_UP" || s === "PICKUP_REQUESTED";
-        });
-      } else if (aramexFilter === "OUT_FOR_DELIVERY") {
-        list = list.filter((o) => (o.shipment?.trackingStatus || "").toUpperCase() === "OUT_FOR_DELIVERY");
-      } else if (aramexFilter === "DELIVERED") {
-        list = list.filter((o) => (o.shipment?.trackingStatus || "").toUpperCase() === "DELIVERED");
-      } else if (aramexFilter === "DELIVERY_ATTEMPT") {
-        list = list.filter((o) => {
-          const s = (o.shipment?.trackingStatus || "").toUpperCase();
-          return s === "DELIVERY_ATTEMPT" || s === "REFUSED";
-        });
-      } else if (aramexFilter === "EXCEPTION") {
-        list = list.filter((o) => {
-          const s = (o.shipment?.trackingStatus || "").toUpperCase();
-          return s === "EXCEPTION" || s === "REFUSED";
-        });
-      } else if (aramexFilter === "RETURNING") {
-        list = list.filter((o) => {
-          const s = (o.shipment?.trackingStatus || "").toUpperCase();
-          return s === "RETURNING" || s === "RETURN_REQUESTED";
-        });
-      } else if (aramexFilter === "RETURNED") {
-        list = list.filter((o) => (o.shipment?.trackingStatus || "").toUpperCase() === "RETURNED");
-      } else if (aramexFilter === "CREATED") {
-        list = list.filter((o) => {
-          const s = (o.shipment?.trackingStatus || "").toUpperCase();
-          return s === "CREATED" || (!s && Boolean(o.shipment?.hawb));
-        });
-      } else if (aramexFilter === "CANCELLED") {
-        list = list.filter((o) => (o.shipment?.trackingStatus || "").toUpperCase() === "CANCELLED");
-      }
-    }
-
+    if (statusFilter !== "ALL") list = list.filter((o) => o.status === statusFilter);
+    if (periodFilter !== "ALL") list = list.filter((o) => matchesPeriod(o.createdAt, periodFilter));
     return list;
-  }, [orders, activeTab, search, statusFilter, aramexFilter]);
+  }, [orders, activeTab, search, statusFilter, periodFilter]);
+
+  const aramexCounts = useMemo(() => {
+    const c = countAramexBuckets(scopedOrders);
+    return {
+      notShipped: c.NOT_SHIPPED,
+      created: c.CREATED,
+      inTransit: c.IN_TRANSIT,
+      outForDelivery: c.OUT_FOR_DELIVERY,
+      delivered: c.DELIVERED,
+      attempts: c.DELIVERY_ATTEMPT,
+      exceptions: c.EXCEPTION,
+      problems: c.problems,
+      returning: c.RETURNING,
+      returned: c.RETURNED,
+      returns: c.returns,
+      cancelled: c.CANCELLED,
+    };
+  }, [scopedOrders]);
+
+  // Filtered List
+  const filteredOrders = useMemo(
+    () => (aramexFilter === "ALL" ? scopedOrders : scopedOrders.filter((o) => matchesAramexFilter(o.shipment, aramexFilter as AramexFilter))),
+    [scopedOrders, aramexFilter]
+  );
 
   const visibleOrderIds = useMemo(() => filteredOrders.map((order) => order.id), [filteredOrders]);
   const visibleSelectedCount = useMemo(
@@ -1251,9 +1219,9 @@ function CommandesInner() {
 
         <button
           type="button"
-          onClick={() => setAramexFilter(aramexFilter === "DELIVERY_ATTEMPT" ? "ALL" : "DELIVERY_ATTEMPT")}
+          onClick={() => setAramexFilter(aramexFilter === "PROBLEMS" ? "ALL" : "PROBLEMS")}
           className={`p-3 rounded-2xl border text-left transition-all ${
-            aramexFilter === "DELIVERY_ATTEMPT"
+            aramexFilter === "PROBLEMS"
               ? "bg-yellow-100/90 border-yellow-400 ring-2 ring-yellow-400/40 shadow-xs"
               : "bg-white border-slate-200/80 hover:bg-yellow-50/50 shadow-2xs"
           }`}
@@ -1263,16 +1231,16 @@ function CommandesInner() {
               <span>⚠️</span> Tentatives / Pb
             </span>
             <span className="text-xs font-black text-yellow-900 bg-yellow-100 px-2 py-0.5 rounded-full">
-              {aramexCounts.attempts}
+              {aramexCounts.problems}
             </span>
           </div>
         </button>
 
         <button
           type="button"
-          onClick={() => setAramexFilter(aramexFilter === "RETURNING" ? "ALL" : "RETURNING")}
+          onClick={() => setAramexFilter(aramexFilter === "RETURNS" ? "ALL" : "RETURNS")}
           className={`p-3 rounded-2xl border text-left transition-all ${
-            aramexFilter === "RETURNING"
+            aramexFilter === "RETURNS"
               ? "bg-rose-100/90 border-rose-400 ring-2 ring-rose-400/40 shadow-xs"
               : "bg-white border-slate-200/80 hover:bg-rose-50/50 shadow-2xs"
           }`}
@@ -1307,10 +1275,11 @@ function CommandesInner() {
           className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-[#E11D48]"
         >
           <option value="ALL">Statut Commande : Tous ({totalCount})</option>
-          <option value="EN_ATTENTE">En attente ({enAttenteCount})</option>
-          <option value="CONFIRMEE">Confirmée ({confirmeeCount})</option>
-          <option value="TENTATIVE_CONTACT">Tentative ({tentativeCount})</option>
-          <option value="ANNULEE">Annulée ({annuleeCount})</option>
+          {STATUS_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label} ({orderCounts?.byStatus[opt.value] ?? orders.filter((o) => o.status === opt.value).length})
+            </option>
+          ))}
         </select>
 
         <select
@@ -1325,10 +1294,12 @@ function CommandesInner() {
           <option value="OUT_FOR_DELIVERY">En cours de livraison ({aramexCounts.outForDelivery})</option>
           <option value="DELIVERED">Livrées ({aramexCounts.delivered})</option>
           <option value="DELIVERY_ATTEMPT">Tentatives de livraison ({aramexCounts.attempts})</option>
-          <option value="EXCEPTION">Problèmes / Exceptions</option>
-          <option value="RETURNING">En cours de retour ({aramexCounts.returns})</option>
+          <option value="EXCEPTION">Problèmes / Exceptions ({aramexCounts.exceptions})</option>
+          <option value="PROBLEMS">Tentatives + problèmes ({aramexCounts.problems})</option>
+          <option value="RETURNING">En cours de retour ({aramexCounts.returning})</option>
           <option value="RETURNED">Retournées ({aramexCounts.returned})</option>
-          <option value="CANCELLED">Annulées</option>
+          <option value="RETURNS">Tous les retours ({aramexCounts.returns})</option>
+          <option value="CANCELLED">Annulées ({aramexCounts.cancelled})</option>
         </select>
 
         <select
@@ -1798,26 +1769,61 @@ function CommandesInner() {
                   </label>
                 </div>
 
-                {/* STATUT Dropdown */}
-                <div className="space-y-1.5">
-                  <label className="block text-[0.6875rem] font-bold text-slate-600 uppercase tracking-wider">
-                    STATUT
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={formData.status}
-                      onChange={(e) => setEditingForm({ ...formData, status: e.target.value as OrderStatus })}
-                      className="w-full rounded-2xl border-2 border-[#E11D48] bg-white px-4 py-3 text-sm font-semibold text-slate-900 focus:outline-none appearance-none shadow-xs"
-                    >
-                      {STATUS_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-700 pointer-events-none" />
-                  </div>
-                </div>
+                {/* STATUT COMMERCIAL — indépendant du statut d'expédition Aramex */}
+                {!(formData.id.startsWith("NEW-") || targetId === "new") && (() => {
+                  const current = orders.find((o) => o.id === formData.id)?.status ?? formData.status;
+                  const changed = formData.status !== current;
+                  const normal = changed && canTransition(current as OrderStatus, formData.status as OrderStatus);
+                  const correction = changed && !normal;
+                  return (
+                    <div className="space-y-2">
+                      <label className="block text-[0.6875rem] font-bold text-slate-600 uppercase tracking-wider">
+                        Statut commercial
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={formData.status}
+                          onChange={(e) => setEditingForm({ ...formData, status: e.target.value as OrderStatus })}
+                          className="w-full rounded-2xl border-2 border-[#E11D48] bg-white px-4 py-3 text-sm font-semibold text-slate-900 focus:outline-none appearance-none shadow-xs"
+                        >
+                          {STATUS_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                              {opt.label}
+                              {opt.value === current ? " (actuel)" : ""}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-700 pointer-events-none" />
+                      </div>
+                      {normal && (
+                        <p className="text-[0.6875rem] font-medium text-emerald-700">
+                          Étape normale : {STATUS_LABEL[current]} → {STATUS_LABEL[formData.status]}.
+                        </p>
+                      )}
+                      {correction && (
+                        <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 space-y-2">
+                          <p className="text-[0.75rem] font-bold text-amber-900">
+                            Correction administrateur : {STATUS_LABEL[current]} → {STATUS_LABEL[formData.status]}
+                          </p>
+                          <p className="text-[0.6875rem] text-amber-800">
+                            Ne modifie que le statut commercial. Le suivi Aramex, le stock et les points de fidélité ne sont pas touchés ; ajustez-les manuellement si nécessaire. Cette correction est tracée dans l&apos;historique.
+                          </p>
+                          <textarea
+                            value={statusReason}
+                            onChange={(e) => setStatusReason(e.target.value)}
+                            rows={2}
+                            maxLength={450}
+                            placeholder="Motif de la correction (obligatoire)…"
+                            className="w-full rounded-lg border border-amber-300 bg-white p-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
+                          />
+                        </div>
+                      )}
+                      <p className="text-[0.6875rem] text-slate-500">
+                        Le statut d&apos;expédition Aramex est géré séparément (synchronisation automatique).
+                      </p>
+                    </div>
+                  );
+                })()}
 
                 {/* AJOUTER UNE NOTE PRIVÉE */}
                 <div className="space-y-1.5">

@@ -71,7 +71,12 @@ describe("OrdersService — updateOrderStatus cost snapshot", () => {
       },
       orderStatusHistory: { create: jest.fn().mockResolvedValue({}) },
       orderItem: { update: orderItemUpdateMock },
-      $transaction: jest.fn((ops: Promise<unknown>[]) => Promise.all(ops)),
+      $transaction: jest.fn(async (fn: any) =>
+        fn({
+          order: { updateMany: jest.fn().mockResolvedValue({ count: 1 }), findUniqueOrThrow: jest.fn().mockResolvedValue({}) },
+          orderStatusHistory: { create: jest.fn().mockResolvedValue({}) },
+        }),
+      ),
     } as any;
     const inventory = {
       reserveForOrder: jest.fn().mockResolvedValue(undefined),

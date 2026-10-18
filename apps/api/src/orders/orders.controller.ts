@@ -1,7 +1,7 @@
 import { Controller, Delete, Get, Post, Patch, Body, Param, UseGuards, Req } from "@nestjs/common";
 import { Request } from "express";
 import { Type } from "class-transformer";
-import { ArrayMaxSize, ArrayMinSize, IsArray, IsEnum, IsInt, IsOptional, IsString, ValidateNested } from "class-validator";
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsEnum, IsInt, IsOptional, IsString, MaxLength, ValidateNested } from "class-validator";
 import { OrderStatus } from "@prisma/client";
 import { OrdersService } from "./orders.service";
 import { AdminAuthGuard } from "../admin-auth/guards/admin-auth.guard";
@@ -13,7 +13,13 @@ class UpdateOrderStatusDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(500)
   note?: string;
+
+  // Administrator correction: bypasses the workflow, requires a reason, never touches the shipment.
+  @IsOptional()
+  @IsBoolean()
+  override?: boolean;
 }
 
 class BulkDeleteOrdersDto {
@@ -190,6 +196,6 @@ export class OrdersController {
     @Body() dto: UpdateOrderStatusDto,
     @CurrentStaff() staff: { id: string },
   ) {
-    return this.ordersService.updateOrderStatus(id, dto.status, staff.id, dto.note);
+    return this.ordersService.updateOrderStatus(id, dto.status, staff.id, dto.note, { override: dto.override === true });
   }
 }

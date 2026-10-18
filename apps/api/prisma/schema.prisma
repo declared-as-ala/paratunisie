@@ -345,7 +345,11 @@ model OrderStatusHistory {
   staffId    String?
   staff      StaffUser?   @relation(fields: [staffId], references: [id])
   note       String?
+  // true when an admin forced this change outside the normal workflow (reason required in note)
+  isOverride Boolean      @default(false)
   createdAt  DateTime     @default(now())
+
+  @@index([orderId, createdAt])
 }
 
 model OrderItem {
