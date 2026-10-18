@@ -1165,11 +1165,11 @@ function CommandesInner() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Rechercher (numéro, client, téléphone)…"
-            className="field-input pl-9"
+            className="field-input pl-9!"
           />
         </div>
 
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="field-input w-auto" aria-label="Statut commercial">
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="field-input w-auto!" aria-label="Statut commercial">
           <option value="ALL">Statut commercial : tous ({normalCount})</option>
           {STATUS_OPTIONS.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -1178,7 +1178,7 @@ function CommandesInner() {
           ))}
         </select>
 
-        <select value={aramexFilter} onChange={(e) => setAramexFilter(e.target.value)} className="field-input w-auto" aria-label="Expédition Aramex">
+        <select value={aramexFilter} onChange={(e) => setAramexFilter(e.target.value)} className="field-input w-auto!" aria-label="Expédition Aramex">
           <option value="ALL">Expédition Aramex : toutes</option>
           <option value="NOT_SHIPPED">Non expédiées ({aramexCounts.notShipped})</option>
           <option value="CREATED">Créées ({aramexCounts.created})</option>
@@ -1194,7 +1194,7 @@ function CommandesInner() {
           <option value="CANCELLED">Annulées ({aramexCounts.cancelled})</option>
         </select>
 
-        <select value={periodFilter} onChange={(e) => setPeriodFilter(e.target.value)} className="field-input w-auto" aria-label="Période">
+        <select value={periodFilter} onChange={(e) => setPeriodFilter(e.target.value)} className="field-input w-auto!" aria-label="Période">
           <option value="ALL">Toute la période</option>
           <option value="today">Aujourd&apos;hui</option>
           <option value="week">7 derniers jours</option>
