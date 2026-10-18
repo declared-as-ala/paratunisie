@@ -81,7 +81,7 @@ export default function RapportsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-xl font-bold tracking-tight text-ink">Rapports & Rentabilité Commerciale</h1>
+            <h1 className="page-title">Rapports & Rentabilité Commerciale</h1>
             <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary border border-primary/20">
               Analyses Financières
             </span>
@@ -153,12 +153,12 @@ export default function RapportsPage() {
         )}
         {overview?.alerts.map((alert, i) => (
           <div key={i} className={`flex items-center justify-between py-2.5 px-3.5 rounded-xl border ${
-            alert.type === "danger" ? "bg-rose-500/5 border-rose-500/20 text-rose-700" :
+            alert.type === "danger" ? "bg-primary/5 border-primary/20 text-primary-hover" :
             alert.type === "warning" ? "bg-amber-500/5 border-amber-500/20 text-amber-700" :
             "bg-blue-500/5 border-blue-500/20 text-blue-700"
           }`}>
             <div className="flex items-center gap-2.5">
-              {alert.type === "danger" && <AlertTriangle size={13} className="text-rose-600" />}
+              {alert.type === "danger" && <AlertTriangle size={13} className="text-primary" />}
               {alert.type === "warning" && <Clock size={13} className="text-amber-600" />}
               {alert.type === "info" && <Info size={13} className="text-blue-600" />}
               <span className="text-xs font-semibold text-ink">{alert.message}</span>
@@ -203,7 +203,7 @@ export default function RapportsPage() {
             </div>
             <div className="text-center">
               <p className="text-[0.625rem] text-ink-faint uppercase font-semibold">Taux annulation</p>
-              <p className="text-sm font-extrabold tabular-nums text-rose-600">{formatPercent(overview?.kpis.tauxAnnulation ?? 0)}</p>
+              <p className="text-sm font-extrabold tabular-nums text-primary">{formatPercent(overview?.kpis.tauxAnnulation ?? 0)}</p>
             </div>
             <div className="text-center">
               <p className="text-[0.625rem] text-ink-faint uppercase font-semibold">Taux retour</p>

@@ -40,7 +40,7 @@ interface ReturnRequest {
 const RETURN_STATUS_MAP: Record<ReturnStatus, { label: string; bg: string; text: string }> = {
   REQUESTED: { label: "Demandé", bg: "bg-amber-500/10 border-amber-500/30", text: "text-amber-700" },
   APPROVED: { label: "Approuvé", bg: "bg-blue-500/10 border-blue-500/30", text: "text-blue-700" },
-  REJECTED: { label: "Rejeté", bg: "bg-rose-500/10 border-rose-500/30", text: "text-rose-700" },
+  REJECTED: { label: "Rejeté", bg: "bg-primary/10 border-primary/30", text: "text-primary-hover" },
   RECEIVED: { label: "Reçu", bg: "bg-indigo-500/10 border-indigo-500/30", text: "text-indigo-700" },
   REFUNDED: { label: "Remboursé", bg: "bg-emerald-500/10 border-emerald-500/30", text: "text-emerald-700" },
   EXCHANGED: { label: "Échangé", bg: "bg-emerald-500/10 border-emerald-500/30", text: "text-emerald-700" },
@@ -165,7 +165,7 @@ export default function RetoursPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-xl font-bold tracking-tight text-ink">Service Clients & Retours</h1>
+            <h1 className="page-title">Service Clients & Retours</h1>
             <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary border border-primary/20">
               {returns.length} demandes
             </span>

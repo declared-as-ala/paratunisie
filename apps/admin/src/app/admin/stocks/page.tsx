@@ -82,8 +82,8 @@ function getDaysUntilExpiry(date?: string): number | null {
 function ExpiryBadge({ date }: { date?: string }) {
   const days = getDaysUntilExpiry(date);
   if (days === null) return <span className="text-xs text-slate-400">—</span>;
-  if (days < 0) return <span className="px-2 py-0.5 rounded-full text-[0.625rem] font-bold bg-rose-50 text-rose-700 border border-rose-200">Expiré</span>;
-  if (days <= 30) return <span className="px-2 py-0.5 rounded-full text-[0.625rem] font-bold bg-rose-50 text-rose-700 border border-rose-200">{days}j</span>;
+  if (days < 0) return <span className="px-2 py-0.5 rounded-full text-[0.625rem] font-bold bg-primary-soft/30 text-primary-hover border border-primary-soft">Expiré</span>;
+  if (days <= 30) return <span className="px-2 py-0.5 rounded-full text-[0.625rem] font-bold bg-primary-soft/30 text-primary-hover border border-primary-soft">{days}j</span>;
   if (days <= 60) return <span className="px-2 py-0.5 rounded-full text-[0.625rem] font-bold bg-amber-50 text-amber-700 border border-amber-200">{days}j</span>;
   if (days <= 90) return <span className="px-2 py-0.5 rounded-full text-[0.625rem] font-bold bg-blue-50 text-blue-700 border border-blue-200">{days}j</span>;
   return <span className="text-xs text-slate-600 font-semibold tabular-nums">{days}j</span>;
@@ -202,12 +202,12 @@ export default function StocksAdminPage() {
       {/* ── Top Header ───────────────────────────────────────────────── */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
-          <div className="h-12 w-12 rounded-2xl bg-[#E11D48] text-white flex items-center justify-center shadow-md shrink-0 mt-0.5">
+          <div className="h-12 w-12 rounded-2xl bg-[var(--color-primary)] text-white flex items-center justify-center shadow-md shrink-0 mt-0.5">
             <Boxes size={24} />
           </div>
           <div>
-            <h1 className="text-2xl font-black tracking-tight text-[#881337]">Gestion des Stocks</h1>
-            <p className="text-sm font-bold text-slate-700 mt-0.5">
+            <h1 className="page-title">Gestion des Stocks</h1>
+            <p className="page-subtitle">
               {loadError ? loadError : `${inventory.length} produits synchronisés en temps réel depuis l'API`}
             </p>
           </div>
@@ -219,13 +219,13 @@ export default function StocksAdminPage() {
             onClick={loadData}
             className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50 transition-colors shadow-xs"
           >
-            <RefreshCw size={14} className={loading ? "animate-spin text-[#E11D48]" : ""} />
+            <RefreshCw size={14} className={loading ? "animate-spin text-[var(--color-primary)]" : ""} />
             Actualiser
           </button>
           <button
             type="button"
             onClick={() => setView(view === "inventory" ? "movements" : "inventory")}
-            className="inline-flex items-center gap-1.5 rounded-xl bg-[#E11D48] px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-[#BE123C] transition-all active:scale-95"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-[var(--color-primary)] px-4 py-2 text-xs font-bold text-white shadow-xs hover:bg-[#BE123C] transition-all active:scale-95"
           >
             <SlidersHorizontal size={14} />
             {view === "inventory" ? "Journal des Mouvements" : "Vue Inventaire"}
@@ -243,13 +243,13 @@ export default function StocksAdminPage() {
           <span className="text-[0.6875rem] font-bold text-slate-500 uppercase tracking-wider">Réservé</span>
           <p className="text-xl font-black text-slate-900 mt-0.5 tabular-nums">{totalReserved}</p>
         </div>
-        <div className="rounded-2xl bg-white p-3.5 shadow-xs border-l-4 border-l-[#E11D48] border border-slate-200/80">
+        <div className="rounded-2xl bg-white p-3.5 shadow-xs border-l-4 border-l-[var(--color-primary)] border border-slate-200/80">
           <span className="text-[0.6875rem] font-bold text-slate-500 uppercase tracking-wider">Disponible</span>
-          <p className="text-xl font-black text-[#E11D48] mt-0.5 tabular-nums">{totalAvailable}</p>
+          <p className="text-xl font-black text-[var(--color-primary)] mt-0.5 tabular-nums">{totalAvailable}</p>
         </div>
-        <div className="rounded-2xl bg-white p-3.5 shadow-xs border-l-4 border-l-rose-600 border border-slate-200/80">
-          <span className="text-[0.6875rem] font-bold text-rose-700 uppercase tracking-wider">Ruptures</span>
-          <p className="text-xl font-black text-rose-600 mt-0.5 tabular-nums">{outOfStock}</p>
+        <div className="rounded-2xl bg-white p-3.5 shadow-xs border-l-4 border-l-primary border border-slate-200/80">
+          <span className="text-[0.6875rem] font-bold text-primary-hover uppercase tracking-wider">Ruptures</span>
+          <p className="text-xl font-black text-primary mt-0.5 tabular-nums">{outOfStock}</p>
         </div>
         <div className="rounded-2xl bg-white p-3.5 shadow-xs border-l-4 border-l-amber-500 border border-slate-200/80">
           <span className="text-[0.6875rem] font-bold text-amber-700 uppercase tracking-wider">Stock faible</span>
@@ -272,7 +272,7 @@ export default function StocksAdminPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Rechercher par nom de produit, marque, SKU..."
-            className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 py-2 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-[#E11D48] transition-all"
+            className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 py-2 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-[var(--color-primary)] transition-all"
           />
         </div>
 
@@ -280,7 +280,7 @@ export default function StocksAdminPage() {
           <select
             value={stockFilter}
             onChange={(e) => setStockFilter(e.target.value)}
-            className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-[#E11D48]"
+            className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-[var(--color-primary)]"
           >
             <option value="ALL">Tous les niveaux de stock</option>
             <option value="OUT">Ruptures ({outOfStock})</option>
@@ -295,7 +295,7 @@ export default function StocksAdminPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-100 bg-rose-50/30 text-[0.6875rem] font-bold text-slate-500 uppercase tracking-wider">
+                <tr className="border-b border-slate-100 bg-primary-soft/30 text-[0.6875rem] font-bold text-slate-500 uppercase tracking-wider">
                   <th className="py-3.5 px-4">
                     <button type="button" onClick={() => toggleSort("name")} className="inline-flex items-center gap-1 hover:text-slate-900 transition-colors">
                       PRODUIT <ArrowUpDown size={11} />
@@ -327,7 +327,7 @@ export default function StocksAdminPage() {
                   const isLow = item.quantityOnHand > 0 && item.quantityOnHand <= item.reorderThreshold;
 
                   return (
-                    <tr key={item.id} className="hover:bg-rose-50/20 transition-colors">
+                    <tr key={item.id} className="hover:bg-primary-soft/20 transition-colors">
                       {/* Product Image & Title */}
                       <td className="py-3.5 px-4">
                         <div className="flex items-center gap-3">
@@ -359,13 +359,13 @@ export default function StocksAdminPage() {
                           <span
                             className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black tabular-nums ${
                               isOut
-                                ? "bg-rose-100 text-rose-700 border border-rose-200"
+                                ? "bg-primary-soft/60 text-primary-hover border border-primary-soft"
                                 : isLow
                                 ? "bg-amber-100 text-amber-800 border border-amber-200"
                                 : "bg-emerald-50 text-emerald-700 border border-emerald-200"
                             }`}
                           >
-                            <span className={`h-1.5 w-1.5 rounded-full ${isOut ? "bg-rose-600 pulse-dot" : isLow ? "bg-amber-600 pulse-dot" : "bg-emerald-500"}`} />
+                            <span className={`h-1.5 w-1.5 rounded-full ${isOut ? "bg-primary pulse-dot" : isLow ? "bg-amber-600 pulse-dot" : "bg-emerald-500"}`} />
                             {item.quantityOnHand} unit.
                           </span>
                           <span className="text-[0.6875rem] font-bold text-slate-500">
@@ -386,7 +386,7 @@ export default function StocksAdminPage() {
                         <button
                           type="button"
                           onClick={() => handleOpenDrawer(item)}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-[#E11D48] hover:text-white text-slate-700 text-xs font-bold transition-all shadow-2xs active:scale-95"
+                          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-[var(--color-primary)] hover:text-white text-slate-700 text-xs font-bold transition-all shadow-2xs active:scale-95"
                         >
                           <Pencil size={13} />
                           Ajuster
@@ -407,7 +407,7 @@ export default function StocksAdminPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-100 bg-rose-50/30 text-[0.6875rem] font-bold text-slate-500 uppercase tracking-wider">
+                <tr className="border-b border-slate-100 bg-primary-soft/30 text-[0.6875rem] font-bold text-slate-500 uppercase tracking-wider">
                   <th className="py-3.5 px-4">HORODATAGE</th>
                   <th className="py-3.5 px-4">PRODUIT</th>
                   <th className="py-3.5 px-4">TYPE DE MOUVEMENT</th>
@@ -428,7 +428,7 @@ export default function StocksAdminPage() {
                   const typeInfo = STOCK_MOVEMENT_MAP[m.type] || { label: m.type, badge: "bg-slate-100 text-slate-700" };
                   const isPositive = m.quantity > 0;
                   return (
-                    <tr key={m.id} className="hover:bg-rose-50/20 transition-colors">
+                    <tr key={m.id} className="hover:bg-primary-soft/20 transition-colors">
                       <td className="py-3.5 px-4">
                         <p className="font-bold text-slate-900 text-xs">{formatDate(m.createdAt)}</p>
                         <p className="text-[0.6875rem] text-slate-500 font-medium">{timeAgo(m.createdAt)}</p>
@@ -440,7 +440,7 @@ export default function StocksAdminPage() {
                         </span>
                       </td>
                       <td className="py-3.5 px-4 text-right font-black text-sm tabular-nums">
-                        <span className={isPositive ? "text-emerald-600" : "text-rose-600"}>
+                        <span className={isPositive ? "text-emerald-600" : "text-primary"}>
                           {isPositive ? "+" : ""}{m.quantity}
                         </span>
                       </td>

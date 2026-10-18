@@ -215,7 +215,7 @@ export default function OrderDetailPage() {
         </Link>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 flex-wrap">
-            <h1 className="text-lg font-bold text-ink">{order.reference}</h1>
+            <h1 className="page-title">{order.reference}</h1>
             <StatusBadge status={order.status} />
             {isTerminal(order.status) && (
               <span className="badge badge-neutral">Terminal</span>

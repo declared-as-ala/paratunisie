@@ -154,7 +154,7 @@ export function MarqueDrawer({ open, brand, onClose, onSave }: MarqueDrawerProps
           {/* Drawer Sticky Top Header */}
           <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shadow-xs">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-rose-100 text-[#E11D48] flex items-center justify-center font-bold">
+              <div className="h-9 w-9 rounded-xl bg-primary-soft/60 text-[var(--color-primary)] flex items-center justify-center font-bold">
                 <Building2 size={18} />
               </div>
               <div>
@@ -171,7 +171,7 @@ export function MarqueDrawer({ open, brand, onClose, onSave }: MarqueDrawerProps
                 type="button"
                 onClick={() => void handleSave()}
                 disabled={saving || !form.name.trim() || !form.slug.trim()}
-                className="inline-flex min-h-11 items-center gap-2 px-5 py-2 rounded-xl bg-[#E11D48] text-white text-xs font-bold hover:bg-[#BE123C] transition-all shadow-xs active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                className="inline-flex min-h-11 items-center gap-2 px-5 py-2 rounded-xl bg-[var(--color-primary)] text-white text-xs font-bold hover:bg-[#BE123C] transition-all shadow-xs active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {saving && <LoaderCircle size={15} className="animate-spin" aria-hidden="true" />}
                 {saving ? "Enregistrement…" : "Enregistrer la marque"}
@@ -189,7 +189,7 @@ export function MarqueDrawer({ open, brand, onClose, onSave }: MarqueDrawerProps
           {/* Drawer Body Content */}
           <div className="p-6 space-y-6">
             {saveError && (
-              <div role="alert" className="flex items-start gap-2 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-xs font-semibold text-rose-700">
+              <div role="alert" className="flex items-start gap-2 rounded-xl border border-primary-soft bg-primary-soft/30 px-4 py-3 text-xs font-semibold text-primary-hover">
                 <AlertCircle size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
                 <span>{saveError}</span>
               </div>
@@ -205,7 +205,7 @@ export function MarqueDrawer({ open, brand, onClose, onSave }: MarqueDrawerProps
                     type="checkbox"
                     checked={Boolean(form.featured)}
                     onChange={(e) => updateForm({ featured: e.target.checked })}
-                    className="rounded border-slate-300 text-rose-600 focus:ring-rose-500 h-4 w-4"
+                    className="rounded border-slate-300 text-primary focus:ring-primary h-4 w-4"
                   />
                   <Sparkles size={14} className="text-amber-500" /> Marque Iconique (Vitrine)
                 </label>
@@ -221,7 +221,7 @@ export function MarqueDrawer({ open, brand, onClose, onSave }: MarqueDrawerProps
                     value={form.name}
                     onChange={(e) => handleNameChange(e.target.value)}
                     placeholder="ex: Bioderma"
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#E11D48]"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-[var(--color-primary)]"
                   />
                 </div>
 
@@ -234,7 +234,7 @@ export function MarqueDrawer({ open, brand, onClose, onSave }: MarqueDrawerProps
                     value={form.slug}
                     onChange={(e) => updateForm({ slug: e.target.value })}
                     placeholder="ex: bioderma"
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-mono font-semibold text-slate-800 focus:outline-none focus:border-[#E11D48]"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-mono font-semibold text-slate-800 focus:outline-none focus:border-[var(--color-primary)]"
                   />
                 </div>
               </div>
@@ -248,7 +248,7 @@ export function MarqueDrawer({ open, brand, onClose, onSave }: MarqueDrawerProps
                   value={form.tagline || ""}
                   onChange={(e) => updateForm({ tagline: e.target.value })}
                   placeholder="ex: La biologie au service de la dermatologie"
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#E11D48]"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[var(--color-primary)]"
                 />
               </div>
 
@@ -259,7 +259,7 @@ export function MarqueDrawer({ open, brand, onClose, onSave }: MarqueDrawerProps
                 <select
                   value={form.status}
                   onChange={(e) => updateForm({ status: e.target.value as BrandModel["status"] })}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#E11D48]"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[var(--color-primary)]"
                 >
                   <option value="ACTIVE">Actif (Visible sur la boutique)</option>
                   <option value="DRAFT">Brouillon (Masqué)</option>
@@ -276,7 +276,7 @@ export function MarqueDrawer({ open, brand, onClose, onSave }: MarqueDrawerProps
                   onChange={(e) => updateForm({ description: e.target.value })}
                   placeholder="Présentation complète et engagements dermatologiques de la marque..."
                   rows={4}
-                  className="w-full rounded-xl border border-slate-200 bg-white p-3 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#E11D48]"
+                  className="w-full rounded-xl border border-slate-200 bg-white p-3 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[var(--color-primary)]"
                 />
               </div>
             </div>
@@ -324,7 +324,7 @@ export function MarqueDrawer({ open, brand, onClose, onSave }: MarqueDrawerProps
                     value={form.origin || ""}
                     onChange={(e) => updateForm({ origin: e.target.value })}
                     placeholder="ex: France, Tunisie, Italie"
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#E11D48]"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[var(--color-primary)]"
                   />
                 </div>
 
@@ -337,7 +337,7 @@ export function MarqueDrawer({ open, brand, onClose, onSave }: MarqueDrawerProps
                     value={form.universe || ""}
                     onChange={(e) => updateForm({ universe: e.target.value })}
                     placeholder="ex: Dermocosmétique, Solaire, Phytothérapie"
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#E11D48]"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[var(--color-primary)]"
                   />
                 </div>
               </div>
@@ -356,8 +356,8 @@ export function MarqueDrawer({ open, brand, onClose, onSave }: MarqueDrawerProps
                         onClick={() => toggleSpecialty(spec)}
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                           selected
-                            ? "bg-[#E11D48] text-white shadow-xs"
-                            : "bg-slate-100 text-slate-700 hover:bg-rose-50 hover:text-[#E11D48]"
+                            ? "bg-[var(--color-primary)] text-white shadow-xs"
+                            : "bg-slate-100 text-slate-700 hover:bg-primary-soft/30 hover:text-[var(--color-primary)]"
                         }`}
                       >
                         {selected && <Check size={14} strokeWidth={3} />}

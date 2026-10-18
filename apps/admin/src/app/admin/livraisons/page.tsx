@@ -35,7 +35,7 @@ export default function LivraisonsPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-bold text-ink">Livraisons</h1>
+          <h1 className="page-title">Livraisons</h1>
           <p className="text-sm text-ink-muted">Suivi des livraisons et retours</p>
         </div>
       </div>

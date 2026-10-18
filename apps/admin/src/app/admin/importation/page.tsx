@@ -68,14 +68,14 @@ interface ImportedItem {
 }
 
 const statusBadges: Record<string, { label: string; bg: string; text: string }> = {
-  DISCOVERED: { label: "Détecté", bg: "bg-[#FDF2F4]", text: "text-[#E11D48]" },
-  PENDING: { label: "En attente", bg: "bg-[#FDF2F4]", text: "text-[#E11D48]" },
-  IMPORTING: { label: "Import en cours", bg: "bg-[#FDF2F4]", text: "text-[#E11D48]" },
+  DISCOVERED: { label: "Détecté", bg: "bg-[#FDF2F4]", text: "text-[var(--color-primary)]" },
+  PENDING: { label: "En attente", bg: "bg-[#FDF2F4]", text: "text-[var(--color-primary)]" },
+  IMPORTING: { label: "Import en cours", bg: "bg-[#FDF2F4]", text: "text-[var(--color-primary)]" },
   IMPORTED: { label: "Importé", bg: "bg-emerald-50", text: "text-emerald-700" },
   UPDATED: { label: "Mis à jour", bg: "bg-emerald-50", text: "text-emerald-700" },
-  FAILED: { label: "Échec", bg: "bg-[#FDF2F4]", text: "text-[#E11D48]" },
+  FAILED: { label: "Échec", bg: "bg-[#FDF2F4]", text: "text-[var(--color-primary)]" },
   IGNORED: { label: "Ignoré", bg: "bg-slate-100", text: "text-slate-600" },
-  REVIEW_REQUIRED: { label: "À réviser", bg: "bg-[#FDF2F4]", text: "text-[#E11D48]" },
+  REVIEW_REQUIRED: { label: "À réviser", bg: "bg-[#FDF2F4]", text: "text-[var(--color-primary)]" },
 };
 
 interface SeoStatsData {
@@ -234,7 +234,7 @@ export default function ImportationPage() {
       {/* Header & Provider Card */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900">Importation Catalogue</h1>
+          <h1 className="page-title">Importation Catalogue</h1>
           <p className="text-xs text-slate-500 mt-0.5">
             Module d&apos;acquisition automatique, veille prix concurrent &amp; génération SEO originale
           </p>
@@ -246,7 +246,7 @@ export default function ImportationPage() {
               type="checkbox"
               checked={dryRun}
               onChange={(e) => setDryRun(e.target.checked)}
-              className="rounded border-slate-300 text-[#E11D48] focus:ring-[#E11D48]"
+              className="rounded border-slate-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
             />
             <span>Mode Simulation (Dry-Run)</span>
           </label>
@@ -254,7 +254,7 @@ export default function ImportationPage() {
           <select
             value={batchLimit}
             onChange={(e) => setBatchLimit(Number(e.target.value))}
-            className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#E11D48] shadow-2xs"
+            className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 focus:outline-none focus:border-[var(--color-primary)] shadow-2xs"
           >
             <option value={10}>Limite : 10 produits</option>
             <option value={50}>Limite : 50 produits</option>
@@ -273,7 +273,7 @@ export default function ImportationPage() {
               value: overview?.stats.totalDiscovered ?? 0,
               sub: "Sur TunisiePara.com",
               icon: Download,
-              color: "text-[#E11D48] bg-rose-50",
+              color: "text-[var(--color-primary)] bg-primary-soft/30",
             },
             {
               label: "Produits Importés",
@@ -358,7 +358,7 @@ export default function ImportationPage() {
           type="button"
           disabled={actionLoading}
           onClick={handleDiscover}
-          className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-[#E11D48] rounded-xl hover:bg-[#BE123C] transition-all disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-[var(--color-primary)] rounded-xl hover:bg-[#BE123C] transition-all disabled:opacity-50"
         >
           <Search size={14} className={actionLoading ? "animate-spin" : ""} />
           Analyser le catalogue
@@ -396,7 +396,7 @@ export default function ImportationPage() {
             onClick={() => setActiveTab(tab.id as any)}
             className={`px-4 py-2.5 text-xs font-bold border-b-2 transition-colors ${
               activeTab === tab.id
-                ? "border-[#E11D48] text-[#E11D48]"
+                ? "border-[var(--color-primary)] text-[var(--color-primary)]"
                 : "border-transparent text-slate-500 hover:text-slate-800"
             }`}
           >
@@ -416,14 +416,14 @@ export default function ImportationPage() {
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Rechercher un produit, marque ou URL..."
-                className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[#E11D48]"
+                className="w-full pl-9 pr-4 py-2 text-xs rounded-xl border border-slate-200 bg-white focus:outline-none focus:border-[var(--color-primary)]"
               />
             </div>
 
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:border-[#E11D48]"
+              className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:border-[var(--color-primary)]"
             >
               <option value="">Tous les statuts</option>
               <option value="DISCOVERED">Détecté</option>
@@ -480,7 +480,7 @@ export default function ImportationPage() {
                         <td className="py-3 px-4 text-right font-bold text-slate-800 tabular-nums">{priceDT}</td>
                         <td className="py-3 px-4 text-right font-bold text-emerald-600 tabular-nums">{ptPriceDT}</td>
                         <td className="py-3 px-4">
-                          <span className="inline-flex items-center gap-1 font-bold text-[#E11D48]">
+                          <span className="inline-flex items-center gap-1 font-bold text-[var(--color-primary)]">
                             <Sparkles size={12} /> {item.seoScore}
                           </span>
                         </td>
@@ -501,7 +501,7 @@ export default function ImportationPage() {
                           <button
                             type="button"
                             onClick={() => handleDeleteItem(item.id)}
-                            className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 hover:text-rose-700 transition-colors"
+                            className="p-1.5 rounded-lg text-primary hover:bg-primary-soft/30 hover:text-primary-hover transition-colors"
                             title="Supprimer du catalogue importé"
                           >
                             <Trash2 size={14} />

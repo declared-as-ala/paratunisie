@@ -86,10 +86,10 @@ const statusBadgeMap: Record<string, { label: string; bg: string; text: string; 
   PRETE_EXPEDITION: { label: "Prête", bg: "bg-indigo-500/10 border-indigo-500/30", text: "text-indigo-700", dot: "bg-indigo-500" },
   EXPEDIEE: { label: "Expédiée", bg: "bg-sky-500/10 border-sky-500/30", text: "text-sky-700", dot: "bg-sky-500" },
   LIVREE: { label: "Livrée", bg: "bg-emerald-500/10 border-emerald-500/30", text: "text-emerald-700", dot: "bg-emerald-500" },
-  ECHEC_LIVRAISON: { label: "Échec livraison", bg: "bg-rose-500/10 border-rose-500/30", text: "text-rose-700", dot: "bg-rose-500" },
-  RETOURNEE: { label: "Retournée", bg: "bg-rose-500/10 border-rose-500/30", text: "text-rose-700", dot: "bg-rose-500" },
-  ANNULEE: { label: "Annulée", bg: "bg-rose-500/10 border-rose-500/30", text: "text-rose-700", dot: "bg-rose-500" },
-  REFUSEE: { label: "Refusée", bg: "bg-rose-500/10 border-rose-500/30", text: "text-rose-700", dot: "bg-rose-500" },
+  ECHEC_LIVRAISON: { label: "Échec livraison", bg: "bg-primary/10 border-primary/30", text: "text-primary-hover", dot: "bg-primary" },
+  RETOURNEE: { label: "Retournée", bg: "bg-primary/10 border-primary/30", text: "text-primary-hover", dot: "bg-primary" },
+  ANNULEE: { label: "Annulée", bg: "bg-primary/10 border-primary/30", text: "text-primary-hover", dot: "bg-primary" },
+  REFUSEE: { label: "Refusée", bg: "bg-primary/10 border-primary/30", text: "text-primary-hover", dot: "bg-primary" },
 };
 
 function StatusPill({ status }: { status: string }) {
@@ -103,7 +103,7 @@ function StatusPill({ status }: { status: string }) {
 }
 
 const ALERT_STYLE: Record<string, { bg: string; iconBg: string; iconColor: string; actionBg: string; icon: typeof AlertTriangle }> = {
-  danger: { bg: "bg-rose-500/5 border-rose-500/20 hover:border-rose-500/40", iconBg: "bg-rose-500/10", iconColor: "text-rose-600", actionBg: "bg-rose-600 text-white border-rose-600 hover:bg-rose-700", icon: AlertTriangle },
+  danger: { bg: "bg-primary/5 border-primary/20 hover:border-primary/40", iconBg: "bg-primary/10", iconColor: "text-primary", actionBg: "bg-primary text-white border-primary hover:bg-primary-hover", icon: AlertTriangle },
   warning: { bg: "bg-amber-500/5 border-amber-500/20 hover:border-amber-500/40", iconBg: "bg-amber-500/10", iconColor: "text-amber-600", actionBg: "bg-amber-600 text-white border-amber-600 hover:bg-amber-700", icon: Clock },
   info: { bg: "bg-blue-500/5 border-blue-500/20 hover:border-blue-500/40", iconBg: "bg-blue-500/10", iconColor: "text-blue-600", actionBg: "bg-blue-600 text-white border-blue-600 hover:bg-blue-700", icon: Info },
 };
@@ -201,7 +201,7 @@ export default function AdminDashboard() {
   if (loadError && !overview) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[50vh] p-6 text-center space-y-4">
-        <div className="h-12 w-12 rounded-full bg-rose-500/10 text-rose-600 flex items-center justify-center">
+        <div className="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
           <AlertTriangle size={24} />
         </div>
         <div>
@@ -222,9 +222,9 @@ export default function AdminDashboard() {
     <div className={`space-y-6 pb-8 transition-opacity duration-300 ${isRefreshing ? "opacity-75" : "opacity-100"}`}>
       {/* Explicit Error State Banner */}
       {loadError && (
-        <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 p-4 text-rose-700 flex items-center justify-between">
+        <div className="rounded-xl border border-primary/30 bg-primary/10 p-4 text-primary-hover flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <AlertTriangle size={18} className="shrink-0 text-rose-600" />
+            <AlertTriangle size={18} className="shrink-0 text-primary" />
             <div>
               <p className="text-xs font-bold">Erreur lors de l'actualisation</p>
               <p className="text-xs">{loadError}</p>
@@ -232,7 +232,7 @@ export default function AdminDashboard() {
           </div>
           <button
             onClick={() => loadData(timeRange)}
-            className="rounded-lg bg-rose-600 text-white px-3 py-1.5 text-xs font-semibold hover:bg-rose-700 transition-colors"
+            className="rounded-lg bg-primary text-white px-3 py-1.5 text-xs font-semibold hover:bg-primary-hover transition-colors"
           >
             Réessayer
           </button>
@@ -243,7 +243,7 @@ export default function AdminDashboard() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-xl font-bold tracking-tight text-ink">Tableau de Bord Operations</h1>
+            <h1 className="page-title">Tableau de Bord Operations</h1>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 border border-emerald-500/20">
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
               Système Actif
@@ -460,7 +460,7 @@ export default function AdminDashboard() {
                 <AlertTriangle size={15} className="text-amber-500" />
                 <span>Alertes Opérationnelles</span>
               </h2>
-              <span className="rounded-full bg-rose-500/10 px-2 py-0.5 text-[0.625rem] font-bold text-rose-700">
+              <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[0.625rem] font-bold text-primary-hover">
                 {overview?.alerts.length ?? 0} prioritaires
               </span>
             </div>
@@ -525,7 +525,7 @@ export default function AdminDashboard() {
 
             <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-xs text-ink-muted">
               <span>Taux de retour COD :</span>
-              <span className="font-bold text-rose-600">{formatPercent(overview?.kpis.tauxRetour ?? 0)}</span>
+              <span className="font-bold text-primary">{formatPercent(overview?.kpis.tauxRetour ?? 0)}</span>
             </div>
           </div>
 

@@ -59,7 +59,7 @@ export function SeoCompletenessScore({ article, size = "sm" }: SeoCompletenessPr
       ? "bg-emerald-500/10 text-emerald-700 border-emerald-500/20"
       : ratio >= 0.55
       ? "bg-amber-500/10 text-amber-700 border-amber-500/20"
-      : "bg-rose-500/10 text-rose-700 border-rose-500/20";
+      : "bg-primary/10 text-primary-hover border-primary/20";
 
   if (size === "sm") {
     return (
@@ -87,7 +87,7 @@ export function SeoCompletenessScore({ article, size = "sm" }: SeoCompletenessPr
       <div className="h-1.5 rounded-full bg-border overflow-hidden">
         <div
           className={`h-full rounded-full transition-all ${
-            ratio >= 0.82 ? "bg-emerald-500" : ratio >= 0.55 ? "bg-amber-500" : "bg-rose-500"
+            ratio >= 0.82 ? "bg-emerald-500" : ratio >= 0.55 ? "bg-amber-500" : "bg-primary"
           }`}
           style={{ width: `${(score / total) * 100}%` }}
         />

@@ -71,13 +71,13 @@ export function ImportPreviewDrawer({ item, onClose, onPublish, busy }: ImportPr
         <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4 space-y-3">
           <div className="flex items-center justify-between">
             <span className="text-[0.625rem] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1">
-              <Tag size={12} className="text-[#E11D48]" /> Prix Concurrentiel vs Prix Vente (Interne Admin)
+              <Tag size={12} className="text-[var(--color-primary)]" /> Prix Concurrentiel vs Prix Vente (Interne Admin)
             </span>
             <a
               href={item.sourceUrl}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex items-center gap-1 text-xs font-semibold text-[#E11D48] hover:underline"
+              className="inline-flex items-center gap-1 text-xs font-semibold text-[var(--color-primary)] hover:underline"
             >
               Lien source <ExternalLink size={12} />
             </a>
@@ -104,9 +104,9 @@ export function ImportPreviewDrawer({ item, onClose, onPublish, busy }: ImportPr
         </div>
 
         {/* SEO Score Card */}
-        <div className="flex items-center justify-between p-4 rounded-2xl border border-rose-100 bg-rose-50/60">
+        <div className="flex items-center justify-between p-4 rounded-2xl border border-primary-soft/60 bg-primary-soft/60">
           <div className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-xl bg-[#E11D48] text-white flex items-center justify-center font-bold text-xs">
+            <div className="h-9 w-9 rounded-xl bg-[var(--color-primary)] text-white flex items-center justify-center font-bold text-xs">
               <Sparkles size={18} />
             </div>
             <div>
@@ -115,7 +115,7 @@ export function ImportPreviewDrawer({ item, onClose, onPublish, busy }: ImportPr
             </div>
           </div>
           <div className="text-right">
-            <span className="text-xl font-extrabold text-[#E11D48]">{item.seoScore} / 100</span>
+            <span className="text-xl font-extrabold text-[var(--color-primary)]">{item.seoScore} / 100</span>
           </div>
         </div>
 
@@ -128,8 +128,8 @@ export function ImportPreviewDrawer({ item, onClose, onPublish, busy }: ImportPr
               <span className="font-bold text-slate-500 text-[0.6875rem]">FACT: Nom Source</span>
               <p className="text-slate-800 font-medium">{item.sourceTitle}</p>
             </div>
-            <div className="p-3 bg-rose-50/40 rounded-xl border border-rose-100 space-y-1">
-              <span className="font-bold text-[#E11D48] text-[0.6875rem]">SEO: Titre Normalisé</span>
+            <div className="p-3 bg-primary-soft/40 rounded-xl border border-primary-soft/60 space-y-1">
+              <span className="font-bold text-[var(--color-primary)] text-[0.6875rem]">SEO: Titre Normalisé</span>
               <p className="text-slate-900 font-bold">{product?.name}</p>
             </div>
           </div>
@@ -145,7 +145,7 @@ export function ImportPreviewDrawer({ item, onClose, onPublish, busy }: ImportPr
 
               <div className="rounded-2xl border border-slate-200 bg-white p-4 space-y-2 text-xs">
                 <span className="font-bold text-slate-400 uppercase tracking-wider text-[0.625rem] block">Contenu Structuré Français</span>
-                <div className="text-slate-700 leading-relaxed whitespace-pre-wrap max-h-52 overflow-y-auto pr-2 border-l-2 border-[#E11D48] pl-3">
+                <div className="text-slate-700 leading-relaxed whitespace-pre-wrap max-h-52 overflow-y-auto pr-2 border-l-2 border-[var(--color-primary)] pl-3">
                   {product.description}
                 </div>
               </div>

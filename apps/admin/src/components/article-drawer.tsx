@@ -451,7 +451,7 @@ export function ArticleDrawer({ open, article, onClose, onSave }: ArticleDrawerP
                           ? "bg-emerald-100 text-emerald-700"
                           : seoScore.score >= 6
                           ? "bg-amber-100 text-amber-700"
-                          : "bg-rose-100 text-rose-700"
+                          : "bg-primary-soft/60 text-primary-hover"
                       }`}
                     >
                       {seoScore.score}/{seoScore.total}
@@ -631,7 +631,7 @@ export function ArticleDrawer({ open, article, onClose, onSave }: ArticleDrawerP
                       <button
                         type="button"
                         onClick={() => update("featuredImage", "")}
-                        className="px-2.5 py-1 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[0.6875rem] font-semibold transition-colors shadow-sm"
+                        className="px-2.5 py-1 rounded-lg bg-primary hover:bg-primary-hover text-white text-[0.6875rem] font-semibold transition-colors shadow-sm"
                       >
                         Supprimer
                       </button>
@@ -754,7 +754,7 @@ export function ArticleDrawer({ open, article, onClose, onSave }: ArticleDrawerP
                               e.stopPropagation();
                               setShowDeleteFaq(idx);
                             }}
-                            className="p-1 rounded hover:bg-rose-50 text-rose-500"
+                            className="p-1 rounded hover:bg-primary-soft/30 text-primary"
                           >
                             <Trash2 size={12} />
                           </button>
@@ -856,7 +856,7 @@ export function ArticleDrawer({ open, article, onClose, onSave }: ArticleDrawerP
                         <button
                           type="button"
                           onClick={() => removeProduct(product.productId)}
-                          className="p-1 rounded hover:bg-rose-50 text-rose-500"
+                          className="p-1 rounded hover:bg-primary-soft/30 text-primary"
                         >
                           <X size={12} />
                         </button>

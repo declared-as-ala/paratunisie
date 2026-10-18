@@ -163,7 +163,7 @@ export default function AchatsPage() {
             <ClipboardList size={18} />
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-ink">Achats & Réceptions</h1>
+            <h1 className="page-title">Achats & Réceptions</h1>
             <p className="text-xs text-ink-muted mt-0.5">
               {loadError ?? "Bons de commande fournisseurs et réceptions de marchandise"}
             </p>

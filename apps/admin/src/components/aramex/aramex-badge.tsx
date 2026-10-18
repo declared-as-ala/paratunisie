@@ -64,8 +64,8 @@ export function getAramexStatusConfig(
     case "REFUSED":
       return {
         label: labelOverride || "Refusée",
-        dotColor: "bg-rose-500",
-        badgeClass: "bg-rose-50 text-rose-700 border-rose-200/80 hover:bg-rose-100",
+        dotColor: "bg-primary",
+        badgeClass: "bg-primary-soft/30 text-primary-hover border-primary-soft/80 hover:bg-primary-soft/60",
         icon: "🔴",
       };
     case "RETURN_REQUESTED":
@@ -92,8 +92,8 @@ export function getAramexStatusConfig(
     case "EXCEPTION":
       return {
         label: labelOverride || "Problème livraison",
-        dotColor: "bg-rose-600",
-        badgeClass: "bg-rose-50 text-rose-700 border-rose-200/80 hover:bg-rose-100",
+        dotColor: "bg-primary",
+        badgeClass: "bg-primary-soft/30 text-primary-hover border-primary-soft/80 hover:bg-primary-soft/60",
         icon: "⚠️",
       };
     case "CANCELLED":

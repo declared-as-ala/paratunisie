@@ -126,7 +126,7 @@ export function CategoryDrawer({
           {/* Drawer Sticky Top Header */}
           <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shadow-xs">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-rose-100 text-[#E11D48] flex items-center justify-center font-bold">
+              <div className="h-9 w-9 rounded-xl bg-primary-soft/60 text-[var(--color-primary)] flex items-center justify-center font-bold">
                 <Tags size={18} />
               </div>
               <div>
@@ -142,7 +142,7 @@ export function CategoryDrawer({
               <button
                 type="button"
                 onClick={handleSave}
-                className="px-5 py-2 rounded-xl bg-[#E11D48] text-white text-xs font-bold hover:bg-[#BE123C] transition-all shadow-xs active:scale-95"
+                className="px-5 py-2 rounded-xl bg-[var(--color-primary)] text-white text-xs font-bold hover:bg-[#BE123C] transition-all shadow-xs active:scale-95"
               >
                 Enregistrer la catégorie
               </button>
@@ -169,7 +169,7 @@ export function CategoryDrawer({
                     type="checkbox"
                     checked={Boolean(form.featured)}
                     onChange={(e) => updateForm({ featured: e.target.checked })}
-                    className="rounded border-slate-300 text-rose-600 focus:ring-rose-500 h-4 w-4"
+                    className="rounded border-slate-300 text-primary focus:ring-primary h-4 w-4"
                   />
                   Catégorie mise en avant
                 </label>
@@ -185,7 +185,7 @@ export function CategoryDrawer({
                     value={form.name}
                     onChange={(e) => handleNameChange(e.target.value)}
                     placeholder="ex: Soins du visage"
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#E11D48]"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-[var(--color-primary)]"
                   />
                 </div>
 
@@ -198,7 +198,7 @@ export function CategoryDrawer({
                     value={form.slug}
                     onChange={(e) => updateForm({ slug: e.target.value })}
                     placeholder="ex: soins-visage"
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-mono font-semibold text-slate-800 focus:outline-none focus:border-[#E11D48]"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-mono font-semibold text-slate-800 focus:outline-none focus:border-[var(--color-primary)]"
                   />
                 </div>
               </div>
@@ -216,7 +216,7 @@ export function CategoryDrawer({
                         parentName: parentCategories.find((p) => p.id === e.target.value)?.name || null,
                       })
                     }
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#E11D48]"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[var(--color-primary)]"
                   >
                     <option value="">— Racine (Aucune catégorie parente) —</option>
                     {parentCategories
@@ -237,7 +237,7 @@ export function CategoryDrawer({
                     type="number"
                     value={form.position || 1}
                     onChange={(e) => updateForm({ position: parseInt(e.target.value) || 1 })}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#E11D48]"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-[var(--color-primary)]"
                   />
                 </div>
               </div>
@@ -249,7 +249,7 @@ export function CategoryDrawer({
                 <select
                   value={form.status}
                   onChange={(e) => updateForm({ status: e.target.value as CategoryModel["status"] })}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#E11D48]"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[var(--color-primary)]"
                 >
                   <option value="ACTIVE">Actif (Visible dans la navigation)</option>
                   <option value="DRAFT">Brouillon (Masqué)</option>
@@ -266,7 +266,7 @@ export function CategoryDrawer({
                   onChange={(e) => updateForm({ description: e.target.value })}
                   placeholder="Présentation synthétique de la gamme de soins de cette catégorie..."
                   rows={4}
-                  className="w-full rounded-xl border border-slate-200 bg-white p-3 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#E11D48]"
+                  className="w-full rounded-xl border border-slate-200 bg-white p-3 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[var(--color-primary)]"
                 />
               </div>
             </div>

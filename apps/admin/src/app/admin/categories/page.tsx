@@ -303,12 +303,12 @@ function ChecklistPage() {
       {/* ── Top Header ───────────────────────────────────────────────── */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
-          <div className="h-12 w-12 rounded-2xl bg-[#E11D48] text-white flex items-center justify-center shadow-md shrink-0 mt-0.5">
+          <div className="h-12 w-12 rounded-2xl bg-[var(--color-primary)] text-white flex items-center justify-center shadow-md shrink-0 mt-0.5">
             <Tags size={24} />
           </div>
           <div>
-            <h1 className="text-2xl font-black tracking-tight text-[#881337]">Catégories</h1>
-            <p className="text-sm font-bold text-slate-700 mt-0.5">
+            <h1 className="page-title">Catégories</h1>
+            <p className="page-subtitle">
               {stats.totalMain} catégories principales • {stats.totalSubs} sous-catégories
             </p>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
@@ -320,7 +320,7 @@ function ChecklistPage() {
         <button
           type="button"
           onClick={handleOpenCreate}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#E11D48] px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#BE123C] transition-all active:scale-[0.98]"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#BE123C] transition-all active:scale-[0.98]"
         >
           <Plus size={18} strokeWidth={3} />
           Ajouter une catégorie
@@ -337,7 +337,7 @@ function ChecklistPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Rechercher une catégorie..."
-            className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 py-2 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-[#E11D48] transition-all"
+            className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 py-2 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-[var(--color-primary)] transition-all"
           />
         </div>
 
@@ -346,7 +346,7 @@ function ChecklistPage() {
             type="button"
             onClick={() => setViewMode("tree")}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-              viewMode === "tree" ? "bg-white text-[#E11D48] shadow-xs" : "text-slate-600 hover:text-slate-900"
+              viewMode === "tree" ? "bg-white text-[var(--color-primary)] shadow-xs" : "text-slate-600 hover:text-slate-900"
             }`}
           >
             <FolderTree size={14} /> Vue Arborescente
@@ -355,7 +355,7 @@ function ChecklistPage() {
             type="button"
             onClick={() => setViewMode("table")}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-              viewMode === "table" ? "bg-white text-[#E11D48] shadow-xs" : "text-slate-600 hover:text-slate-900"
+              viewMode === "table" ? "bg-white text-[var(--color-primary)] shadow-xs" : "text-slate-600 hover:text-slate-900"
             }`}
           >
             <List size={14} /> Vue Tableau
@@ -364,11 +364,11 @@ function ChecklistPage() {
       </div>
 
       {selectedIds.size > 0 && (
-        <div className="flex flex-col gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between" role="status">
-          <p className="text-sm font-bold text-rose-900">{selectedIds.size} catégorie{selectedIds.size > 1 ? "s" : ""} sélectionnée{selectedIds.size > 1 ? "s" : ""}</p>
+        <div className="flex flex-col gap-3 rounded-2xl border border-primary-soft bg-primary-soft/30 px-4 py-3 sm:flex-row sm:items-center sm:justify-between" role="status">
+          <p className="text-sm font-bold text-primary-hover">{selectedIds.size} catégorie{selectedIds.size > 1 ? "s" : ""} sélectionnée{selectedIds.size > 1 ? "s" : ""}</p>
           <div className="flex gap-2">
-            <button type="button" onClick={() => setSelectedIds(new Set())} className="min-h-11 rounded-xl border border-rose-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-rose-100">Annuler la sélection</button>
-            <button type="button" onClick={() => setBulkDeleteOpen(true)} className="min-h-11 rounded-xl bg-rose-600 px-4 text-sm font-bold text-white hover:bg-rose-700"><Trash2 className="mr-2 inline size-4" />Supprimer la sélection</button>
+            <button type="button" onClick={() => setSelectedIds(new Set())} className="min-h-11 rounded-xl border border-primary-soft bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-primary-soft/60">Annuler la sélection</button>
+            <button type="button" onClick={() => setBulkDeleteOpen(true)} className="min-h-11 rounded-xl bg-primary px-4 text-sm font-bold text-white hover:bg-primary-hover"><Trash2 className="mr-2 inline size-4" />Supprimer la sélection</button>
           </div>
         </div>
       )}
@@ -381,7 +381,7 @@ function ChecklistPage() {
             return (
               <div
                 key={cat.id}
-                className={`rounded-2xl bg-white border p-4 shadow-xs space-y-3 transition-all ${selectedIds.has(cat.id) ? "border-rose-300 bg-rose-50/40" : "border-slate-200/80 hover:border-slate-300"}`}
+                className={`rounded-2xl bg-white border p-4 shadow-xs space-y-3 transition-all ${selectedIds.has(cat.id) ? "border-primary/30 bg-primary-soft/40" : "border-slate-200/80 hover:border-slate-300"}`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -390,12 +390,12 @@ function ChecklistPage() {
                       checked={selectedIds.has(cat.id)}
                       onChange={() => toggleOne(cat.id)}
                       aria-label={`Sélectionner ${cat.name}`}
-                      className="size-4 cursor-pointer rounded border-slate-300 text-rose-600 focus:ring-rose-500"
+                      className="size-4 cursor-pointer rounded border-slate-300 text-primary focus:ring-primary"
                     />
                     <button
                       type="button"
                       onClick={() => toggleExpand(cat.id)}
-                      className="p-1 rounded-lg hover:bg-rose-50 text-slate-500 hover:text-[#E11D48] transition-colors"
+                      className="p-1 rounded-lg hover:bg-primary-soft/30 text-slate-500 hover:text-[var(--color-primary)] transition-colors"
                     >
                       {isExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
                     </button>
@@ -403,7 +403,7 @@ function ChecklistPage() {
                       {cat.image ? (
                         <img src={resolveMediaUrl(cat.image)} alt={cat.name} className="h-full w-full object-contain" />
                       ) : (
-                        <Tags size={20} className="text-[#E11D48]" />
+                        <Tags size={20} className="text-[var(--color-primary)]" />
                       )}
                     </div>
                     <div>
@@ -418,7 +418,7 @@ function ChecklistPage() {
                   </div>
 
                   <div className="flex items-center gap-4">
-                    <span className="text-xs font-black text-slate-900 bg-rose-50 border border-rose-100 px-3 py-1 rounded-xl">
+                    <span className="text-xs font-black text-slate-900 bg-primary-soft/30 border border-primary-soft/60 px-3 py-1 rounded-xl">
                       {cat.productCount} produit(s)
                     </span>
                     <div className="flex items-center gap-1 text-slate-400">
@@ -433,7 +433,7 @@ function ChecklistPage() {
                       <button
                         type="button"
                         onClick={() => handleOpenEdit(cat)}
-                        className="hover:text-[#E11D48] transition-colors p-1"
+                        className="hover:text-[var(--color-primary)] transition-colors p-1"
                         title="Modifier"
                       >
                         <Pencil size={16} />
@@ -441,7 +441,7 @@ function ChecklistPage() {
                       <button
                         type="button"
                         onClick={() => handleDeleteAttempt(cat)}
-                        className="hover:text-rose-600 transition-colors p-1 text-rose-500"
+                        className="hover:text-primary transition-colors p-1 text-primary"
                         title="Supprimer"
                       >
                         <Trash2 size={16} />
@@ -476,9 +476,9 @@ function ChecklistPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-100 bg-rose-50/30 text-[0.6875rem] font-bold text-slate-500 uppercase tracking-wider">
+                <tr className="border-b border-slate-100 bg-primary-soft/30 text-[0.6875rem] font-bold text-slate-500 uppercase tracking-wider">
                   <th className="py-3.5 px-4 w-10">
-                    <input type="checkbox" checked={allVisibleSelected} disabled={visibleIds.length === 0} onChange={toggleAllVisible} aria-label="Sélectionner toutes les catégories" className="size-4 cursor-pointer rounded border-slate-300 text-rose-600 focus:ring-rose-500 disabled:cursor-not-allowed" />
+                    <input type="checkbox" checked={allVisibleSelected} disabled={visibleIds.length === 0} onChange={toggleAllVisible} aria-label="Sélectionner toutes les catégories" className="size-4 cursor-pointer rounded border-slate-300 text-primary focus:ring-primary disabled:cursor-not-allowed" />
                   </th>
                   <th className="py-3.5 px-4">CATÉGORIE</th>
                   <th className="py-3.5 px-4">SLUG URL</th>
@@ -491,9 +491,9 @@ function ChecklistPage() {
               </thead>
               <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
                 {filteredCategories.map((c) => (
-                  <tr key={c.id} className={`transition-colors ${selectedIds.has(c.id) ? "bg-rose-50/70" : "hover:bg-rose-50/20"}`}>
+                  <tr key={c.id} className={`transition-colors ${selectedIds.has(c.id) ? "bg-primary-soft/70" : "hover:bg-primary-soft/20"}`}>
                     <td className="py-3.5 px-4">
-                      <input type="checkbox" checked={selectedIds.has(c.id)} onChange={() => toggleOne(c.id)} aria-label={`Sélectionner ${c.name}`} className="size-4 cursor-pointer rounded border-slate-300 text-rose-600 focus:ring-rose-500" />
+                      <input type="checkbox" checked={selectedIds.has(c.id)} onChange={() => toggleOne(c.id)} aria-label={`Sélectionner ${c.name}`} className="size-4 cursor-pointer rounded border-slate-300 text-primary focus:ring-primary" />
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-3">
@@ -501,7 +501,7 @@ function ChecklistPage() {
                           {c.image ? (
                             <img src={resolveMediaUrl(c.image)} alt={c.name} className="h-full w-full object-contain" />
                           ) : (
-                            <Tags size={20} className="text-[#E11D48]" />
+                            <Tags size={20} className="text-[var(--color-primary)]" />
                           )}
                         </div>
                         <div>
@@ -540,7 +540,7 @@ function ChecklistPage() {
                         <button
                           type="button"
                           onClick={() => handleOpenEdit(c)}
-                          className="hover:text-[#E11D48] transition-colors p-1"
+                          className="hover:text-[var(--color-primary)] transition-colors p-1"
                           title="Modifier"
                         >
                           <Pencil size={16} />
@@ -548,7 +548,7 @@ function ChecklistPage() {
                         <button
                           type="button"
                           onClick={() => handleDeleteAttempt(c)}
-                          className="hover:text-rose-600 transition-colors p-1 text-rose-500"
+                          className="hover:text-primary transition-colors p-1 text-primary"
                           title="Supprimer"
                         >
                           <Trash2 size={16} />

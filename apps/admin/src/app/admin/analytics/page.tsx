@@ -306,7 +306,7 @@ export default function AnalyticsPage() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <div className="flex items-center gap-3">
-            <h1 className="text-2xl font-black tracking-tight text-ink">Analytics & Comportement Visiteurs</h1>
+            <h1 className="page-title">Analytics & Comportement Visiteurs</h1>
             <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-600 border border-emerald-500/20">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -494,7 +494,7 @@ export default function AnalyticsPage() {
       </div>
 
       {loadError && (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-xs font-medium text-rose-800 flex items-center gap-2">
+        <div className="rounded-2xl border border-primary-soft bg-primary-soft/30 p-4 text-xs font-medium text-primary-hover flex items-center gap-2">
           <AlertCircle size={16} />
           {loadError}
         </div>
@@ -518,7 +518,7 @@ export default function AnalyticsPage() {
               <span
                 className={cn(
                   "inline-flex items-center text-[11px] font-bold",
-                  overview.kpis.visitors.changePercent >= 0 ? "text-emerald-600" : "text-rose-600"
+                  overview.kpis.visitors.changePercent >= 0 ? "text-emerald-600" : "text-primary"
                 )}
               >
                 {overview.kpis.visitors.changePercent >= 0 ? "+" : ""}
@@ -548,7 +548,7 @@ export default function AnalyticsPage() {
               <span
                 className={cn(
                   "inline-flex items-center text-[11px] font-bold",
-                  overview.kpis.pageViews.changePercent >= 0 ? "text-emerald-600" : "text-rose-600"
+                  overview.kpis.pageViews.changePercent >= 0 ? "text-emerald-600" : "text-primary"
                 )}
               >
                 {overview.kpis.pageViews.changePercent >= 0 ? "+" : ""}
@@ -578,7 +578,7 @@ export default function AnalyticsPage() {
               <span
                 className={cn(
                   "inline-flex items-center text-[11px] font-bold",
-                  overview.kpis.orders.changePercent >= 0 ? "text-emerald-600" : "text-rose-600"
+                  overview.kpis.orders.changePercent >= 0 ? "text-emerald-600" : "text-primary"
                 )}
               >
                 {overview.kpis.orders.changePercent >= 0 ? "+" : ""}
@@ -608,7 +608,7 @@ export default function AnalyticsPage() {
               <span
                 className={cn(
                   "inline-flex items-center text-[11px] font-bold",
-                  overview.kpis.revenue.changePercent >= 0 ? "text-emerald-600" : "text-rose-600"
+                  overview.kpis.revenue.changePercent >= 0 ? "text-emerald-600" : "text-primary"
                 )}
               >
                 {overview.kpis.revenue.changePercent >= 0 ? "+" : ""}
@@ -783,7 +783,7 @@ export default function AnalyticsPage() {
                 {step.step > 1 && (
                   <div className="flex items-center justify-between text-[11px] text-ink-muted pt-0.5">
                     <span>Conv. étape préc.: {step.conversionFromPrevious}%</span>
-                    <span className="text-rose-500 font-semibold">Abandon: {step.dropOffRate}%</span>
+                    <span className="text-primary font-semibold">Abandon: {step.dropOffRate}%</span>
                   </div>
                 )}
               </div>

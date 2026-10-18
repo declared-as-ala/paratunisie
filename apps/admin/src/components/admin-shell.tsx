@@ -346,8 +346,12 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
             {current && current.item.href !== "/admin" && (
               <>
                 <ChevronRight size={13} className="hidden shrink-0 text-ink-faint sm:inline" />
-                <span className="hidden truncate text-ink-faint md:inline">{current.section.title}</span>
-                <ChevronRight size={13} className="hidden shrink-0 text-ink-faint md:inline" />
+                {current.section.title !== current.item.label && (
+                  <>
+                    <span className="hidden truncate text-ink-faint md:inline">{current.section.title}</span>
+                    <ChevronRight size={13} className="hidden shrink-0 text-ink-faint md:inline" />
+                  </>
+                )}
                 {isDetail ? (
                   <>
                     <Link href={current.item.href} className="truncate text-ink-faint transition-colors hover:text-ink">

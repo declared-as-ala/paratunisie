@@ -137,7 +137,7 @@ export default function RentabilitePage() {
             <Wallet size={18} />
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-ink">Rentabilité</h1>
+            <h1 className="page-title">Rentabilité</h1>
             <p className="text-xs text-ink-muted mt-0.5">
               {loadError ?? "Gain estimé sur commandes confirmées — CA moins coût d'achat des produits"}
             </p>

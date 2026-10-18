@@ -488,12 +488,12 @@ function ChecklistPage() {
       {/* ── Top Header matching Commandes ────────────────────────────── */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
-          <div className="h-12 w-12 rounded-2xl bg-[#E11D48] text-white flex items-center justify-center shadow-md shrink-0 mt-0.5">
+          <div className="h-12 w-12 rounded-2xl bg-[var(--color-primary)] text-white flex items-center justify-center shadow-md shrink-0 mt-0.5">
             <Package size={24} />
           </div>
           <div>
-            <h1 className="text-2xl font-black tracking-tight text-[#881337]">Produits</h1>
-            <p className="text-sm font-bold text-slate-700 mt-0.5">
+            <h1 className="page-title">Produits</h1>
+            <p className="page-subtitle">
               {counts.total} produits au catalogue (Boutique client)
             </p>
             <p className="text-xs text-slate-500 font-medium mt-0.5">
@@ -510,12 +510,12 @@ function ChecklistPage() {
             className="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-all active:scale-95 disabled:opacity-50"
             title="Actualiser la liste"
           >
-            <RefreshCw size={18} className={loading ? "animate-spin text-[#E11D48]" : ""} />
+            <RefreshCw size={18} className={loading ? "animate-spin text-[var(--color-primary)]" : ""} />
           </button>
           <button
             type="button"
             onClick={openCreate}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#E11D48] px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#BE123C] transition-all active:scale-[0.98]"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-[var(--color-primary)] px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#BE123C] transition-all active:scale-[0.98]"
           >
             <Plus size={18} strokeWidth={3} />
             Ajouter un produit
@@ -533,14 +533,14 @@ function ChecklistPage() {
             value={search}
             onChange={(e) => handleSearchChange(e.target.value)}
             placeholder="Rechercher un produit (nom, marque, SKU)..."
-            className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 py-2 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-[#E11D48] transition-all"
+            className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 py-2 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-[var(--color-primary)] transition-all"
           />
         </div>
 
         <select
           value={brandFilter}
           onChange={(e) => handleBrandChange(e.target.value)}
-          className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-[#E11D48]"
+          className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-[var(--color-primary)]"
         >
           <option value="">Toutes les marques</option>
           {availableBrands.map((b) => (
@@ -553,7 +553,7 @@ function ChecklistPage() {
         <select
           value={categoryFilter}
           onChange={(e) => handleCategoryChange(e.target.value)}
-          className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-[#E11D48]"
+          className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-[var(--color-primary)]"
         >
           <option value="">Toutes les catégories</option>
           {availableCategories.map((c) => (
@@ -565,11 +565,11 @@ function ChecklistPage() {
       </div>
 
       {selectedIds.size > 0 && (
-        <div className="flex flex-col gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between" role="status">
-          <p className="text-sm font-bold text-rose-900">{selectedIds.size} produit{selectedIds.size > 1 ? "s" : ""} sélectionné{selectedIds.size > 1 ? "s" : ""}</p>
+        <div className="flex flex-col gap-3 rounded-2xl border border-primary-soft bg-primary-soft/30 px-4 py-3 sm:flex-row sm:items-center sm:justify-between" role="status">
+          <p className="text-sm font-bold text-primary-hover">{selectedIds.size} produit{selectedIds.size > 1 ? "s" : ""} sélectionné{selectedIds.size > 1 ? "s" : ""}</p>
           <div className="flex gap-2">
-            <button type="button" onClick={() => setSelectedIds(new Set())} className="min-h-11 rounded-xl border border-rose-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-rose-100">Annuler la sélection</button>
-            <button type="button" disabled={bulkDeleting} onClick={() => setBulkDeleteOpen(true)} className="min-h-11 rounded-xl bg-rose-600 px-4 text-sm font-bold text-white hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"><Trash2 className="mr-2 inline size-4" />Supprimer la sélection</button>
+            <button type="button" onClick={() => setSelectedIds(new Set())} className="min-h-11 rounded-xl border border-primary-soft bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-primary-soft/60">Annuler la sélection</button>
+            <button type="button" disabled={bulkDeleting} onClick={() => setBulkDeleteOpen(true)} className="min-h-11 rounded-xl bg-primary px-4 text-sm font-bold text-white hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"><Trash2 className="mr-2 inline size-4" />Supprimer la sélection</button>
           </div>
         </div>
       )}
@@ -577,17 +577,17 @@ function ChecklistPage() {
       {/* ── Table matching Commandes style ────────────────────────────── */}
       <div className="relative rounded-2xl bg-white shadow-xs border border-slate-200/80 overflow-hidden">
         {loading && (
-          <div className="absolute top-0 left-0 right-0 h-1 bg-rose-100/60 overflow-hidden z-20">
-            <div className="h-full bg-gradient-to-r from-[#E11D48] via-rose-400 to-[#E11D48] animate-pulse w-full" />
+          <div className="absolute top-0 left-0 right-0 h-1 bg-primary-soft/60 overflow-hidden z-20">
+            <div className="h-full bg-gradient-to-r from-[var(--color-primary)] via-primary/50 to-[var(--color-primary)] animate-pulse w-full" />
           </div>
         )}
 
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-100 bg-rose-50/30 text-[0.6875rem] font-bold text-slate-500 uppercase tracking-wider">
+              <tr className="border-b border-slate-100 bg-primary-soft/30 text-[0.6875rem] font-bold text-slate-500 uppercase tracking-wider">
                 <th className="py-3.5 px-4 w-10">
-                  <input ref={selectAllRef} type="checkbox" checked={allVisibleSelected} disabled={visibleIds.length === 0} onChange={toggleAllVisible} aria-label="Sélectionner tous les produits visibles" className="size-4 cursor-pointer rounded border-slate-300 text-rose-600 focus:ring-rose-500 disabled:cursor-not-allowed" />
+                  <input ref={selectAllRef} type="checkbox" checked={allVisibleSelected} disabled={visibleIds.length === 0} onChange={toggleAllVisible} aria-label="Sélectionner tous les produits visibles" className="size-4 cursor-pointer rounded border-slate-300 text-primary focus:ring-primary disabled:cursor-not-allowed" />
                 </th>
                 <th className="py-3.5 px-4">PRODUIT</th>
                 <th className="py-3.5 px-4">MARQUE</th>
@@ -646,9 +646,9 @@ function ChecklistPage() {
                 </tr>
               ) : (
                 products.map((product) => (
-                  <tr key={product.id} className={`transition-colors ${selectedIds.has(product.id) ? "bg-rose-50/70" : "hover:bg-rose-50/20"}`}>
+                  <tr key={product.id} className={`transition-colors ${selectedIds.has(product.id) ? "bg-primary-soft/70" : "hover:bg-primary-soft/20"}`}>
                     <td className="py-3.5 px-4">
-                      <input type="checkbox" checked={selectedIds.has(product.id)} onChange={() => toggleOne(product.id)} aria-label={`Sélectionner ${product.name}`} className="size-4 cursor-pointer rounded border-slate-300 text-rose-600 focus:ring-rose-500" />
+                      <input type="checkbox" checked={selectedIds.has(product.id)} onChange={() => toggleOne(product.id)} aria-label={`Sélectionner ${product.name}`} className="size-4 cursor-pointer rounded border-slate-300 text-primary focus:ring-primary" />
                     </td>
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-3">
@@ -673,7 +673,7 @@ function ChecklistPage() {
                     <td className="py-3.5 px-4 font-black text-slate-900">{product.price.toFixed(3)} DT</td>
                     <td className="py-3.5 px-4">
                       {product.stock === 0 ? (
-                        <span className="inline-flex items-center gap-1 text-rose-600 font-bold">
+                        <span className="inline-flex items-center gap-1 text-primary font-bold">
                           <AlertTriangle size={14} /> Ruptures
                         </span>
                       ) : product.stock <= 5 ? (
@@ -711,7 +711,7 @@ function ChecklistPage() {
                         <button
                           type="button"
                           onClick={() => setDeleteTarget(product)}
-                          className="rounded-lg p-1.5 text-slate-400 hover:bg-rose-50 hover:text-rose-600 transition-colors"
+                          className="rounded-lg p-1.5 text-slate-400 hover:bg-primary-soft/30 hover:text-primary transition-colors"
                           title="Supprimer"
                         >
                           <Trash2 size={15} />
@@ -735,7 +735,7 @@ function ChecklistPage() {
                 setPageSize(Number(e.target.value));
                 setCurrentPage(1);
               }}
-              className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 font-bold text-slate-700 focus:outline-none focus:border-[#E11D48]"
+              className="rounded-xl border border-slate-200 bg-white px-3 py-1.5 font-bold text-slate-700 focus:outline-none focus:border-[var(--color-primary)]"
             >
               <option value={25}>25</option>
               <option value={50}>50</option>
@@ -775,7 +775,7 @@ function ChecklistPage() {
                     onClick={() => setCurrentPage(pNum)}
                     className={`min-w-8 h-8 rounded-lg text-xs font-bold transition-all ${
                       currentPage === pNum
-                        ? "bg-[#E11D48] text-white shadow-xs"
+                        ? "bg-[var(--color-primary)] text-white shadow-xs"
                         : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
                     }`}
                   >

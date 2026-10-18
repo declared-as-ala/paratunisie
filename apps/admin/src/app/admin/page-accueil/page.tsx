@@ -199,7 +199,7 @@ export default function AdminHomepagePage() {
             <div className="h-9 w-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
               <LayoutTemplate size={20} />
             </div>
-            <h1 className="text-xl font-bold tracking-tight text-ink">Merchandising Page d&apos;accueil</h1>
+            <h1 className="page-title">Merchandising Page d&apos;accueil</h1>
           </div>
           <p className="text-xs text-ink-muted mt-1">
             Pilotez les sections e-commerce, le mode de sélection (*Manuel*, *Automatique*, *Hybride*) et les campagnes saisonnières.
