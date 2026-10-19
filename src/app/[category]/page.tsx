@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import Link from "next/link";
-import { fetchCategoryBySlug, fetchPaginatedProducts, fetchSeoRedirect } from "@/lib/api/client";
+import { fetchCategoryBySlug, fetchFeaturedProduct, fetchPaginatedProducts, fetchSeoRedirect } from "@/lib/api/client";
 import { ProductCard } from "@/components/product/product-card";
 import { ProductRichText } from "@/components/product/product-rich-text";
 import { buildCategoryMetadata, buildBreadcrumbsSchema, buildItemListSchema, buildFaqSchema } from "@/lib/seo";
@@ -39,11 +39,21 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   }
   const query = await searchParams;
   const page = pageNumber(query);
-  const { products, meta } = await fetchPaginatedProducts({
+  const { products: listed, meta } = await fetchPaginatedProducts({
     category: category.slug, page, limit: 24,
     search: scalar(query.q), brand: scalar(query.brand), sort: scalar(query.sort),
   });
   if (page > meta.totalPages) notFound();
+
+  // Pin the featured product first in its own category (default listing only). On page 1 it is moved/added
+  // to the top (page 1 may then show one extra item so nothing is lost); on later pages it is removed to avoid duplicates.
+  const featured = !filtered(query) ? (await fetchFeaturedProduct())?.product : undefined;
+  const pinned = featured && featured.inStock !== false && featured.categorySlug === category.slug ? featured : undefined;
+  const products = pinned
+    ? page === 1
+      ? [pinned, ...listed.filter((p) => p.id !== pinned.id)]
+      : listed.filter((p) => p.id !== pinned.id)
+    : listed;
   const crumbs = [{ name: "Accueil", url: "/" },
     ...(category.parent ? [{ name: category.parent.name, url: `/${category.parent.slug}` }] : []),
     { name: category.name, url: `/${category.slug}` }];
@@ -90,7 +100,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     </details>
     <p className="text-sm text-muted-foreground">{meta.total} produit{meta.total !== 1 ? "s" : ""}{page > 1 ? ` · Page ${page}` : ""}</p>
     <section aria-label="Produits" className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4 sm:gap-5">
-      {products.map((product, index) => <ProductCard key={product.id} product={product} priority={index < 2} />)}
+      {products.map((product, index) => <ProductCard key={product.id} product={product} priority={index < 2} highlight={page === 1 && pinned && product.id === pinned.id ? "À la une" : undefined} />)}
     </section>
     {products.length === 0 && <p className="rounded-xl bg-soft-nude p-6">{filtered(query) ? "Aucun produit ne correspond à ces filtres. Essayez une autre recherche." : "Aucun produit n’est actuellement proposé dans cette catégorie."} <Link href="/shop" className="underline">Voir le catalogue</Link></p>}
     {meta.totalPages > 1 && <nav aria-label="Pagination" className="flex flex-wrap justify-center gap-2">

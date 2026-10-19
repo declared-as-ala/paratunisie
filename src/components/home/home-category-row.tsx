@@ -17,12 +17,15 @@ export function HomeCategoryRow({
   variant = "grid",
   flip = false,
   eyebrow,
+  pinnedId,
 }: {
   row: HomepageCategoryRow;
   bgClass?: string;
   variant?: Variant;
   flip?: boolean;
   eyebrow?: string;
+  /** Product pinned first by the featured-product feature; gets an "À la une" badge. */
+  pinnedId?: string;
 }) {
   if (!row.products || row.products.length === 0) return null;
   const href = `/${row.slug}`;
@@ -48,7 +51,7 @@ export function HomeCategoryRow({
           <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-3">
             {row.products.slice(0, 6).map((product, i) => (
               <div key={product.id} className={i >= 4 ? "hidden md:block" : ""}>
-                <ProductCard product={product} variant="shop" />
+                <ProductCard product={product} variant="shop" highlight={product.id === pinnedId ? "À la une" : undefined} />
               </div>
             ))}
           </div>

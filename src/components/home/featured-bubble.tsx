@@ -12,13 +12,18 @@ import { FeaturedActions, FeaturedImpression } from "@/components/home/featured-
 const DISMISS_KEY = "pt-featured-bubble-hidden";
 
 /**
- * Mobile-only floating bubble (like a chat head): a small round product photo that opens a compact card.
- * It never auto-opens and can be hidden for the session. No fake badges or counters.
+ * Mobile-only floating offer pill (chat-head style).
+ *  - at rest: round product photo + name + price, with a soft ring pulse for the first few seconds;
+ *  - after scrolling down it shrinks to just the round photo so it never blocks content;
+ *  - tap opens a compact card with Buy now / Add to cart. Never auto-opens, hideable for the session.
+ * No fake badges, counters or urgency.
  */
 export function FeaturedBubble({ featured }: { featured: FeaturedProduct }) {
   const { product, config } = featured;
   const [open, setOpen] = useState(false);
   const [hidden, setHidden] = useState(true); // hidden until we know it was not dismissed (avoids a flash)
+  const [shrunk, setShrunk] = useState(false);
+  const [pulse, setPulse] = useState(true);
 
   useEffect(() => {
     try {
@@ -26,6 +31,15 @@ export function FeaturedBubble({ featured }: { featured: FeaturedProduct }) {
     } catch {
       setHidden(false);
     }
+    const stopPulse = setTimeout(() => setPulse(false), 7000);
+    return () => clearTimeout(stopPulse);
+  }, []);
+
+  useEffect(() => {
+    const onScroll = () => setShrunk(window.scrollY > 160);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
@@ -38,6 +52,7 @@ export function FeaturedBubble({ featured }: { featured: FeaturedProduct }) {
   if (hidden) return null;
   const inStock = product.inStock !== false;
   const title = config.headline || product.name;
+  const collapsed = shrunk && !open;
 
   const hide = () => {
     setOpen(false);
@@ -84,10 +99,18 @@ export function FeaturedBubble({ featured }: { featured: FeaturedProduct }) {
           onClick={() => setOpen((o) => !o)}
           aria-expanded={open}
           aria-label={open ? "Fermer l'offre à la une" : `Offre à la une : ${product.name}, ${formatPrice(product.priceMillimes)}`}
-          className="relative flex size-14 items-center justify-center rounded-full bg-white shadow-[0_8px_24px_-6px_rgba(43,35,38,0.5)] ring-2 ring-primary transition-transform active:scale-90"
+          className={`relative flex items-center rounded-full bg-white py-1 ps-1 shadow-[0_10px_28px_-8px_rgba(94,32,60,0.55)] ring-2 ring-primary transition-[padding] duration-300 active:scale-95 motion-reduce:transition-none ${collapsed ? "pe-1" : "pe-4"}`}
         >
-          <span className="relative size-11 overflow-hidden rounded-full bg-[#F8F3F0]">
-            <Image src={product.image} alt="" fill sizes="44px" className="object-contain p-1 mix-blend-multiply" />
+          {pulse && !open && <span aria-hidden className="pointer-events-none absolute inset-0 rounded-full ring-2 ring-primary/60 animate-ping motion-reduce:hidden" />}
+          <span className="relative size-12 shrink-0 overflow-hidden rounded-full bg-gradient-to-b from-[#FBF8F6] to-[#F0E7E2]">
+            <Image src={product.image} alt="" fill sizes="48px" className="object-contain p-1 mix-blend-multiply" />
+          </span>
+          <span
+            aria-hidden={collapsed}
+            className={`overflow-hidden text-start transition-[max-width,opacity,margin] duration-300 motion-reduce:transition-none ${collapsed ? "ms-0 max-w-0 opacity-0" : "ms-2.5 max-w-[10.5rem] opacity-100"}`}
+          >
+            <span className="block truncate text-[0.6875rem] font-semibold leading-tight text-ink-muted">{title}</span>
+            <span className="block whitespace-nowrap font-tabular text-[0.9375rem] font-extrabold leading-tight text-primary">{formatPrice(product.priceMillimes)}</span>
           </span>
         </button>
       </FeaturedImpression>

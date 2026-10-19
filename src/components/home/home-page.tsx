@@ -11,7 +11,7 @@ import { HomeFeaturedBrands } from "@/components/home/home-featured-brands";
 import { HomeTrustReassurance } from "@/components/home/home-trust-reassurance";
 import { HomeCommunity } from "@/components/home/home-community";
 import { HomeSeoSection } from "@/components/home/home-seo-section";
-import type { FeaturedProduct, HomepageCategoryRow } from "@/lib/api/client";
+import { HOMEPAGE_CATEGORY_DEFINITIONS, type FeaturedProduct, type HomepageCategoryRow } from "@/lib/api/client";
 import type { ProductSummary } from "@/lib/data/products";
 
 const SOFT = "bg-[#FAF5F2]/60";
@@ -30,7 +30,19 @@ export function HomePage({
   featured: FeaturedProduct | null;
   bestSellers: ProductSummary[];
 }) {
-  const row = (key: string) => categoryRows.find((r) => r.key === key);
+  // The featured product leads the row of its own category (e.g. Whey Protéine), so it is seen on scroll.
+  const pinnedId = featured?.product.id;
+  const pin = (r: HomepageCategoryRow): HomepageCategoryRow => {
+    if (!featured || featured.product.inStock === false) return r;
+    const def = HOMEPAGE_CATEGORY_DEFINITIONS.find((d) => d.key === r.key);
+    const slug = featured.product.categorySlug;
+    if (!def || !slug || !(def.matches as readonly string[]).includes(slug)) return r;
+    return { ...r, products: [featured.product, ...r.products.filter((p) => p.id !== featured.product.id)].slice(0, 6) };
+  };
+  const row = (key: string) => {
+    const found = categoryRows.find((r) => r.key === key);
+    return found ? pin(found) : undefined;
+  };
   const creatine = row("creatine");
   const whey = row("whey-proteine");
   const preWorkout = row("pre-workout");
@@ -49,7 +61,7 @@ export function HomePage({
         <HomeBestSellers items={bestSellers} />
 
         {creatine && <HomeCategoryRow row={creatine} variant="spotlight" eyebrow="Force & puissance" bgClass={SOFT} />}
-        {whey && <HomeCategoryRow row={whey} variant="spotlight" flip eyebrow="Récupération & masse" bgClass="bg-white" />}
+        {whey && <HomeCategoryRow row={whey} variant="spotlight" flip eyebrow="Récupération & masse" bgClass="bg-white" pinnedId={pinnedId} />}
 
         <HomeSplitFeature />
 

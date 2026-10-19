@@ -14,9 +14,11 @@ export interface ProductCardProps {
   product: ProductSummary;
   variant?: "home" | "shop";
   priority?: boolean;
+  /** Small label for a pinned/featured product (e.g. "À la une"). */
+  highlight?: string;
 }
 
-export function ProductCard({ product, priority = false }: ProductCardProps) {
+export function ProductCard({ product, priority = false, highlight }: ProductCardProps) {
   const [imgSrc, setImgSrc] = useState(product.image || "/assets/product-unavailable.svg");
   const [prevImage, setPrevImage] = useState(product.image);
   const { isWishlisted, toggle } = useWishlist();
@@ -82,6 +84,10 @@ export function ProductCard({ product, priority = false }: ProductCardProps) {
           ) : hasActiveSale && discountPercent > 0 ? (
             <span className="absolute start-2.5 top-2.5 rounded-full bg-primary px-2.5 py-1 text-[0.625rem] font-bold text-white">
               -{discountPercent}%
+            </span>
+          ) : highlight ? (
+            <span className="absolute start-2.5 top-2.5 rounded-full bg-primary px-2.5 py-1 text-[0.625rem] font-bold uppercase tracking-wide text-white shadow-sm">
+              {highlight}
             </span>
           ) : null}
 
