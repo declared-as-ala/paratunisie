@@ -388,6 +388,55 @@ export async function fetchProductBySlug(slug: string): Promise<ProductSummary |
   return MOCK_FALLBACK_ENABLED ? localProducts.find((p) => p.slug === slug) ?? null : null;
 }
 
+/* ─── Homepage merchandising ─────────────────────────────────────────── */
+
+export type FeaturedProduct = {
+  config: {
+    headline: string | null;
+    description: string | null;
+    bullets: string[];
+    imageUrl: string | null;
+    ctaLabel: string | null;
+    secondaryCtaLabel: string | null;
+    secondaryCtaUrl: string | null;
+  };
+  product: ProductSummary;
+};
+
+type RawFeatured = {
+  config: FeaturedProduct["config"];
+  product: {
+    id: string; slug: string; name: string; benefit: string | null; image: string | null; imageAlt: string | null;
+    brand: { name: string; slug: string }; category: { name: string; slug: string };
+    variants: { label: string; priceMillimes: number }[]; inStock: boolean;
+  };
+};
+
+/** Live featured product (price/stock/image come from the catalogue; copy from the admin config). */
+export async function fetchFeaturedProduct(): Promise<FeaturedProduct | null> {
+  const raw = await apiFetch<RawFeatured | null>("/homepage/featured");
+  if (!raw || !raw.product) return null;
+  const p = raw.product;
+  const summary = transformProduct({
+    id: p.id,
+    slug: p.slug,
+    name: p.name,
+    benefit: p.benefit,
+    image: p.image,
+    imageAlt: p.imageAlt,
+    brand: { id: "", name: p.brand.name, slug: p.brand.slug },
+    category: { id: "", name: p.category.name, slug: p.category.slug },
+    variants: p.variants.map((v, i) => ({ id: String(i), label: v.label, priceMillimes: v.priceMillimes, stock: p.inStock ? 1 : 0 })),
+  });
+  return { config: raw.config, product: { ...summary, inStock: p.inStock } };
+}
+
+/** Top products by real units sold; empty until enough genuine sales exist. */
+export async function fetchBestSellers(limit = 8): Promise<ProductSummary[]> {
+  const raw = await apiFetch<RawProduct[]>(`/homepage/best-sellers?limit=${limit}`);
+  return Array.isArray(raw) ? raw.map(transformProduct) : [];
+}
+
 export type BrandListItem = {
   id?: string;
   name: string;

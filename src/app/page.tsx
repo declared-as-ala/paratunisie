@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { HomePage } from "@/components/home/home-page";
-import { fetchHomepageCategoryRows } from "@/lib/api/client";
+import { fetchBestSellers, fetchFeaturedProduct, fetchHomepageCategoryRows } from "@/lib/api/client";
 import { buildCanonicalUrl } from "@/lib/seo/canonical";
 
 export const dynamic = "force-dynamic";
@@ -24,7 +24,11 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const categoryRows = await fetchHomepageCategoryRows();
-  return <HomePage categoryRows={categoryRows} />;
+  const [categoryRows, featured, bestSellers] = await Promise.all([
+    fetchHomepageCategoryRows(),
+    fetchFeaturedProduct(),
+    fetchBestSellers(8),
+  ]);
+  return <HomePage categoryRows={categoryRows} featured={featured} bestSellers={bestSellers} />;
 }
 

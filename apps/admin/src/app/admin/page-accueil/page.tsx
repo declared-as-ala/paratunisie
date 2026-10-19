@@ -21,6 +21,7 @@ import {
 import { useToast } from "@/components/toast";
 import { Drawer } from "@/components/drawer";
 import { ConfirmModal } from "@/components/confirm-modal";
+import { FeaturedProductPanel, FEATURED_SECTION_KEY, type FeaturedSection, type PickerProduct } from "./featured-product-panel";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "/api/v1";
 
@@ -97,15 +98,18 @@ export default function AdminHomepagePage() {
   const [expandedSection, setExpandedSection] = useState<string | null>("best_sellers");
 
   const [deleteCampaignId, setDeleteCampaignId] = useState<string | null>(null);
+  const [featured, setFeatured] = useState<FeaturedSection | null>(null);
 
   /* Fetch config from Nest API */
   const fetchConfig = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/homepage/admin-config`, { cache: "no-store" });
+      const res = await fetch(`${API_URL}/homepage/admin-config`, { cache: "no-store", credentials: "include" });
       if (!res.ok) throw new Error("Fetch failed");
       const data = await res.json();
-      setSections(data.sections || []);
+      const all: AdminSectionConfig[] = data.sections || [];
+      setFeatured((all.find((x) => x.sectionKey === FEATURED_SECTION_KEY) as unknown as FeaturedSection) ?? null);
+      setSections(all.filter((x) => x.sectionKey !== FEATURED_SECTION_KEY));
       setCampaigns(data.campaigns || []);
       setProducts(data.products || []);
     } catch {
@@ -125,6 +129,7 @@ export default function AdminHomepagePage() {
     try {
       const res = await fetch(`${API_URL}/homepage/sections`, {
         method: "PATCH",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           sectionKey: section.sectionKey,
@@ -207,7 +212,7 @@ export default function AdminHomepagePage() {
         </div>
         <div className="flex items-center gap-2">
           <a
-            href="http://localhost:3000"
+            href="https://paratunisie.com"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 rounded-xl border border-border px-3.5 py-2 text-xs font-semibold text-ink hover:bg-soft-nude transition-colors"
@@ -216,6 +221,8 @@ export default function AdminHomepagePage() {
           </a>
         </div>
       </div>
+
+      <FeaturedProductPanel section={featured} products={products as PickerProduct[]} />
 
       {/* Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

@@ -1,145 +1,107 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Heart, Phone, ShoppingBag, User, MessageCircle, MapPin } from "lucide-react";
+import { Heart, MapPin, MessageCircle, Phone, ShoppingBag, User } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { useScrolled } from "@/hooks/use-scrolled";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { useCartDrawer } from "@/hooks/use-cart-drawer";
 import { Logo } from "@/components/layout/logo";
 import { SearchOverlay } from "@/components/layout/navigation/search-overlay";
-import { MegaMenu, MobileNavigation } from "@/components/layout/navigation/mega-menu";
+import { MegaMenu } from "@/components/layout/navigation/mega-menu";
+import { MobileMenu } from "@/components/layout/navigation/mobile-menu";
 import { CartDrawer } from "@/components/cart/cart-drawer";
 import { phoneHref, phoneNumber, whatsappHref } from "@/lib/contact";
 
+const iconBtn =
+  "relative flex size-11 items-center justify-center rounded-xl text-ink transition-colors hover:bg-soft-nude hover:text-primary active:scale-95";
+
+function Badge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <span className="absolute end-0.5 top-0.5 flex min-w-4.5 items-center justify-center rounded-full bg-primary px-1 text-[0.625rem] font-bold leading-4.5 text-white shadow-2xs ring-2 ring-white">
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
+
+/**
+ * Compact sticky header. Fixed heights (no scroll-driven resizing) so content never jumps.
+ * Mobile: [menu] [logo] ........ [search] [cart]  — everything in one 56px row under a 28px announcement bar.
+ */
 export function SiteHeader() {
-  const pathname = usePathname();
-  const scrolled = useScrolled();
   const { itemCount } = useCart();
   const { count: wishlistCount } = useWishlist();
   const { setOpen: setCartOpen } = useCartDrawer();
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md shadow-2xs">
-      {/* ── ROW 1: Thin Announcement & Contact Bar ────────────────────── */}
+    <header className="sticky top-0 z-40 border-b border-border/70 bg-white/95 backdrop-blur-md">
+      {/* Announcement bar — one slim line */}
       <div className="bg-primary text-primary-foreground">
-        <div className="mx-auto flex h-7 sm:h-8 max-w-[1440px] items-center justify-between gap-4 px-4 text-[0.6875rem] sm:text-xs font-medium tracking-wide">
-          <div className="flex min-w-0 items-center gap-4 overflow-hidden">
-            <a href={phoneHref} className="flex shrink-0 items-center gap-1 hover:underline">
+        <div className="mx-auto flex h-7 max-w-[1440px] items-center justify-center gap-4 px-4 text-[0.6875rem] font-medium tracking-wide sm:h-8 sm:text-xs lg:justify-between">
+          <div className="hidden items-center gap-4 lg:flex">
+            <a href={phoneHref} className="flex items-center gap-1 hover:underline">
               <Phone size={11} aria-hidden />
               <span>{phoneNumber}</span>
             </a>
-            <span className="hidden md:inline opacity-60">|</span>
-            <a
-              href={whatsappHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden md:flex shrink-0 items-center gap-1 text-emerald-300 hover:underline"
-            >
+            <a href={whatsappHref} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-emerald-300 hover:underline">
               <MessageCircle size={11} aria-hidden />
               <span>WhatsApp</span>
             </a>
-            <span className="hidden lg:inline opacity-60">|</span>
-            <span className="hidden lg:flex items-center gap-1 opacity-90">
-              <MapPin size={11} aria-hidden />
-              <span>Livraison partout en Tunisie</span>
-            </span>
           </div>
-
-          <div className="flex shrink-0 items-center gap-2 font-bold">
-            <span>Livraison offerte dès 99 DT</span>
-          </div>
+          <p className="flex items-center gap-1.5 truncate">
+            <MapPin size={11} className="hidden shrink-0 sm:block" aria-hidden />
+            <span>Livraison partout en Tunisie · offerte dès 99 DT<span className="hidden sm:inline"> · Paiement à la livraison</span></span>
+          </p>
         </div>
       </div>
 
-      {/* ── ROW 2: Main Header Bar (Logo + Large Search + Actions) ───── */}
-      <div className="border-b border-border/70">
-        <div
-          className={`mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 transition-[padding] duration-200 ${
-            scrolled ? "py-1.5" : "py-2 sm:py-3"
-          }`}
-        >
-          {/* Left: ParaTunisie Logo */}
-          <Link href="/" aria-label="ParaTunisie — Accueil" className="shrink-0">
-            <Logo />
+      {/* Main row */}
+      <div className="mx-auto flex h-14 max-w-[1440px] items-center gap-1 px-2 sm:gap-3 sm:px-6 lg:h-[4.25rem] lg:gap-6 lg:px-8">
+        <MobileMenu />
+
+        <Link href="/" aria-label="ParaTunisie — Accueil" className="shrink-0 px-1">
+          <Logo size="header" />
+        </Link>
+
+        <div className="mx-4 hidden max-w-2xl flex-1 lg:block">
+          <SearchOverlay variant="full" />
+        </div>
+
+        <div className="ms-auto flex items-center gap-0.5 sm:gap-1">
+          <div className="lg:hidden">
+            <SearchOverlay variant="icon" />
+          </div>
+
+          <Link href="/compte" aria-label="Mon compte" className={`${iconBtn} hidden sm:flex`}>
+            <User size={21} aria-hidden />
           </Link>
 
-          {/* Center: Large Search Field (Desktop lg+) */}
-          <div className="hidden lg:block flex-1 max-w-2xl mx-4">
-            <SearchOverlay variant="full" />
-          </div>
+          <Link href="/favoris" aria-label={`Favoris${wishlistCount ? ` — ${wishlistCount}` : ""}`} className={`${iconBtn} hidden sm:flex`}>
+            <Heart size={21} aria-hidden />
+            <Badge count={wishlistCount} />
+          </Link>
 
-          {/* Right: Actions Icons with Labels (Compte, Favoris, Panier) */}
-          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-            {/* Mobile Search Trigger Icon */}
-            <div className="lg:hidden">
-              <SearchOverlay variant="icon" />
-            </div>
-
-            {/* Compte */}
-            <Link
-              href="/compte"
-              aria-label="Mon compte"
-              className="hidden sm:flex min-h-11 min-w-11 flex-col items-center justify-center rounded-lg text-ink transition-colors hover:bg-soft-nude hover:text-primary group"
-            >
-              <User size={20} className="group-hover:scale-105 transition-transform" />
-              <span className="text-[0.6875rem] font-medium mt-0.5">Compte</span>
-            </Link>
-
-            {/* Favoris */}
-            <Link
-              href="/favoris"
-              aria-label="Favoris"
-              className="hidden sm:flex min-h-11 min-w-11 flex-col items-center justify-center rounded-lg text-ink transition-colors hover:bg-soft-nude hover:text-primary group relative"
-            >
-              <div className="relative">
-                <Heart size={20} className="group-hover:scale-105 transition-transform" />
-                {wishlistCount > 0 && (
-                  <span className="absolute -right-2 -top-1.5 flex size-4 items-center justify-center rounded-full bg-primary text-[0.55rem] font-extrabold text-white">
-                    {wishlistCount}
-                  </span>
-                )}
-              </div>
-              <span className="text-[0.6875rem] font-medium mt-0.5">Favoris</span>
-            </Link>
-
-            {/* Panier Button / Trigger */}
-            <button
-              type="button"
-              onClick={() => setCartOpen(true)}
-              aria-label={`Panier${itemCount > 0 ? ` — ${itemCount} article${itemCount === 1 ? "" : "s"}` : ""}`}
-              className="flex min-h-11 min-w-11 flex-col items-center justify-center rounded-lg text-ink transition-colors hover:bg-soft-nude hover:text-primary group relative"
-            >
-              <div className="relative">
-                <ShoppingBag size={20} className="group-hover:scale-105 transition-transform" />
-                {itemCount > 0 && (
-                  <span className="absolute -right-2 -top-1.5 flex size-4.5 items-center justify-center rounded-full bg-primary text-[0.6rem] font-bold text-white shadow-2xs">
-                    {itemCount}
-                  </span>
-                )}
-              </div>
-              <span className="hidden sm:inline text-[0.6875rem] font-medium mt-0.5">Panier</span>
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setCartOpen(true)}
+            aria-label={`Panier${itemCount > 0 ? ` — ${itemCount} article${itemCount === 1 ? "" : "s"}` : ""}`}
+            className={iconBtn}
+          >
+            <ShoppingBag size={21} aria-hidden />
+            <Badge count={itemCount} />
+          </button>
         </div>
+      </div>
 
-        {/* ── ROW 3: Desktop Mega Menu Navigation (lg+) ───────────────── */}
-        <div className="hidden lg:block border-t border-border/50 bg-soft-nude/30">
-          <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-            <nav aria-label="Navigation principale" className="flex items-center justify-center py-1">
-              <MegaMenu />
-            </nav>
-          </div>
-        </div>
-        <MobileNavigation />
+      {/* Desktop categories */}
+      <div className="relative hidden border-t border-border/50 bg-soft-nude/40 lg:block">
+        <nav aria-label="Navigation principale" className="mx-auto max-w-[1440px] px-8">
+          <MegaMenu />
+        </nav>
       </div>
 
       <CartDrawer />
     </header>
   );
 }
-
-

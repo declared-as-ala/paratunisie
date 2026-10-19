@@ -1,4 +1,5 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
+import { ProductPublishState } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 
 export interface UpdateSectionConfigDto {
@@ -27,6 +28,29 @@ export interface CreateCampaignDto {
 }
 
 export interface UpdateCampaignDto extends Partial<CreateCampaignDto> {}
+
+export const FEATURED_SECTION_KEY = "featured_product";
+
+/** Admin-editable settings of the homepage featured product. Price and stock are NEVER stored here. */
+export interface FeaturedProductSettings {
+  productSlug?: string;
+  headline?: string;
+  description?: string;
+  imageUrl?: string;
+  bullets?: string[];
+  ctaLabel?: string;
+  secondaryCtaLabel?: string;
+  secondaryCtaUrl?: string;
+  startsAt?: string;
+  endsAt?: string;
+}
+
+// Used until an admin saves a configuration: the campaign currently running on Meta Ads.
+const DEFAULT_FEATURED: FeaturedProductSettings = {
+  productSlug: "anabolic-whey-80-2-25kg-proactive",
+  secondaryCtaLabel: "Voir toutes les whey",
+  secondaryCtaUrl: "/whey-proteine",
+};
 
 const DEFAULT_SECTIONS = [
   { sectionKey: "hero", position: 1, title: "Votre routine beauté commence par le bon conseil", enabled: true, mode: "MANUAL", settings: {} },
@@ -318,5 +342,101 @@ export class HomepageService {
 
   async deleteCampaign(id: string) {
     return this.prisma.homepageCampaign.delete({ where: { id } });
+  }
+
+  /**
+   * Resolves the featured homepage product. Price, stock and the product image come from the live
+   * catalogue (single source of truth); only copy and CTA come from the admin configuration.
+   * Returns null when disabled, outside its schedule, or when the product is not published.
+   */
+  async getFeaturedProduct() {
+    let enabled = true;
+    let settings: FeaturedProductSettings = { ...DEFAULT_FEATURED };
+    let title: string | null = null;
+    let description: string | null = null;
+    try {
+      const row = await this.prisma.homepageConfig.findUnique({ where: { sectionKey: FEATURED_SECTION_KEY } });
+      if (row) {
+        enabled = row.enabled;
+        title = row.title;
+        description = row.description;
+        try {
+          settings = { ...JSON.parse(row.settings || "{}") };
+        } catch {
+          settings = {};
+        }
+      }
+    } catch {
+      /* fall back to defaults */
+    }
+    if (!enabled || !settings.productSlug) return null;
+
+    const now = Date.now();
+    if (settings.startsAt && now < new Date(settings.startsAt).getTime()) return null;
+    if (settings.endsAt && now > new Date(settings.endsAt).getTime()) return null;
+
+    const product = await this.prisma.product.findFirst({
+      where: { slug: settings.productSlug, publishState: ProductPublishState.PUBLISHED },
+      include: { brand: true, category: true, variants: { orderBy: { priceMillimes: "asc" } }, images: { orderBy: { position: "asc" } } },
+    });
+    if (!product || product.variants.length === 0) return null;
+
+    const variant = product.variants.find((v) => v.stock > 0) ?? product.variants[0];
+    const stock = product.variants.reduce((sum, v) => sum + v.stock, 0);
+    return {
+      config: {
+        headline: (title || settings.headline || "").trim() || null,
+        description: (description || settings.description || "").trim() || null,
+        bullets: (settings.bullets ?? []).map((b) => String(b).trim()).filter(Boolean).slice(0, 4),
+        imageUrl: settings.imageUrl?.trim() || null,
+        ctaLabel: settings.ctaLabel?.trim() || null,
+        secondaryCtaLabel: settings.secondaryCtaLabel?.trim() || null,
+        secondaryCtaUrl: settings.secondaryCtaUrl?.trim() || null,
+      },
+      product: {
+        id: product.id,
+        slug: product.slug,
+        name: product.name,
+        benefit: product.benefit || null,
+        brand: { name: product.brand.name, slug: product.brand.slug },
+        category: { name: product.category.name, slug: product.category.slug },
+        image: product.image || product.images[0]?.url || null,
+        imageAlt: product.imageAlt || null,
+        sizeLabel: variant.label,
+        priceMillimes: variant.priceMillimes,
+        stock,
+        inStock: stock > 0,
+        variants: product.variants.map((v) => ({ label: v.label, priceMillimes: v.priceMillimes })),
+      },
+    };
+  }
+
+  /**
+   * Best sellers from REAL order data: units sold on non-cancelled orders. Only published, in-stock
+   * products are returned, and nothing is returned until at least `MIN_BEST_SELLERS` distinct products
+   * have genuine sales, so the storefront hides the section instead of inventing a ranking.
+   */
+  async getBestSellers(limit = 8) {
+    const MIN_BEST_SELLERS = 4;
+    const safeLimit = Math.min(Math.max(Math.trunc(limit) || 8, 1), 12);
+    try {
+      const grouped = await this.prisma.orderItem.groupBy({
+        by: ["productId"],
+        where: { order: { status: { notIn: ["ANNULEE", "REFUSEE", "RETOURNEE"] } } },
+        _sum: { quantity: true },
+        orderBy: { _sum: { quantity: "desc" } },
+        take: safeLimit * 3,
+      });
+      if (grouped.length === 0) return [];
+      const products = await this.prisma.product.findMany({
+        where: { id: { in: grouped.map((g) => g.productId) }, publishState: ProductPublishState.PUBLISHED, inStock: true },
+        include: { brand: true, category: true, variants: true, images: { orderBy: { position: "asc" } } },
+      });
+      const byId = new Map(products.map((p) => [p.id, p]));
+      const ranked = grouped.map((g) => byId.get(g.productId)).filter((p): p is NonNullable<typeof p> => Boolean(p)).slice(0, safeLimit);
+      return ranked.length >= MIN_BEST_SELLERS ? ranked : [];
+    } catch {
+      return [];
+    }
   }
 }

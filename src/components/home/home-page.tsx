@@ -1,4 +1,8 @@
 import { HomeHero } from "@/components/home/home-hero";
+import { FeaturedProductHero } from "@/components/home/featured-product-hero";
+import { HomeTrustStrip } from "@/components/home/home-trust-strip";
+import { HomeCategoryTiles } from "@/components/home/home-category-tiles";
+import { HomeBestSellers } from "@/components/home/home-best-sellers";
 import { HomeCategoryRow } from "@/components/home/home-category-row";
 import { HomeSplitFeature } from "@/components/home/home-split-feature";
 import { HomeGammesGrid } from "@/components/home/home-gammes-grid";
@@ -6,64 +10,57 @@ import { HomeFeaturedBrands } from "@/components/home/home-featured-brands";
 import { HomeTrustReassurance } from "@/components/home/home-trust-reassurance";
 import { HomeCommunity } from "@/components/home/home-community";
 import { HomeSeoSection } from "@/components/home/home-seo-section";
-import { type HomepageCategoryRow } from "@/lib/api/client";
+import type { FeaturedProduct, HomepageCategoryRow } from "@/lib/api/client";
+import type { ProductSummary } from "@/lib/data/products";
 
-const BACKGROUND_CLASSES = [
-  "bg-white",
-  "bg-[#FAF5F2]/50",
-  "bg-white",
-  "bg-[#FDFBF7]",
-  "bg-white",
-  "bg-[#FAF5F2]/50",
-  "bg-white",
-];
+const SOFT = "bg-[#FAF5F2]/60";
 
-export function HomePage({ categoryRows }: { categoryRows: HomepageCategoryRow[] }) {
-  // Split category rows into top 2 rows, then insert SplitFeature & GammesGrid
-  const topRows = categoryRows.slice(0, 2);
-  const remainingRows = categoryRows.slice(2);
+/**
+ * Commercial hierarchy: featured product → reassurance → categories → best sellers →
+ * focused showcases (creatine, whey) → editorial → remaining ranges → brands → SEO content.
+ * Section layouts alternate (spotlight / rail / grid) to avoid a wall of identical carousels.
+ */
+export function HomePage({
+  categoryRows,
+  featured,
+  bestSellers,
+}: {
+  categoryRows: HomepageCategoryRow[];
+  featured: FeaturedProduct | null;
+  bestSellers: ProductSummary[];
+}) {
+  const row = (key: string) => categoryRows.find((r) => r.key === key);
+  const creatine = row("creatine");
+  const whey = row("whey-proteine");
+  const preWorkout = row("pre-workout");
+  const vitamines = row("vitamines");
+  const shown = new Set(["creatine", "whey-proteine", "pre-workout", "vitamines"]);
+  const others = categoryRows.filter((r) => !shown.has(r.key));
 
   return (
-    <div className="overflow-hidden bg-[#FAF7F5] min-h-screen">
-      {/* 1. Cinematic Dark Video Hero Section */}
-      <HomeHero />
+    <div className="overflow-hidden bg-[#FAF7F5]">
+      {featured ? <FeaturedProductHero featured={featured} /> : <HomeHero />}
+      <HomeTrustStrip />
 
-      {/* 2. Content Anchor */}
       <div id="homepage-content">
-        {/* Top Product Rows */}
-        {topRows.map((row, index) => (
-          <HomeCategoryRow
-            key={row.key}
-            row={row}
-            bgClass={BACKGROUND_CLASSES[index % BACKGROUND_CLASSES.length]}
-          />
-        ))}
+        <HomeCategoryTiles rows={categoryRows} />
+        <HomeBestSellers items={bestSellers} />
 
-        {/* 3. In.Lab / Expertise Nutrition Split Feature */}
+        {creatine && <HomeCategoryRow row={creatine} variant="spotlight" eyebrow="Force & puissance" bgClass={SOFT} />}
+        {whey && <HomeCategoryRow row={whey} variant="spotlight" flip eyebrow="Récupération & masse" bgClass="bg-white" />}
+
         <HomeSplitFeature />
 
-        {/* 4. Remaining Category Product Rows */}
-        {remainingRows.map((row, index) => (
-          <HomeCategoryRow
-            key={row.key}
-            row={row}
-            bgClass={BACKGROUND_CLASSES[(index + 2) % BACKGROUND_CLASSES.length]}
-          />
+        {preWorkout && <HomeCategoryRow row={preWorkout} variant="rail" bgClass="bg-white" />}
+        {vitamines && <HomeCategoryRow row={vitamines} variant="grid" bgClass={SOFT} />}
+        {others.map((r, i) => (
+          <HomeCategoryRow key={r.key} row={r} variant={i % 2 === 0 ? "rail" : "grid"} bgClass={i % 2 === 0 ? "bg-white" : SOFT} />
         ))}
 
-        {/* 5. 7 Gammes Expertes Grid */}
         <HomeGammesGrid />
-
-        {/* 6. Featured Real Brands */}
         <HomeFeaturedBrands />
-
-        {/* 7. Trust & Reassurance */}
         <HomeTrustReassurance />
-
-        {/* 8. SEO Authority Pillar & FAQ Section */}
         <HomeSeoSection />
-
-        {/* 9. Community & Le Cercle */}
         <HomeCommunity />
       </div>
     </div>
