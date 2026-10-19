@@ -5,7 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ShieldCheck, Truck, CreditCard, Sparkles, ChevronDown, Zap } from "lucide-react";
 
-export function HomeHero() {
+/** Cinematic hero. On desktop it sits beside an optional `aside` panel (featured product); on mobile it stays full-bleed. */
+export function HomeHero({ aside }: { aside?: React.ReactNode }) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
@@ -32,9 +33,11 @@ export function HomeHero() {
   };
 
   return (
+    <div className="bg-black lg:bg-[#FAF7F5]">
+    <div className="mx-auto max-w-[1440px] lg:grid lg:grid-cols-[minmax(0,1fr)_21.5rem] lg:gap-5 lg:px-8 lg:py-6">
     <section
       data-testid="cinematic-hero"
-      className="relative w-full min-h-[88vh] sm:min-h-[94vh] flex items-end overflow-hidden bg-black text-white"
+      className="relative w-full min-h-[88vh] sm:min-h-[94vh] lg:min-h-[640px] lg:rounded-3xl flex items-end overflow-hidden bg-black text-white"
     >
       {/* ── 1. Hero Background Video & Poster ──────────────────────────── */}
       <div className="absolute inset-0 size-full overflow-hidden select-none">
@@ -85,7 +88,7 @@ export function HomeHero() {
       />
 
       {/* ── 3. Foreground Content (Anchored Bottom-Left) ────────────────── */}
-      <div className="relative mx-auto w-full max-w-[1440px] px-4 md:px-8 lg:px-12 pb-14 sm:pb-20 pt-28 sm:pt-36 z-10">
+      <div className="relative mx-auto w-full max-w-[1440px] px-4 md:px-8 lg:px-10 pb-14 sm:pb-20 lg:pb-12 pt-28 sm:pt-36 lg:pt-24 z-10">
         <div className="max-w-3xl">
           {/* Eyebrow Pill */}
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-white/20 bg-white/10 backdrop-blur-md text-[11px] uppercase tracking-[0.2em] text-white/90 font-medium mb-4">
@@ -94,7 +97,7 @@ export function HomeHero() {
           </div>
 
           {/* Main Display Headline */}
-          <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.08] tracking-tight text-white drop-shadow-[0_4px_25px_rgba(0,0,0,0.85)]">
+          <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-6xl xl:text-7xl font-bold leading-[1.08] tracking-tight text-white drop-shadow-[0_4px_25px_rgba(0,0,0,0.85)]">
             ParaTunisie
             <br />
             <span className="text-white font-normal italic text-2xl sm:text-3xl md:text-4xl lg:text-5xl">Parapharmacie en Ligne &amp; Nutrition Sportive en Tunisie</span>
@@ -157,5 +160,8 @@ export function HomeHero() {
         </div>
       </button>
     </section>
+    {aside ? <aside className="hidden lg:block" aria-label="Produit à la une">{aside}</aside> : null}
+    </div>
+    </div>
   );
 }

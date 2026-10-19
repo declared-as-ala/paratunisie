@@ -1,5 +1,6 @@
 import { HomeHero } from "@/components/home/home-hero";
-import { FeaturedProductHero } from "@/components/home/featured-product-hero";
+import { FeaturedSidePanel } from "@/components/home/featured-side-panel";
+import { FeaturedBubble } from "@/components/home/featured-bubble";
 import { HomeTrustStrip } from "@/components/home/home-trust-strip";
 import { HomeCategoryTiles } from "@/components/home/home-category-tiles";
 import { HomeBestSellers } from "@/components/home/home-best-sellers";
@@ -16,7 +17,7 @@ import type { ProductSummary } from "@/lib/data/products";
 const SOFT = "bg-[#FAF5F2]/60";
 
 /**
- * Commercial hierarchy: featured product → reassurance → categories → best sellers →
+ * Commercial hierarchy: cinematic hero with the featured product beside it (floating bubble on mobile) → reassurance → categories → best sellers →
  * focused showcases (creatine, whey) → editorial → remaining ranges → brands → SEO content.
  * Section layouts alternate (spotlight / rail / grid) to avoid a wall of identical carousels.
  */
@@ -39,8 +40,9 @@ export function HomePage({
 
   return (
     <div className="overflow-hidden bg-[#FAF7F5]">
-      {featured ? <FeaturedProductHero featured={featured} /> : <HomeHero />}
+      <HomeHero aside={featured ? <FeaturedSidePanel featured={featured} bestSellers={bestSellers} /> : undefined} />
       <HomeTrustStrip />
+      {featured && <FeaturedBubble featured={featured} />}
 
       <div id="homepage-content">
         <HomeCategoryTiles rows={categoryRows} />
