@@ -34,6 +34,9 @@ export function MobileTabBar() {
   const { count: wishlistCount } = useWishlist();
   const { setOpen: setCartOpen } = useCartDrawer();
 
+  // Mid-checkout the customer should only see the order form and its confirm bar.
+  if (pathname.startsWith("/checkout")) return null;
+
   return (
     <nav
       aria-label="Navigation principale mobile"
