@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { BadgeCheck, CheckCircle2, ChevronDown, Lock, ShieldCheck, Truck, Wallet, AlertCircle, Loader2, ShoppingBag, Gift, Sparkles } from "lucide-react";
+import { BadgeCheck, CheckCircle2, ChevronDown, Lock, Minus, Plus, ShieldCheck, Trash2, Wallet, AlertCircle, Loader2, ShoppingBag, Gift, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -36,11 +36,52 @@ type CheckoutFormData = {
 
 type FormErrors = Partial<Record<keyof CheckoutFormData, string>>;
 
+const MAX_QTY = 99;
+
+/** Quantity stepper + remove button for one cart line. All buttons are type="button" (never submit the form). */
+function CartLineControls({ item }: { item: { productId: string; sizeLabel: string; name: string; quantity: number } }) {
+  const { updateQuantity, removeItem } = useCart();
+  const stepper = "flex size-9 items-center justify-center text-ink transition-colors hover:bg-soft-nude active:bg-soft-nude disabled:cursor-not-allowed disabled:opacity-35 sm:size-8";
+  return (
+    <div className="mt-1.5 flex items-center gap-2">
+      <div className="inline-flex items-center overflow-hidden rounded-lg border border-border bg-white">
+        <button
+          type="button"
+          aria-label={`Diminuer la quantité de ${item.name}`}
+          disabled={item.quantity <= 1}
+          onClick={() => updateQuantity(item.productId, item.sizeLabel, item.quantity - 1)}
+          className={stepper}
+        >
+          <Minus className="size-3.5" aria-hidden />
+        </button>
+        <span aria-live="polite" className="w-8 text-center text-xs font-bold tabular-nums text-ink">{item.quantity}</span>
+        <button
+          type="button"
+          aria-label={`Augmenter la quantité de ${item.name}`}
+          disabled={item.quantity >= MAX_QTY}
+          onClick={() => updateQuantity(item.productId, item.sizeLabel, item.quantity + 1)}
+          className={stepper}
+        >
+          <Plus className="size-3.5" aria-hidden />
+        </button>
+      </div>
+      <button
+        type="button"
+        aria-label={`Retirer ${item.name} du panier`}
+        onClick={() => removeItem(item.productId, item.sizeLabel)}
+        className="flex size-9 items-center justify-center rounded-lg text-ink-muted transition-colors hover:bg-danger-bg hover:text-danger sm:size-8"
+      >
+        <Trash2 className="size-4" aria-hidden />
+      </button>
+    </div>
+  );
+}
+
 export function CheckoutPage() {
   const cart = useCart();
   const [submitted, setSubmitted] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
-  const [summaryOpen, setSummaryOpen] = useState(false);
+  const [summaryOpen, setSummaryOpen] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const isSubmittingRef = useRef(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -450,7 +491,7 @@ export function CheckoutPage() {
           <div className="mt-2 rounded-2xl border border-border/80 bg-white p-4 shadow-sm animate-in fade-in duration-200">
             <ul className="divide-y divide-border/60">
               {cart.items.map((item) => (
-                <li key={`${item.productId}-${item.sizeLabel}`} className="flex items-center gap-3 py-2.5 first:pt-0">
+                <li key={`${item.productId}-${item.sizeLabel}`} className="flex items-start gap-3 py-2.5 first:pt-0">
                   <div className="relative size-12 shrink-0 overflow-hidden rounded-xl bg-white border border-border p-1 flex items-center justify-center">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -469,6 +510,7 @@ export function CheckoutPage() {
                     <p className="text-[0.65rem] font-bold text-primary uppercase">{item.brand}</p>
                     <p className="text-xs font-semibold text-ink line-clamp-1">{item.name}</p>
                     <p className="text-[0.65rem] text-ink-muted font-medium">Format: {item.sizeLabel}</p>
+                    <CartLineControls item={item} />
                   </div>
                   <p className="font-tabular text-xs font-extrabold text-ink">
                     {formatPrice(item.priceMillimes * item.quantity)}
@@ -723,33 +765,8 @@ export function CheckoutPage() {
             </div>
           </div>
 
-          {/* Section 3: Mode de livraison et notes */}
-          <div className="rounded-2xl border border-border/80 bg-white p-4 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/60">
-              <span className="flex size-6 items-center justify-center rounded-full bg-primary/10 text-xs font-black text-primary">3</span>
-              <h2 className="font-serif text-lg sm:text-xl font-bold text-ink">Livraison & Paiement</h2>
-            </div>
-
-            <div className="flex items-center justify-between rounded-xl border border-border bg-soft-nude/30 p-3.5">
-              <div className="flex items-center gap-3">
-                <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Truck size={18} />
-                </div>
-                <div>
-                  <p className="text-xs sm:text-sm font-bold text-ink">Livraison à domicile Aramex</p>
-                  <p className="text-[0.6875rem] text-ink-muted font-medium">Expédition express 24–48h partout en Tunisie</p>
-                </div>
-              </div>
-              <p className="font-tabular text-xs sm:text-sm font-extrabold text-ink">
-                {deliveryPrice === 0 ? <span className="text-emerald-700">OFFERTE 🎉</span> : formatPrice(deliveryPrice)}
-              </p>
-            </div>
-
-            <div className="flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-50/50 p-3.5 text-xs text-ink font-semibold">
-              <Wallet className="size-4 shrink-0 text-emerald-600" />
-              <span>Paiement en espèces à la livraison disponible (COD)</span>
-            </div>
-
+          {/* Optional delivery note (the delivery fee and payment-on-delivery remain stated in the order summary) */}
+          <div className="rounded-2xl border border-border/80 bg-white p-4 sm:p-6 shadow-xs">
             <div>
               <label htmlFor="checkout-notes" className="block text-xs sm:text-sm font-semibold text-ink mb-1">
                 Note de livraison <span className="text-ink-muted font-normal">(optionnel)</span>
@@ -771,7 +788,7 @@ export function CheckoutPage() {
           <div className="rounded-2xl border border-border/80 bg-white p-6 shadow-xs">
             <h2 className="font-serif text-lg font-bold text-ink pb-3 border-b border-border/60">Résumé de votre commande</h2>
 
-            <ul className="mt-3 divide-y divide-border/60 max-h-[300px] overflow-y-auto pr-1">
+            <ul className="mt-3 divide-y divide-border/60 max-h-[420px] overflow-y-auto pr-1">
               {cart.items.map((item) => (
                 <li key={`${item.productId}-${item.sizeLabel}`} className="flex gap-3 py-3 first:pt-0">
                   <div className="relative size-12 shrink-0 overflow-hidden rounded-xl bg-white border border-border p-1 flex items-center justify-center">
@@ -792,6 +809,7 @@ export function CheckoutPage() {
                     <p className="text-[0.65rem] font-bold text-primary uppercase">{item.brand}</p>
                     <p className="text-xs font-semibold text-ink line-clamp-1">{item.name}</p>
                     <p className="text-[0.65rem] text-ink-muted font-medium">{item.sizeLabel}</p>
+                    <CartLineControls item={item} />
                   </div>
                   <p className="font-tabular text-xs font-extrabold text-ink">
                     {formatPrice(item.priceMillimes * item.quantity)}
