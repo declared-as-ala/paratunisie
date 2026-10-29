@@ -167,8 +167,7 @@ export function CartPage() {
       <div className="mt-5 grid gap-6 lg:mt-8 lg:grid-cols-[1fr_380px] lg:gap-8">
         {/* Items column */}
         <div>
-          <FreeDeliveryBar remaining={cart.freeDeliveryRemaining} />
-
+          
           <ul className="mt-3 divide-y divide-border/60 sm:mt-4 sm:divide-border">
             {cart.items.map((item) => (
               <CartItemRow
@@ -229,11 +228,7 @@ function SummaryCard({
         <div className="flex items-center justify-between text-sm">
           <dt className="text-ink-muted">Livraison Aramex</dt>
           <dd className="font-tabular text-ink">
-            {cart.hasFreeDelivery ? (
-              <span className="text-success">Offerte</span>
-            ) : (
-              "Calculée à l'étape suivante"
-            )}
+            7.000 DT
           </dd>
         </div>
         <div className="border-t border-border pt-2.5">

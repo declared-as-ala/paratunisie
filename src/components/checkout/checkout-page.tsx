@@ -23,7 +23,7 @@ const GOUVERNORATS = [
   "Siliana", "Sousse", "Tataouine", "Tozeur", "Tunis", "Zaghouan",
 ] as const;
 
-const ARAMEX_DELIVERY_PRICE = 10_000; // 10 DT in millimes
+const ARAMEX_DELIVERY_PRICE = 7_000; // 7 DT flat under 99 DT — same rule the API applies (apps/api/src/common/tunisia.ts)
 
 type CheckoutFormData = {
   email: string;
@@ -401,7 +401,7 @@ export function CheckoutPage() {
     : 0;
 
   const netSubtotal = Math.max(0, cart.subtotal - loyaltyDiscountMillimes);
-  const deliveryPrice = cart.hasFreeDelivery || netSubtotal >= 99_000 ? 0 : ARAMEX_DELIVERY_PRICE;
+  const deliveryPrice = ARAMEX_DELIVERY_PRICE;
   const total = netSubtotal + deliveryPrice;
 
   if (cart.items.length === 0 && !submitted) {
@@ -432,7 +432,7 @@ export function CheckoutPage() {
         <h1 className="mt-6 font-serif text-2xl font-bold text-ink sm:text-3xl">
           Commande confirmée !
         </h1>
-        <p className="mt-3 text-xs font-bold text-emerald-700 bg-emerald-50 py-1.5 px-4 rounded-full border border-emerald-200 inline-block">
+        <p className="mt-3 text-xs font-bold text-ink bg-emerald-50 py-1.5 px-4 rounded-full border border-emerald-200 inline-block">
           Référence : #{orderNumber}
         </p>
         <p className="mt-3 max-w-md text-xs sm:text-sm text-ink-muted leading-relaxed">
@@ -546,15 +546,15 @@ export function CheckoutPage() {
                 <span className="font-tabular font-bold text-ink">{formatPrice(cart.subtotal)}</span>
               </div>
               {loyaltyDiscountMillimes > 0 && (
-                <div className="flex justify-between text-emerald-700 font-bold">
+                <div className="flex justify-between text-ink font-bold">
                   <span>Points fidélité ({pointsRedeemed} pts)</span>
                   <span className="font-tabular">-{formatPrice(loyaltyDiscountMillimes)}</span>
                 </div>
               )}
               <div className="flex justify-between text-ink-muted">
                 <span>Livraison Aramex</span>
-                <span className="font-tabular font-bold text-emerald-700">
-                  {deliveryPrice === 0 ? "OFFERTE 🎉" : formatPrice(deliveryPrice)}
+                <span className="font-tabular font-bold text-ink">
+                  {formatPrice(deliveryPrice)}
                 </span>
               </div>
               <div className="flex justify-between border-t border-border/60 pt-2 text-sm font-black text-ink">
@@ -853,7 +853,7 @@ export function CheckoutPage() {
                 <span className="font-tabular font-bold text-ink">{formatPrice(cart.subtotal)}</span>
               </div>
               {loyaltyDiscountMillimes > 0 && (
-                <div className="flex justify-between text-emerald-700 font-bold">
+                <div className="flex justify-between text-ink font-bold">
                   <span>Points fidélité ({pointsRedeemed} pts)</span>
                   <span className="font-tabular">-{formatPrice(loyaltyDiscountMillimes)}</span>
                 </div>
@@ -861,7 +861,7 @@ export function CheckoutPage() {
               <div className="flex justify-between text-ink-muted">
                 <span>Livraison Aramex</span>
                 <span className="font-tabular font-bold text-ink">
-                  {deliveryPrice === 0 ? <span className="text-emerald-700 font-bold">OFFERTE 🎉</span> : formatPrice(deliveryPrice)}
+                  <span className="font-bold text-ink">{formatPrice(deliveryPrice)}</span>
                 </span>
               </div>
               <div className="border-t border-border/80 pt-3">

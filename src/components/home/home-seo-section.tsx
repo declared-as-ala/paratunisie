@@ -74,7 +74,7 @@ export function HomeSeoSection() {
               Livraison Partout en Tunisie 24-48h
             </h3>
             <p className="text-xs sm:text-sm text-ink-muted leading-relaxed mb-4">
-              Commandez en ligne en toute sérénité avec paiement sécurisé à la livraison (Cash on Delivery). Nous expédions dans les <strong>24 gouvernorats tunisiens</strong> (Tunis, Ariana, Ben Arous, Sousse, Sfax, Nabeul, Bizerte, Monastir, etc.) avec livraison gratuite dès 99 DT.
+              Commandez en ligne en toute sérénité avec paiement sécurisé à la livraison (Cash on Delivery). Nous expédions dans les <strong>24 gouvernorats tunisiens</strong> (Tunis, Ariana, Ben Arous, Sousse, Sfax, Nabeul, Bizerte, Monastir, etc.) avec livraison express partout en Tunisie.
             </p>
             <div className="flex flex-wrap gap-2 text-[11px]">
               <Link href="/livraison" className="px-2.5 py-1 rounded-md bg-white border border-border text-ink hover:text-primary font-medium">

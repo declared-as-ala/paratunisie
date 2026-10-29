@@ -89,9 +89,7 @@ export function CartDrawer() {
         ) : (
           <>
             <div className="flex-1 overflow-y-auto px-3.5 py-3 sm:px-5 sm:py-4 space-y-3.5 min-h-0">
-              <FreeDeliveryBar remaining={cart.freeDeliveryRemaining} />
-
-              <ul className="divide-y divide-border/60">
+                            <ul className="divide-y divide-border/60">
                 {cart.items.map((item) => {
                   const key = `${item.productId}-${item.sizeLabel}`;
                   const justAdded = key === lastAdded;
@@ -187,7 +185,7 @@ export function CartDrawer() {
                 </p>
               </div>
               <p className="mb-3 text-[0.65rem] text-ink-muted">
-                Livraison — {cart.hasFreeDelivery ? <strong className="text-emerald-700">OFFERTE 🎉</strong> : "10 DT"} calculée à l&apos;étape suivante
+                Livraison — 7 DT calculée à l&apos;étape suivante
               </p>
               <div className="flex flex-col gap-2">
                 <Button

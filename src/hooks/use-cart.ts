@@ -143,7 +143,7 @@ export function useCart() {
     [subtotal],
   );
 
-  const hasFreeDelivery = freeDeliveryRemaining === 0;
+  const hasFreeDelivery = false;
 
   /**
    * Whether a given product (any size, or a specific one) is already in the

@@ -1,42 +1,47 @@
-import { Banknote, Headset, ShieldCheck, Truck } from "lucide-react";
+import { CreditCard, Headset, ShieldCheck, Truck } from "lucide-react";
 import { phoneHref } from "@/lib/contact";
 
-const items = [
-  { icon: Truck, title: "Livraison partout en Tunisie", text: "Offerte dès 99 DT" },
-  { icon: Banknote, title: "Paiement à la livraison", text: "Payez à la réception" },
+const TRUST_ITEMS = [
+  { icon: Truck, title: "Livraison partout en Tunisie", text: "Express 24 à 48h" },
+  { icon: CreditCard, title: "Paiement sécurisé", text: "Carte, ou à la livraison" },
   { icon: ShieldCheck, title: "Produits authentiques", text: "Marques officielles" },
-  { icon: Headset, title: "Une question ?", text: "Appelez-nous ou WhatsApp", href: phoneHref },
+  { icon: Headset, title: "Une question ?", text: "Appelez au 97 991 266", href: phoneHref },
 ] as const;
 
-/** Compact commercial reassurance strip — only claims that are true site-wide policies. */
+/**
+ * 4-card reassurance strip with soft pill cards matching reference image.
+ */
 export function HomeTrustStrip() {
   return (
-    <section aria-label="Nos engagements" className="border-y border-border/60 bg-white">
-      <ul className="mx-auto grid max-w-[1440px] grid-cols-2 gap-px bg-border/50 lg:grid-cols-4">
-        {items.map(({ icon: Icon, title, text, ...rest }) => {
-          const href = "href" in rest ? rest.href : undefined;
-          const body = (
-            <>
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary-soft/60 text-primary">
-                <Icon className="size-5" aria-hidden />
-              </span>
-              <span className="min-w-0">
-                <span className="block truncate text-[0.8125rem] font-bold text-ink sm:text-sm">{title}</span>
-                <span className="block truncate text-[0.6875rem] text-ink-muted sm:text-xs">{text}</span>
-              </span>
-            </>
-          );
-          return (
-            <li key={title} className="bg-white">
-              {href ? (
-                <a href={href} className="flex items-center gap-3 px-3 py-3.5 transition-colors hover:bg-soft-nude/50 sm:px-6 sm:py-4">{body}</a>
-              ) : (
-                <div className="flex items-center gap-3 px-3 py-3.5 sm:px-6 sm:py-4">{body}</div>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+    <section aria-label="Engagements et garanties ParaTunisie" className="bg-[#FAF7F5] py-4 sm:py-6">
+      <div className="mx-auto max-w-[1440px] px-3 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          {TRUST_ITEMS.map(({ icon: Icon, title, text, ...rest }) => {
+            const href = "href" in rest ? rest.href : undefined;
+            const content = (
+              <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-white border border-border/70 shadow-2xs transition-all hover:border-primary/40 hover:shadow-xs">
+                <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <Icon size={20} aria-hidden />
+                </span>
+                <div className="min-w-0">
+                  <span className="block truncate text-xs sm:text-sm font-bold text-ink">{title}</span>
+                  <span className="block truncate text-[0.6875rem] sm:text-xs text-ink-muted mt-0.5">{text}</span>
+                </div>
+              </div>
+            );
+
+            return href ? (
+              <a key={title} href={href} className="block transition-transform hover:-translate-y-0.5">
+                {content}
+              </a>
+            ) : (
+              <div key={title} className="transition-transform hover:-translate-y-0.5">
+                {content}
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </section>
   );
 }
