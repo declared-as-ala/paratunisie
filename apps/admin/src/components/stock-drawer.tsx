@@ -84,7 +84,7 @@ export function StockDrawer({ open, item, onClose, onSave }: StockDrawerProps) {
           {/* Drawer Sticky Top Header */}
           <div className="sticky top-0 z-10 bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between shadow-xs">
             <div className="flex items-center gap-3">
-              <div className="h-9 w-9 rounded-xl bg-rose-100 text-[#E11D48] flex items-center justify-center font-bold">
+              <div className="h-9 w-9 rounded-xl bg-primary-soft/60 text-[var(--color-primary)] flex items-center justify-center font-bold">
                 <Boxes size={18} />
               </div>
               <div>
@@ -97,7 +97,7 @@ export function StockDrawer({ open, item, onClose, onSave }: StockDrawerProps) {
                 type="button"
                 onClick={handleSave}
                 disabled={quantity === 0}
-                className="px-5 py-2 rounded-xl bg-[#E11D48] text-white text-xs font-bold hover:bg-[#BE123C] disabled:opacity-50 transition-all shadow-xs active:scale-95"
+                className="px-5 py-2 rounded-xl bg-[var(--color-primary)] text-white text-xs font-bold hover:bg-[#BE123C] disabled:opacity-50 transition-all shadow-xs active:scale-95"
               >
                 Valider l&apos;ajustement
               </button>
@@ -123,7 +123,7 @@ export function StockDrawer({ open, item, onClose, onSave }: StockDrawerProps) {
                 />
               </div>
               <div className="min-w-0 flex-1">
-                <span className="inline-block px-2 py-0.5 rounded-md bg-rose-50 text-[#E11D48] text-[0.625rem] font-bold">
+                <span className="inline-block px-2 py-0.5 rounded-md bg-primary-soft/30 text-[var(--color-primary)] text-[0.625rem] font-bold">
                   {item.brand}
                 </span>
                 <h3 className="font-extrabold text-slate-900 text-sm truncate mt-0.5">{item.productName}</h3>
@@ -141,8 +141,8 @@ export function StockDrawer({ open, item, onClose, onSave }: StockDrawerProps) {
               <div className="flex items-center justify-between text-xl font-black">
                 <span className="tabular-nums text-slate-300">{currentStock}</span>
                 <div className="flex items-center gap-1.5">
-                  <ArrowRight size={18} className="text-[#E11D48]" />
-                  <span className={`text-base ${quantity > 0 ? "text-emerald-400" : quantity < 0 ? "text-rose-400" : "text-slate-400"}`}>
+                  <ArrowRight size={18} className="text-[var(--color-primary)]" />
+                  <span className={`text-base ${quantity > 0 ? "text-emerald-400" : quantity < 0 ? "text-primary/50" : "text-slate-400"}`}>
                     {quantity > 0 ? `+${quantity}` : quantity}
                   </span>
                 </div>
@@ -166,7 +166,7 @@ export function StockDrawer({ open, item, onClose, onSave }: StockDrawerProps) {
                     setMovementType(e.target.value as StockAdjustmentSubmitData["movementType"]);
                     setIsDirty(true);
                   }}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[#E11D48]"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-800 focus:outline-none focus:border-[var(--color-primary)]"
                 >
                   <option value="MANUAL_ADJUSTMENT">Ajustement manuel de stock</option>
                   <option value="PURCHASE_RECEIPT">Réception commande fournisseur (+)</option>
@@ -188,7 +188,7 @@ export function StockDrawer({ open, item, onClose, onSave }: StockDrawerProps) {
                     setIsDirty(true);
                   }}
                   placeholder="ex: 10 ou -2"
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-black text-slate-900 focus:outline-none focus:border-[#E11D48]"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-black text-slate-900 focus:outline-none focus:border-[var(--color-primary)]"
                 />
               </div>
 
@@ -205,7 +205,7 @@ export function StockDrawer({ open, item, onClose, onSave }: StockDrawerProps) {
                       setIsDirty(true);
                     }}
                     placeholder="ex: LOT-2026-Q3-01"
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-mono text-slate-800 focus:outline-none focus:border-[#E11D48]"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-mono text-slate-800 focus:outline-none focus:border-[var(--color-primary)]"
                   />
                 </div>
 
@@ -220,7 +220,7 @@ export function StockDrawer({ open, item, onClose, onSave }: StockDrawerProps) {
                       setExpiryDate(e.target.value);
                       setIsDirty(true);
                     }}
-                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:outline-none focus:border-[#E11D48]"
+                    className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-medium text-slate-800 focus:outline-none focus:border-[var(--color-primary)]"
                   />
                 </div>
               </div>
@@ -237,7 +237,7 @@ export function StockDrawer({ open, item, onClose, onSave }: StockDrawerProps) {
                     setIsDirty(true);
                   }}
                   placeholder="ex: BL-2026-0042 ou INV-2026-08"
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-mono text-slate-800 focus:outline-none focus:border-[#E11D48]"
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-mono text-slate-800 focus:outline-none focus:border-[var(--color-primary)]"
                 />
               </div>
 
@@ -253,7 +253,7 @@ export function StockDrawer({ open, item, onClose, onSave }: StockDrawerProps) {
                   }}
                   placeholder="Expliquer la raison de l'ajustement de stock..."
                   rows={3}
-                  className="w-full rounded-xl border border-slate-200 bg-white p-3 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#E11D48]"
+                  className="w-full rounded-xl border border-slate-200 bg-white p-3 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[var(--color-primary)]"
                 />
               </div>
             </div>

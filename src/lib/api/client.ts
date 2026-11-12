@@ -291,18 +291,25 @@ export const HOMEPAGE_CATEGORY_DEFINITIONS = [
     matches: ["creatine", "créatine", "creatine-monohydrate"]
   },
   {
-    key: "whey-proteine",
-    title: "Whey Protéine & Gainers",
-    subtitle: "Whey, protéines et gainers : comparez les formats et compositions disponibles.",
-    slug: "whey-proteine",
-    matches: ["whey-proteine"]
+    key: "gainers-proteines",
+    title: "Mass Gainer & Prise de Masse",
+    subtitle: "Formules caloriques et glucides complexes pour une prise de masse rapide et propre.",
+    slug: "gainers-proteines",
+    matches: ["gainers-proteines"]
   },
   {
-    key: "pre-workout",
-    title: "Pre-Workout & Énergie",
-    subtitle: "Boosters d'entraînement puissants pour une énergie explosive et une congestion maximale.",
-    slug: "pre-workout",
-    matches: ["pre-workout"]
+    key: "whey-proteine",
+    title: "Whey Protéine & Isolate",
+    subtitle: "Isolates et concentrées de haute pureté pour le développement musculaire sec et la récupération.",
+    slug: "whey-proteine",
+    matches: ["whey-proteine", "whey-isolate"]
+  },
+  {
+    key: "ashwagandha",
+    title: "Ashwagandha & Sommeil",
+    subtitle: "Ashwagandha KSM-66 et formules adaptogènes pour le stress, le sommeil et la vitalité.",
+    slug: "ashwagandha",
+    matches: ["ashwagandha", "sommeil-stress"]
   },
   {
     key: "vitamines",
@@ -310,6 +317,13 @@ export const HOMEPAGE_CATEGORY_DEFINITIONS = [
     subtitle: "Vitamines C, D3+K2 et complexes multivitaminés pour une vitalité quotidienne optimale.",
     slug: "vitamines",
     matches: ["vitamines", "multivitamines"]
+  },
+  {
+    key: "pre-workout",
+    title: "Pre-Workout & Énergie",
+    subtitle: "Boosters d'entraînement puissants pour une énergie explosive et une congestion maximale.",
+    slug: "pre-workout",
+    matches: ["pre-workout"]
   },
   {
     key: "bcaa-eaa",
@@ -331,13 +345,6 @@ export const HOMEPAGE_CATEGORY_DEFINITIONS = [
     subtitle: "Acides gras essentiels EPA & DHA pour la santé cardiovasculaire, cérébrale et articulaire.",
     slug: "omega-3",
     matches: ["omega-3"]
-  },
-  {
-    key: "ashwagandha",
-    title: "Ashwagandha & Sommeil",
-    subtitle: "Ashwagandha : comparez les extraits, dosages et formats disponibles.",
-    slug: "ashwagandha",
-    matches: ["ashwagandha"]
   },
   {
     key: "minceur",
@@ -381,11 +388,156 @@ export async function fetchHomepageCategoryRows(): Promise<HomepageCategoryRow[]
   return rows;
 }
 
+/* ─── Advertising landing page ───────────────────────────────────────── */
+
+export type LandingProduct = {
+  id: string;
+  slug: string;
+  name: string;
+  brand: string;
+  benefit: string;
+  description: string;
+  usage: string;
+  images: { url: string; alt: string }[];
+  variant: { id: string; label: string; priceMillimes: number; stock: number };
+};
+
+/** Live catalogue read for a landing page. Price and stock always come from the database. */
+export async function fetchLandingProduct(slug: string): Promise<LandingProduct | null> {
+  const raw = await apiFetch<RawProduct>(`/catalogue/products/${slug}`);
+  const variant = raw?.variants?.[0];
+  if (!raw || !variant) return null;
+  const urls = [raw.image, ...(raw.images ?? []).sort((a, b) => a.position - b.position).map((i) => i.url)].filter(Boolean) as string[];
+  const unique = [...new Set(urls.map(resolveImageUrl))];
+  const alt = raw.imageAlt || `${raw.name} - ${raw.brand?.name ?? ""}`.trim();
+  return {
+    id: raw.id,
+    slug: raw.slug,
+    name: raw.name,
+    brand: raw.brand?.name ?? "",
+    benefit: raw.benefit ?? "",
+    description: raw.description ?? "",
+    usage: raw.usage ?? "",
+    images: unique.map((url, i) => ({ url, alt: i === 0 ? alt : `${alt} - Vue ${i + 1}` })),
+    variant: { id: variant.id, label: variant.label, priceMillimes: variant.priceMillimes, stock: variant.stock },
+  };
+}
+
+export type LandingOrderResponse = {
+  id: string;
+  reference: string;
+  totalMillimes: number;
+  subtotalMillimes: number;
+  deliveryFeeMillimes: number;
+  quantity: number;
+  eventId: string;
+  replayed: boolean;
+};
+
+export type LandingOrderPayload = {
+  checkoutSessionId: string;
+  landingId: string;
+  productId: string;
+  productVariantId: string;
+  quantity: number;
+  customerName: string;
+  phone: string;
+  gouvernorat: string;
+  fullAddress: string;
+  purchaseEventId: string;
+  sourceUrl?: string;
+  contactConsent?: boolean;
+  privacyNoticeShown?: boolean;
+  utmSource?: string;
+  utmMedium?: string;
+  utmCampaign?: string;
+  utmContent?: string;
+  fbclid?: string;
+  referrerHost?: string;
+  fbp?: string;
+  fbc?: string;
+};
+
+/**
+ * One-step order. Safe to retry: the server is idempotent per checkoutSessionId, so a retry after a lost
+ * response returns the original order. `retryable` tells the UI the outcome is unknown (network/5xx).
+ */
+export async function createLandingOrder(
+  payload: LandingOrderPayload,
+): Promise<{ order: LandingOrderResponse; error: null; retryable: false } | { order: null; error: string; retryable: boolean; status: number }> {
+  const cookie = (name: string) => (typeof document === "undefined" ? undefined : document.cookie.match(new RegExp(`(?:^|; )${name}=([^;]*)`))?.[1]);
+  const body = { ...payload, fbp: payload.fbp ?? cookie("_fbp"), fbc: payload.fbc ?? cookie("_fbc") };
+  try {
+    const res = await fetch("/api/v1/orders/landing", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      cache: "no-store",
+      signal: AbortSignal.timeout(20000),
+    });
+    const json = await res.json().catch(() => null);
+    if (res.ok && json?.id) return { order: json as LandingOrderResponse, error: null, retryable: false };
+    const message = Array.isArray(json?.message) ? json.message.join(" ") : typeof json?.message === "string" ? json.message : "";
+    return { order: null, error: message, retryable: res.status >= 500 || res.status === 409 && /en cours/i.test(message), status: res.status };
+  } catch {
+    return { order: null, error: "", retryable: true, status: 0 };
+  }
+}
+
 export async function fetchProductBySlug(slug: string): Promise<ProductSummary | null> {
   const raw = await apiFetch<RawProduct>(`/catalogue/products/${slug}`);
   if (raw) return transformProduct(raw);
 
   return MOCK_FALLBACK_ENABLED ? localProducts.find((p) => p.slug === slug) ?? null : null;
+}
+
+/* ─── Homepage merchandising ─────────────────────────────────────────── */
+
+export type FeaturedProduct = {
+  config: {
+    headline: string | null;
+    description: string | null;
+    bullets: string[];
+    imageUrl: string | null;
+    ctaLabel: string | null;
+    secondaryCtaLabel: string | null;
+    secondaryCtaUrl: string | null;
+  };
+  product: ProductSummary;
+};
+
+type RawFeatured = {
+  config: FeaturedProduct["config"];
+  product: {
+    id: string; slug: string; name: string; benefit: string | null; image: string | null; imageAlt: string | null;
+    brand: { name: string; slug: string }; category: { name: string; slug: string };
+    variants: { label: string; priceMillimes: number }[]; inStock: boolean;
+  };
+};
+
+/** Live featured product (price/stock/image come from the catalogue; copy from the admin config). */
+export async function fetchFeaturedProduct(): Promise<FeaturedProduct | null> {
+  const raw = await apiFetch<RawFeatured | null>("/homepage/featured");
+  if (!raw || !raw.product) return null;
+  const p = raw.product;
+  const summary = transformProduct({
+    id: p.id,
+    slug: p.slug,
+    name: p.name,
+    benefit: p.benefit,
+    image: p.image,
+    imageAlt: p.imageAlt,
+    brand: { id: "", name: p.brand.name, slug: p.brand.slug },
+    category: { id: "", name: p.category.name, slug: p.category.slug },
+    variants: p.variants.map((v, i) => ({ id: String(i), label: v.label, priceMillimes: v.priceMillimes, stock: p.inStock ? 1 : 0 })),
+  });
+  return { config: raw.config, product: { ...summary, inStock: p.inStock } };
+}
+
+/** Top products by real units sold; empty until enough genuine sales exist. */
+export async function fetchBestSellers(limit = 8): Promise<ProductSummary[]> {
+  const raw = await apiFetch<RawProduct[]>(`/homepage/best-sellers?limit=${limit}`);
+  return Array.isArray(raw) ? raw.map(transformProduct) : [];
 }
 
 export type BrandListItem = {
@@ -500,6 +652,7 @@ export async function createExpressOrder(data: {
   eventSourceUrl?: string;
   checkoutSessionId?: string;
   loyaltyPointsToRedeem?: number;
+  shippingFeeMillimes?: number;
   items: { productId?: string; productVariantId?: string; quantity: number; priceMillimes: number }[];
 }): Promise<{ order: any; error: null } | { order: null; error: string }> {
   // Extract Meta cookies if present in browser

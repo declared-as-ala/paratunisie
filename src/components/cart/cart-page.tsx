@@ -2,38 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Check, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { useCart, FREE_DELIVERY_THRESHOLD } from "@/hooks/use-cart";
+import { useCart } from "@/hooks/use-cart";
 import { formatPrice } from "@/lib/data/products";
-
-function FreeDeliveryBar({ remaining }: { remaining: number }) {
-  if (remaining <= 0) {
-    return (
-      <div className="flex items-center gap-2 rounded-lg bg-success-bg px-3 py-2 text-xs font-medium text-success sm:px-4 sm:py-2.5 sm:text-sm">
-        <Check className="size-3.5 shrink-0" aria-hidden />
-        Livraison offerte
-      </div>
-    );
-  }
-
-  const progress = Math.min(1, (FREE_DELIVERY_THRESHOLD - remaining) / FREE_DELIVERY_THRESHOLD);
-
-  return (
-    <div className="rounded-lg bg-soft-nude px-3 py-2.5 sm:px-4">
-      <p className="text-xs text-ink sm:text-sm">
-        Plus que <strong className="text-primary">{formatPrice(remaining)}</strong> pour la livraison offerte
-      </p>
-      <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-border sm:mt-2 sm:h-1.5">
-        <div
-          className="h-full rounded-full bg-primary transition-all duration-[var(--duration-standard)] ease-[var(--ease-out-standard)]"
-          style={{ width: `${progress * 100}%` }}
-        />
-      </div>
-    </div>
-  );
-}
 
 function EmptyCart() {
   return (
@@ -167,8 +140,7 @@ export function CartPage() {
       <div className="mt-5 grid gap-6 lg:mt-8 lg:grid-cols-[1fr_380px] lg:gap-8">
         {/* Items column */}
         <div>
-          <FreeDeliveryBar remaining={cart.freeDeliveryRemaining} />
-
+          
           <ul className="mt-3 divide-y divide-border/60 sm:mt-4 sm:divide-border">
             {cart.items.map((item) => (
               <CartItemRow
@@ -229,11 +201,7 @@ function SummaryCard({
         <div className="flex items-center justify-between text-sm">
           <dt className="text-ink-muted">Livraison Aramex</dt>
           <dd className="font-tabular text-ink">
-            {cart.hasFreeDelivery ? (
-              <span className="text-success">Offerte</span>
-            ) : (
-              "Calculée à l'étape suivante"
-            )}
+            7.000 DT
           </dd>
         </div>
         <div className="border-t border-border pt-2.5">

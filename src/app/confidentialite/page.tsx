@@ -55,6 +55,19 @@ export default function ConfidentialitePage() {
               Vous disposez à tout moment d&apos;un droit d&apos;accès, de modification ou de suppression de vos données personnelles sur simple demande auprès de notre service client.
             </p>
           </div>
+
+          <div className="rounded-2xl border border-border bg-[#FAF7F5] border border-border/80 p-6">
+            <h2 className="font-serif text-lg font-bold text-ink mb-2">4. Commandes non finalisées</h2>
+            <p>
+              Sur certaines pages de commande, lorsque vous saisissez votre nom et un numéro de téléphone valide, ces informations (ainsi que le gouvernorat, l&apos;adresse et la quantité si vous les renseignez) sont enregistrées en brouillon, même si vous ne confirmez pas la commande, afin de vous aider à la finaliser. Un brouillon n&apos;est pas une commande : rien n&apos;est expédié ni facturé.
+            </p>
+            <p className="mt-2">
+              Nous ne vous recontactons à propos d&apos;un brouillon que si vous avez coché la case de consentement prévue à cet effet, qui n&apos;est jamais cochée par défaut. Ce consentement ne couvre pas l&apos;envoi d&apos;offres promotionnelles. Les brouillons non finalisés sont supprimés ou anonymisés au plus tard 90 jours après votre dernière activité. Nous conservons aussi la source de la visite (par exemple le paramètre de campagne publicitaire) pour mesurer nos annonces, sans l&apos;associer à des données sensibles.
+            </p>
+            <p className="mt-2">
+              Vous pouvez demander l&apos;accès à ces données ou leur suppression à tout moment auprès de notre service client.
+            </p>
+          </div>
         </div>
       </div>
     </div>

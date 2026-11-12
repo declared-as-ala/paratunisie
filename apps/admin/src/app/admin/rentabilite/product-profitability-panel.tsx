@@ -96,7 +96,7 @@ export function ProductProfitabilityPanel({ products }: { products: ProductProfi
             <AlertTriangle size={15} className="text-amber-500" />
             Marge faible / négative
           </h2>
-          <span className="rounded-full bg-rose-500/10 px-2 py-0.5 text-[0.625rem] font-bold text-rose-700">
+          <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[0.625rem] font-bold text-primary-hover">
             {lowMarginProducts.length} produit(s)
           </span>
         </div>

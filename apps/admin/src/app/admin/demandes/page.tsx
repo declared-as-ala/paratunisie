@@ -140,7 +140,7 @@ export default function DemandesPage() {
       {/* Page Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Demandes Produits</h1>
+          <h1 className="page-title">Demandes Produits</h1>
           <p className="text-sm text-gray-500 mt-1">
             Gestion des demandes clients pour les produits sur commande ({totalCount} total)
           </p>

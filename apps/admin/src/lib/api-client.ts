@@ -10,8 +10,11 @@ export function resolveMediaUrl(value?: string | null, fallback = "/assets/produ
   if (/^(?:https?:)?\/\//i.test(value) || /^(?:data|blob):/i.test(value)) return value;
   if (!/^\/?uploads\//i.test(value)) return value;
 
+  // Uploads are served by the storefront origin, not by the admin host.
   const cleanPath = value.replace(/^\/+/, "");
-  return `/${cleanPath}`;
+  const base = process.env.NEXT_PUBLIC_API_URL || "";
+  const origin = /^https?:\/\//i.test(base) ? new URL(base).origin : "";
+  return `${origin}/${cleanPath}`;
 }
 
 export class ApiError extends Error {

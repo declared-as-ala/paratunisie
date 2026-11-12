@@ -345,7 +345,11 @@ model OrderStatusHistory {
   staffId    String?
   staff      StaffUser?   @relation(fields: [staffId], references: [id])
   note       String?
+  // true when an admin forced this change outside the normal workflow (reason required in note)
+  isOverride Boolean      @default(false)
   createdAt  DateTime     @default(now())
+
+  @@index([orderId, createdAt])
 }
 
 model OrderItem {
@@ -1247,17 +1251,20 @@ model AnalyticsDailyAggregate {
 
 // ─── Abandoned Checkouts (Lead Recovery) ────────────────────────────────
 
+// Admin labels: DRAFT = "En cours" (IN_PROGRESS), ABANDONED, CONVERTED = "Récupérée" (RECOVERED), EXPIRED.
 enum AbandonedCheckoutStatus {
   DRAFT
   ABANDONED
   CONVERTED
   ARCHIVED
+  EXPIRED
 }
 
 enum CheckoutSource {
   CHECKOUT_PAGE
   BUY_NOW_MODAL
   PACK_ANTI_STRESS
+  LANDING_PAGE
 }
 
 model AbandonedCheckout {
@@ -1283,10 +1290,41 @@ model AbandonedCheckout {
   createdAt           DateTime                @default(now())
   updatedAt           DateTime                @updatedAt
 
+  // Landing-page attribution & compliance (all optional, additive)
+  landingId           String?
+  productId           String?
+  utmSource           String?
+  utmMedium           String?
+  utmCampaign         String?
+  utmContent          String?
+  fbclid              String?
+  referrerHost        String?
+  contactConsent      Boolean                 @default(false) // explicit, unchecked-by-default opt-in to be re-contacted
+  contactConsentAt    DateTime?
+  privacyNoticeShown  Boolean                 @default(false)
+  convertingAt        DateTime?               // atomic claim so a double submit can never create two orders
+  purchaseEventId     String?                 // shared Meta Pixel / CAPI event id for the eventual Purchase
+  anonymizedAt        DateTime?
+  events              AbandonedCheckoutEvent[]
+
+  @@index([landingId, status])
   @@index([status])
   @@index([phone])
   @@index([lastActivityAt])
   @@index([createdAt])
 }
 
+// Append-only audit trail of manual follow-up / status changes on an abandoned checkout.
+model AbandonedCheckoutEvent {
+  id         String            @id @default(cuid())
+  checkoutId String
+  checkout   AbandonedCheckout @relation(fields: [checkoutId], references: [id], onDelete: Cascade)
+  type       String            // STATUS_CHANGE | NOTE | WHATSAPP_OPENED | CONVERTED
+  fromStatus String?
+  toStatus   String?
+  staffId    String?
+  note       String?
+  createdAt  DateTime          @default(now())
 
+  @@index([checkoutId, createdAt])
+}

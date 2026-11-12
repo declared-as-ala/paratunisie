@@ -27,8 +27,8 @@ export const COMPANY_CONFIG = {
   coverage: "24 Gouvernorats de Tunisie",
   deliveryTime: "24 à 48 heures ouvrables",
   shippingFeeTnd: 7.0,
-  freeShippingThresholdTnd: 99.0,
-  
+
+
   // Payment methods
   paymentMethods: ["Cash on delivery"],
   paymentMethodCode: "http://purl.org/goodrelations/v1#CashOnDelivery",

@@ -162,7 +162,7 @@ export function MediaUploader({
                 type="button"
                 onClick={handleRemove}
                 disabled={uploading}
-                className="p-2 rounded-lg bg-rose-600 text-white hover:bg-rose-700 transition-colors text-xs font-bold flex items-center gap-1 shadow-sm"
+                className="p-2 rounded-lg bg-primary text-white hover:bg-primary-hover transition-colors text-xs font-bold flex items-center gap-1 shadow-sm"
               >
                 <X size={14} /> Retirer
               </button>
@@ -208,7 +208,7 @@ export function MediaUploader({
       )}
 
       {error && (
-        <p className="text-[0.6875rem] text-rose-600 font-medium flex items-center gap-1 mt-1">
+        <p className="text-[0.6875rem] text-primary font-medium flex items-center gap-1 mt-1">
           <AlertCircle size={12} /> {error}
         </p>
       )}

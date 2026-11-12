@@ -1,145 +1,149 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Heart, Phone, ShoppingBag, User, MessageCircle, MapPin } from "lucide-react";
+import { Heart, Phone, ShoppingBag, User, ShieldCheck, CreditCard, Truck } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
-import { useScrolled } from "@/hooks/use-scrolled";
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { useCartDrawer } from "@/hooks/use-cart-drawer";
 import { Logo } from "@/components/layout/logo";
 import { SearchOverlay } from "@/components/layout/navigation/search-overlay";
-import { MegaMenu, MobileNavigation } from "@/components/layout/navigation/mega-menu";
+import { MegaMenu } from "@/components/layout/navigation/mega-menu";
+import { MobileMenu } from "@/components/layout/navigation/mobile-menu";
 import { CartDrawer } from "@/components/cart/cart-drawer";
-import { phoneHref, phoneNumber, whatsappHref } from "@/lib/contact";
+
+function Badge({ count }: { count: number }) {
+  if (count <= 0) return null;
+  return (
+    <span className="absolute -top-1 -end-1 flex min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[0.625rem] font-bold leading-4 text-white ring-2 ring-white">
+      {count > 99 ? "99+" : count}
+    </span>
+  );
+}
 
 export function SiteHeader() {
-  const pathname = usePathname();
-  const scrolled = useScrolled();
   const { itemCount } = useCart();
   const { count: wishlistCount } = useWishlist();
   const { setOpen: setCartOpen } = useCartDrawer();
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md shadow-2xs">
-      {/* ── ROW 1: Thin Announcement & Contact Bar ────────────────────── */}
-      <div className="bg-primary text-primary-foreground">
-        <div className="mx-auto flex h-7 sm:h-8 max-w-[1440px] items-center justify-between gap-4 px-4 text-[0.6875rem] sm:text-xs font-medium tracking-wide">
-          <div className="flex min-w-0 items-center gap-4 overflow-hidden">
-            <a href={phoneHref} className="flex shrink-0 items-center gap-1 hover:underline">
-              <Phone size={11} aria-hidden />
-              <span>{phoneNumber}</span>
-            </a>
-            <span className="hidden md:inline opacity-60">|</span>
-            <a
-              href={whatsappHref}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hidden md:flex shrink-0 items-center gap-1 text-emerald-300 hover:underline"
-            >
-              <MessageCircle size={11} aria-hidden />
-              <span>WhatsApp</span>
-            </a>
-            <span className="hidden lg:inline opacity-60">|</span>
-            <span className="hidden lg:flex items-center gap-1 opacity-90">
-              <MapPin size={11} aria-hidden />
+    <header className="sticky top-0 z-40 border-b border-border/70 bg-white/95 backdrop-blur-md">
+      {/* ── 1. Top Utility / Announcement Bar (Deep Burgundy) ─────────────── */}
+      <div className="bg-[#5E203C] text-white">
+        <div className="mx-auto flex h-8 max-w-[1440px] items-center justify-between px-4 text-[0.6875rem] sm:text-xs font-medium">
+          {/* Left: Value propositions */}
+          <div className="flex items-center gap-4 sm:gap-6 overflow-hidden">
+            <span className="flex items-center gap-1.5 truncate">
+              <Truck size={13} className="text-white/80 shrink-0" aria-hidden />
               <span>Livraison partout en Tunisie</span>
+            </span>
+            <span className="hidden md:flex items-center gap-1.5 text-white/90 shrink-0">
+              <ShieldCheck size={13} className="text-white/80 shrink-0" aria-hidden />
+              <span>Produits 100% authentiques</span>
+            </span>
+            <span className="hidden lg:flex items-center gap-1.5 text-white/90 shrink-0">
+              <CreditCard size={13} className="text-white/80 shrink-0" aria-hidden />
+              <span>Paiement à la livraison ou en ligne</span>
             </span>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2 font-bold">
-            <span>Livraison offerte dès 99 DT</span>
+          {/* Right: Phone support */}
+          <div className="flex items-center gap-2 shrink-0">
+            <a href="tel:+21697991266" className="flex items-center gap-1.5 text-white/95 hover:text-white transition-colors">
+              <Phone size={12} className="text-white/80" aria-hidden />
+              <span className="hidden sm:inline">Besoin d&apos;aide ?</span>
+              <span className="font-bold">+216 97 991 266</span>
+            </a>
           </div>
         </div>
       </div>
 
-      {/* ── ROW 2: Main Header Bar (Logo + Large Search + Actions) ───── */}
-      <div className="border-b border-border/70">
-        <div
-          className={`mx-auto flex max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-8 transition-[padding] duration-200 ${
-            scrolled ? "py-1.5" : "py-2 sm:py-3"
-          }`}
-        >
-          {/* Left: ParaTunisie Logo */}
-          <Link href="/" aria-label="ParaTunisie — Accueil" className="shrink-0">
-            <Logo />
+      {/* ── 2. Main Row (Logo, Central Search, Account, Wishlist, Cart) ────── */}
+      <div className="mx-auto flex h-14 sm:h-16 max-w-[1440px] items-center gap-2 sm:gap-3 px-3 sm:px-6 lg:h-20 lg:gap-8 lg:px-8">
+        <MobileMenu />
+
+        {/* Brand Logo */}
+        <Link href="/" aria-label="ParaTunisie — Accueil" className="shrink-0">
+          <Logo size="header" />
+        </Link>
+
+        {/* Central Search Bar */}
+        <div className="mx-auto hidden max-w-2xl flex-1 lg:block">
+          <SearchOverlay variant="full" />
+        </div>
+
+        {/* User Actions with Labels */}
+        <div className="ms-auto flex items-center gap-1.5 sm:gap-4 lg:gap-6">
+          {/* Mon compte */}
+          <Link
+            href="/compte"
+            className="group flex flex-col items-center gap-0.5 text-ink hover:text-primary transition-colors text-center p-1.5 sm:px-1"
+            aria-label="Mon compte"
+          >
+            <User size={20} className="transition-transform group-hover:scale-105" aria-hidden />
+            <span className="hidden sm:inline text-[0.6875rem] font-semibold text-ink-muted group-hover:text-primary">Mon compte</span>
           </Link>
 
-          {/* Center: Large Search Field (Desktop lg+) */}
-          <div className="hidden lg:block flex-1 max-w-2xl mx-4">
-            <SearchOverlay variant="full" />
-          </div>
-
-          {/* Right: Actions Icons with Labels (Compte, Favoris, Panier) */}
-          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-            {/* Mobile Search Trigger Icon */}
-            <div className="lg:hidden">
-              <SearchOverlay variant="icon" />
+          {/* Favoris */}
+          <Link
+            href="/favoris"
+            className="group flex flex-col items-center gap-0.5 text-ink hover:text-primary transition-colors text-center p-1.5 sm:px-1"
+            aria-label={`Favoris (${wishlistCount})`}
+          >
+            <div className="relative">
+              <Heart size={20} className="transition-transform group-hover:scale-105" aria-hidden />
+              <Badge count={wishlistCount} />
             </div>
+            <span className="hidden sm:inline text-[0.6875rem] font-semibold text-ink-muted group-hover:text-primary">Favoris</span>
+          </Link>
 
-            {/* Compte */}
+          {/* Panier */}
+          <button
+            type="button"
+            onClick={() => setCartOpen(true)}
+            className="group flex flex-col items-center gap-0.5 text-ink hover:text-primary transition-colors text-center p-1.5 sm:px-1 cursor-pointer"
+            aria-label={`Panier (${itemCount})`}
+          >
+            <div className="relative">
+              <ShoppingBag size={20} className="transition-transform group-hover:scale-105" aria-hidden />
+              <Badge count={itemCount} />
+            </div>
+            <span className="hidden sm:inline text-[0.6875rem] font-semibold text-ink-muted group-hover:text-primary">Panier</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ── 2b. Mobile Compact Search Bar Row (< 1024px) ───────────────────── */}
+      <div className="border-t border-border/50 bg-white px-3 py-2 lg:hidden">
+        <SearchOverlay variant="compact" className="w-full" />
+      </div>
+
+      {/* ── 3. Desktop Navigation Bar (Categories + Promotions/Nouveautés) ── */}
+      <div className="relative hidden border-t border-border/60 bg-white lg:block">
+        <div className="mx-auto flex max-w-[1440px] items-center justify-between px-8">
+          <nav aria-label="Navigation principale">
+            <MegaMenu />
+          </nav>
+
+          {/* Right badges: Promotions % and Nouveautés */}
+          <div className="flex items-center gap-2 py-1.5">
             <Link
-              href="/compte"
-              aria-label="Mon compte"
-              className="hidden sm:flex min-h-11 min-w-11 flex-col items-center justify-center rounded-lg text-ink transition-colors hover:bg-soft-nude hover:text-primary group"
+              href="/shop?filter=promotions"
+              className="inline-flex items-center gap-1.5 rounded-full bg-red-600 px-3 py-1 text-xs font-bold text-white shadow-2xs hover:bg-red-700 transition-all hover:scale-[1.02] active:scale-95"
             >
-              <User size={20} className="group-hover:scale-105 transition-transform" />
-              <span className="text-[0.6875rem] font-medium mt-0.5">Compte</span>
+              <span>Promotions %</span>
             </Link>
-
-            {/* Favoris */}
             <Link
-              href="/favoris"
-              aria-label="Favoris"
-              className="hidden sm:flex min-h-11 min-w-11 flex-col items-center justify-center rounded-lg text-ink transition-colors hover:bg-soft-nude hover:text-primary group relative"
+              href="/shop?sort=newest"
+              className="inline-flex items-center gap-1.5 rounded-full bg-[#4A122A] px-3 py-1 text-xs font-bold text-white shadow-2xs hover:bg-[#380D20] transition-all hover:scale-[1.02] active:scale-95"
             >
-              <div className="relative">
-                <Heart size={20} className="group-hover:scale-105 transition-transform" />
-                {wishlistCount > 0 && (
-                  <span className="absolute -right-2 -top-1.5 flex size-4 items-center justify-center rounded-full bg-primary text-[0.55rem] font-extrabold text-white">
-                    {wishlistCount}
-                  </span>
-                )}
-              </div>
-              <span className="text-[0.6875rem] font-medium mt-0.5">Favoris</span>
+              <span>Nouveautés</span>
             </Link>
-
-            {/* Panier Button / Trigger */}
-            <button
-              type="button"
-              onClick={() => setCartOpen(true)}
-              aria-label={`Panier${itemCount > 0 ? ` — ${itemCount} article${itemCount === 1 ? "" : "s"}` : ""}`}
-              className="flex min-h-11 min-w-11 flex-col items-center justify-center rounded-lg text-ink transition-colors hover:bg-soft-nude hover:text-primary group relative"
-            >
-              <div className="relative">
-                <ShoppingBag size={20} className="group-hover:scale-105 transition-transform" />
-                {itemCount > 0 && (
-                  <span className="absolute -right-2 -top-1.5 flex size-4.5 items-center justify-center rounded-full bg-primary text-[0.6rem] font-bold text-white shadow-2xs">
-                    {itemCount}
-                  </span>
-                )}
-              </div>
-              <span className="hidden sm:inline text-[0.6875rem] font-medium mt-0.5">Panier</span>
-            </button>
           </div>
         </div>
-
-        {/* ── ROW 3: Desktop Mega Menu Navigation (lg+) ───────────────── */}
-        <div className="hidden lg:block border-t border-border/50 bg-soft-nude/30">
-          <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-            <nav aria-label="Navigation principale" className="flex items-center justify-center py-1">
-              <MegaMenu />
-            </nav>
-          </div>
-        </div>
-        <MobileNavigation />
       </div>
 
       <CartDrawer />
     </header>
   );
 }
-
-

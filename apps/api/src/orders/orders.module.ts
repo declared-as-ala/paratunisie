@@ -1,6 +1,7 @@
 import { Module } from "@nestjs/common";
 import { OrdersController } from "./orders.controller";
 import { OrdersService } from "./orders.service";
+import { LandingOrdersService } from "./landing-orders.service";
 import { InventoryModule } from "../inventory/inventory.module";
 import { AdminAuthModule } from "../admin-auth/admin-auth.module";
 import { NotificationsModule } from "../notifications/notifications.module";
@@ -11,7 +12,7 @@ import { AbandonedCheckoutsModule } from "../abandoned-checkouts/abandoned-check
 @Module({
   imports: [InventoryModule, AdminAuthModule, NotificationsModule, MetaCapiModule, LoyaltyModule, AbandonedCheckoutsModule],
   controllers: [OrdersController],
-  providers: [OrdersService],
+  providers: [OrdersService, LandingOrdersService],
   exports: [OrdersService],
 })
 export class OrdersModule {}

@@ -58,6 +58,8 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // /mass-gainer was linked from the nav and articles but never existed (404); the real category is /gainers-proteines.
+      { source: "/mass-gainer", destination: "/gainers-proteines", permanent: true },
       {
         source: "/conseils/routine-peau-grasse-guide-complet",
         destination: "/conseils",
@@ -91,6 +93,21 @@ const nextConfig: NextConfig = {
       {
         source: "/vitamines-mineraux",
         destination: "/vitamines",
+        permanent: true,
+      },
+      {
+        source: "/categories/bien-etre",
+        destination: "/bien-etre",
+        permanent: true,
+      },
+      {
+        source: "/categories/creatine",
+        destination: "/creatine",
+        permanent: true,
+      },
+      {
+        source: "/categories/:slug",
+        destination: "/:slug",
         permanent: true,
       },
     ];

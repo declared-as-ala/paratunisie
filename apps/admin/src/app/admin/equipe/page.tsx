@@ -2,7 +2,7 @@ export default function EquipePage() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-xl font-bold text-ink">Équipe & rôles</h1>
+        <h1 className="page-title">Équipe & rôles</h1>
         <p className="text-sm text-ink-muted">Gestion des utilisateurs et permissions</p>
       </div>
       <div className="kpi-card">

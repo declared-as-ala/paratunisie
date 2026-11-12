@@ -1,48 +1,102 @@
-import Link from "next/link";
-import { Award, ChevronRight } from "lucide-react";
-import { fetchBrands } from "@/lib/api/client";
+"use client";
 
-export async function HomeFeaturedBrands() {
-  const featuredBrands = (await fetchBrands()).filter((brand) => (brand.productCount || 0) > 0).slice(0, 8);
+import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useRef } from "react";
+
+type BrandItem = {
+  name: string;
+  slug: string;
+  badgeText: string;
+  styleClass: string;
+};
+
+const FEATURED_BRANDS_LIST: BrandItem[] = [
+  { name: "Optimum Nutrition", slug: "optimum-nutrition", badgeText: "ON", styleClass: "font-black tracking-tighter text-2xl" },
+  { name: "MuscleTech", slug: "muscletech", badgeText: "MUSCLETECH", styleClass: "font-black tracking-widest text-lg italic" },
+  { name: "Real Pharm", slug: "real-pharm", badgeText: "REAL PHARM", styleClass: "font-bold tracking-wider text-base uppercase" },
+  { name: "BioTechUSA", slug: "biotechusa", badgeText: "BioTechUSA", styleClass: "font-extrabold tracking-tight text-lg" },
+  { name: "Applied Nutrition", slug: "applied-nutrition", badgeText: "APPLIED NUTRITION", styleClass: "font-black tracking-wide text-sm" },
+  { name: "Mutant", slug: "mutant", badgeText: "MUTANT", styleClass: "font-black tracking-widest text-2xl uppercase" },
+  { name: "NOW Foods", slug: "now-foods", badgeText: "now", styleClass: "font-black tracking-normal text-2xl lowercase italic" },
+  { name: "Nutrex Research", slug: "nutrex", badgeText: "NUTREX", styleClass: "font-black tracking-wider text-xl uppercase" },
+];
+
+/**
+ * "Nos marques" section matching reference:
+ * Header with bar icon, title, subtitle, navigation arrows,
+ * and clean rounded cards with bold brand marks.
+ */
+export function HomeFeaturedBrands() {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (direction: "left" | "right") => {
+    if (scrollRef.current) {
+      const offset = direction === "left" ? -280 : 280;
+      scrollRef.current.scrollBy({ left: offset, behavior: "smooth" });
+    }
+  };
 
   return (
-    <section className="bg-soft-nude/40 py-12 sm:py-16 border-b border-border/50">
-      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary mb-2 border border-primary/15">
-              <Award size={13} />
-              Marques &amp; fabricants
+    <section aria-labelledby="home-brands" className="bg-[#FAF7F5] py-8 sm:py-12 border-t border-border/50">
+      <div className="mx-auto max-w-[1440px] px-3 sm:px-6 lg:px-8">
+        
+        {/* ── Section Header ────────────────────────────────────────────── */}
+        <div className="mb-6 flex items-end justify-between gap-4">
+          <div className="flex items-start gap-3">
+            {/* Red Signal Bar Icon */}
+            <div className="flex items-end gap-0.5 h-6 pt-1 text-primary shrink-0" aria-hidden>
+              <span className="w-1.5 h-3.5 bg-primary rounded-full" />
+              <span className="w-1.5 h-5 bg-primary rounded-full" />
+              <span className="w-1.5 h-4 bg-primary rounded-full" />
             </div>
-            <h2 className="font-serif text-2xl sm:text-3xl font-medium tracking-tight text-ink">
-              Marques du catalogue
-            </h2>
+
+            <div>
+              <h2 id="home-brands" className="font-serif text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-ink">
+                Nos marques
+              </h2>
+              <p className="text-xs sm:text-sm text-ink-muted mt-0.5">
+                Des marques de confiance, disponibles en Tunisie
+              </p>
+            </div>
           </div>
-          <Link
-            href="/marques"
-            className="flex items-center gap-1 text-xs font-bold text-primary hover:text-primary-hover transition-colors"
-          >
-            Découvrir toutes les marques
-            <ChevronRight size={14} />
-          </Link>
+
+          {/* Navigation Controls (Desktop only) */}
+          <div className="hidden sm:flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() => scroll("left")}
+              aria-label="Marques précédentes"
+              className="flex size-8 items-center justify-center rounded-full border border-border/80 bg-white text-ink shadow-2xs hover:border-primary hover:text-primary transition-colors cursor-pointer"
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <button
+              type="button"
+              onClick={() => scroll("right")}
+              aria-label="Marques suivantes"
+              className="flex size-8 items-center justify-center rounded-full border border-border/80 bg-white text-ink shadow-2xs hover:border-primary hover:text-primary transition-colors cursor-pointer"
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 sm:gap-4">
-          {featuredBrands.map((b) => (
+        {/* ── Brands Cards Grid (No horizontal scroll on mobile) ────────── */}
+        <div
+          ref={scrollRef}
+          className="grid grid-cols-2 min-[400px]:grid-cols-4 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 sm:gap-4"
+        >
+          {FEATURED_BRANDS_LIST.map((brand) => (
             <Link
-              key={b.slug}
-              href={`/marques/${b.slug}`}
-              className="group flex flex-col items-center justify-center p-4 rounded-2xl border border-border/70 bg-white hover:border-primary/40 hover:shadow-xs transition-all text-center h-28"
+              key={brand.slug}
+              href={`/marques/${brand.slug}`}
+              className="group flex h-16 sm:h-24 w-full flex-col items-center justify-center rounded-2xl border border-border/70 bg-white p-2.5 sm:p-3 text-center shadow-2xs transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-sm"
             >
-              <span className="font-serif text-base font-bold text-ink group-hover:text-primary transition-colors line-clamp-1">
-                {b.name}
+              <span className={`text-ink/80 group-hover:text-primary transition-colors select-none ${brand.styleClass}`}>
+                {brand.badgeText}
               </span>
-              <span className="text-[0.625rem] font-medium text-ink-muted mt-1 line-clamp-1">
-                {b.tagline || "Produits du catalogue"}
-              </span>
-              <span className="text-[0.625rem] text-primary font-semibold mt-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5">
-                Voir produits <ChevronRight size={10} />
-              </span>
+              <span className="sr-only">{brand.name}</span>
             </Link>
           ))}
         </div>

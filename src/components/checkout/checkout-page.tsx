@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { BadgeCheck, CheckCircle2, ChevronDown, Lock, ShieldCheck, Truck, Wallet, AlertCircle, Loader2, ShoppingBag, Gift, Sparkles } from "lucide-react";
+import { BadgeCheck, CheckCircle2, ChevronDown, Lock, Minus, Plus, ShieldCheck, Trash2, Wallet, AlertCircle, Loader2, ShoppingBag, Gift, Sparkles } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,7 @@ const GOUVERNORATS = [
   "Siliana", "Sousse", "Tataouine", "Tozeur", "Tunis", "Zaghouan",
 ] as const;
 
-const ARAMEX_DELIVERY_PRICE = 10_000; // 10 DT in millimes
+const ARAMEX_DELIVERY_PRICE = 7_000; // 7 DT flat under 99 DT — same rule the API applies (apps/api/src/common/tunisia.ts)
 
 type CheckoutFormData = {
   email: string;
@@ -35,6 +35,61 @@ type CheckoutFormData = {
 };
 
 type FormErrors = Partial<Record<keyof CheckoutFormData, string>>;
+
+/** Product photo for the order summary: optimized, framed on a soft background, with a fallback if the file is missing. */
+function SummaryThumb({ src, alt, qty, className, sizes }: { src: string; alt: string; qty?: number; className: string; sizes: string }) {
+  const [failed, setFailed] = useState(false);
+  const url = !src || failed ? "/assets/product-tube.webp" : src;
+  return (
+    <span className={`relative block shrink-0 overflow-hidden bg-gradient-to-b from-[#FBF8F6] to-[#F0E7E2] ring-1 ring-border/60 ${className}`}>
+      <Image src={url} alt={alt} fill sizes={sizes} className="object-contain p-1.5 mix-blend-multiply" onError={() => setFailed(true)} />
+      {qty && qty > 1 ? (
+        <span className="absolute end-1 top-1 rounded-full bg-primary px-1.5 text-[0.625rem] font-bold leading-4 text-white shadow-sm">×{qty}</span>
+      ) : null}
+    </span>
+  );
+}
+
+const MAX_QTY = 99;
+
+/** Quantity stepper + remove button for one cart line. All buttons are type="button" (never submit the form). */
+function CartLineControls({ item }: { item: { productId: string; sizeLabel: string; name: string; quantity: number } }) {
+  const { updateQuantity, removeItem } = useCart();
+  const stepper = "flex size-9 items-center justify-center text-ink transition-colors hover:bg-soft-nude active:bg-soft-nude disabled:cursor-not-allowed disabled:opacity-35 sm:size-8";
+  return (
+    <div className="mt-1.5 flex items-center gap-2">
+      <div className="inline-flex items-center overflow-hidden rounded-lg border border-border bg-white">
+        <button
+          type="button"
+          aria-label={`Diminuer la quantité de ${item.name}`}
+          disabled={item.quantity <= 1}
+          onClick={() => updateQuantity(item.productId, item.sizeLabel, item.quantity - 1)}
+          className={stepper}
+        >
+          <Minus className="size-3.5" aria-hidden />
+        </button>
+        <span aria-live="polite" className="w-8 text-center text-xs font-bold tabular-nums text-ink">{item.quantity}</span>
+        <button
+          type="button"
+          aria-label={`Augmenter la quantité de ${item.name}`}
+          disabled={item.quantity >= MAX_QTY}
+          onClick={() => updateQuantity(item.productId, item.sizeLabel, item.quantity + 1)}
+          className={stepper}
+        >
+          <Plus className="size-3.5" aria-hidden />
+        </button>
+      </div>
+      <button
+        type="button"
+        aria-label={`Retirer ${item.name} du panier`}
+        onClick={() => removeItem(item.productId, item.sizeLabel)}
+        className="flex size-9 items-center justify-center rounded-lg text-ink-muted transition-colors hover:bg-danger-bg hover:text-danger sm:size-8"
+      >
+        <Trash2 className="size-4" aria-hidden />
+      </button>
+    </div>
+  );
+}
 
 export function CheckoutPage() {
   const cart = useCart();
@@ -68,9 +123,11 @@ export function CheckoutPage() {
     }
   }, []);
 
-  // Track InitiateCheckout on checkout page mount if cart has items
+  // Track InitiateCheckout once per visit (editing quantities must not re-fire the events).
+  const initiatedRef = useRef(false);
   useEffect(() => {
-    if (cart.items.length > 0 && !submitted) {
+    if (cart.items.length > 0 && !submitted && !initiatedRef.current) {
+      initiatedRef.current = true;
       const deliveryPrice = cart.hasFreeDelivery ? 0 : ARAMEX_DELIVERY_PRICE;
       const total = cart.subtotal + deliveryPrice;
       trackInitiateCheckout({
@@ -161,6 +218,8 @@ export function CheckoutPage() {
     };
   }, [submitted, form.phone, form.fullName, form.email, form.governorat, form.address, form.notes, cart.items, cart.subtotal, cart.hasFreeDelivery]);
 
+  const [showEmail, setShowEmail] = useState(false);
+  const [showNote, setShowNote] = useState(false);
   const [touched, setTouched] = useState<Partial<Record<keyof CheckoutFormData, boolean>>>({});
   const [errors, setErrors] = useState<FormErrors>({});
 
@@ -240,6 +299,8 @@ export function CheckoutPage() {
 
     if (Object.keys(validationErrors).length > 0) {
       // Focus first error field
+      const firstInvalid = validationErrors.fullName ? fullNameRef.current : validationErrors.phone ? phoneRef.current : validationErrors.governorat ? governoratRef.current : validationErrors.address ? addressRef.current : emailRef.current;
+      firstInvalid?.scrollIntoView({ behavior: "smooth", block: "center" });
       if (validationErrors.fullName && fullNameRef.current) fullNameRef.current.focus();
       else if (validationErrors.phone && phoneRef.current) phoneRef.current.focus();
       else if (validationErrors.governorat && governoratRef.current) governoratRef.current.focus();
@@ -340,7 +401,7 @@ export function CheckoutPage() {
     : 0;
 
   const netSubtotal = Math.max(0, cart.subtotal - loyaltyDiscountMillimes);
-  const deliveryPrice = cart.hasFreeDelivery || netSubtotal >= 99_000 ? 0 : ARAMEX_DELIVERY_PRICE;
+  const deliveryPrice = ARAMEX_DELIVERY_PRICE;
   const total = netSubtotal + deliveryPrice;
 
   if (cart.items.length === 0 && !submitted) {
@@ -371,7 +432,7 @@ export function CheckoutPage() {
         <h1 className="mt-6 font-serif text-2xl font-bold text-ink sm:text-3xl">
           Commande confirmée !
         </h1>
-        <p className="mt-3 text-xs font-bold text-emerald-700 bg-emerald-50 py-1.5 px-4 rounded-full border border-emerald-200 inline-block">
+        <p className="mt-3 text-xs font-bold text-ink bg-emerald-50 py-1.5 px-4 rounded-full border border-emerald-200 inline-block">
           Référence : #{orderNumber}
         </p>
         <p className="mt-3 max-w-md text-xs sm:text-sm text-ink-muted leading-relaxed">
@@ -397,9 +458,9 @@ export function CheckoutPage() {
     "h-12 w-full rounded-xl border bg-white px-3.5 text-xs sm:text-sm text-ink placeholder:text-ink-muted/40 transition-all focus:outline-none";
 
   return (
-    <div className="mx-auto max-w-[1440px] px-3.5 sm:px-6 lg:px-8 pt-4 pb-[calc(200px+env(safe-area-inset-bottom))] lg:pb-16 overflow-x-hidden w-full max-w-full">
+    <div className="mx-auto max-w-[1440px] px-3.5 sm:px-6 lg:px-8 pt-4 pb-[calc(120px+env(safe-area-inset-bottom))] lg:pb-16 overflow-x-hidden w-full max-w-full">
       {/* Compact Breadcrumb */}
-      <nav aria-label="Fil d'Ariane" className="mb-3 text-[0.6875rem] sm:text-xs text-ink-muted">
+      <nav aria-label="Fil d'Ariane" className="mb-3 hidden text-[0.6875rem] sm:block sm:text-xs text-ink-muted">
         <ol className="flex items-center gap-1.5">
           <li><Link href="/" className="hover:text-primary">Accueil</Link></li>
           <li aria-hidden className="text-ink-muted/40">/</li>
@@ -412,10 +473,11 @@ export function CheckoutPage() {
       {/* Header */}
       <div>
         <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-ink">
-          Commande
+          Finaliser ma commande
         </h1>
-        <p className="mt-1 text-xs sm:text-sm text-ink-muted">
-          Finalisez votre commande — Renseignez vos coordonnées pour confirmer votre achat.
+        <p className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs sm:text-sm text-ink-muted">
+          <span className="inline-flex items-center gap-1.5"><Lock className="size-3.5 text-primary" aria-hidden /> Aucun paiement en ligne</span>
+          <span className="inline-flex items-center gap-1.5"><Wallet className="size-3.5 text-primary" aria-hidden /> Vous payez à la livraison</span>
         </p>
       </div>
 
@@ -424,51 +486,53 @@ export function CheckoutPage() {
         <button
           type="button"
           onClick={() => setSummaryOpen((o) => !o)}
-          className="flex w-full items-center justify-between rounded-2xl border border-border/80 bg-white p-3.5 shadow-xs transition-colors hover:border-primary/50"
+          aria-expanded={summaryOpen}
+          aria-controls="checkout-mobile-summary"
+          className="flex w-full items-center justify-between gap-3 rounded-2xl border border-border/80 bg-white p-3 shadow-xs transition-colors hover:border-primary/50 active:bg-soft-nude/40"
         >
-          <div className="flex items-center gap-2.5">
-            <ShoppingBag className="size-4 text-primary" />
-            <div className="text-left">
-              <span className="text-xs font-bold text-ink block">Résumé de la commande</span>
-              <span className="text-[0.6875rem] text-ink-muted font-medium">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex shrink-0 items-center -space-x-3">
+              {cart.items.slice(0, 3).map((item) => (
+                <SummaryThumb key={`${item.productId}-${item.sizeLabel}`} src={item.image} alt="" sizes="48px" className="size-12 rounded-xl border-2 border-white shadow-sm" />
+              ))}
+              {cart.items.length > 3 && (
+                <span className="relative flex size-12 items-center justify-center rounded-xl border-2 border-white bg-soft-nude text-xs font-bold text-ink shadow-sm">+{cart.items.length - 3}</span>
+              )}
+            </div>
+            <div className="min-w-0 text-left">
+              <span className="block text-xs font-bold text-ink">
                 {cart.itemCount} article{cart.itemCount === 1 ? "" : "s"}
+              </span>
+              <span className="block text-[0.6875rem] font-semibold text-primary">
+                {summaryOpen ? "Masquer" : "Voir / modifier"}
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <span className="font-tabular text-sm sm:text-base font-extrabold text-ink">
-              {formatPrice(total)}
-            </span>
+          <div className="flex shrink-0 items-center gap-2">
+            <span className="font-tabular text-base font-extrabold text-ink">{formatPrice(total)}</span>
             <ChevronDown
-              className={`size-4 text-ink-muted transition-transform duration-200 ${summaryOpen ? "rotate-180" : ""}`}
+              className={`size-4 text-ink-muted transition-transform duration-300 motion-reduce:transition-none ${summaryOpen ? "rotate-180" : ""}`}
               aria-hidden
             />
           </div>
         </button>
 
-        {summaryOpen && (
-          <div className="mt-2 rounded-2xl border border-border/80 bg-white p-4 shadow-sm animate-in fade-in duration-200">
+        <div
+          id="checkout-mobile-summary"
+          inert={!summaryOpen}
+          className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out motion-reduce:transition-none ${summaryOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+        >
+          <div className="min-h-0 overflow-hidden">
+          <div className="mt-2 rounded-2xl border border-border/80 bg-white p-4 shadow-sm">
             <ul className="divide-y divide-border/60">
               {cart.items.map((item) => (
-                <li key={`${item.productId}-${item.sizeLabel}`} className="flex items-center gap-3 py-2.5 first:pt-0">
-                  <div className="relative size-12 shrink-0 overflow-hidden rounded-xl bg-white border border-border p-1 flex items-center justify-center">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={item.image || "/assets/product-tube.webp"}
-                      alt={item.name}
-                      className="size-full object-contain"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/assets/product-tube.webp";
-                      }}
-                    />
-                    <span className="absolute -right-1 -top-1 z-10 flex size-4.5 items-center justify-center rounded-full bg-primary text-[0.6rem] font-bold text-white shadow-xs">
-                      {item.quantity}
-                    </span>
-                  </div>
+                <li key={`${item.productId}-${item.sizeLabel}`} className="flex items-start gap-3 py-2.5 first:pt-0">
+                  <SummaryThumb src={item.image} alt={item.name} qty={item.quantity} sizes="88px" className="size-[5.5rem] rounded-2xl" />
                   <div className="min-w-0 flex-1">
                     <p className="text-[0.65rem] font-bold text-primary uppercase">{item.brand}</p>
-                    <p className="text-xs font-semibold text-ink line-clamp-1">{item.name}</p>
+                    <p className="text-[0.8125rem] font-semibold leading-snug text-ink line-clamp-2">{item.name}</p>
                     <p className="text-[0.65rem] text-ink-muted font-medium">Format: {item.sizeLabel}</p>
+                    <CartLineControls item={item} />
                   </div>
                   <p className="font-tabular text-xs font-extrabold text-ink">
                     {formatPrice(item.priceMillimes * item.quantity)}
@@ -482,15 +546,15 @@ export function CheckoutPage() {
                 <span className="font-tabular font-bold text-ink">{formatPrice(cart.subtotal)}</span>
               </div>
               {loyaltyDiscountMillimes > 0 && (
-                <div className="flex justify-between text-emerald-700 font-bold">
+                <div className="flex justify-between text-ink font-bold">
                   <span>Points fidélité ({pointsRedeemed} pts)</span>
                   <span className="font-tabular">-{formatPrice(loyaltyDiscountMillimes)}</span>
                 </div>
               )}
               <div className="flex justify-between text-ink-muted">
                 <span>Livraison Aramex</span>
-                <span className="font-tabular font-bold text-emerald-700">
-                  {deliveryPrice === 0 ? "OFFERTE 🎉" : formatPrice(deliveryPrice)}
+                <span className="font-tabular font-bold text-ink">
+                  {formatPrice(deliveryPrice)}
                 </span>
               </div>
               <div className="flex justify-between border-t border-border/60 pt-2 text-sm font-black text-ink">
@@ -499,26 +563,19 @@ export function CheckoutPage() {
               </div>
             </dl>
           </div>
-        )}
+          </div>
+        </div>
       </div>
 
       {/* Guest Loyalty Incentive or Logged-in Loyalty Widget */}
       {!session ? (
-        <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-amber-500/30 bg-amber-500/5 p-4 text-xs">
-          <div className="flex items-center gap-2.5">
-            <Gift className="size-5 text-amber-600 shrink-0" />
-            <div>
-              <p className="font-bold text-ink">Gagnez des points fidélité sur cette commande !</p>
-              <p className="text-[0.6875rem] text-ink-muted mt-0.5">1 DT dépensé = 1 point (20 points = 1 DT de réduction future).</p>
-            </div>
-          </div>
-          <Link
-            href={`/compte?redirect=${encodeURIComponent("/checkout")}`}
-            className="rounded-xl border border-amber-600 bg-white px-3 py-1.5 text-xs font-bold text-amber-800 hover:bg-amber-50 shrink-0 shadow-2xs"
-          >
+        <p className="mt-3 hidden flex-wrap items-center gap-x-2 gap-y-1 text-[0.6875rem] sm:flex sm:text-xs text-ink-muted">
+          <Gift className="size-3.5 text-amber-600 shrink-0" aria-hidden />
+          <span>Gagnez des points fidélité sur cette commande.</span>
+          <Link href={`/compte?redirect=${encodeURIComponent("/checkout")}`} className="font-bold text-primary underline-offset-2 hover:underline">
             Se connecter
           </Link>
-        </div>
+        </p>
       ) : userPoints > 0 ? (
         <div className="mt-4 rounded-2xl border border-amber-500/30 bg-linear-to-r from-amber-500/10 via-amber-500/5 to-white p-4 shadow-xs">
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -564,14 +621,12 @@ export function CheckoutPage() {
         className="mt-5 grid grid-cols-1 gap-6 lg:mt-8 lg:grid-cols-[1fr_400px] lg:gap-10"
       >
         <div className="space-y-5">
-          {/* Section 1: Coordonnées */}
-          <div className="rounded-2xl border border-border/80 bg-white p-4 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/60">
-              <span className="flex size-6 items-center justify-center rounded-full bg-primary/10 text-xs font-black text-primary">1</span>
-              <h2 className="font-serif text-lg sm:text-xl font-bold text-ink">Coordonnées</h2>
-            </div>
+          {/* Single card: only what is needed to deliver. Email and note are optional and opened on demand. */}
+          <section aria-labelledby="checkout-info" className="rounded-2xl border border-border/80 bg-white p-4 sm:p-6 shadow-xs">
+            <h2 id="checkout-info" className="font-serif text-lg sm:text-xl font-bold text-ink">Vos informations</h2>
+            <p className="mt-0.5 text-[0.6875rem] sm:text-xs text-ink-muted">Livraison partout en Tunisie. Nous vous appelons pour confirmer.</p>
 
-            <div className="grid gap-4 sm:grid-cols-2">
+            <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <label htmlFor="checkout-fullname" className="block text-xs sm:text-sm font-semibold text-ink mb-1">
                   Nom et prénom <span className="text-primary">*</span>
@@ -582,10 +637,13 @@ export function CheckoutPage() {
                   type="text"
                   required
                   autoComplete="name"
+                  autoCapitalize="words"
+                  enterKeyHint="next"
                   value={form.fullName}
                   onChange={(e) => updateField("fullName", e.target.value)}
                   onBlur={() => handleBlur("fullName")}
                   placeholder="Ex: Mohamed Ben Ali"
+                  aria-invalid={Boolean(touched.fullName && errors.fullName)}
                   className={`${baseInputClass} ${
                     touched.fullName && errors.fullName
                       ? "border-rose-500 focus:ring-2 focus:ring-rose-200"
@@ -593,7 +651,7 @@ export function CheckoutPage() {
                   }`}
                 />
                 {touched.fullName && errors.fullName && (
-                  <p className="mt-1 text-[0.6875rem] font-semibold text-rose-600 flex items-center gap-1">
+                  <p role="alert" className="mt-1 text-[0.6875rem] font-semibold text-rose-600 flex items-center gap-1">
                     <AlertCircle size={12} /> {errors.fullName}
                   </p>
                 )}
@@ -601,9 +659,9 @@ export function CheckoutPage() {
 
               <div className="sm:col-span-2">
                 <label htmlFor="checkout-phone" className="block text-xs sm:text-sm font-semibold text-ink mb-1">
-                  Téléphone (Tunisie) <span className="text-primary">*</span>
+                  Téléphone <span className="text-primary">*</span>
                 </label>
-                <div className="flex items-center rounded-xl border border-border overflow-hidden focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10">
+                <div className={`flex items-center rounded-xl border overflow-hidden transition-all focus-within:ring-2 ${touched.phone && errors.phone ? "border-rose-500 focus-within:ring-rose-200" : "border-border focus-within:border-primary focus-within:ring-primary/10"}`}>
                   <span className="px-3 py-3 bg-soft-nude/70 text-xs font-bold text-ink border-r border-border shrink-0 select-none">
                     🇹🇳 +216
                   </span>
@@ -613,59 +671,24 @@ export function CheckoutPage() {
                     type="tel"
                     inputMode="tel"
                     required
-                    autoComplete="tel"
+                    autoComplete="tel-national"
+                    enterKeyHint="next"
                     value={form.phone}
                     onChange={(e) => updateField("phone", e.target.value)}
                     onBlur={() => handleBlur("phone")}
                     placeholder="20 123 456"
-                    className="h-12 w-full bg-white px-3 text-xs sm:text-sm text-ink placeholder:text-ink-muted/40 focus:outline-none"
+                    aria-invalid={Boolean(touched.phone && errors.phone)}
+                    className="h-12 w-full bg-white px-3 text-sm text-ink placeholder:text-ink-muted/40 focus:outline-none"
                   />
                 </div>
                 {touched.phone && errors.phone && (
-                  <p className="mt-1 text-[0.6875rem] font-semibold text-rose-600 flex items-center gap-1">
+                  <p role="alert" className="mt-1 text-[0.6875rem] font-semibold text-rose-600 flex items-center gap-1">
                     <AlertCircle size={12} /> {errors.phone}
                   </p>
                 )}
               </div>
 
-              <div className="sm:col-span-2">
-                <label htmlFor="checkout-email" className="block text-xs sm:text-sm font-semibold text-ink mb-1">
-                  Adresse email <span className="text-ink-muted font-normal">(Optionnel)</span>
-                </label>
-                <input
-                  ref={emailRef}
-                  id="checkout-email"
-                  type="email"
-                  inputMode="email"
-                  autoComplete="email"
-                  value={form.email}
-                  onChange={(e) => updateField("email", e.target.value)}
-                  onBlur={() => handleBlur("email")}
-                  placeholder="votre.email@domaine.com (optionnel)"
-                  className={`${baseInputClass} ${
-                    touched.email && errors.email
-                      ? "border-rose-500 focus:ring-2 focus:ring-rose-200"
-                      : "border-border focus:border-primary focus:ring-2 focus:ring-primary/10"
-                  }`}
-                />
-                {touched.email && errors.email && (
-                  <p className="mt-1 text-[0.6875rem] font-semibold text-rose-600 flex items-center gap-1">
-                    <AlertCircle size={12} /> {errors.email}
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Section 2: Informations de livraison */}
-          <div className="rounded-2xl border border-border/80 bg-white p-4 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/60">
-              <span className="flex size-6 items-center justify-center rounded-full bg-primary/10 text-xs font-black text-primary">2</span>
-              <h2 className="font-serif text-lg sm:text-xl font-bold text-ink">Adresse de livraison</h2>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="sm:col-span-2">
+              <div>
                 <label htmlFor="checkout-governorate" className="block text-xs sm:text-sm font-semibold text-ink mb-1">
                   Gouvernorat <span className="text-primary">*</span>
                 </label>
@@ -673,28 +696,30 @@ export function CheckoutPage() {
                   ref={governoratRef}
                   id="checkout-governorate"
                   required
+                  autoComplete="address-level1"
                   value={form.governorat}
                   onChange={(e) => updateField("governorat", e.target.value)}
                   onBlur={() => handleBlur("governorat")}
+                  aria-invalid={Boolean(touched.governorat && errors.governorat)}
                   className={`${baseInputClass} ${
                     touched.governorat && errors.governorat
                       ? "border-rose-500 focus:ring-2 focus:ring-rose-200"
                       : "border-border focus:border-primary focus:ring-2 focus:ring-primary/10"
                   }`}
                 >
-                  <option value="">Sélectionner un gouvernorat</option>
+                  <option value="">Choisir…</option>
                   {GOUVERNORATS.map((g) => (
                     <option key={g} value={g}>{g}</option>
                   ))}
                 </select>
                 {touched.governorat && errors.governorat && (
-                  <p className="mt-1 text-[0.6875rem] font-semibold text-rose-600 flex items-center gap-1">
+                  <p role="alert" className="mt-1 text-[0.6875rem] font-semibold text-rose-600 flex items-center gap-1">
                     <AlertCircle size={12} /> {errors.governorat}
                   </p>
                 )}
               </div>
 
-              <div className="sm:col-span-2">
+              <div>
                 <label htmlFor="checkout-address" className="block text-xs sm:text-sm font-semibold text-ink mb-1">
                   Adresse complète <span className="text-primary">*</span>
                 </label>
@@ -704,10 +729,12 @@ export function CheckoutPage() {
                   type="text"
                   required
                   autoComplete="street-address"
+                  enterKeyHint="done"
                   value={form.address}
                   onChange={(e) => updateField("address", e.target.value)}
                   onBlur={() => handleBlur("address")}
-                  placeholder="Rue, numéro d'immeuble, appartement, résidence..."
+                  placeholder="Rue, immeuble, appartement…"
+                  aria-invalid={Boolean(touched.address && errors.address)}
                   className={`${baseInputClass} ${
                     touched.address && errors.address
                       ? "border-rose-500 focus:ring-2 focus:ring-rose-200"
@@ -715,55 +742,87 @@ export function CheckoutPage() {
                   }`}
                 />
                 {touched.address && errors.address && (
-                  <p className="mt-1 text-[0.6875rem] font-semibold text-rose-600 flex items-center gap-1">
+                  <p role="alert" className="mt-1 text-[0.6875rem] font-semibold text-rose-600 flex items-center gap-1">
                     <AlertCircle size={12} /> {errors.address}
                   </p>
                 )}
               </div>
-            </div>
-          </div>
 
-          {/* Section 3: Mode de livraison et notes */}
-          <div className="rounded-2xl border border-border/80 bg-white p-4 sm:p-6 shadow-xs space-y-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-border/60">
-              <span className="flex size-6 items-center justify-center rounded-full bg-primary/10 text-xs font-black text-primary">3</span>
-              <h2 className="font-serif text-lg sm:text-xl font-bold text-ink">Livraison & Paiement</h2>
-            </div>
-
-            <div className="flex items-center justify-between rounded-xl border border-border bg-soft-nude/30 p-3.5">
-              <div className="flex items-center gap-3">
-                <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <Truck size={18} />
-                </div>
-                <div>
-                  <p className="text-xs sm:text-sm font-bold text-ink">Livraison à domicile Aramex</p>
-                  <p className="text-[0.6875rem] text-ink-muted font-medium">Expédition express 24–48h partout en Tunisie</p>
-                </div>
+              {/* Optional email — hidden until requested (or already filled / logged in) */}
+              <div className="sm:col-span-2">
+                {showEmail || form.email ? (
+                  <div className="animate-in fade-in duration-200 motion-reduce:animate-none">
+                    <label htmlFor="checkout-email" className="block text-xs sm:text-sm font-semibold text-ink mb-1">
+                      Adresse email <span className="text-ink-muted font-normal">(optionnel)</span>
+                    </label>
+                    <input
+                      ref={emailRef}
+                      id="checkout-email"
+                      type="email"
+                      inputMode="email"
+                      autoComplete="email"
+                      value={form.email}
+                      onChange={(e) => updateField("email", e.target.value)}
+                      onBlur={() => handleBlur("email")}
+                      placeholder="votre.email@domaine.com"
+                      aria-invalid={Boolean(touched.email && errors.email)}
+                      className={`${baseInputClass} ${
+                        touched.email && errors.email
+                          ? "border-rose-500 focus:ring-2 focus:ring-rose-200"
+                          : "border-border focus:border-primary focus:ring-2 focus:ring-primary/10"
+                      }`}
+                    />
+                    {touched.email && errors.email && (
+                      <p role="alert" className="mt-1 text-[0.6875rem] font-semibold text-rose-600 flex items-center gap-1">
+                        <AlertCircle size={12} /> {errors.email}
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <button type="button" onClick={() => setShowEmail(true)} className="inline-flex min-h-9 items-center gap-1.5 text-xs font-semibold text-primary hover:underline underline-offset-2">
+                    <Plus className="size-3.5" aria-hidden /> Recevoir la confirmation par email
+                  </button>
+                )}
               </div>
-              <p className="font-tabular text-xs sm:text-sm font-extrabold text-ink">
-                {deliveryPrice === 0 ? <span className="text-emerald-700">OFFERTE 🎉</span> : formatPrice(deliveryPrice)}
-              </p>
-            </div>
 
-            <div className="flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-50/50 p-3.5 text-xs text-ink font-semibold">
-              <Wallet className="size-4 shrink-0 text-emerald-600" />
-              <span>Paiement en espèces à la livraison disponible (COD)</span>
+              {/* Optional delivery note */}
+              <div className="sm:col-span-2">
+                {showNote || form.notes ? (
+                  <div className="animate-in fade-in duration-200 motion-reduce:animate-none">
+                    <label htmlFor="checkout-notes" className="block text-xs sm:text-sm font-semibold text-ink mb-1">
+                      Note pour le livreur <span className="text-ink-muted font-normal">(optionnel)</span>
+                    </label>
+                    <textarea
+                      id="checkout-notes"
+                      rows={2}
+                      value={form.notes}
+                      onChange={(e) => updateField("notes", e.target.value)}
+                      placeholder="Ex: sonner à l'interphone B2…"
+                      className="w-full rounded-xl border border-border bg-white px-3.5 py-2.5 text-sm text-ink placeholder:text-ink-muted/40 focus:border-primary focus:ring-2 focus:ring-primary/10 focus:outline-none"
+                    />
+                  </div>
+                ) : (
+                  <button type="button" onClick={() => setShowNote(true)} className="inline-flex min-h-9 items-center gap-1.5 text-xs font-semibold text-primary hover:underline underline-offset-2">
+                    <Plus className="size-3.5" aria-hidden /> Ajouter une note pour le livreur
+                  </button>
+                )}
+              </div>
             </div>
+          </section>
 
-            <div>
-              <label htmlFor="checkout-notes" className="block text-xs sm:text-sm font-semibold text-ink mb-1">
-                Note de livraison <span className="text-ink-muted font-normal">(optionnel)</span>
-              </label>
-              <textarea
-                id="checkout-notes"
-                rows={2}
-                value={form.notes}
-                onChange={(e) => updateField("notes", e.target.value)}
-                placeholder="Instructions spéciales pour le livreur (ex: sonner à l'interphone B2)..."
-                className="w-full rounded-xl border border-border bg-white px-3.5 py-2.5 text-xs sm:text-sm text-ink placeholder:text-ink-muted/40 focus:border-primary focus:ring-2 focus:ring-primary/10 focus:outline-none"
-              />
-            </div>
-          </div>
+          <ul className="grid gap-2 rounded-2xl bg-soft-nude/50 p-4 text-xs text-ink-muted sm:grid-cols-3 sm:gap-3">
+            <li className="flex items-center gap-2"><Wallet className="size-4 shrink-0 text-primary" aria-hidden /> Paiement en espèces à la réception</li>
+            <li className="flex items-center gap-2"><ShieldCheck className="size-4 shrink-0 text-primary" aria-hidden /> Un conseiller vous appelle pour confirmer</li>
+            <li className="flex items-center gap-2"><CheckCircle2 className="size-4 shrink-0 text-primary" aria-hidden /> Livraison partout en Tunisie</li>
+          </ul>
+
+          {!session && (
+            <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-ink-muted sm:hidden">
+              <Gift className="size-3.5 text-amber-600 shrink-0" aria-hidden />
+              <span>Gagnez des points fidélité sur cette commande.</span>
+              <Link href={`/compte?redirect=${encodeURIComponent("/checkout")}`} className="font-bold text-primary underline-offset-2 hover:underline">Se connecter</Link>
+            </p>
+          )}
         </div>
 
         {/* Desktop Order Summary Sidebar */}
@@ -771,27 +830,15 @@ export function CheckoutPage() {
           <div className="rounded-2xl border border-border/80 bg-white p-6 shadow-xs">
             <h2 className="font-serif text-lg font-bold text-ink pb-3 border-b border-border/60">Résumé de votre commande</h2>
 
-            <ul className="mt-3 divide-y divide-border/60 max-h-[300px] overflow-y-auto pr-1">
+            <ul className="mt-3 divide-y divide-border/60 max-h-[420px] overflow-y-auto pr-1">
               {cart.items.map((item) => (
                 <li key={`${item.productId}-${item.sizeLabel}`} className="flex gap-3 py-3 first:pt-0">
-                  <div className="relative size-12 shrink-0 overflow-hidden rounded-xl bg-white border border-border p-1 flex items-center justify-center">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={item.image || "/assets/product-tube.webp"}
-                      alt={item.name}
-                      className="size-full object-contain"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/assets/product-tube.webp";
-                      }}
-                    />
-                    <span className="absolute -right-1 -top-1 z-10 flex size-4.5 items-center justify-center rounded-full bg-primary text-[0.6rem] font-bold text-white shadow-xs">
-                      {item.quantity}
-                    </span>
-                  </div>
+                  <SummaryThumb src={item.image} alt={item.name} qty={item.quantity} sizes="72px" className="size-[4.5rem] rounded-2xl" />
                   <div className="flex flex-1 flex-col justify-center min-w-0">
                     <p className="text-[0.65rem] font-bold text-primary uppercase">{item.brand}</p>
-                    <p className="text-xs font-semibold text-ink line-clamp-1">{item.name}</p>
+                    <p className="text-[0.8125rem] font-semibold leading-snug text-ink line-clamp-2">{item.name}</p>
                     <p className="text-[0.65rem] text-ink-muted font-medium">{item.sizeLabel}</p>
+                    <CartLineControls item={item} />
                   </div>
                   <p className="font-tabular text-xs font-extrabold text-ink">
                     {formatPrice(item.priceMillimes * item.quantity)}
@@ -806,7 +853,7 @@ export function CheckoutPage() {
                 <span className="font-tabular font-bold text-ink">{formatPrice(cart.subtotal)}</span>
               </div>
               {loyaltyDiscountMillimes > 0 && (
-                <div className="flex justify-between text-emerald-700 font-bold">
+                <div className="flex justify-between text-ink font-bold">
                   <span>Points fidélité ({pointsRedeemed} pts)</span>
                   <span className="font-tabular">-{formatPrice(loyaltyDiscountMillimes)}</span>
                 </div>
@@ -814,7 +861,7 @@ export function CheckoutPage() {
               <div className="flex justify-between text-ink-muted">
                 <span>Livraison Aramex</span>
                 <span className="font-tabular font-bold text-ink">
-                  {deliveryPrice === 0 ? <span className="text-emerald-700 font-bold">OFFERTE 🎉</span> : formatPrice(deliveryPrice)}
+                  <span className="font-bold text-ink">{formatPrice(deliveryPrice)}</span>
                 </span>
               </div>
               <div className="border-t border-border/80 pt-3">
@@ -862,19 +909,20 @@ export function CheckoutPage() {
         </aside>
 
         {/* Mobile Sticky Confirmation Bar — Positioned ABOVE Mobile Navigation Bar */}
-        <div className="fixed inset-x-0 bottom-[calc(56px+env(safe-area-inset-bottom))] z-40 border-t border-border/80 bg-white/95 px-4 py-3 backdrop-blur-md lg:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border/80 bg-white/95 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] backdrop-blur-md lg:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.1)]">
           <div className="mx-auto flex max-w-xl items-center gap-3">
             <div className="min-w-0 flex-1">
               <p className="text-[0.65rem] text-ink-muted font-medium">Total à payer</p>
               <p className="font-tabular text-base sm:text-lg font-black leading-tight text-primary">
                 {formatPrice(total)}
               </p>
+              <p className="text-[0.625rem] font-medium text-ink-muted">Paiement à la livraison</p>
             </div>
             <Button
               type="submit"
               size="lg"
               disabled={submitting}
-              className="shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl px-5 h-11 text-xs sm:text-sm shadow-sm gap-1.5"
+              className="shrink-0 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl px-6 h-12 text-sm shadow-sm gap-1.5"
             >
               {submitting ? (
                 <>

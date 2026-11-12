@@ -38,7 +38,7 @@ type Kpi = { label: string; value: string | number | undefined; icon: LucideIcon
 const statusMeta: Record<ReviewStatus, { label: string; className: string }> = {
   PENDING: { label: "En attente", className: "border-amber-200 bg-amber-50 text-amber-700" },
   APPROVED: { label: "Approuvé", className: "border-emerald-200 bg-emerald-50 text-emerald-700" },
-  REJECTED: { label: "Refusé", className: "border-rose-200 bg-rose-50 text-rose-700" },
+  REJECTED: { label: "Refusé", className: "border-primary-soft bg-primary-soft/30 text-primary-hover" },
 };
 
 const selectClass = "h-11 rounded-xl border border-border bg-white px-3 text-sm text-ink outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/10";
@@ -75,7 +75,7 @@ function ActionButtons({ review, onView, onAction, busy }: { review: Review; onV
       <button type="button" title="Voir l’avis" aria-label="Voir l’avis" onClick={onView} className="rounded-lg p-2 text-ink-muted hover:bg-slate-100 hover:text-ink"><Eye className="size-4" /></button>
       {review.status !== "APPROVED" && <button type="button" disabled={busy} title="Approuver" aria-label="Approuver" onClick={() => onAction("approve")} className="rounded-lg p-2 text-emerald-600 hover:bg-emerald-50 disabled:opacity-40"><Check className="size-4" /></button>}
       {review.status !== "REJECTED" && <button type="button" disabled={busy} title="Refuser" aria-label="Refuser" onClick={() => onAction("reject")} className="rounded-lg p-2 text-amber-600 hover:bg-amber-50 disabled:opacity-40"><X className="size-4" /></button>}
-      <button type="button" disabled={busy} title="Supprimer" aria-label="Supprimer" onClick={() => onAction("delete")} className="rounded-lg p-2 text-rose-600 hover:bg-rose-50 disabled:opacity-40"><Trash2 className="size-4" /></button>
+      <button type="button" disabled={busy} title="Supprimer" aria-label="Supprimer" onClick={() => onAction("delete")} className="rounded-lg p-2 text-primary hover:bg-primary-soft/30 disabled:opacity-40"><Trash2 className="size-4" /></button>
     </div>
   );
 }
@@ -170,13 +170,13 @@ export function ReviewsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight text-ink">Avis</h1>
+        <h1 className="page-title">Avis</h1>
         <p className="mt-1 text-sm text-ink-muted">Gestion des avis clients</p>
       </div>
 
       <section className="grid grid-cols-2 gap-3 xl:grid-cols-4" aria-label="Statistiques des avis">
         {([
-          { label: "Total des avis", value: stats?.total, icon: MessageSquareText, colors: "bg-rose-50 text-primary" },
+          { label: "Total des avis", value: stats?.total, icon: MessageSquareText, colors: "bg-primary-soft/30 text-primary" },
           { label: "En attente", value: stats?.pending, icon: Clock3, colors: "bg-amber-50 text-amber-600" },
           { label: "Approuvés", value: stats?.approved, icon: ShieldCheck, colors: "bg-emerald-50 text-emerald-600" },
           { label: "Note moyenne", value: stats ? `${stats.averageRating.toFixed(1)} / 5` : undefined, icon: Star, colors: "bg-violet-50 text-violet-600" },
@@ -204,7 +204,7 @@ export function ReviewsPage() {
       </section>
 
       {error ? (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-8 text-center"><XCircle className="mx-auto size-8 text-rose-500" /><p className="mt-3 font-semibold text-ink">Impossible de charger les avis</p><p className="mt-1 text-sm text-ink-muted">{error}</p><button type="button" onClick={() => void load()} className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white">Réessayer</button></div>
+        <div className="rounded-2xl border border-primary-soft bg-primary-soft/30 p-8 text-center"><XCircle className="mx-auto size-8 text-primary" /><p className="mt-3 font-semibold text-ink">Impossible de charger les avis</p><p className="mt-1 text-sm text-ink-muted">{error}</p><button type="button" onClick={() => void load()} className="mt-4 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white">Réessayer</button></div>
       ) : loading ? (
         <div className="space-y-2 rounded-2xl border border-border bg-white p-4">{Array.from({ length: 6 }).map((_, index) => <Skeleton key={index} className="h-16 w-full rounded-xl" />)}</div>
       ) : items.length === 0 ? (

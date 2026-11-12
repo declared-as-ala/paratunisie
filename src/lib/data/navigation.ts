@@ -18,7 +18,7 @@ export const primaryCategories: NavCategory[] = [
   },
   {
     label: "Gainers",
-    href: "/mass-gainer",
+    href: "/gainers-proteines",
     description: "Formules caloriques pour prise de masse rapide.",
   },
   {
@@ -75,7 +75,7 @@ export const primaryCategories: NavCategory[] = [
 
 export const concerns: { label: string; href: string }[] = [
   { label: "Prise de muscle", href: "/creatine" },
-  { label: "Prise de masse", href: "/mass-gainer" },
+  { label: "Prise de masse", href: "/gainers-proteines" },
   { label: "Énergie & Focus", href: "/pre-workout" },
   { label: "Récupération", href: "/bcaa" },
   { label: "Immunité & Santé", href: "/vitamines" },

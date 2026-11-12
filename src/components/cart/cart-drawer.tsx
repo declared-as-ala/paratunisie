@@ -1,40 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { Check, Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
+import { Minus, Plus, ShoppingBag, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { useCart, FREE_DELIVERY_THRESHOLD } from "@/hooks/use-cart";
+import { useCart } from "@/hooks/use-cart";
 import { useCartDrawer } from "@/hooks/use-cart-drawer";
 import { formatPrice } from "@/lib/data/products";
-
-function FreeDeliveryBar({ remaining }: { remaining: number }) {
-  if (remaining <= 0) {
-    return (
-      <div className="flex items-center gap-2 rounded-xl bg-emerald-50 px-3.5 py-2.5 text-xs font-bold text-emerald-700 border border-emerald-200 shadow-xs">
-        <Check className="size-4 shrink-0 text-emerald-600" aria-hidden />
-        <span>Félicitations ! Votre livraison est OFFERTE 🎉</span>
-      </div>
-    );
-  }
-
-  const progress = Math.min(1, (FREE_DELIVERY_THRESHOLD - remaining) / FREE_DELIVERY_THRESHOLD);
-
-  return (
-    <div className="rounded-2xl bg-soft-nude/70 p-3.5 border border-border shadow-xs">
-      <p className="text-xs text-ink font-medium">
-        Plus que <strong className="text-primary font-bold">{formatPrice(remaining)}</strong> pour bénéficier de la livraison offerte !
-      </p>
-      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-border">
-        <div
-          className="h-full rounded-full bg-primary transition-all duration-300 ease-out"
-          style={{ width: `${progress * 100}%` }}
-        />
-      </div>
-    </div>
-  );
-}
 
 export function CartDrawer() {
   const cart = useCart();
@@ -89,9 +62,7 @@ export function CartDrawer() {
         ) : (
           <>
             <div className="flex-1 overflow-y-auto px-3.5 py-3 sm:px-5 sm:py-4 space-y-3.5 min-h-0">
-              <FreeDeliveryBar remaining={cart.freeDeliveryRemaining} />
-
-              <ul className="divide-y divide-border/60">
+                            <ul className="divide-y divide-border/60">
                 {cart.items.map((item) => {
                   const key = `${item.productId}-${item.sizeLabel}`;
                   const justAdded = key === lastAdded;
@@ -187,7 +158,7 @@ export function CartDrawer() {
                 </p>
               </div>
               <p className="mb-3 text-[0.65rem] text-ink-muted">
-                Livraison — {cart.hasFreeDelivery ? <strong className="text-emerald-700">OFFERTE 🎉</strong> : "10 DT"} calculée à l&apos;étape suivante
+                Livraison — 7 DT calculée à l&apos;étape suivante
               </p>
               <div className="flex flex-col gap-2">
                 <Button

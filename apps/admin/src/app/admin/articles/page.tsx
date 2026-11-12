@@ -394,7 +394,7 @@ export default function ArticlesPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-xl font-bold tracking-tight text-ink">Conseils & Articles</h1>
+            <h1 className="page-title">Conseils & Articles</h1>
             <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary border border-primary/20">
               {articles.length} articles
             </span>
@@ -678,7 +678,7 @@ export default function ArticlesPage() {
                           <button
                             type="button"
                             onClick={() => setDeleteTarget(article)}
-                            className="p-1.5 rounded-lg hover:bg-rose-500/10 text-rose-600"
+                            className="p-1.5 rounded-lg hover:bg-primary/10 text-primary"
                             title="Supprimer"
                           >
                             <Trash2 size={13} />

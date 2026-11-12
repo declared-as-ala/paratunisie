@@ -1,8 +1,9 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { OrderStatus } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { InventoryService } from "../inventory/inventory.service";
-import { isValidTransition, getAllowedTransitions } from "./order-status";
+import { computeDeliveryFeeMillimes } from "../common/tunisia";
+import { isValidTransition, getAllowedTransitions, statusLabel } from "./order-status";
 
 // Fallback data for local dev before a Postgres connection exists — getAllOrders/
 // createOrder try Prisma first and only fall back here on failure. Not used by
@@ -133,6 +134,7 @@ export class OrdersService {
     eventSourceUrl?: string;
     checkoutSessionId?: string;
     loyaltyPointsToRedeem?: number;
+    shippingFeeMillimes?: number;
     items: { productId?: string; productVariantId?: string; quantity: number; priceMillimes: number }[];
   }) {
     const rawSubtotalMillimes = (data.items || []).reduce(
@@ -221,7 +223,7 @@ export class OrdersService {
     }
 
     const netProductSubtotal = Math.max(0, rawSubtotalMillimes - loyaltyDiscountMillimes);
-    const deliveryFeeMillimes = netProductSubtotal >= 99_000 ? 0 : 7_000;
+    const deliveryFeeMillimes = typeof data.shippingFeeMillimes === 'number' && data.shippingFeeMillimes >= 0 ? data.shippingFeeMillimes : computeDeliveryFeeMillimes(netProductSubtotal);
     const finalTotalMillimes = netProductSubtotal + deliveryFeeMillimes;
 
     // Points earned only on net amount paid for products (shipping excluded)
@@ -343,7 +345,8 @@ export class OrdersService {
     const normal = grouped.reduce((sum, row) => sum + row._count, 0);
 
     return {
-      total: normal + abandoned,
+      // Abandoned checkouts are leads, not orders: they never count towards the operational total.
+      total: normal,
       normal,
       abandoned,
       deleted: 0,
@@ -435,28 +438,39 @@ export class OrdersService {
   // cancellation-like states). Operates on real Prisma data only — a status
   // change has real inventory consequences, so a missing order is a real 404,
   // not a silent fallback to mock data.
-  async updateOrderStatus(orderId: string, toStatus: OrderStatus, staffId: string, note?: string) {
+  async updateOrderStatus(
+    orderId: string,
+    toStatus: OrderStatus,
+    staffId: string,
+    note?: string,
+    options: { override?: boolean } = {},
+  ) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
       include: { items: true },
     });
     if (!order) throw new NotFoundException("Commande introuvable");
 
+    if (order.status === toStatus && !(order.status === "TENTATIVE_CONTACT")) {
+      throw new BadRequestException(`La commande est déjà au statut « ${statusLabel(toStatus)} ».`);
+    }
+
+    if (options.override) {
+      return this.overrideOrderStatus(order, toStatus, staffId, note);
+    }
+
     if (!isValidTransition(order.status, toStatus)) {
       const allowed = getAllowedTransitions(order.status);
       throw new BadRequestException(
-        `Transition ${order.status} → ${toStatus} non autorisée. Transitions possibles : ${
-          allowed.length > 0 ? allowed.join(", ") : "aucune (statut terminal)"
-        }.`,
+        `Passage de « ${statusLabel(order.status)} » à « ${statusLabel(toStatus)} » non autorisé dans le flux normal. ` +
+          (allowed.length > 0
+            ? `Étapes possibles : ${allowed.map(statusLabel).join(", ")}. `
+            : "Ce statut est final. ") +
+          "Pour corriger le statut commercial sans toucher à la livraison Aramex, utilisez « Correction administrateur » (motif obligatoire).",
       );
     }
 
-    const [updated] = await this.prisma.$transaction([
-      this.prisma.order.update({ where: { id: orderId }, data: { status: toStatus } }),
-      this.prisma.orderStatusHistory.create({
-        data: { orderId, fromStatus: order.status, toStatus, staffId, note },
-      }),
-    ]);
+    const updated = await this.applyStatusChange(order, toStatus, staffId, note, false);
 
     const items = order.items.map((item) => ({
       variantId: item.productVariantId,
@@ -489,6 +503,44 @@ export class OrdersService {
     }
 
     return updated;
+  }
+
+  // Administrative correction of the COMMERCIAL status only. The Aramex shipment (status, tracking
+  // history, HAWB) is never read or written here, and no stock / loyalty / notification side effect
+  // is replayed: those hooks are not idempotent, so replaying them on a correction would double-count.
+  // Every use is audited with isOverride=true and a mandatory reason.
+  private async overrideOrderStatus(
+    order: { id: string; status: OrderStatus },
+    toStatus: OrderStatus,
+    staffId: string,
+    reason?: string,
+  ) {
+    const trimmed = (reason ?? "").trim();
+    if (trimmed.length < 5) {
+      throw new BadRequestException("Un motif d'au moins 5 caractères est obligatoire pour une correction administrateur.");
+    }
+    return this.applyStatusChange(order, toStatus, staffId, `[CORRECTION ADMIN] ${trimmed}`, true);
+  }
+
+  // Status write + audit row in ONE transaction, guarded by the status we read (optimistic lock):
+  // if another admin changed the order meanwhile, nothing is written and the caller gets a 409.
+  private async applyStatusChange(
+    order: { id: string; status: OrderStatus },
+    toStatus: OrderStatus,
+    staffId: string,
+    note: string | undefined,
+    isOverride: boolean,
+  ) {
+    return this.prisma.$transaction(async (tx) => {
+      const lock = await tx.order.updateMany({ where: { id: order.id, status: order.status }, data: { status: toStatus } });
+      if (lock.count !== 1) {
+        throw new ConflictException("Cette commande vient d'être modifiée par un autre administrateur. Actualisez la page et réessayez.");
+      }
+      await tx.orderStatusHistory.create({
+        data: { orderId: order.id, fromStatus: order.status, toStatus, staffId, note, isOverride },
+      });
+      return tx.order.findUniqueOrThrow({ where: { id: order.id } });
+    });
   }
 
   // Cost snapshot at confirmation (REQUIREMENTS.md §4 profitability decision):

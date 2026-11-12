@@ -52,7 +52,7 @@ const PROMO_STATUS_MAP: Record<PromoStatus, { label: string; bg: string; text: s
   ACTIVE: { label: "Active", bg: "bg-emerald-500/10 border-emerald-500/30", text: "text-emerald-700" },
   SCHEDULED: { label: "Planifiée", bg: "bg-blue-500/10 border-blue-500/30", text: "text-blue-700" },
   EXPIRED: { label: "Expirée", bg: "bg-amber-500/10 border-amber-500/30", text: "text-amber-700" },
-  DISABLED: { label: "Désactivée", bg: "bg-rose-500/10 border-rose-500/30", text: "text-rose-700" },
+  DISABLED: { label: "Désactivée", bg: "bg-primary/10 border-primary/30", text: "text-primary-hover" },
 };
 
 const initialPromotions: Promotion[] = [
@@ -127,7 +127,7 @@ function MarginImpactPreview({ promo, avgCost }: { promo: Promotion; avgCost: nu
         </p>
       )}
       {costTauxMarque <= 0 && (
-        <p className="text-[0.625rem] text-rose-600 flex items-center gap-1 font-semibold">
+        <p className="text-[0.625rem] text-primary flex items-center gap-1 font-semibold">
           <TrendingDown size={10} /> Marge négative — perte commerciale
         </p>
       )}
@@ -179,7 +179,7 @@ export default function PromotionsPage() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <div className="flex items-center gap-2.5">
-            <h1 className="text-xl font-bold tracking-tight text-ink">Codes Promo & Offres Spéciales</h1>
+            <h1 className="page-title">Codes Promo & Offres Spéciales</h1>
             <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary border border-primary/20">
               {promotions.length} campagnes
             </span>
@@ -288,7 +288,7 @@ export default function PromotionsPage() {
                       <button type="button" onClick={() => setToggleTarget(promo)} className="p-1.5 rounded-lg hover:bg-soft-nude text-ink-muted">
                         {promo.status === "ACTIVE" ? <ToggleLeft size={14} /> : <ToggleRight size={14} />}
                       </button>
-                      <button type="button" onClick={() => setDeleteTarget(promo)} className="p-1.5 rounded-lg hover:bg-rose-500/10 text-rose-600">
+                      <button type="button" onClick={() => setDeleteTarget(promo)} className="p-1.5 rounded-lg hover:bg-primary/10 text-primary">
                         <Trash2 size={14} />
                       </button>
                     </div>

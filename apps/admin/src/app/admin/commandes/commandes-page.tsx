@@ -23,6 +23,9 @@ import {
   RefreshCw,
   AlertTriangle,
   CheckCircle,
+  CheckCircle2,
+  PackageCheck,
+  Undo2,
 } from "lucide-react";
 import type { OrderStatus } from "@/lib/types";
 import { useToast } from "@/components/toast";
@@ -32,6 +35,14 @@ import { formatCurrency, formatPercent } from "@/lib/utils";
 import { notifyOrdersChanged, onOrdersChanged } from "@/lib/order-events";
 import { AramexBadge, getAramexStatusConfig } from "@/components/aramex/aramex-badge";
 import { AramexShipmentModal } from "@/components/aramex/aramex-shipment-modal";
+import { canTransition } from "@/lib/order-state";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatCard } from "@/components/ui/stat-card";
+import { OrderStatusBadge } from "@/components/ui/status-badge";
+import { LoadingSkeleton } from "@/components/ui/loading-skeleton";
+import { EmptyState } from "@paratunisie/ui";
+import { FilterChips } from "@/components/ui/filter-chips";
+import { aramexBucket, countAramexBuckets, matchesAramexFilter, matchesPeriod, type AramexFilter } from "@/lib/order-filters";
 import { AramexTrackingDrawer } from "@/components/aramex/aramex-tracking-drawer";
 
 /* ─── Types ─────────────────────────────────────────────────────────── */
@@ -77,6 +88,7 @@ interface CustomOrder {
   reference: string;
   customerName: string;
   isRegularClient?: boolean;
+  createdAt?: string;
   date: string;
   phone: string;
   phone2?: string;
@@ -348,13 +360,27 @@ const TUNISIA_CITIES = [
   "Zaghouan",
 ];
 
-const STATUS_OPTIONS = [
-  { value: "DEFAULT", label: "— Par défaut —" },
+const STATUS_OPTIONS: { value: OrderStatus; label: string }[] = [
   { value: "EN_ATTENTE", label: "En attente" },
+  { value: "TENTATIVE_CONTACT", label: "Tentative de contact" },
   { value: "CONFIRMEE", label: "Confirmée" },
-  { value: "TENTATIVE", label: "Tentative" },
+  { value: "PREPARATION", label: "En préparation" },
+  { value: "PRETE_EXPEDITION", label: "Prête à expédier" },
+  { value: "EXPEDIEE", label: "Expédiée" },
+  { value: "LIVREE", label: "Livrée" },
+  { value: "ECHEC_LIVRAISON", label: "Échec de livraison" },
+  { value: "RETOURNEE", label: "Retournée" },
   { value: "ANNULEE", label: "Annulée" },
+  { value: "REFUSEE", label: "Refusée" },
 ];
+const ARAMEX_FILTER_LABEL: Record<string, string> = {
+  NOT_SHIPPED: "non expédiées", CREATED: "créées", IN_TRANSIT: "en transit", OUT_FOR_DELIVERY: "en livraison",
+  DELIVERED: "livrées", DELIVERY_ATTEMPT: "tentatives", EXCEPTION: "exceptions", PROBLEMS: "tentatives + problèmes",
+  RETURNING: "retour en cours", RETURNED: "retournées", RETURNS: "tous les retours", CANCELLED: "annulées",
+};
+const PERIOD_LABEL: Record<string, string> = { today: "aujourd'hui", week: "7 jours", month: "ce mois" };
+const STATUS_LABEL: Record<string, string> = Object.fromEntries(STATUS_OPTIONS.map((o) => [o.value, o.label]));
+
 
 /* ─── Page Component ─────────────────────────────────────────────────── */
 
@@ -373,6 +399,7 @@ function CommandesInner() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [aramexFilter, setAramexFilter] = useState<string>("ALL");
+  const [statusReason, setStatusReason] = useState("");
   const [periodFilter, setPeriodFilter] = useState<string>("ALL");
   const [deleteTarget, setDeleteTarget] = useState<CustomOrder | null>(null);
   const [orderCounts, setOrderCounts] = useState<OrderCounts | null>(null);
@@ -410,25 +437,10 @@ function CommandesInner() {
     }
   }, [search]);
 
-  const handleConvertAbandoned = async (abandoned: AbandonedCheckout) => {
-    if (convertingAbandonedId) return;
-    setConvertingAbandonedId(abandoned.id);
-    try {
-      const res = await apiClient.post<{ success: boolean; orderId: string; orderReference: string }>(
-        `/abandoned-checkouts/${abandoned.id}/convert`,
-        {}
-      );
-      toast("success", `Commande ${res.orderReference || "créée"} confirmée avec succès !`);
-      setSelectedAbandoned(null);
-      notifyOrdersChanged();
-      loadAbandonedCheckouts();
-      loadOrderCounts();
-      setOrdersRefreshKey((k) => k + 1);
-    } catch (err: any) {
-      toast("error", err.message || "Erreur lors de la conversion de la commande");
-    } finally {
-      setConvertingAbandonedId(null);
-    }
+  // Creating an order from an abandoned checkout now requires the admin to affirm the customer's explicit
+  // confirmation, which lives in the dedicated module — never a one-click conversion from this list.
+  const handleConvertAbandoned = async (_abandoned: AbandonedCheckout) => {
+    window.location.href = "/admin/commandes-abandonnees";
   };
 
   const handleDeleteAbandoned = async () => {
@@ -502,8 +514,9 @@ function CommandesInner() {
               reference: `#${o.id?.slice(-5) || 53380 + idx}`,
               customerName: o.user?.name || "Client ParaTunisie",
               isRegularClient: Boolean(o.user?.orders && o.user.orders.length > 1),
+              createdAt: o.createdAt || undefined,
               date: new Date(o.createdAt || Date.now()).toLocaleDateString("fr-FR"),
-              phone: o.user?.phone || "27578505",
+              phone: o.user?.phone || "",
               phone2: "",
               email: o.user?.email || "",
               city: o.gouvernorat || "Tunis",
@@ -535,15 +548,7 @@ function CommandesInner() {
                     codAmountMillimes: o.shipment.codAmountMillimes,
                   }
                 : null,
-              items: items.length > 0 ? items : [
-                {
-                  productName: "Anthelios Fluide Invisible SPF50+",
-                  brand: "La Roche-Posay",
-                  quantity: 1,
-                  unitPrice: 58,
-                  lineTotal: 58,
-                },
-              ],
+              items,
             };
           });
           setOrders(mapped);
@@ -843,7 +848,20 @@ function CommandesInner() {
 
     try {
       setSavingOrder(true);
-      await apiClient.patch(`/orders/${formData.id}/status`, { status: formData.status });
+      const current = orders.find((o) => o.id === formData.id)?.status;
+      if (current && current !== formData.status) {
+        const isNormal = canTransition(current as OrderStatus, formData.status as OrderStatus);
+        if (!isNormal && statusReason.trim().length < 5) {
+          toast("error", "Indiquez un motif (5 caractères minimum) pour la correction du statut.");
+          setSavingOrder(false);
+          return;
+        }
+        await apiClient.patch(`/orders/${formData.id}/status`, {
+          status: formData.status,
+          ...(isNormal ? {} : { override: true, note: statusReason.trim() }),
+        });
+        setStatusReason("");
+      }
       notifyOrdersChanged();
       loadOrderCounts();
       setOrdersRefreshKey((k) => k + 1);
@@ -857,7 +875,7 @@ function CommandesInner() {
     } finally {
       setSavingOrder(false);
     }
-  }, [formData, targetId, handleCloseDrawer, loadOrderCounts, toast]);
+  }, [formData, targetId, orders, statusReason, handleCloseDrawer, loadOrderCounts, toast]);
 
   const handleDelete = useCallback(async () => {
     if (!deleteTarget) return;
@@ -942,45 +960,11 @@ function CommandesInner() {
   const abandonedCount = orderCounts?.abandoned ?? (abandonedList.length > 0 ? abandonedList.length : abandonedCountLocal);
   const deletedCount = orderCounts?.deleted ?? deletedCountLocal;
 
-  // Real Aramex Delivery Status Counters
-  const aramexCounts = useMemo(() => {
-    let notShipped = 0;
-    let created = 0;
-    let inTransit = 0;
-    let outForDelivery = 0;
-    let delivered = 0;
-    let attempts = 0;
-    let returns = 0;
-    let returned = 0;
-
-    for (const o of orders) {
-      const s = (o.shipment?.trackingStatus || (o.shipment?.hawb ? "CREATED" : "")).toUpperCase();
-      if (!o.shipment?.hawb && !o.shipment?.tracking) {
-        notShipped++;
-      } else if (s === "DELIVERED") {
-        delivered++;
-      } else if (s === "OUT_FOR_DELIVERY") {
-        outForDelivery++;
-      } else if (s === "IN_TRANSIT" || s === "PICKED_UP" || s === "PICKUP_REQUESTED") {
-        inTransit++;
-      } else if (s === "DELIVERY_ATTEMPT" || s === "REFUSED" || s === "EXCEPTION") {
-        attempts++;
-      } else if (s === "RETURN_REQUESTED" || s === "RETURNING") {
-        returns++;
-      } else if (s === "RETURNED") {
-        returned++;
-        returns++;
-      } else {
-        created++;
-      }
-    }
-
-    return { notShipped, created, inTransit, outForDelivery, delivered, attempts, returns, returned };
-  }, [orders]);
-
-  // Filtered List
-  const filteredOrders = useMemo(() => {
-    let list = [...orders];
+  // Scope shared by the summary cards, dropdown counters AND the table: tab + search + commercial
+  // status + period. Only the Aramex filter is applied after, so a card's number is always the
+  // number of rows it shows.
+  const scopedOrders = useMemo(() => {
+    let list = orders;
     if (activeTab === "NORMAL") {
       list = list.filter((o) => (o.status as string) !== "ABANDONNEE" && (o.status as string) !== "SUPPRIMEE");
     } else if (activeTab === "ABANDONNEES") {
@@ -988,62 +972,46 @@ function CommandesInner() {
     } else if (activeTab === "SUPPRIMEES") {
       list = list.filter((o) => (o.status as string) === "SUPPRIMEE");
     }
-
-    if (search) {
-      const q = search.toLowerCase();
+    if (search.trim()) {
+      const q = search.trim().toLowerCase();
+      const digits = q.replace(/\D/g, "");
       list = list.filter(
         (o) =>
           o.reference.toLowerCase().includes(q) ||
+          o.id.toLowerCase().includes(q) ||
           o.customerName.toLowerCase().includes(q) ||
-          o.phone.includes(q) ||
+          (digits.length > 0 && o.phone.replace(/\D/g, "").includes(digits)) ||
           o.city.toLowerCase().includes(q)
       );
     }
-    if (statusFilter !== "ALL") {
-      list = list.filter((o) => o.status === statusFilter);
-    }
-
-    if (aramexFilter !== "ALL") {
-      if (aramexFilter === "NOT_SHIPPED") {
-        list = list.filter((o) => !o.shipment?.hawb && !o.shipment?.tracking);
-      } else if (aramexFilter === "IN_TRANSIT") {
-        list = list.filter((o) => {
-          const s = (o.shipment?.trackingStatus || "").toUpperCase();
-          return s === "IN_TRANSIT" || s === "PICKED_UP" || s === "PICKUP_REQUESTED";
-        });
-      } else if (aramexFilter === "OUT_FOR_DELIVERY") {
-        list = list.filter((o) => (o.shipment?.trackingStatus || "").toUpperCase() === "OUT_FOR_DELIVERY");
-      } else if (aramexFilter === "DELIVERED") {
-        list = list.filter((o) => (o.shipment?.trackingStatus || "").toUpperCase() === "DELIVERED");
-      } else if (aramexFilter === "DELIVERY_ATTEMPT") {
-        list = list.filter((o) => {
-          const s = (o.shipment?.trackingStatus || "").toUpperCase();
-          return s === "DELIVERY_ATTEMPT" || s === "REFUSED";
-        });
-      } else if (aramexFilter === "EXCEPTION") {
-        list = list.filter((o) => {
-          const s = (o.shipment?.trackingStatus || "").toUpperCase();
-          return s === "EXCEPTION" || s === "REFUSED";
-        });
-      } else if (aramexFilter === "RETURNING") {
-        list = list.filter((o) => {
-          const s = (o.shipment?.trackingStatus || "").toUpperCase();
-          return s === "RETURNING" || s === "RETURN_REQUESTED";
-        });
-      } else if (aramexFilter === "RETURNED") {
-        list = list.filter((o) => (o.shipment?.trackingStatus || "").toUpperCase() === "RETURNED");
-      } else if (aramexFilter === "CREATED") {
-        list = list.filter((o) => {
-          const s = (o.shipment?.trackingStatus || "").toUpperCase();
-          return s === "CREATED" || (!s && Boolean(o.shipment?.hawb));
-        });
-      } else if (aramexFilter === "CANCELLED") {
-        list = list.filter((o) => (o.shipment?.trackingStatus || "").toUpperCase() === "CANCELLED");
-      }
-    }
-
+    if (statusFilter !== "ALL") list = list.filter((o) => o.status === statusFilter);
+    if (periodFilter !== "ALL") list = list.filter((o) => matchesPeriod(o.createdAt, periodFilter));
     return list;
-  }, [orders, activeTab, search, statusFilter, aramexFilter]);
+  }, [orders, activeTab, search, statusFilter, periodFilter]);
+
+  const aramexCounts = useMemo(() => {
+    const c = countAramexBuckets(scopedOrders);
+    return {
+      notShipped: c.NOT_SHIPPED,
+      created: c.CREATED,
+      inTransit: c.IN_TRANSIT,
+      outForDelivery: c.OUT_FOR_DELIVERY,
+      delivered: c.DELIVERED,
+      attempts: c.DELIVERY_ATTEMPT,
+      exceptions: c.EXCEPTION,
+      problems: c.problems,
+      returning: c.RETURNING,
+      returned: c.RETURNED,
+      returns: c.returns,
+      cancelled: c.CANCELLED,
+    };
+  }, [scopedOrders]);
+
+  // Filtered List
+  const filteredOrders = useMemo(
+    () => (aramexFilter === "ALL" ? scopedOrders : scopedOrders.filter((o) => matchesAramexFilter(o.shipment, aramexFilter as AramexFilter))),
+    [scopedOrders, aramexFilter]
+  );
 
   const visibleOrderIds = useMemo(() => filteredOrders.map((order) => order.id), [filteredOrders]);
   const visibleSelectedCount = useMemo(
@@ -1125,253 +1093,140 @@ function CommandesInner() {
   const annuleeCount = orderCounts?.byStatus.ANNULEE ?? orders.filter((o) => o.status === "ANNULEE").length;
 
   return (
-    <div className="space-y-6 min-h-screen bg-[#FFF5F5]/40 p-2 sm:p-6 text-slate-800">
-      {/* ── Top Header ───────────────────────────────────────────────── */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex items-start gap-3">
-          <div className="h-12 w-12 rounded-2xl bg-[#E11D48] text-white flex items-center justify-center shadow-md shrink-0 mt-0.5">
-            <ShoppingBag size={24} />
-          </div>
-          <div>
-            <h1 className="text-2xl font-black tracking-tight text-[#881337]">Commandes</h1>
-            <p className="text-sm font-bold text-slate-700 mt-0.5">
-              {totalCount} commandes en base de données
-            </p>
-            <p className="text-xs text-slate-500 font-medium mt-0.5">
-              = En attente ({enAttenteCount}) + Confirmée ({confirmeeCount}) + Tentative ({tentativeCount}) + Annulée ({annuleeCount})
-            </p>
-          </div>
-        </div>
+    <div className="space-y-4 text-ink">
+      <PageHeader
+        title="Commandes"
+        icon={ShoppingBag}
+        description={`${normalCount} commandes · ${filteredOrders.length} affichée${filteredOrders.length > 1 ? "s" : ""}`}
+        actions={
+          <button
+            type="button"
+            onClick={() => handleOpenEdit("new")}
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary-hover active:scale-[0.98]"
+          >
+            <Plus size={16} strokeWidth={2.5} />
+            Ajouter une commande
+          </button>
+        }
+      />
 
-        <button
-          type="button"
-          onClick={() => handleOpenEdit("new")}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#E11D48] px-5 py-2.5 text-sm font-bold text-white shadow-sm hover:bg-[#BE123C] transition-all active:scale-[0.98]"
-        >
-          <Plus size={18} strokeWidth={3} />
-          Ajouter une commande
-        </button>
+      {/* ── Scope tabs ── */}
+      <div className="inline-flex rounded-xl border border-border bg-soft-nude p-1" role="tablist" aria-label="Type de commandes">
+        {([
+          ["NORMAL", "Normal", normalCount],
+          ["ABANDONNEES", "Abandonnées", abandonedCount],
+          ["SUPPRIMEES", "Supprimées", deletedCount],
+        ] as const).map(([key, label, count]) => (
+          <button
+            key={key}
+            type="button"
+            role="tab"
+            aria-selected={activeTab === key}
+            onClick={() => setActiveTab(key)}
+            className={`rounded-lg px-4 py-1.5 text-[0.8125rem] font-semibold transition-all ${
+              activeTab === key ? "bg-surface-alt text-primary shadow-sm" : "text-ink-muted hover:text-ink"
+            }`}
+          >
+            {label} <span className="ml-1 tabular-nums opacity-70">{count}</span>
+          </button>
+        ))}
       </div>
 
-      {/* ── Tabs Bar ─────────────────────────────────────────────────── */}
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => setActiveTab("NORMAL")}
-          className={`px-5 py-2 rounded-xl text-sm font-bold transition-all ${
-            activeTab === "NORMAL"
-              ? "bg-[#E11D48] text-white shadow-sm"
-              : "bg-white text-slate-700 hover:bg-rose-50 border border-slate-200"
-          }`}
-        >
-          Normal ({normalCount})
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("ABANDONNEES")}
-          className={`px-5 py-2 rounded-xl text-sm font-bold transition-all ${
-            activeTab === "ABANDONNEES"
-              ? "bg-[#E11D48] text-white shadow-sm"
-              : "bg-white text-slate-700 hover:bg-rose-50 border border-slate-200"
-          }`}
-        >
-          Abandonnées ({abandonedCount})
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("SUPPRIMEES")}
-          className={`px-5 py-2 rounded-xl text-sm font-bold transition-all ${
-            activeTab === "SUPPRIMEES"
-              ? "bg-[#E11D48] text-white shadow-sm"
-              : "bg-white text-slate-700 hover:bg-rose-50 border border-slate-200"
-          }`}
-        >
-          Supprimées ({deletedCount})
-        </button>
+      {/* ── Shipment summary — each card filters the table with the same scope ── */}
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-5">
+        <StatCard label="En transit" icon={Truck} tone="info" value={aramexCounts.inTransit} active={aramexFilter === "IN_TRANSIT"} onClick={() => setAramexFilter(aramexFilter === "IN_TRANSIT" ? "ALL" : "IN_TRANSIT")} />
+        <StatCard label="En livraison" icon={PackageCheck} tone="warning" value={aramexCounts.outForDelivery} active={aramexFilter === "OUT_FOR_DELIVERY"} onClick={() => setAramexFilter(aramexFilter === "OUT_FOR_DELIVERY" ? "ALL" : "OUT_FOR_DELIVERY")} />
+        <StatCard label="Livrées" icon={CheckCircle2} tone="success" value={aramexCounts.delivered} active={aramexFilter === "DELIVERED"} onClick={() => setAramexFilter(aramexFilter === "DELIVERED" ? "ALL" : "DELIVERED")} />
+        <StatCard label="Tentatives / problèmes" icon={AlertTriangle} tone="warning" value={aramexCounts.problems} active={aramexFilter === "PROBLEMS"} onClick={() => setAramexFilter(aramexFilter === "PROBLEMS" ? "ALL" : "PROBLEMS")} />
+        <StatCard label="Retours" icon={Undo2} tone="danger" value={aramexCounts.returns} hint={`${aramexCounts.returning} en cours · ${aramexCounts.returned} retournées`} active={aramexFilter === "RETURNS"} onClick={() => setAramexFilter(aramexFilter === "RETURNS" ? "ALL" : "RETURNS")} />
       </div>
 
-      {/* ── Live Aramex Shipment Operational Counters ─────────────────── */}
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
-        <button
-          type="button"
-          onClick={() => setAramexFilter(aramexFilter === "IN_TRANSIT" ? "ALL" : "IN_TRANSIT")}
-          className={`p-3 rounded-2xl border text-left transition-all ${
-            aramexFilter === "IN_TRANSIT"
-              ? "bg-purple-100/90 border-purple-400 ring-2 ring-purple-400/40 shadow-xs"
-              : "bg-white border-slate-200/80 hover:bg-purple-50/50 shadow-2xs"
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-purple-800 flex items-center gap-1.5">
-              <span>🚚</span> En transit
-            </span>
-            <span className="text-xs font-black text-purple-900 bg-purple-100 px-2 py-0.5 rounded-full">
-              {aramexCounts.inTransit}
-            </span>
-          </div>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setAramexFilter(aramexFilter === "OUT_FOR_DELIVERY" ? "ALL" : "OUT_FOR_DELIVERY")}
-          className={`p-3 rounded-2xl border text-left transition-all ${
-            aramexFilter === "OUT_FOR_DELIVERY"
-              ? "bg-amber-100/90 border-amber-400 ring-2 ring-amber-400/40 shadow-xs"
-              : "bg-white border-slate-200/80 hover:bg-amber-50/50 shadow-2xs"
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-amber-800 flex items-center gap-1.5">
-              <span>📦</span> En livraison
-            </span>
-            <span className="text-xs font-black text-amber-900 bg-amber-100 px-2 py-0.5 rounded-full">
-              {aramexCounts.outForDelivery}
-            </span>
-          </div>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setAramexFilter(aramexFilter === "DELIVERED" ? "ALL" : "DELIVERED")}
-          className={`p-3 rounded-2xl border text-left transition-all ${
-            aramexFilter === "DELIVERED"
-              ? "bg-emerald-100/90 border-emerald-400 ring-2 ring-emerald-400/40 shadow-xs"
-              : "bg-white border-slate-200/80 hover:bg-emerald-50/50 shadow-2xs"
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-emerald-800 flex items-center gap-1.5">
-              <span>✅</span> Livrées
-            </span>
-            <span className="text-xs font-black text-emerald-900 bg-emerald-100 px-2 py-0.5 rounded-full">
-              {aramexCounts.delivered}
-            </span>
-          </div>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setAramexFilter(aramexFilter === "DELIVERY_ATTEMPT" ? "ALL" : "DELIVERY_ATTEMPT")}
-          className={`p-3 rounded-2xl border text-left transition-all ${
-            aramexFilter === "DELIVERY_ATTEMPT"
-              ? "bg-yellow-100/90 border-yellow-400 ring-2 ring-yellow-400/40 shadow-xs"
-              : "bg-white border-slate-200/80 hover:bg-yellow-50/50 shadow-2xs"
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-yellow-800 flex items-center gap-1.5">
-              <span>⚠️</span> Tentatives / Pb
-            </span>
-            <span className="text-xs font-black text-yellow-900 bg-yellow-100 px-2 py-0.5 rounded-full">
-              {aramexCounts.attempts}
-            </span>
-          </div>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setAramexFilter(aramexFilter === "RETURNING" ? "ALL" : "RETURNING")}
-          className={`p-3 rounded-2xl border text-left transition-all ${
-            aramexFilter === "RETURNING"
-              ? "bg-rose-100/90 border-rose-400 ring-2 ring-rose-400/40 shadow-xs"
-              : "bg-white border-slate-200/80 hover:bg-rose-50/50 shadow-2xs"
-          }`}
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-black text-rose-800 flex items-center gap-1.5">
-              <span>↩</span> Retours
-            </span>
-            <span className="text-xs font-black text-rose-900 bg-rose-100 px-2 py-0.5 rounded-full">
-              {aramexCounts.returns}
-            </span>
-          </div>
-        </button>
-      </div>
-
-      {/* ── Filter Bar ───────────────────────────────────────────────── */}
-      <div className="rounded-2xl bg-white p-3.5 shadow-xs border border-slate-200/80 flex items-center gap-3 flex-wrap">
-        <div className="relative flex-1 min-w-[220px] max-w-sm">
-          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+      {/* ── Filter bar ── */}
+      <div className="admin-card flex flex-wrap items-center gap-2.5 p-3">
+        <div className="relative min-w-[220px] max-w-sm flex-1">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-faint" />
           <input
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Rechercher (numéro, client, téléphone)..."
-            className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3 py-2 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-[#E11D48] transition-all"
+            placeholder="Rechercher (numéro, client, téléphone)…"
+            className="field-input pl-9!"
           />
         </div>
 
-        <select
-          value={statusFilter}
-          onChange={(e) => setStatusFilter(e.target.value)}
-          className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-[#E11D48]"
-        >
-          <option value="ALL">Statut Commande : Tous ({totalCount})</option>
-          <option value="EN_ATTENTE">En attente ({enAttenteCount})</option>
-          <option value="CONFIRMEE">Confirmée ({confirmeeCount})</option>
-          <option value="TENTATIVE_CONTACT">Tentative ({tentativeCount})</option>
-          <option value="ANNULEE">Annulée ({annuleeCount})</option>
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="field-input w-auto!" aria-label="Statut commercial">
+          <option value="ALL">Statut commercial : tous ({normalCount})</option>
+          {STATUS_OPTIONS.map((opt) => (
+            <option key={opt.value} value={opt.value}>
+              {opt.label} ({orderCounts?.byStatus[opt.value] ?? orders.filter((o) => o.status === opt.value).length})
+            </option>
+          ))}
         </select>
 
-        <select
-          value={aramexFilter}
-          onChange={(e) => setAramexFilter(e.target.value)}
-          className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-[#E11D48]"
-        >
-          <option value="ALL">Expédition Aramex : Toutes</option>
+        <select value={aramexFilter} onChange={(e) => setAramexFilter(e.target.value)} className="field-input w-auto!" aria-label="Expédition Aramex">
+          <option value="ALL">Expédition Aramex : toutes</option>
           <option value="NOT_SHIPPED">Non expédiées ({aramexCounts.notShipped})</option>
           <option value="CREATED">Créées ({aramexCounts.created})</option>
           <option value="IN_TRANSIT">En transit ({aramexCounts.inTransit})</option>
           <option value="OUT_FOR_DELIVERY">En cours de livraison ({aramexCounts.outForDelivery})</option>
           <option value="DELIVERED">Livrées ({aramexCounts.delivered})</option>
           <option value="DELIVERY_ATTEMPT">Tentatives de livraison ({aramexCounts.attempts})</option>
-          <option value="EXCEPTION">Problèmes / Exceptions</option>
-          <option value="RETURNING">En cours de retour ({aramexCounts.returns})</option>
+          <option value="EXCEPTION">Problèmes / exceptions ({aramexCounts.exceptions})</option>
+          <option value="PROBLEMS">Tentatives + problèmes ({aramexCounts.problems})</option>
+          <option value="RETURNING">En cours de retour ({aramexCounts.returning})</option>
           <option value="RETURNED">Retournées ({aramexCounts.returned})</option>
-          <option value="CANCELLED">Annulées</option>
+          <option value="RETURNS">Tous les retours ({aramexCounts.returns})</option>
+          <option value="CANCELLED">Annulées ({aramexCounts.cancelled})</option>
         </select>
 
-        <select
-          value={periodFilter}
-          onChange={(e) => setPeriodFilter(e.target.value)}
-          className="rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-[#E11D48]"
-        >
+        <select value={periodFilter} onChange={(e) => setPeriodFilter(e.target.value)} className="field-input w-auto!" aria-label="Période">
           <option value="ALL">Toute la période</option>
           <option value="today">Aujourd&apos;hui</option>
-          <option value="week">Cette semaine</option>
+          <option value="week">7 derniers jours</option>
           <option value="month">Ce mois</option>
         </select>
       </div>
 
+      <FilterChips
+        resultCount={filteredOrders.length}
+        onReset={() => { setSearch(""); setStatusFilter("ALL"); setAramexFilter("ALL"); setPeriodFilter("ALL"); }}
+        chips={[
+          ...(search.trim() ? [{ key: "q", label: `« ${search.trim()} »`, onRemove: () => setSearch("") }] : []),
+          ...(statusFilter !== "ALL" ? [{ key: "s", label: `Statut : ${STATUS_LABEL[statusFilter] ?? statusFilter}`, onRemove: () => setStatusFilter("ALL") }] : []),
+          ...(aramexFilter !== "ALL" ? [{ key: "a", label: `Aramex : ${ARAMEX_FILTER_LABEL[aramexFilter] ?? aramexFilter}`, onRemove: () => setAramexFilter("ALL") }] : []),
+          ...(periodFilter !== "ALL" ? [{ key: "p", label: `Période : ${PERIOD_LABEL[periodFilter] ?? periodFilter}`, onRemove: () => setPeriodFilter("ALL") }] : []),
+        ]}
+      />
+
       {selectedIds.size > 0 && (
-        <div className="flex flex-col gap-3 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between" role="status">
-          <p className="text-sm font-bold text-rose-900">{selectedIds.size} commande{selectedIds.size > 1 ? "s" : ""} sélectionnée{selectedIds.size > 1 ? "s" : ""}</p>
+        <div className="flex flex-col gap-3 rounded-2xl border border-primary-soft bg-primary-soft/30 px-4 py-3 sm:flex-row sm:items-center sm:justify-between" role="status">
+          <p className="text-sm font-bold text-primary-hover">{selectedIds.size} commande{selectedIds.size > 1 ? "s" : ""} sélectionnée{selectedIds.size > 1 ? "s" : ""}</p>
           <div className="flex gap-2">
-            <button type="button" onClick={() => setSelectedIds(new Set())} className="min-h-11 rounded-xl border border-rose-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-rose-100">Annuler la sélection</button>
-            <button type="button" disabled={bulkDeleting} onClick={() => setBulkDeleteOpen(true)} className="min-h-11 rounded-xl bg-rose-600 px-4 text-sm font-bold text-white hover:bg-rose-700 disabled:cursor-not-allowed disabled:opacity-50"><Trash2 className="mr-2 inline size-4" />Supprimer la sélection</button>
+            <button type="button" onClick={() => setSelectedIds(new Set())} className="min-h-11 rounded-xl border border-primary-soft bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-primary-soft/60">Annuler la sélection</button>
+            <button type="button" disabled={bulkDeleting} onClick={() => setBulkDeleteOpen(true)} className="min-h-11 rounded-xl bg-primary px-4 text-sm font-bold text-white hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"><Trash2 className="mr-2 inline size-4" />Supprimer la sélection</button>
           </div>
         </div>
       )}
 
       {/* ── Table Container ───────────────────────────────────────────── */}
       {activeTab === "ABANDONNEES" ? (
-        <div className="rounded-2xl bg-white shadow-xs border border-slate-200/80 overflow-hidden">
+        <div className="admin-card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-100 bg-amber-50/30 text-[0.6875rem] font-bold text-slate-500 uppercase tracking-wider">
-                  <th className="py-3.5 px-4">DATE / DERNIÈRE ACTIVITÉ</th>
-                  <th className="py-3.5 px-4">CLIENT & CONTACT</th>
-                  <th className="py-3.5 px-4">RELANCE RAPIDE</th>
-                  <th className="py-3.5 px-4">VILLE & ADRESSE</th>
-                  <th className="py-3.5 px-4">ARTICLES DU PANIER</th>
-                  <th className="py-3.5 px-4">TOTAL ESTIMÉ</th>
-                  <th className="py-3.5 px-4">ORIGINE</th>
-                  <th className="py-3.5 px-4">STATUT</th>
-                  <th className="py-3.5 px-4 text-right">ACTIONS</th>
+                  <th className="py-3 px-4">DATE / DERNIÈRE ACTIVITÉ</th>
+                  <th className="py-3 px-4">CLIENT & CONTACT</th>
+                  <th className="py-3 px-4">RELANCE RAPIDE</th>
+                  <th className="py-3 px-4">VILLE & ADRESSE</th>
+                  <th className="py-3 px-4">ARTICLES DU PANIER</th>
+                  <th className="py-3 px-4">TOTAL ESTIMÉ</th>
+                  <th className="py-3 px-4">ORIGINE</th>
+                  <th className="py-3 px-4">STATUT</th>
+                  <th className="py-3 px-4 text-right">ACTIONS</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
+              <tbody className="divide-y divide-border text-xs font-medium text-ink">
                 {loadingAbandoned ? (
                   <tr>
                     <td colSpan={9} className="py-12 text-center text-slate-500 font-semibold">
@@ -1397,7 +1252,7 @@ function CommandesInner() {
 
                     return (
                       <tr key={item.id} className="hover:bg-amber-50/20 transition-colors">
-                        <td className="py-3.5 px-4 font-semibold text-slate-700">
+                        <td className="py-3 px-4 font-semibold text-slate-700">
                           <div className="flex items-center gap-1.5 text-xs text-slate-800">
                             <Clock size={13} className="text-slate-400" />
                             <span>
@@ -1410,12 +1265,12 @@ function CommandesInner() {
                             </span>
                           </div>
                         </td>
-                        <td className="py-3.5 px-4">
+                        <td className="py-3 px-4">
                           <p className="font-bold text-slate-900">{item.customerName || "Prospect sans nom"}</p>
                           <p className="text-slate-600 font-medium text-[0.6875rem]">{item.phone}</p>
                           {item.email && <p className="text-slate-400 text-[0.625rem]">{item.email}</p>}
                         </td>
-                        <td className="py-3.5 px-4">
+                        <td className="py-3 px-4">
                           <div className="flex items-center gap-2">
                             {item.phone && (
                               <a
@@ -1441,13 +1296,13 @@ function CommandesInner() {
                             )}
                           </div>
                         </td>
-                        <td className="py-3.5 px-4">
+                        <td className="py-3 px-4">
                           <p className="font-bold text-slate-800">{item.gouvernorat || "—"}</p>
                           {item.fullAddress && (
                             <p className="text-slate-500 text-[0.6875rem] line-clamp-1">{item.fullAddress}</p>
                           )}
                         </td>
-                        <td className="py-3.5 px-4">
+                        <td className="py-3 px-4">
                           <div className="flex items-center gap-2">
                             {item.parsedItems.slice(0, 2).map((it, idx) => (
                               <div
@@ -1475,10 +1330,10 @@ function CommandesInner() {
                             )}
                           </div>
                         </td>
-                        <td className="py-3.5 px-4 font-black text-[#E11D48]">
+                        <td className="py-3 px-4 font-black text-[var(--color-primary)]">
                           {(item.totalMillimes / 1000).toFixed(3)} DT
                         </td>
-                        <td className="py-3.5 px-4">
+                        <td className="py-3 px-4">
                           <span
                             className={`inline-flex items-center px-2 py-0.5 rounded-full text-[0.625rem] font-extrabold ${
                               item.source === "PACK_ANTI_STRESS"
@@ -1495,18 +1350,18 @@ function CommandesInner() {
                               : "🛒 Page Commande"}
                           </span>
                         </td>
-                        <td className="py-3.5 px-4">
+                        <td className="py-3 px-4">
                           <span
                             className={`inline-flex items-center px-2 py-0.5 rounded-full text-[0.625rem] font-extrabold ${
                               item.status === "ABANDONED"
-                                ? "bg-rose-100 text-rose-800 border border-rose-200"
+                                ? "bg-primary-soft/60 text-primary-hover border border-primary-soft"
                                 : "bg-blue-100 text-blue-800 border border-blue-200"
                             }`}
                           >
                             {item.status === "ABANDONED" ? "Abandonnée" : "Brouillon actif"}
                           </span>
                         </td>
-                        <td className="py-3.5 px-4 text-right">
+                        <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               type="button"
@@ -1520,7 +1375,7 @@ function CommandesInner() {
                               type="button"
                               disabled={convertingAbandonedId === item.id}
                               onClick={() => handleConvertAbandoned(item)}
-                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition-colors shadow-xs disabled:opacity-50"
+                              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-primary text-white text-xs font-bold hover:bg-primary-hover transition-colors shadow-xs disabled:opacity-50"
                               title="Créer la commande"
                             >
                               {convertingAbandonedId === item.id ? (
@@ -1533,7 +1388,7 @@ function CommandesInner() {
                             <button
                               type="button"
                               onClick={() => setAbandonedDeleteTarget(item)}
-                              className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-primary-soft/30 transition-colors"
                               title="Supprimer"
                             >
                               <Trash2 size={15} />
@@ -1549,46 +1404,55 @@ function CommandesInner() {
           </div>
         </div>
       ) : (
-        <div className="rounded-2xl bg-white shadow-xs border border-slate-200/80 overflow-hidden">
-          <div className="overflow-x-auto">
+        <div className="admin-card overflow-hidden">
+          <div className="max-h-[calc(100vh-22rem)] min-h-[16rem] overflow-auto">
             <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-slate-100 bg-rose-50/30 text-[0.6875rem] font-bold text-slate-500 uppercase tracking-wider">
-                  <th className="py-3.5 px-4 w-10">
-                    <input ref={selectAllRef} type="checkbox" checked={allVisibleSelected} disabled={visibleOrderIds.length === 0} onChange={toggleAllVisibleOrders} aria-label="Sélectionner toutes les commandes visibles" className="size-4 cursor-pointer rounded border-slate-300 text-rose-600 focus:ring-rose-500 disabled:cursor-not-allowed" />
+              <thead className="sticky top-0 z-10 bg-soft-nude shadow-[0_1px_0_var(--color-border)]">
+                <tr className="border-b border-border bg-soft-nude text-[0.625rem] font-semibold text-ink-muted uppercase tracking-[0.07em]">
+                  <th className="py-3 px-4 w-10">
+                    <input ref={selectAllRef} type="checkbox" checked={allVisibleSelected} disabled={visibleOrderIds.length === 0} onChange={toggleAllVisibleOrders} aria-label="Sélectionner toutes les commandes visibles" className="size-4 cursor-pointer rounded border-slate-300 text-primary focus:ring-primary disabled:cursor-not-allowed" />
                   </th>
-                  <th className="py-3.5 px-4">ID</th>
-                  <th className="py-3.5 px-4">CLIENT</th>
-                  <th className="py-3.5 px-4">DATE</th>
-                  <th className="py-3.5 px-4">TÉLÉPHONE</th>
-                  <th className="py-3.5 px-4">VILLE</th>
-                  <th className="py-3.5 px-4">STATUT</th>
-                  <th className="py-3.5 px-4">EXPÉDITION (ARAMEX)</th>
-                  <th className="py-3.5 px-4">TOTAL</th>
-                  <th className="py-3.5 px-4 text-right">ACTIONS</th>
+                  <th className="py-3 px-4">N°</th>
+                  <th className="py-3 px-4">CLIENT</th>
+                  <th className="py-3 px-4">DATE</th>
+                  <th className="py-3 px-4">TÉLÉPHONE</th>
+                  <th className="py-3 px-4">VILLE</th>
+                  <th className="py-3 px-4">STATUT</th>
+                  <th className="py-3 px-4">EXPÉDITION (ARAMEX)</th>
+                  <th className="py-3 px-4">TOTAL</th>
+                  <th className="py-3 px-4 text-right">ACTIONS</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100 text-xs font-medium text-slate-700">
+              <tbody className="divide-y divide-border text-xs font-medium text-ink">
                 {loadingOrders ? (
                   <tr>
-                    <td colSpan={10} className="py-8 text-center text-slate-500 font-semibold">
-                      Chargement des commandes depuis la base de données...
+                    <td colSpan={10} className="p-4">
+                      <LoadingSkeleton rows={6} />
                     </td>
                   </tr>
                 ) : filteredOrders.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className="py-8 text-center text-slate-500 font-semibold">
-                      Aucune commande enregistrée.
+                    <td colSpan={10}>
+                      <EmptyState
+                        icon={<ShoppingBag size={22} />}
+                        title={orders.length === 0 ? "Aucune commande enregistrée" : "Aucune commande ne correspond à ces filtres"}
+                        description={orders.length === 0 ? "Les nouvelles commandes apparaîtront ici dès qu'un client passera commande." : "Modifiez ou réinitialisez les filtres pour voir plus de résultats."}
+                        action={orders.length > 0 ? (
+                          <button type="button" onClick={() => { setSearch(""); setStatusFilter("ALL"); setAramexFilter("ALL"); setPeriodFilter("ALL"); }} className="mt-2 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-ink hover:bg-soft-nude">
+                            Réinitialiser les filtres
+                          </button>
+                        ) : undefined}
+                      />
                     </td>
                   </tr>
                 ) : (
                   filteredOrders.map((order) => (
-                    <tr key={order.id} className={`transition-colors ${selectedIds.has(order.id) ? "bg-rose-50/70" : "hover:bg-rose-50/20"}`}>
-                      <td className="py-3.5 px-4">
-                        <input type="checkbox" checked={selectedIds.has(order.id)} onChange={() => toggleOrder(order.id)} aria-label={`Sélectionner la commande ${order.reference}`} className="size-4 cursor-pointer rounded border-slate-300 text-rose-600 focus:ring-rose-500" />
+                    <tr key={order.id} className={`transition-colors ${selectedIds.has(order.id) ? "bg-primary-soft/70" : "hover:bg-primary-soft/20"}`}>
+                      <td className="py-3 px-4">
+                        <input type="checkbox" checked={selectedIds.has(order.id)} onChange={() => toggleOrder(order.id)} aria-label={`Sélectionner la commande ${order.reference}`} className="size-4 cursor-pointer rounded border-slate-300 text-primary focus:ring-primary" />
                       </td>
-                      <td className="py-3.5 px-4 font-black text-slate-900">{order.reference}</td>
-                      <td className="py-3.5 px-4 relative">
+                      <td className="py-3 px-4 font-black text-slate-900">{order.reference}</td>
+                      <td className="py-3 px-4 relative">
                         {(() => {
                           const key = (order.phone?.trim() || order.customerName?.trim() || "").toLowerCase();
                           const clientOrders = customerOrdersMap.get(key) || [order];
@@ -1622,7 +1486,7 @@ function CommandesInner() {
                                           key={co.id}
                                           className={`flex items-center justify-between rounded-xl p-2 text-[0.6875rem] border ${
                                             co.id === order.id
-                                              ? "bg-rose-50/80 border-rose-200 font-bold text-rose-900"
+                                              ? "bg-primary-soft/80 border-primary-soft font-bold text-primary-hover"
                                               : "bg-slate-50/80 border-slate-100 text-slate-700"
                                           }`}
                                         >
@@ -1632,19 +1496,7 @@ function CommandesInner() {
                                             <span className="text-slate-500 text-[0.625rem]">{co.date}</span>
                                           </div>
                                           <div className="flex items-center gap-2 shrink-0">
-                                            <span
-                                              className={`px-1.5 py-0.5 rounded-full text-[0.5625rem] font-bold ${
-                                                co.status === "CONFIRMEE"
-                                                  ? "bg-emerald-100 text-emerald-800"
-                                                  : co.status === "EN_ATTENTE"
-                                                  ? "bg-amber-100 text-amber-800"
-                                                  : co.status === "TENTATIVE"
-                                                  ? "bg-blue-100 text-blue-800"
-                                                  : "bg-rose-100 text-rose-800"
-                                              }`}
-                                            >
-                                              {co.status === "CONFIRMEE" ? "Confirmée" : co.status === "EN_ATTENTE" ? "En attente" : co.status === "TENTATIVE" ? "Tentative" : "Annulée"}
-                                            </span>
+                                            <OrderStatusBadge status={co.status as string} />
                                             <span className="font-extrabold text-slate-900">
                                               {typeof co.total === "number" ? co.total.toFixed(3) : co.total} DT
                                             </span>
@@ -1659,32 +1511,13 @@ function CommandesInner() {
                           );
                         })()}
                       </td>
-                      <td className="py-3.5 px-4 text-slate-600">{order.date}</td>
-                      <td className="py-3.5 px-4 text-slate-800 font-semibold">{order.phone}</td>
-                      <td className="py-3.5 px-4 text-slate-700 font-medium">{order.city}</td>
-                      <td className="py-3.5 px-4">
-                        {order.status === "CONFIRMEE" && (
-                          <span className="inline-flex items-center rounded-full bg-emerald-50 text-emerald-600 border border-emerald-200/80 px-3 py-0.5 text-[0.6875rem] font-semibold">
-                            Confirmée
-                          </span>
-                        )}
-                        {order.status === "EN_ATTENTE" && (
-                          <span className="inline-flex items-center rounded-full bg-amber-50 text-amber-600 border border-amber-200/80 px-3 py-0.5 text-[0.6875rem] font-semibold">
-                            En attente
-                          </span>
-                        )}
-                        {order.status === "TENTATIVE" && (
-                          <span className="inline-flex items-center rounded-full bg-blue-50 text-blue-600 border border-blue-200/80 px-3 py-0.5 text-[0.6875rem] font-semibold">
-                            Tentative
-                          </span>
-                        )}
-                        {order.status === "ANNULEE" && (
-                          <span className="inline-flex items-center rounded-full bg-rose-50 text-rose-600 border border-rose-200/80 px-3 py-0.5 text-[0.6875rem] font-semibold">
-                            Annulée
-                          </span>
-                        )}
+                      <td className="py-3 px-4 text-slate-600">{order.date}</td>
+                      <td className="py-3 px-4 text-slate-800 font-semibold">{order.phone}</td>
+                      <td className="py-3 px-4 text-slate-700 font-medium">{order.city}</td>
+                      <td className="py-3 px-4">
+                        <OrderStatusBadge status={order.status as string} />
                       </td>
-                      <td className="py-3.5 px-4">
+                      <td className="py-3 px-4">
                         <AramexBadge
                           orderId={order.id}
                           hawb={order.shipment?.hawb || order.shipment?.tracking}
@@ -1705,8 +1538,8 @@ function CommandesInner() {
                           onSyncShipment={(updatedShipment) => handleShipmentUpdated(updatedShipment)}
                         />
                       </td>
-                      <td className="py-3.5 px-4 font-black text-slate-900">{typeof order.total === "number" ? order.total.toFixed(3) : order.total} DT</td>
-                      <td className="py-3.5 px-4 text-right">
+                      <td className="py-3 px-4 font-black text-slate-900">{typeof order.total === "number" ? order.total.toFixed(3) : order.total} DT</td>
+                      <td className="py-3 px-4 text-right">
                         <div className="flex items-center justify-end gap-2 text-slate-400">
                           <button
                             type="button"
@@ -1719,7 +1552,7 @@ function CommandesInner() {
                           <button
                             type="button"
                             onClick={() => handleOpenEdit(order.id)}
-                            className="hover:text-[#E11D48] transition-colors p-1"
+                            className="hover:text-[var(--color-primary)] transition-colors p-1"
                             title="Modifier"
                           >
                             <Pencil size={16} />
@@ -1727,7 +1560,7 @@ function CommandesInner() {
                           <button
                             type="button"
                             onClick={() => setDeleteTarget(order)}
-                            className="hover:text-rose-600 transition-colors p-1 text-rose-500"
+                            className="hover:text-primary transition-colors p-1 text-primary"
                             title="Supprimer"
                           >
                             <Trash2 size={16} />
@@ -1763,7 +1596,7 @@ function CommandesInner() {
                     type="button"
                     disabled={savingOrder}
                     onClick={handleSaveOrder}
-                    className="px-4 py-1.5 rounded-xl bg-[#E11D48] text-white text-xs font-bold hover:bg-[#BE123C] transition-colors shadow-xs disabled:opacity-50 flex items-center gap-1.5"
+                    className="px-4 py-1.5 rounded-xl bg-[var(--color-primary)] text-white text-xs font-bold hover:bg-[#BE123C] transition-colors shadow-xs disabled:opacity-50 flex items-center gap-1.5"
                   >
                     {savingOrder && <RefreshCw size={12} className="animate-spin" />}
                     <span>{savingOrder ? "Enregistrement..." : "Enregistrer"}</span>
@@ -1792,32 +1625,67 @@ function CommandesInner() {
                       type="checkbox"
                       checked={Boolean(formData.isExchange)}
                       onChange={(e) => setEditingForm({ ...formData, isExchange: e.target.checked })}
-                      className="rounded border-slate-300 text-rose-600 focus:ring-rose-500 h-4 w-4"
+                      className="rounded border-slate-300 text-primary focus:ring-primary h-4 w-4"
                     />
                     Échange
                   </label>
                 </div>
 
-                {/* STATUT Dropdown */}
-                <div className="space-y-1.5">
-                  <label className="block text-[0.6875rem] font-bold text-slate-600 uppercase tracking-wider">
-                    STATUT
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={formData.status}
-                      onChange={(e) => setEditingForm({ ...formData, status: e.target.value as OrderStatus })}
-                      className="w-full rounded-2xl border-2 border-[#E11D48] bg-white px-4 py-3 text-sm font-semibold text-slate-900 focus:outline-none appearance-none shadow-xs"
-                    >
-                      {STATUS_OPTIONS.map((opt) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-700 pointer-events-none" />
-                  </div>
-                </div>
+                {/* STATUT COMMERCIAL — indépendant du statut d'expédition Aramex */}
+                {!(formData.id.startsWith("NEW-") || targetId === "new") && (() => {
+                  const current = orders.find((o) => o.id === formData.id)?.status ?? formData.status;
+                  const changed = formData.status !== current;
+                  const normal = changed && canTransition(current as OrderStatus, formData.status as OrderStatus);
+                  const correction = changed && !normal;
+                  return (
+                    <div className="space-y-2">
+                      <label className="block text-[0.6875rem] font-bold text-slate-600 uppercase tracking-wider">
+                        Statut commercial
+                      </label>
+                      <div className="relative">
+                        <select
+                          value={formData.status}
+                          onChange={(e) => setEditingForm({ ...formData, status: e.target.value as OrderStatus })}
+                          className="w-full rounded-2xl border-2 border-[var(--color-primary)] bg-white px-4 py-3 text-sm font-semibold text-slate-900 focus:outline-none appearance-none shadow-xs"
+                        >
+                          {STATUS_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>
+                              {opt.label}
+                              {opt.value === current ? " (actuel)" : ""}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-700 pointer-events-none" />
+                      </div>
+                      {normal && (
+                        <p className="text-[0.6875rem] font-medium text-emerald-700">
+                          Étape normale : {STATUS_LABEL[current]} → {STATUS_LABEL[formData.status]}.
+                        </p>
+                      )}
+                      {correction && (
+                        <div className="rounded-xl border border-amber-300 bg-amber-50 p-3 space-y-2">
+                          <p className="text-[0.75rem] font-bold text-amber-900">
+                            Correction administrateur : {STATUS_LABEL[current]} → {STATUS_LABEL[formData.status]}
+                          </p>
+                          <p className="text-[0.6875rem] text-amber-800">
+                            Ne modifie que le statut commercial. Le suivi Aramex, le stock et les points de fidélité ne sont pas touchés ; ajustez-les manuellement si nécessaire. Cette correction est tracée dans l&apos;historique.
+                          </p>
+                          <textarea
+                            value={statusReason}
+                            onChange={(e) => setStatusReason(e.target.value)}
+                            rows={2}
+                            maxLength={450}
+                            placeholder="Motif de la correction (obligatoire)…"
+                            className="w-full rounded-lg border border-amber-300 bg-white p-2 text-xs text-slate-800 focus:outline-none focus:border-amber-500"
+                          />
+                        </div>
+                      )}
+                      <p className="text-[0.6875rem] text-slate-500">
+                        Le statut d&apos;expédition Aramex est géré séparément (synchronisation automatique).
+                      </p>
+                    </div>
+                  );
+                })()}
 
                 {/* AJOUTER UNE NOTE PRIVÉE */}
                 <div className="space-y-1.5">
@@ -1829,7 +1697,7 @@ function CommandesInner() {
                     onChange={(e) => setEditingForm({ ...formData, privateNote: e.target.value })}
                     placeholder="Ajouter une note privée..."
                     rows={3}
-                    className="w-full rounded-xl border border-slate-200 bg-white p-3 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#E11D48]"
+                    className="w-full rounded-xl border border-slate-200 bg-white p-3 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[var(--color-primary)]"
                   />
                 </div>
               </div>
@@ -1849,7 +1717,7 @@ function CommandesInner() {
                       type="text"
                       value={formData.customerName}
                       onChange={(e) => setEditingForm({ ...formData, customerName: e.target.value })}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#E11D48]"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[var(--color-primary)]"
                     />
                   </div>
 
@@ -1861,7 +1729,7 @@ function CommandesInner() {
                       type="text"
                       value={formData.phone}
                       onChange={(e) => setEditingForm({ ...formData, phone: e.target.value })}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#E11D48]"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[var(--color-primary)]"
                     />
                   </div>
 
@@ -1893,7 +1761,7 @@ function CommandesInner() {
                       type="text"
                       value={formData.address}
                       onChange={(e) => setEditingForm({ ...formData, address: e.target.value })}
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[#E11D48]"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-semibold text-slate-900 focus:outline-none focus:border-[var(--color-primary)]"
                     />
                   </div>
 
@@ -1906,7 +1774,7 @@ function CommandesInner() {
                       value={formData.phone2 || ""}
                       onChange={(e) => setEditingForm({ ...formData, phone2: e.target.value })}
                       placeholder="Entrez votre second numéro de téléphone"
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#E11D48]"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[var(--color-primary)]"
                     />
                   </div>
 
@@ -1919,7 +1787,7 @@ function CommandesInner() {
                       value={formData.email || ""}
                       onChange={(e) => setEditingForm({ ...formData, email: e.target.value })}
                       placeholder="Entrez votre email"
-                      className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#E11D48]"
+                      className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[var(--color-primary)]"
                     />
                   </div>
                 </div>
@@ -1933,7 +1801,7 @@ function CommandesInner() {
                     onChange={(e) => setEditingForm({ ...formData, customerNote: e.target.value })}
                     placeholder="Entrez les notes supplémentaires"
                     rows={3}
-                    className="w-full rounded-xl border border-slate-200 bg-white p-3 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#E11D48]"
+                    className="w-full rounded-xl border border-slate-200 bg-white p-3 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[var(--color-primary)]"
                   />
                 </div>
               </div>
@@ -2104,7 +1972,7 @@ function CommandesInner() {
                     value={productSearchQuery}
                     onChange={(e) => setProductSearchQuery(e.target.value)}
                     placeholder="Rechercher un produit dans le catalogue..."
-                    className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-2.5 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#E11D48]"
+                    className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-4 py-2.5 text-xs font-medium text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[var(--color-primary)]"
                   />
                 </div>
 
@@ -2127,14 +1995,14 @@ function CommandesInner() {
                         <div
                           key={product.id}
                           onClick={() => handleAddProductToOrder(product)}
-                          className="p-3 flex items-center justify-between hover:bg-rose-50/50 cursor-pointer transition-colors"
+                          className="p-3 flex items-center justify-between hover:bg-primary-soft/50 cursor-pointer transition-colors"
                         >
                           <div className="flex items-center gap-3">
                             <div className="h-9 w-9 rounded-xl bg-white border border-slate-200 p-0.5 flex items-center justify-center shrink-0 shadow-xs">
                               {product.image ? (
                                 <img src={resolveMediaUrl(product.image)} alt={product.name} className="h-full w-full object-contain" />
                               ) : (
-                                <Package size={16} className="text-[#E11D48]" />
+                                <Package size={16} className="text-[var(--color-primary)]" />
                               )}
                             </div>
                             <div>
@@ -2144,7 +2012,7 @@ function CommandesInner() {
                               </p>
                             </div>
                           </div>
-                          <span className="text-xs font-black text-[#E11D48]">
+                          <span className="text-xs font-black text-[var(--color-primary)]">
                             {typeof price === "number" ? price.toFixed(3) : price} DT
                           </span>
                         </div>
@@ -2187,7 +2055,7 @@ function CommandesInner() {
                                   {item.image ? (
                                     <img src={resolveMediaUrl(item.image)} alt={item.productName} className="h-full w-full object-contain" />
                                   ) : (
-                                    <Package size={16} className="text-[#E11D48]" />
+                                    <Package size={16} className="text-[var(--color-primary)]" />
                                   )}
                                 </div>
                                 <div>
@@ -2243,7 +2111,7 @@ function CommandesInner() {
                               <button
                                 type="button"
                                 onClick={() => handleRemoveItemFromOrder(idx)}
-                                className="text-slate-400 hover:text-rose-600 transition-colors p-1"
+                                className="text-slate-400 hover:text-primary transition-colors p-1"
                               >
                                 <Trash2 size={14} />
                               </button>
@@ -2257,7 +2125,7 @@ function CommandesInner() {
 
                 {/* Subtotal / Shipping Summary Box */}
                 <div className="flex justify-end pt-3">
-                  <div className="w-64 space-y-2 rounded-xl bg-rose-50/60 p-3 text-xs font-bold text-slate-700 border border-rose-100">
+                  <div className="w-64 space-y-2 rounded-xl bg-primary-soft/60 p-3 text-xs font-bold text-slate-700 border border-primary-soft/60">
                     <div className="flex items-center justify-between">
                       <span className="uppercase tracking-wider text-slate-500">SOUS-TOTAL</span>
                       <span className="font-black text-slate-900 text-sm">
@@ -2283,9 +2151,9 @@ function CommandesInner() {
                         <span className="font-black text-slate-900">DT</span>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between border-t border-rose-200/80 pt-2 mt-1">
-                      <span className="uppercase tracking-wider text-rose-900 font-extrabold text-xs">TOTAL</span>
-                      <span className="font-black text-[#E11D48] text-base">
+                    <div className="flex items-center justify-between border-t border-primary-soft/80 pt-2 mt-1">
+                      <span className="uppercase tracking-wider text-primary-hover font-extrabold text-xs">TOTAL</span>
+                      <span className="font-black text-[var(--color-primary)] text-base">
                         {typeof formData.total === "number" ? formData.total.toFixed(3) : formData.total} DT
                       </span>
                     </div>
@@ -2348,7 +2216,7 @@ function CommandesInner() {
               <div className="rounded-2xl bg-white p-5 shadow-xs border border-slate-200/80 space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <span className="text-[#E11D48]">📱</span> NOTIFICATIONS CLIENT & ADMIN
+                    <span className="text-[var(--color-primary)]">📱</span> NOTIFICATIONS CLIENT & ADMIN
                   </h3>
                   <span className="text-[0.6875rem] font-bold text-slate-500">
                     Expéditeur : <strong className="text-slate-800">ParaTunisie</strong>
@@ -2367,7 +2235,7 @@ function CommandesInner() {
                         className={`flex items-center justify-between p-3 rounded-xl border ${
                           notif.status === "SENT"
                             ? "bg-emerald-50/50 border-emerald-200/80 text-emerald-900"
-                            : "bg-rose-50/50 border-rose-200/80 text-rose-900"
+                            : "bg-primary-soft/50 border-primary-soft/80 text-primary-hover"
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -2383,7 +2251,7 @@ function CommandesInner() {
                                 className={`px-2 py-0.5 rounded-full text-[0.625rem] font-extrabold ${
                                   notif.status === "SENT"
                                     ? "bg-emerald-200 text-emerald-900"
-                                    : "bg-rose-200 text-rose-900"
+                                    : "bg-primary-soft text-primary-hover"
                                 }`}
                               >
                                 {notif.status === "SENT" ? "✓ Envoyé" : "⚠️ Échec"}
@@ -2394,7 +2262,7 @@ function CommandesInner() {
                               {notif.sentAt && ` • Le ${new Date(notif.sentAt).toLocaleString("fr-FR")}`}
                             </p>
                             {notif.lastError && (
-                              <p className="text-[0.6875rem] text-rose-700 font-medium mt-1">
+                              <p className="text-[0.6875rem] text-primary-hover font-medium mt-1">
                                 Erreur provider : {notif.lastError} (Essais : {notif.attemptCount})
                               </p>
                             )}
@@ -2432,7 +2300,7 @@ function CommandesInner() {
                 <div>
                   <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
                     COMMANDE ABANDONNÉE
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 font-bold">
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-primary-soft/60 text-primary-hover font-bold">
                       {selectedAbandoned.status === "ABANDONED" ? "Abandonnée" : "Brouillon"}
                     </span>
                   </h2>
@@ -2446,7 +2314,7 @@ function CommandesInner() {
                   type="button"
                   disabled={convertingAbandonedId === selectedAbandoned.id}
                   onClick={() => handleConvertAbandoned(selectedAbandoned)}
-                  className="px-4 py-2 rounded-xl bg-rose-600 text-white text-xs font-bold hover:bg-rose-700 transition-colors shadow-xs flex items-center gap-1.5 disabled:opacity-50"
+                  className="px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold hover:bg-primary-hover transition-colors shadow-xs flex items-center gap-1.5 disabled:opacity-50"
                 >
                   {convertingAbandonedId === selectedAbandoned.id ? (
                     <RefreshCw size={14} className="animate-spin" />
@@ -2471,7 +2339,7 @@ function CommandesInner() {
               <div className="rounded-2xl bg-white p-5 shadow-xs border border-slate-200/80 space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
-                    <span className="text-[#E11D48]">👤</span> COORDONNÉES DU PROSPECT
+                    <span className="text-[var(--color-primary)]">👤</span> COORDONNÉES DU PROSPECT
                   </h3>
                   <div className="flex items-center gap-2">
                     {selectedAbandoned.phone && (
@@ -2566,7 +2434,7 @@ function CommandesInner() {
                         href={selectedAbandoned.sourceUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-xs font-bold text-rose-600 hover:underline flex items-center gap-1 mt-0.5 truncate"
+                        className="text-xs font-bold text-primary hover:underline flex items-center gap-1 mt-0.5 truncate"
                       >
                         <span>{selectedAbandoned.sourceUrl}</span>
                         <ExternalLink size={12} className="shrink-0" />
@@ -2579,7 +2447,7 @@ function CommandesInner() {
               {/* SECTION 3: ARTICLES DU PANIER */}
               <div className="rounded-2xl bg-white p-5 shadow-xs border border-slate-200/80 space-y-4">
                 <h3 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
-                  <Package size={16} className="text-[#E11D48]" /> ARTICLES SÉLECTIONNÉS (
+                  <Package size={16} className="text-[var(--color-primary)]" /> ARTICLES SÉLECTIONNÉS (
                   {selectedAbandoned.parsedItems.reduce((acc, i) => acc + (i.quantity || 1), 0)})
                 </h3>
 
@@ -2630,8 +2498,8 @@ function CommandesInner() {
                     </span>
                   </div>
                   <div className="flex justify-between text-sm font-extrabold text-slate-900 border-t border-slate-200 pt-2">
-                    <span className="text-rose-900">TOTAL ESTIMÉ :</span>
-                    <span className="text-[#E11D48] text-base">
+                    <span className="text-primary-hover">TOTAL ESTIMÉ :</span>
+                    <span className="text-[var(--color-primary)] text-base">
                       {(selectedAbandoned.totalMillimes / 1000).toFixed(3)} DT
                     </span>
                   </div>
@@ -2643,7 +2511,7 @@ function CommandesInner() {
                     type="button"
                     disabled={convertingAbandonedId === selectedAbandoned.id}
                     onClick={() => handleConvertAbandoned(selectedAbandoned)}
-                    className="w-full py-3 rounded-xl bg-rose-600 text-white font-extrabold text-sm hover:bg-rose-700 transition-colors shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
+                    className="w-full py-3 rounded-xl bg-primary text-white font-extrabold text-sm hover:bg-primary-hover transition-colors shadow-md flex items-center justify-center gap-2 disabled:opacity-50"
                   >
                     {convertingAbandonedId === selectedAbandoned.id ? (
                       <RefreshCw size={16} className="animate-spin" />
@@ -2738,7 +2606,7 @@ function CommandesInner() {
 
 export default function CommandesPage() {
   return (
-    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-rose-600" /></div>}>
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" /></div>}>
       <CommandesInner />
     </Suspense>
   );

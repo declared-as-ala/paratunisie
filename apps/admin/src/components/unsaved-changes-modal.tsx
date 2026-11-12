@@ -45,7 +45,7 @@ export function UnsavedChangesModal({
           <button
             type="button"
             onClick={onDiscardAndLeave}
-            className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition-colors shadow-sm"
+            className="px-4 py-2 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold transition-colors shadow-sm"
           >
             Quitter sans enregistrer
           </button>

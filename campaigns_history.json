@@ -1,0 +1,34 @@
+[
+  {
+    "id": "camp_1790533326486",
+    "channel": "sms",
+    "date": "2026-09-27T18:30:14.786Z",
+    "total": 5014,
+    "sent": 577,
+    "failed": 43
+  },
+  {
+    "id": "camp_1790533326486",
+    "channel": "sms",
+    "date": "2026-09-27T18:30:09.083Z",
+    "total": 5014,
+    "sent": 577,
+    "failed": 42
+  },
+  {
+    "id": "camp_1790532237274",
+    "channel": "email",
+    "date": "2026-09-27T18:05:47.170Z",
+    "total": 1,
+    "sent": 0,
+    "failed": 2
+  },
+  {
+    "id": "camp_1790532237274",
+    "channel": "email",
+    "date": "2026-09-27T18:05:28.878Z",
+    "total": 1,
+    "sent": 0,
+    "failed": 1
+  }
+]

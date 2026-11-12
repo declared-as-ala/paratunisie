@@ -69,7 +69,7 @@ export function LoyaltyPage() {
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-ink">Programme Fidélité</h1>
+          <h1 className="page-title">Programme Fidélité</h1>
           <p className="mt-1 text-sm text-ink-muted">
             Gestion, statistiques et historique des points attribués et utilisés.
           </p>
@@ -87,7 +87,7 @@ export function LoyaltyPage() {
       </div>
 
       {error && (
-        <div className="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
+        <div className="rounded-2xl border border-primary-soft bg-primary-soft/30 p-4 text-sm text-primary-hover">
           {error}
         </div>
       )}
@@ -230,7 +230,7 @@ export function LoyaltyPage() {
                     <div className="flex items-center gap-2.5">
                       <span
                         className={`flex size-7 items-center justify-center rounded-lg ${
-                          isPositive ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
+                          isPositive ? "bg-emerald-50 text-emerald-600" : "bg-primary-soft/30 text-primary"
                         }`}
                       >
                         {isPositive ? <TrendingUp className="size-3.5" /> : <TrendingDown className="size-3.5" />}
@@ -248,7 +248,7 @@ export function LoyaltyPage() {
                     </div>
                     <span
                       className={`font-bold font-tabular text-xs ${
-                        isPositive ? "text-emerald-700" : "text-rose-700"
+                        isPositive ? "text-emerald-700" : "text-primary-hover"
                       }`}
                     >
                       {isPositive ? `+${tx.points}` : tx.points} pts

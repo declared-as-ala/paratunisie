@@ -30,3 +30,22 @@ export const TERMINAL_STATUSES: OrderStatus[] = ["LIVREE", "RETOURNEE", "ANNULEE
 export function isTerminal(status: OrderStatus): boolean {
   return TERMINAL_STATUSES.includes(status);
 }
+
+// French labels so admins never see raw enum names in error messages.
+export const STATUS_LABELS_FR: Record<OrderStatus, string> = {
+  EN_ATTENTE: "En attente",
+  TENTATIVE_CONTACT: "Tentative de contact",
+  CONFIRMEE: "Confirmée",
+  PREPARATION: "En préparation",
+  PRETE_EXPEDITION: "Prête à expédier",
+  EXPEDIEE: "Expédiée",
+  LIVREE: "Livrée",
+  ECHEC_LIVRAISON: "Échec de livraison",
+  RETOURNEE: "Retournée",
+  ANNULEE: "Annulée",
+  REFUSEE: "Refusée",
+};
+
+export function statusLabel(status: OrderStatus): string {
+  return STATUS_LABELS_FR[status] ?? status;
+}

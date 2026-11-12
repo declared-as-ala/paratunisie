@@ -1,161 +1,225 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ShieldCheck, Truck, CreditCard, Sparkles, ChevronDown, Zap } from "lucide-react";
+import {
+  ArrowRight,
+  ShieldCheck,
+  Truck,
+  Sparkles,
+  Flame,
+  ChevronLeft,
+  ChevronRight,
+  Zap,
+} from "lucide-react";
 
-export function HomeHero() {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+/**
+ * Commercial hero:
+ * - Center / Main Banner: Pack Anti-Stress (Primary) + Slide 2 (Sport)
+ * - Right column: "À LA UNE SPORT" (Whey, Créatine, Performance)
+ * - Mobile: Hero on top, followed directly by "À LA UNE SPORT" without any unnecessary tabs
+ */
+export function HomeHero({
+  leftAside,
+  rightAside,
+  aside,
+}: {
+  leftAside?: React.ReactNode;
+  rightAside?: React.ReactNode;
+  aside?: React.ReactNode;
+}) {
+  const [currentSlide, setCurrentSlide] = useState<number>(0);
+  const actualRightAside = rightAside || aside;
 
-  useEffect(() => {
-    const motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setPrefersReducedMotion(motionQuery.matches);
+  const totalSlides = 2;
 
-    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
-    motionQuery.addEventListener("change", handler);
-    return () => motionQuery.removeEventListener("change", handler);
-  }, []);
-
-  useEffect(() => {
-    if (prefersReducedMotion && videoRef.current) {
-      videoRef.current.pause();
-    }
-  }, [prefersReducedMotion]);
-
-  const scrollToContent = () => {
-    const target = document.getElementById("homepage-content");
-    if (target) {
-      target.scrollIntoView({ behavior: "smooth" });
-    }
-  };
+  const prevSlide = () => setCurrentSlide((s) => (s === 0 ? totalSlides - 1 : s - 1));
+  const nextSlide = () => setCurrentSlide((s) => (s + 1) % totalSlides);
 
   return (
-    <section
-      data-testid="cinematic-hero"
-      className="relative w-full min-h-[88vh] sm:min-h-[94vh] flex items-end overflow-hidden bg-black text-white"
-    >
-      {/* ── 1. Hero Background Video & Poster ──────────────────────────── */}
-      <div className="absolute inset-0 size-full overflow-hidden select-none">
-        {/* Base Poster Image */}
-        <Image
-          src="/assets/hero-poster.webp"
-          alt="ParaTunisie — Compléments alimentaires et Nutrition sportive en Tunisie"
-          fill
-          priority
-          sizes="100vw"
-          className="object-cover object-[58%_center] sm:object-[56%_center] lg:object-[58%_center] transition-opacity duration-700"
-        />
+    <section aria-label="Offres et nouveautés ParaTunisie" className="bg-[#FAF7F5] py-3 sm:py-5">
+      <div className="mx-auto max-w-[1440px] px-3 sm:px-6 lg:px-8">
+        <div
+          className={`grid grid-cols-1 ${
+            actualRightAside ? "lg:grid-cols-[1fr_370px] xl:grid-cols-[1fr_400px]" : "grid-cols-1"
+          } gap-4 sm:gap-5 items-stretch`}
+        >
+          {/* ── CENTER / MAIN COLUMN: Hero Carousel ────────────────────── */}
+          <div className="relative min-h-[380px] sm:min-h-[500px] lg:min-h-[580px] rounded-3xl overflow-hidden shadow-lg border border-pink-100 flex flex-col justify-between group">
+            {/* ── SLIDE 1: PACK ANTI-STRESS (DEFAULT) ── */}
+            {currentSlide === 0 && (
+              <div className="absolute inset-0 size-full overflow-hidden bg-gradient-to-r from-[#FFF5F7] via-[#FDE8ED] to-[#FCE3E9]">
+                {/* Visual Banner Image */}
+                <Image
+                  src="/assets/hero-pack-anti-stress.webp"
+                  alt="Pack Anti-Stress ParaTunisie — Magnésium B6 + Ashwagandha"
+                  fill
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 70vw"
+                  className="object-cover object-center sm:object-[center_right] pointer-events-none select-none"
+                />
 
-        {/* HTML5 Autoplay Video */}
-        {!prefersReducedMotion && (
-          <video
-            ref={videoRef}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            poster="/assets/hero-poster.webp"
-            aria-hidden="true"
-            className="absolute inset-0 size-full object-cover object-[58%_center] sm:object-[56%_center] lg:object-[58%_center] pointer-events-none"
-          >
-            <source src="/assets/hero-video-optimized.mp4" type="video/mp4" />
-            <source
-              src="/assets/hf_20260826_190907_af0b25d6-4401-4b39-8132-c86ed8c156f1.mp4"
-              type="video/mp4"
-            />
-          </video>
+                {/* Subtle soft gradient overlay on the left for maximum text contrast */}
+                <div
+                  aria-hidden="true"
+                  className="pointer-events-none absolute inset-0 bg-gradient-to-r from-white/90 via-white/50 to-transparent sm:via-white/20"
+                />
+
+                {/* Clickable Overlay Link to Landing Page */}
+                <Link
+                  href="/pack-anti-stress"
+                  className="absolute inset-0 z-10 block"
+                  aria-label="Découvrir l'offre Pack Anti-Stress"
+                />
+
+                {/* Interactive CTA & Badge overlay positioned on top of the banner */}
+                <div className="relative z-20 flex h-full flex-col justify-between p-4 sm:p-8 lg:p-10 pointer-events-none">
+                  {/* Eyebrow Badge */}
+                  <div>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[#E11D48] to-[#BE123C] px-3 py-1 text-xs font-black uppercase tracking-wider text-white shadow-md">
+                      <Sparkles className="size-3.5 fill-white" />
+                      NOUVEAU • ROUTINE BIEN-ÊTRE
+                    </span>
+                  </div>
+
+                  {/* Headline and Benefits */}
+                  <div className="max-w-xl my-auto space-y-2">
+                    <h1 className="text-2xl sm:text-4xl lg:text-5xl font-black text-[#1E1B1D] tracking-tight leading-none drop-shadow-xs">
+                      PACK <br />
+                      <span className="text-[#E11D48]">ANTI-STRESS</span>
+                    </h1>
+                    <p className="text-xs sm:text-base font-extrabold text-[#7B2F52] leading-snug">
+                      Retrouvez votre équilibre au quotidien
+                    </p>
+                    <p className="text-[11px] sm:text-xs text-slate-700 max-w-md hidden sm:block font-medium">
+                      Magnésium + Vitamine B6 et Ashwagandha : deux compléments pour une vie plus calme et plus sereine.
+                    </p>
+
+                    {/* Prominent Pink Button */}
+                    <div className="pt-2 sm:pt-4 pointer-events-auto">
+                      <Link
+                        href="/pack-anti-stress"
+                        className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-[#E11D48] to-[#BE123C] hover:from-[#BE123C] hover:to-[#9F1239] text-white font-black text-sm sm:text-base px-6 sm:px-8 py-3.5 sm:py-4 shadow-xl hover:shadow-2xl transition-all active:scale-95"
+                      >
+                        <span>Découvrir le Pack (159 DT)</span>
+                        <ArrowRight className="size-4" />
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Bottom ratings note */}
+                  <div className="pt-2">
+                    <p className="text-[10px] sm:text-xs font-bold text-slate-600 flex items-center gap-1.5">
+                      <ShieldCheck className="size-3.5 text-emerald-600" />
+                      <span>Produits 100% originaux certifiés • Livraison 24-48h</span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* ── SLIDE 2: ATHLETE / NUTRITION SPORTIVE ── */}
+            {currentSlide === 1 && (
+              <div className="absolute inset-0 size-full overflow-hidden bg-black text-white flex flex-col justify-between p-5 sm:p-8 lg:p-10">
+                <Image
+                  src="/assets/hero-fitness-athlete.webp"
+                  alt="ParaTunisie — Nutrition Sportive"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 70vw"
+                  className="object-cover object-[58%_center]"
+                />
+                <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/90 via-black/50 to-transparent" />
+
+                <div className="relative z-10">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-white/20 bg-black/45 backdrop-blur-md text-xs font-semibold">
+                    <span className="size-2 rounded-full bg-emerald-400 animate-pulse" />
+                    PARATUNISIE • NUTRITION SPORTIVE
+                  </span>
+                </div>
+
+                <div className="relative z-10 max-w-xl my-auto py-4">
+                  <h2 className="text-2xl sm:text-4xl lg:text-5xl font-black text-white leading-tight">
+                    Performance &amp; Récupération
+                  </h2>
+                  <p className="mt-2 text-xs sm:text-sm text-white/85">
+                    Découvrez notre gamme complète de Whey, Créatines, Gainers et Acides Aminés certifiés.
+                  </p>
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    <Link
+                      href="/creatine"
+                      className="inline-flex items-center gap-2 rounded-xl bg-primary hover:bg-primary-hover text-white font-bold text-xs sm:text-sm px-5 py-3 shadow-lg"
+                    >
+                      <Zap className="size-4 text-amber-300" />
+                      <span>Créatine Tunisie</span>
+                      <ArrowRight className="size-3.5" />
+                    </Link>
+                    <Link
+                      href="/shop"
+                      className="inline-flex items-center gap-2 rounded-xl border border-white/30 bg-black/40 hover:bg-white/10 text-white font-bold text-xs sm:text-sm px-4 py-3"
+                    >
+                      <span>Tous les produits</span>
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="relative z-10 pt-2 border-t border-white/15 text-xs text-white/80">
+                  <span>Livraison partout en Tunisie sous 24-48h • Paiement à la livraison</span>
+                </div>
+              </div>
+            )}
+
+            {/* Slider Navigation Arrows */}
+            <button
+              type="button"
+              onClick={prevSlide}
+              aria-label="Diapositive précédente"
+              className="absolute left-3 top-1/2 -translate-y-1/2 z-30 flex size-9 items-center justify-center rounded-full bg-white/90 text-slate-800 shadow-md hover:bg-white transition-all cursor-pointer"
+            >
+              <ChevronLeft className="size-5" />
+            </button>
+            <button
+              type="button"
+              onClick={nextSlide}
+              aria-label="Diapositive suivante"
+              className="absolute right-3 top-1/2 -translate-y-1/2 z-30 flex size-9 items-center justify-center rounded-full bg-white/90 text-slate-800 shadow-md hover:bg-white transition-all cursor-pointer"
+            >
+              <ChevronRight className="size-5" />
+            </button>
+
+            {/* Slider Dots */}
+            <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 flex items-center gap-1.5">
+              {[0, 1].map((idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setCurrentSlide(idx)}
+                  aria-label={`Aller au slide ${idx + 1}`}
+                  className={`h-2 rounded-full transition-all cursor-pointer ${
+                    currentSlide === idx ? "w-6 bg-[#E11D48]" : "w-2 bg-slate-300 hover:bg-slate-400"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* ── DESKTOP RIGHT COLUMN: "À LA UNE SPORT" ───────────────── */}
+          {actualRightAside && (
+            <aside className="hidden lg:flex w-full flex-col" aria-label="Produit du moment nutrition sportive">
+              {actualRightAside}
+            </aside>
+          )}
+        </div>
+
+        {/* ── MOBILE: "À LA UNE SPORT" DIRECTLY BELOW HERO ───────────── */}
+        {actualRightAside && (
+          <div className="block lg:hidden mt-4">
+            <div className="w-full">
+              {actualRightAside}
+            </div>
+          </div>
         )}
       </div>
-
-      {/* ── 2. Cinematic Luxury Gradient Overlays ───────────────────────── */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/55 via-black/15 to-transparent"
-      />
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,transparent_30%,rgba(0,0,0,0.35)_85%)]"
-      />
-
-      {/* ── 3. Foreground Content (Anchored Bottom-Left) ────────────────── */}
-      <div className="relative mx-auto w-full max-w-[1440px] px-4 md:px-8 lg:px-12 pb-14 sm:pb-20 pt-28 sm:pt-36 z-10">
-        <div className="max-w-3xl">
-          {/* Eyebrow Pill */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-white/20 bg-white/10 backdrop-blur-md text-[11px] uppercase tracking-[0.2em] text-white/90 font-medium mb-4">
-            <span className="inline-block size-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399] animate-pulse" />
-            <span>ParaTunisie • Nutrition Sportive &amp; Compléments en Tunisie</span>
-          </div>
-
-          {/* Main Display Headline */}
-          <h1 className="font-serif text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.08] tracking-tight text-white drop-shadow-[0_4px_25px_rgba(0,0,0,0.85)]">
-            ParaTunisie
-            <br />
-            <span className="text-white font-normal italic text-2xl sm:text-3xl md:text-4xl lg:text-5xl">Parapharmacie en Ligne &amp; Nutrition Sportive en Tunisie</span>
-          </h1>
-
-          {/* Subtitle */}
-          <p className="mt-4 max-w-xl text-sm sm:text-base md:text-lg leading-relaxed text-white/90 font-light drop-shadow-md">
-            Plateforme e-commerce tunisienne spécialisée dans la nutrition sportive, les compléments alimentaires, le bien-être et une sélection de produits de parapharmacie.
-          </p>
-
-          {/* Dual CTAs */}
-          <div className="mt-8 flex flex-wrap items-center gap-3.5 sm:gap-4">
-            {/* Primary CTA */}
-            <Link
-              href="/shop"
-              className="group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-primary hover:bg-primary-hover text-primary-foreground uppercase tracking-widest font-semibold shadow-[0_4px_25px_rgba(123,47,82,0.45)] transition-all hover:scale-[1.02] active:scale-[0.98] px-6 py-3.5 text-xs sm:text-sm gap-2"
-            >
-              <Sparkles size={16} className="text-white" />
-              <span>Découvrir nos produits</span>
-            </Link>
-
-            {/* Secondary CTA */}
-            <Link
-              href="/creatine"
-              className="group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-white/40 bg-black/40 backdrop-blur-sm text-white uppercase tracking-widest hover:bg-white/20 hover:text-white font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] px-6 py-3.5 text-xs sm:text-sm gap-2"
-            >
-              <Zap size={15} className="text-brand-champagne" />
-              <span>Nutrition sportive</span>
-            </Link>
-          </div>
-
-          {/* Trust Strip */}
-          <div className="mt-10 pt-6 border-t border-white/15 grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-xl text-xs text-white/85">
-            <div className="flex items-center gap-2">
-              <ShieldCheck size={16} className="text-emerald-400 shrink-0" />
-              <span>Grandes marques reconnues</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Truck size={16} className="text-emerald-400 shrink-0" />
-              <span>Livraison 24-48h Tunisie</span>
-            </div>
-            <div className="hidden sm:flex items-center gap-2">
-              <CreditCard size={16} className="text-emerald-400 shrink-0" />
-              <span>Paiement à la livraison</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── 4. Scroll Down Floating Indicator (Bottom-Right) ───────────── */}
-      <button
-        type="button"
-        onClick={scrollToContent}
-        aria-label="Découvrir les compléments et produits"
-        className="absolute bottom-5 end-4 sm:end-12 z-20 flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] text-white/70 hover:text-white transition-colors cursor-pointer group"
-      >
-        <span className="hidden sm:inline font-medium">Découvrir le catalogue</span>
-        <div className="size-8 rounded-full border border-white/25 bg-white/10 flex items-center justify-center group-hover:border-white/50 group-hover:bg-white/20 transition-all shadow-sm">
-          <ChevronDown size={16} className="text-white group-hover:translate-y-0.5 transition-transform" />
-        </div>
-      </button>
     </section>
   );
 }
