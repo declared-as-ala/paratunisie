@@ -13,19 +13,19 @@ const TRUST_ITEMS = [
  */
 export function HomeTrustStrip() {
   return (
-    <section aria-label="Engagements et garanties ParaTunisie" className="bg-[#FAF7F5] py-4 sm:py-6">
+    <section aria-label="Engagements et garanties ParaTunisie" className="bg-[#FAF7F5] py-3 sm:py-6">
       <div className="mx-auto max-w-[1440px] px-3 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
           {TRUST_ITEMS.map(({ icon: Icon, title, text, ...rest }) => {
             const href = "href" in rest ? rest.href : undefined;
             const content = (
-              <div className="flex items-center gap-3.5 p-4 rounded-2xl bg-white border border-border/70 shadow-2xs transition-all hover:border-primary/40 hover:shadow-xs">
-                <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-                  <Icon size={20} aria-hidden />
+              <div className="flex h-full items-center gap-2.5 sm:gap-3.5 p-2.5 sm:p-4 rounded-2xl bg-white border border-border/70 shadow-2xs transition-all hover:border-primary/40 hover:shadow-xs">
+                <span className="flex size-9 sm:size-11 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                  <Icon className="size-4 sm:size-5" aria-hidden />
                 </span>
                 <div className="min-w-0">
-                  <span className="block truncate text-xs sm:text-sm font-bold text-ink">{title}</span>
-                  <span className="block truncate text-[0.6875rem] sm:text-xs text-ink-muted mt-0.5">{text}</span>
+                  <span className="block line-clamp-1 text-[11px] sm:text-sm font-bold text-ink leading-tight">{title}</span>
+                  <span className="block truncate text-[10px] sm:text-xs text-ink-muted mt-0.5">{text}</span>
                 </div>
               </div>
             );

@@ -59,7 +59,7 @@ export function SiteHeader() {
       </div>
 
       {/* ── 2. Main Row (Logo, Central Search, Account, Wishlist, Cart) ────── */}
-      <div className="mx-auto flex h-16 max-w-[1440px] items-center gap-3 px-3 sm:px-6 lg:h-20 lg:gap-8 lg:px-8">
+      <div className="mx-auto flex h-14 sm:h-16 max-w-[1440px] items-center gap-2 sm:gap-3 px-3 sm:px-6 lg:h-20 lg:gap-8 lg:px-8">
         <MobileMenu />
 
         {/* Brand Logo */}
@@ -73,39 +73,35 @@ export function SiteHeader() {
         </div>
 
         {/* User Actions with Labels */}
-        <div className="ms-auto flex items-center gap-2 sm:gap-4 lg:gap-6">
-          <div className="lg:hidden">
-            <SearchOverlay variant="icon" />
-          </div>
-
+        <div className="ms-auto flex items-center gap-1.5 sm:gap-4 lg:gap-6">
           {/* Mon compte */}
           <Link
             href="/compte"
-            className="group hidden sm:flex flex-col items-center gap-0.5 text-ink hover:text-primary transition-colors text-center px-1"
+            className="group flex flex-col items-center gap-0.5 text-ink hover:text-primary transition-colors text-center p-1.5 sm:px-1"
             aria-label="Mon compte"
           >
             <User size={20} className="transition-transform group-hover:scale-105" aria-hidden />
-            <span className="text-[0.6875rem] font-semibold text-ink-muted group-hover:text-primary">Mon compte</span>
+            <span className="hidden sm:inline text-[0.6875rem] font-semibold text-ink-muted group-hover:text-primary">Mon compte</span>
           </Link>
 
           {/* Favoris */}
           <Link
             href="/favoris"
-            className="group hidden sm:flex flex-col items-center gap-0.5 text-ink hover:text-primary transition-colors text-center px-1"
+            className="group flex flex-col items-center gap-0.5 text-ink hover:text-primary transition-colors text-center p-1.5 sm:px-1"
             aria-label={`Favoris (${wishlistCount})`}
           >
             <div className="relative">
               <Heart size={20} className="transition-transform group-hover:scale-105" aria-hidden />
               <Badge count={wishlistCount} />
             </div>
-            <span className="text-[0.6875rem] font-semibold text-ink-muted group-hover:text-primary">Favoris</span>
+            <span className="hidden sm:inline text-[0.6875rem] font-semibold text-ink-muted group-hover:text-primary">Favoris</span>
           </Link>
 
           {/* Panier */}
           <button
             type="button"
             onClick={() => setCartOpen(true)}
-            className="group flex flex-col items-center gap-0.5 text-ink hover:text-primary transition-colors text-center px-1 cursor-pointer"
+            className="group flex flex-col items-center gap-0.5 text-ink hover:text-primary transition-colors text-center p-1.5 sm:px-1 cursor-pointer"
             aria-label={`Panier (${itemCount})`}
           >
             <div className="relative">
@@ -115,6 +111,11 @@ export function SiteHeader() {
             <span className="hidden sm:inline text-[0.6875rem] font-semibold text-ink-muted group-hover:text-primary">Panier</span>
           </button>
         </div>
+      </div>
+
+      {/* ── 2b. Mobile Compact Search Bar Row (< 1024px) ───────────────────── */}
+      <div className="border-t border-border/50 bg-white px-3 py-2 lg:hidden">
+        <SearchOverlay variant="compact" className="w-full" />
       </div>
 
       {/* ── 3. Desktop Navigation Bar (Categories + Promotions/Nouveautés) ── */}

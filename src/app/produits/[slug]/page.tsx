@@ -3,6 +3,9 @@ import { notFound, permanentRedirect } from "next/navigation";
 
 import { ProductDetailView } from "@/components/product/product-detail-view";
 import { ProductRichText } from "@/components/product/product-rich-text";
+import { WheyLandingPageView } from "@/components/landing/whey-landing-page";
+import { WHEY_LANDING_SLUG } from "@/lib/landing";
+import type { ProductSummary } from "@/lib/data/products";
 import {
   getRoutineCompletionProducts,
   getSimilarProducts,
@@ -10,6 +13,9 @@ import {
 } from "@/lib/data/products";
 import {
   fetchProductBySlug,
+  fetchLandingProduct,
+  type ProductRating,
+  type PublicReview,
   fetchProductRating,
   fetchProductReviews,
   fetchPaginatedProducts,
@@ -57,6 +63,46 @@ export async function generateMetadata({
   });
 }
 
+function productSchemas(product: ProductSummary, rating: ProductRating, reviews: PublicReview[] = []) {
+  const productJsonLd = buildProductSchema({
+    rating,
+    reviews,
+    name: product.name,
+    slug: product.slug,
+    image: product.image,
+    description: product.description,
+    brandName: product.brand,
+    sku: product.sku || product.id,
+    priceTnd: product.priceMillimes / 1000,
+    inStock: Boolean(product.inStock),
+    categoryName: product.category,
+  });
+  const categorySlug =
+    product.categorySlug ||
+    product.category
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[̀-ͯ]/g, "")
+      .replace(/[^a-z0-9]+/g, "-");
+  const breadcrumbsJsonLd = buildBreadcrumbsSchema([
+    { name: "Accueil", url: "/" },
+    { name: product.category, url: `/${categorySlug}` },
+    { name: product.name, url: `/produits/${product.slug}` },
+  ]);
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd).replace(/</g, "\u003c") }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsJsonLd).replace(/</g, "\u003c") }}
+      />
+    </>
+  );
+}
+
 export default async function ProductPage({
   params,
 }: {
@@ -70,6 +116,36 @@ export default async function ProductPage({
     notFound();
   }
 
+  /* Direct-order landing layout for the advertised product only. Same URL, same metadata, same schema. */
+  if (slug === WHEY_LANDING_SLUG) {
+    const [landing, reviews, rating] = await Promise.all([
+      fetchLandingProduct(slug),
+      fetchProductReviews(product.id),
+      fetchProductRating(product.id),
+    ]);
+    if (landing) {
+      return (
+        <>
+          {productSchemas(product, rating, reviews)}
+          <WheyLandingPageView
+            product={landing}
+            reviews={reviews}
+            rating={rating}
+            seoSection={
+              hasDistinctSeoContent(product.description, product.seoContent) ? (
+                <section className="rounded-3xl border border-[var(--lp-line)] bg-white p-5 sm:p-7">
+                  <h2 className="text-lg font-extrabold text-[var(--lp-deep)]">À propos de {product.name}</h2>
+                  <ProductRichText content={product.seoContent!} className="mt-3 text-sm leading-7 text-[var(--lp-ink)]/80" />
+                </section>
+              ) : null
+            }
+          />
+        </>
+      );
+    }
+    // Landing data unavailable: fall through to the regular product page.
+  }
+
   /* Fetch all products for "similar" and "routine completion" rails */
   const allProducts = (await fetchPaginatedProducts({ category: product.categorySlug, limit: 12 })).products;
   const routineCompletion = getRoutineCompletionProducts(product, 4, allProducts);
@@ -79,43 +155,9 @@ export default async function ProductPage({
     fetchProductRating(product.id),
   ]);
 
-  const productJsonLd = buildProductSchema({
-    rating,
-    name: product.name,
-    slug: product.slug,
-    image: product.image,
-    description: product.description,
-    brandName: product.brand,
-    sku: product.sku || product.id,
-    priceTnd: product.priceMillimes / 1000,
-    inStock: Boolean(product.inStock),
-    categoryName: product.category,
-  });
-
-  const categorySlug =
-    product.categorySlug ||
-    product.category
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .replace(/[^a-z0-9]+/g, "-");
-
-  const breadcrumbsJsonLd = buildBreadcrumbsSchema([
-    { name: "Accueil", url: "/" },
-    { name: product.category, url: `/${categorySlug}` },
-    { name: product.name, url: `/produits/${product.slug}` },
-  ]);
-
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd).replace(/</g, "\\u003c") }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsJsonLd).replace(/</g, "\\u003c") }}
-      />
+      {productSchemas(product, rating, reviews)}
       <ProductDetailView
         product={product}
         routineCompletion={routineCompletion}

@@ -437,25 +437,10 @@ function CommandesInner() {
     }
   }, [search]);
 
-  const handleConvertAbandoned = async (abandoned: AbandonedCheckout) => {
-    if (convertingAbandonedId) return;
-    setConvertingAbandonedId(abandoned.id);
-    try {
-      const res = await apiClient.post<{ success: boolean; orderId: string; orderReference: string }>(
-        `/abandoned-checkouts/${abandoned.id}/convert`,
-        {}
-      );
-      toast("success", `Commande ${res.orderReference || "créée"} confirmée avec succès !`);
-      setSelectedAbandoned(null);
-      notifyOrdersChanged();
-      loadAbandonedCheckouts();
-      loadOrderCounts();
-      setOrdersRefreshKey((k) => k + 1);
-    } catch (err: any) {
-      toast("error", err.message || "Erreur lors de la conversion de la commande");
-    } finally {
-      setConvertingAbandonedId(null);
-    }
+  // Creating an order from an abandoned checkout now requires the admin to affirm the customer's explicit
+  // confirmation, which lives in the dedicated module — never a one-click conversion from this list.
+  const handleConvertAbandoned = async (_abandoned: AbandonedCheckout) => {
+    window.location.href = "/admin/commandes-abandonnees";
   };
 
   const handleDeleteAbandoned = async () => {

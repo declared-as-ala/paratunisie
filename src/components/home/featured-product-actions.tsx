@@ -56,7 +56,7 @@ export function FeaturedActions({ product, buyLabel, compact = false }: { produc
   };
 
   return (
-    <div className={compact ? "flex flex-col gap-2" : "flex flex-col gap-2.5 sm:flex-row sm:items-center"}>
+    <div className={compact ? "grid grid-cols-2 lg:grid-cols-1 gap-2" : "flex flex-col gap-2.5 sm:flex-row sm:items-center"}>
       <button
         type="button"
         disabled={busy}
@@ -66,10 +66,10 @@ export function FeaturedActions({ product, buyLabel, compact = false }: { produc
           add(false);
           router.push("/checkout");
         }}
-        className={`inline-flex items-center justify-center gap-2 rounded-xl bg-primary font-bold text-primary-foreground transition-all hover:bg-primary-hover active:scale-[0.98] disabled:opacity-70 ${compact ? "h-11 px-4 text-sm" : "h-13 px-7 text-[0.9375rem] shadow-[0_10px_28px_-10px_rgba(123,47,82,0.7)] sm:h-14"}`}
+        className={`inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary font-bold text-primary-foreground transition-all hover:bg-primary-hover active:scale-[0.98] disabled:opacity-70 cursor-pointer ${compact ? "h-10 px-3 text-xs" : "h-13 px-7 text-[0.9375rem] shadow-[0_10px_28px_-10px_rgba(123,47,82,0.7)] sm:h-14"}`}
       >
-        <Zap className="size-[18px]" aria-hidden />
-        {buyLabel || "Acheter maintenant"}
+        <Zap className="size-4 shrink-0" aria-hidden />
+        <span className="truncate">{compact ? "Commander" : buyLabel || "Acheter maintenant"}</span>
       </button>
       <button
         type="button"
@@ -77,14 +77,14 @@ export function FeaturedActions({ product, buyLabel, compact = false }: { produc
           track("add_to_cart", product);
           add(true);
         }}
-        className={`inline-flex items-center justify-center gap-2 rounded-xl border font-bold transition-all active:scale-[0.98] ${compact ? "h-11 px-4 text-sm" : "h-13 px-6 text-[0.9375rem] sm:h-14"} ${
+        className={`inline-flex items-center justify-center gap-1.5 rounded-xl border font-bold transition-all active:scale-[0.98] cursor-pointer ${compact ? "h-10 px-3 text-xs" : "h-13 px-6 text-[0.9375rem] sm:h-14"} ${
           added
             ? "border-emerald-300 bg-emerald-50 text-emerald-800"
             : "border-primary/30 bg-white text-primary hover:border-primary hover:bg-primary-soft/30"
         }`}
       >
-        {added ? <Check className="size-[18px]" aria-hidden /> : <ShoppingBag className="size-[18px]" aria-hidden />}
-        {added ? (compact ? "Ajouté" : "Ajouté — en ajouter un autre") : "Ajouter au panier"}
+        {added ? <Check className="size-4 shrink-0" aria-hidden /> : <ShoppingBag className="size-4 shrink-0" aria-hidden />}
+        <span className="truncate">{added ? (compact ? "Ajouté" : "Ajouté — en ajouter un autre") : compact ? "Au panier" : "Ajouter au panier"}</span>
       </button>
     </div>
   );

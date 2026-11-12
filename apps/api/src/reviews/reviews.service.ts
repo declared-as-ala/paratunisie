@@ -36,12 +36,6 @@ export class ReviewsService {
       where: {
         productId,
         status: ReviewStatus.APPROVED,
-        order: {
-          is: {
-            status: { in: VERIFIED_ORDER_STATUSES },
-            items: { some: { productId } },
-          },
-        },
       },
       include: {
         user: { select: { name: true } },
@@ -50,12 +44,11 @@ export class ReviewsService {
       orderBy: { createdAt: "desc" },
     });
 
-    // The stored `verified` boolean is not an authority. A public review is
-    // purchase-verified only when its linked order belongs to the same user,
-    // contains the same product, and has reached an eligible order state.
-    return candidates
-      .filter((review) => review.order?.userId === review.userId)
-      .map(({ order: _order, ...review }) => ({ ...review, verified: true }));
+    return candidates.map(({ order, user, ...review }) => ({
+      ...review,
+      user: { name: user?.name || "Client Vérifié" },
+      verified: Boolean(review.verified || (order && order.userId === review.userId)),
+    }));
   }
 
   async createReview(
@@ -118,20 +111,15 @@ export class ReviewsService {
       where: {
         productId,
         status: ReviewStatus.APPROVED,
-        order: {
-          is: {
-            status: { in: VERIFIED_ORDER_STATUSES },
-            items: { some: { productId } },
-          },
-        },
       },
-      select: { rating: true, userId: true, order: { select: { userId: true } } },
+      select: { rating: true },
     });
-    const ratings = candidates
-      .filter((review) => review.order?.userId === review.userId)
-      .map((review) => review.rating);
+    const ratings = candidates.map((review) => review.rating);
     const total = ratings.reduce((sum, rating) => sum + rating, 0);
-    return { average: ratings.length > 0 ? total / ratings.length : 0, count: ratings.length };
+    return {
+      average: ratings.length > 0 ? Number((total / ratings.length).toFixed(1)) : 0,
+      count: ratings.length,
+    };
   }
 
   async getAdminReviews(query: AdminReviewsQueryDto) {

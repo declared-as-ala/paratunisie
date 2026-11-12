@@ -95,6 +95,21 @@ const nextConfig: NextConfig = {
         destination: "/vitamines",
         permanent: true,
       },
+      {
+        source: "/categories/bien-etre",
+        destination: "/bien-etre",
+        permanent: true,
+      },
+      {
+        source: "/categories/creatine",
+        destination: "/creatine",
+        permanent: true,
+      },
+      {
+        source: "/categories/:slug",
+        destination: "/:slug",
+        permanent: true,
+      },
     ];
   },
 };

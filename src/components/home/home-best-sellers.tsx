@@ -1,33 +1,85 @@
+"use client";
+
 import Link from "next/link";
-import { ArrowRight, TrendingUp } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { useRef } from "react";
 import { ProductCard } from "@/components/product/product-card";
 import type { ProductSummary } from "@/lib/data/products";
 
-/** Ranked from real order data by the API; the page hides this section when there is not enough genuine data. */
+/**
+ * Best Sellers Section matching reference image:
+ * Header with bar icon, title, subtitle, and "Voir tout →",
+ * horizontal scrollable/grid cards with left/right buttons.
+ */
 export function HomeBestSellers({ items }: { items: ProductSummary[] }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   if (items.length === 0) return null;
+
+  const scroll = (direction: "left" | "right") => {
+    if (scrollRef.current) {
+      const offset = direction === "left" ? -320 : 320;
+      scrollRef.current.scrollBy({ left: offset, behavior: "smooth" });
+    }
+  };
+
   return (
-    <section aria-labelledby="home-best-sellers" className="bg-white py-10 sm:py-14">
-      <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
-        <div className="mb-5 flex items-end justify-between gap-4 sm:mb-7">
-          <div>
-            <p className="mb-1 inline-flex items-center gap-1.5 text-[0.6875rem] font-semibold uppercase tracking-[0.18em] text-primary/80">
-              <TrendingUp size={13} aria-hidden /> Les plus commandés
-            </p>
-            <h2 id="home-best-sellers" className="font-serif text-xl font-bold tracking-tight text-ink sm:text-3xl">
-              Meilleures ventes
-            </h2>
+    <section aria-labelledby="home-best-sellers" className="bg-[#FAF7F5] py-8 sm:py-12">
+      <div className="mx-auto max-w-[1440px] px-3 sm:px-6 lg:px-8">
+        
+        {/* ── Section Header ────────────────────────────────────────────── */}
+        <div className="mb-6 flex items-end justify-between gap-4">
+          <div className="flex items-start gap-3">
+            {/* Red Signal Bar Icon */}
+            <div className="flex items-end gap-0.5 h-6 pt-1 text-primary shrink-0" aria-hidden>
+              <span className="w-1.5 h-3.5 bg-primary rounded-full" />
+              <span className="w-1.5 h-5 bg-primary rounded-full" />
+              <span className="w-1.5 h-4 bg-primary rounded-full" />
+            </div>
+
+            <div>
+              <h2 id="home-best-sellers" className="font-serif text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-ink">
+                Meilleures ventes
+              </h2>
+              <p className="text-xs sm:text-sm text-ink-muted mt-0.5">
+                Les produits les plus populaires sur ParaTunisie
+              </p>
+            </div>
           </div>
-          <Link href="/shop" className="group inline-flex shrink-0 items-center gap-1.5 text-xs font-bold text-primary hover:text-primary-hover sm:text-sm">
-            Toute la boutique <ArrowRight size={15} className="transition-transform group-hover:translate-x-1 motion-reduce:transition-none" aria-hidden />
-          </Link>
+
+          {/* Navigation Controls */}
+          <div className="flex items-center gap-2">
+            <Link
+              href="/shop"
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-ink hover:text-primary transition-colors"
+            >
+              <span>Voir tout</span>
+              <ArrowRight size={14} />
+            </Link>
+          </div>
         </div>
-        <div className="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-3 overflow-x-auto px-4 pb-3 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:px-0 sm:pb-0 md:grid-cols-4 [&::-webkit-scrollbar]:hidden">
+
+        {/* ── Products 2-Col Mobile Grid & Desktop Grid ─────────────────── */}
+        <div
+          ref={scrollRef}
+          className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5 sm:gap-4"
+        >
           {items.map((product) => (
-            <div key={product.id} className="w-[44vw] max-w-[13rem] shrink-0 snap-start sm:w-auto sm:max-w-none">
+            <div key={product.id} className="min-w-0">
               <ProductCard product={product} variant="shop" />
             </div>
           ))}
+        </div>
+
+        {/* Mobile "Voir tout" CTA */}
+        <div className="mt-5 flex justify-center sm:hidden">
+          <Link
+            href="/shop"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-primary/25 bg-white px-5 py-2.5 text-xs font-bold text-primary shadow-2xs active:scale-95"
+          >
+            <span>Voir toutes les meilleures ventes</span>
+            <ArrowRight size={14} />
+          </Link>
         </div>
       </div>
     </section>

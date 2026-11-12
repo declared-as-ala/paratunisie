@@ -2,6 +2,7 @@ import { BadRequestException, ConflictException, Injectable, InternalServerError
 import { OrderStatus } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
 import { InventoryService } from "../inventory/inventory.service";
+import { computeDeliveryFeeMillimes } from "../common/tunisia";
 import { isValidTransition, getAllowedTransitions, statusLabel } from "./order-status";
 
 // Fallback data for local dev before a Postgres connection exists — getAllOrders/
@@ -133,6 +134,7 @@ export class OrdersService {
     eventSourceUrl?: string;
     checkoutSessionId?: string;
     loyaltyPointsToRedeem?: number;
+    shippingFeeMillimes?: number;
     items: { productId?: string; productVariantId?: string; quantity: number; priceMillimes: number }[];
   }) {
     const rawSubtotalMillimes = (data.items || []).reduce(
@@ -221,7 +223,7 @@ export class OrdersService {
     }
 
     const netProductSubtotal = Math.max(0, rawSubtotalMillimes - loyaltyDiscountMillimes);
-    const deliveryFeeMillimes = netProductSubtotal >= 99_000 ? 0 : 7_000;
+    const deliveryFeeMillimes = typeof data.shippingFeeMillimes === 'number' && data.shippingFeeMillimes >= 0 ? data.shippingFeeMillimes : computeDeliveryFeeMillimes(netProductSubtotal);
     const finalTotalMillimes = netProductSubtotal + deliveryFeeMillimes;
 
     // Points earned only on net amount paid for products (shipping excluded)
@@ -343,7 +345,8 @@ export class OrdersService {
     const normal = grouped.reduce((sum, row) => sum + row._count, 0);
 
     return {
-      total: normal + abandoned,
+      // Abandoned checkouts are leads, not orders: they never count towards the operational total.
+      total: normal,
       normal,
       abandoned,
       deleted: 0,

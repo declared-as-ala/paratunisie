@@ -38,10 +38,10 @@ export function SiteFooter() {
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
         
         {/* ── 5 Main Columns Grid ───────────────────────────────────────── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8 sm:gap-10 pb-12 border-b border-white/15">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 sm:gap-10 pb-10 sm:pb-12 border-b border-white/15">
           
           {/* Column 1: Brand & Socials */}
-          <div className="sm:col-span-2 lg:col-span-1">
+          <div className="col-span-2 lg:col-span-1">
             <Link href="/" className="inline-block brightness-0 invert">
               <Logo size="header" />
             </Link>
@@ -192,11 +192,11 @@ export function SiteFooter() {
         </div>
 
         {/* ── Bottom Bar: Copyright & Payment Badges ──────────────────────── */}
-        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-white/70">
+        <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-4 text-center sm:text-start text-xs text-white/70">
           <p>© {new Date().getFullYear()} ParaTunisie. Tous droits réservés.</p>
 
           {/* Payment Badges */}
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
             <span className="rounded bg-white px-2 py-1 text-[10px] font-bold text-[#4A122A] shadow-2xs">
               VISA
             </span>

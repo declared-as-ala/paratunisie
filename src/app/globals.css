@@ -284,3 +284,6 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* The landing product page has no tab bar, so drop the space the body reserves for it. */
+body.lp-mode { padding-bottom: 0; }

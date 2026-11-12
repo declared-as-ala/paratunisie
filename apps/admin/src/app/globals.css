@@ -11,15 +11,51 @@
 @source "../../../../packages/ui/src";
 
 @theme {
-  /* Typography — admin-specific fonts (storefront uses next/font vars) */
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  /* Typography — Geist only (no serif). Numbers use Geist Mono / tabular figures. */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-serif: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+
+  /* STUDIO MONO — charcoal ink, near-white page, white cards, ONE coral accent. No blue/purple. */
+  --color-background: #F7F7F5;
+  --color-surface: #F7F7F5;
+  --color-surface-alt: #FFFFFF;
+  --color-soft-nude: #F0F0EC;
+
+  --color-border: #E7E7E2;
+  --color-border-strong: #D3D3CC;
+
+  --color-ink: #171717;
+  --color-ink-muted: #5F5F5A;
+  --color-ink-faint: #74746E;
+
+  /* Coral is for primary calls to action and key highlights only. Text on coral is charcoal (AA);
+     coral used AS text on light surfaces uses the darker --color-coral-text (AA). */
+  --color-primary: #E4572E;
+  --color-primary-hover: #C9431F;
+  --color-primary-soft: #FCE3DB;
+  --color-primary-foreground: #171717;
+  --color-coral-text: #B93A18;
+  --color-secondary: #3A3A36;
+  --color-secondary-foreground: #FFFFFF;
+  --color-accent: #E4572E;
+
+  --color-success: #1B7A46;
+  --color-success-bg: #E6F4EC;
+  --color-warning: #9A5A06;
+  --color-warning-bg: #FBF0DC;
+  --color-danger: #B42318;
+  --color-danger-bg: #FCEAE8;
+  --color-info: #3F3F3A;
+  --color-info-bg: #EEEEEA;
 }
 
 /* ─── Base ─────────────────────────────────────────────────────────────── */
 
 body {
   font-family: var(--font-sans);
+  font-feature-settings: "ss01", "cv11";
   color: var(--color-ink);
   background: var(--color-background);
   -webkit-font-smoothing: antialiased;
@@ -149,7 +185,7 @@ body {
 .field-input:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(123, 47, 82, 0.08);
+  box-shadow: 0 0 0 3px rgba(23, 23, 23, 0.08);
 }
 
 .field-input:disabled {
@@ -177,7 +213,7 @@ select.field-input {
 
 .glass-card:hover {
   border-color: var(--color-border-strong);
-  box-shadow: 0 4px 16px -2px rgba(123, 47, 82, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 4px 16px -2px rgba(23, 23, 23, 0.06), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
   transform: translateY(-1px);
 }
 
@@ -190,7 +226,7 @@ select.field-input {
   position: absolute;
   inset: -1px;
   border-radius: inherit;
-  background: linear-gradient(135deg, rgba(123, 47, 82, 0.15), transparent);
+  background: linear-gradient(135deg, rgba(23, 23, 23, 0.15), transparent);
   z-index: -1;
   opacity: 0;
   transition: opacity 0.2s ease;
@@ -245,10 +281,10 @@ select.field-input {
    denser, calmer look (page title, cards, tables, badges, inputs, focus). */
 
 .page-title {
-  font-size: 1.375rem;
-  line-height: 1.25;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-size: 1.5rem;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: -0.03em;
   color: var(--color-ink);
 }
 .page-subtitle {
@@ -262,16 +298,16 @@ select.field-input {
   background: var(--color-surface-alt);
   border: 1px solid var(--color-border);
   border-radius: 0.875rem;
-  box-shadow: 0 1px 2px rgba(43, 35, 38, 0.04);
+  box-shadow: 0 1px 2px rgba(23, 23, 23, 0.04);
 }
 
 .kpi-card {
   border-radius: 0.875rem;
   padding: 1rem 1.125rem;
-  box-shadow: 0 1px 2px rgba(43, 35, 38, 0.04);
+  box-shadow: 0 1px 2px rgba(23, 23, 23, 0.04);
   transition: box-shadow var(--duration-standard) var(--ease-out-standard), border-color var(--duration-micro) ease;
 }
-.kpi-card:hover { border-color: var(--color-border-strong); box-shadow: 0 6px 18px -8px rgba(123, 47, 82, 0.18); }
+.kpi-card:hover { border-color: var(--color-border-strong); box-shadow: 0 6px 18px -8px rgba(23, 23, 23, 0.18); }
 
 .admin-table th { background: var(--color-soft-nude); font-size: 0.625rem; letter-spacing: 0.07em; }
 .admin-table tbody tr:hover td { background: color-mix(in srgb, var(--color-primary-soft) 22%, transparent); }
@@ -300,3 +336,46 @@ select.field-input {
   animation: pt-shimmer 1.4s ease-in-out infinite;
 }
 @media (prefers-reduced-motion: reduce) { .pt-skeleton { animation: none; } * { scroll-behavior: auto !important; } }
+
+
+/* ─── STUDIO MONO ───────────────────────────────────────────────────────── */
+
+/* 12px radius, 1px hairline, barely-there shadow. */
+.studio-card {
+  background: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 1px 0 rgba(23, 23, 23, 0.03);
+}
+
+.studio-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-ink-muted);
+}
+
+.num {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* Lenis smooth scroll (recommended base styles) */
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth { scroll-behavior: auto !important; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+.lenis.lenis-stopped { overflow: clip; }
+.lenis.lenis-smooth iframe { pointer-events: none; }
+
+/* Press feedback that never shifts layout */
+@media (hover: hover) and (pointer: fine) {
+  .press:hover { background: var(--color-soft-nude); }
+}
+.press:active { transform: scale(0.98); }
+.press { transition: background-color 150ms ease, color 150ms ease, border-color 150ms ease, transform 120ms cubic-bezier(0.23, 1, 0.32, 1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .press:active { transform: none; }
+}

@@ -92,7 +92,7 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
   }, [addItem, product, selected.label, selected.priceMillimes, quantity]);
 
   const subtotalMillimes = selected.priceMillimes * quantity;
-  const deliveryFeeMillimes = subtotalMillimes >= 99_000 ? 0 : 10_000;
+  const deliveryFeeMillimes = subtotalMillimes >= 99_000 ? 0 : 7_000;
   const totalMillimes = subtotalMillimes + deliveryFeeMillimes;
 
   const handleOpenQuickOrder = () => {

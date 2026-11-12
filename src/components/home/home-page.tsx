@@ -1,82 +1,79 @@
 import { HomeHero } from "@/components/home/home-hero";
 import { FeaturedSidePanel } from "@/components/home/featured-side-panel";
-import { FeaturedBubble } from "@/components/home/featured-bubble";
-import { HomeTrustStrip } from "@/components/home/home-trust-strip";
 import { HomeCategoryTiles } from "@/components/home/home-category-tiles";
+import { HomeTrustStrip } from "@/components/home/home-trust-strip";
+import { HomePromoBanners } from "@/components/home/home-promo-banners";
 import { HomeBestSellers } from "@/components/home/home-best-sellers";
-import { HomeCategoryRow } from "@/components/home/home-category-row";
-import { HomeSplitFeature } from "@/components/home/home-split-feature";
-import { HomeGammesGrid } from "@/components/home/home-gammes-grid";
 import { HomeFeaturedBrands } from "@/components/home/home-featured-brands";
-import { HomeTrustReassurance } from "@/components/home/home-trust-reassurance";
-import { HomeCommunity } from "@/components/home/home-community";
+import { HomeFitnessSplit } from "@/components/home/home-fitness-split";
+import { HomeBlogPreview } from "@/components/home/home-blog-preview";
+import { HomeNewsletter } from "@/components/home/home-newsletter";
 import { HomeSeoSection } from "@/components/home/home-seo-section";
-import { HOMEPAGE_CATEGORY_DEFINITIONS, type FeaturedProduct, type HomepageCategoryRow } from "@/lib/api/client";
+import type { FeaturedProduct, HomepageCategoryRow } from "@/lib/api/client";
 import type { ProductSummary } from "@/lib/data/products";
-
-const SOFT = "bg-[#FAF5F2]/60";
+import type { Article } from "@/lib/data/articles";
 
 /**
- * Commercial hierarchy: cinematic hero with the featured product beside it (floating bubble on mobile) → reassurance → categories → best sellers →
- * focused showcases (creatine, whey) → editorial → remaining ranges → brands → SEO content.
- * Section layouts alternate (spotlight / rail / grid) to avoid a wall of identical carousels.
+ * Redesigned ParaTunisie Homepage:
+ * 1. Hero with Pack Anti-Stress Banner + "À LA UNE SPORT" (Right)
+ * 2. 12-item Category Shortcuts Strip (including highlighted Anti-Stress tile)
+ * 3. 4-card Trust & Service Strip
+ * 4. 3 Category Promotional Banners (Whey, Créatine, Vitamines & Minéraux)
+ * 5. Best-Selling Products ("Meilleures ventes")
+ * 6. Brands Carousel ("Nos marques")
+ * 7. Fitness Promotional Section
+ * 8. Blog & Advice Previews
+ * 9. Community Newsletter
+ * 10. Technical SEO Content
  */
 export function HomePage({
   categoryRows,
   featured,
   bestSellers,
+  articles = [],
 }: {
   categoryRows: HomepageCategoryRow[];
   featured: FeaturedProduct | null;
   bestSellers: ProductSummary[];
+  articles?: Article[];
 }) {
-  // The featured product leads the row of its own category (e.g. Whey Protéine), so it is seen on scroll.
-  const pinnedId = featured?.product.id;
-  const pin = (r: HomepageCategoryRow): HomepageCategoryRow => {
-    if (!featured || featured.product.inStock === false) return r;
-    const def = HOMEPAGE_CATEGORY_DEFINITIONS.find((d) => d.key === r.key);
-    const slug = featured.product.categorySlug;
-    if (!def || !slug || !(def.matches as readonly string[]).includes(slug)) return r;
-    return { ...r, products: [featured.product, ...r.products.filter((p) => p.id !== featured.product.id)].slice(0, 6) };
-  };
-  const row = (key: string) => {
-    const found = categoryRows.find((r) => r.key === key);
-    return found ? pin(found) : undefined;
-  };
-  const creatine = row("creatine");
-  const whey = row("whey-proteine");
-  const preWorkout = row("pre-workout");
-  const vitamines = row("vitamines");
-  const shown = new Set(["creatine", "whey-proteine", "pre-workout", "vitamines"]);
-  const others = categoryRows.filter((r) => !shown.has(r.key));
-
   return (
     <div className="overflow-hidden bg-[#FAF7F5]">
-      <HomeHero aside={featured ? <FeaturedSidePanel featured={featured} bestSellers={bestSellers} /> : undefined} />
+      {/* ── 1. Hero with Pack Anti-Stress + "À LA UNE SPORT" on Right ──────── */}
+      <HomeHero
+        rightAside={
+          featured ? (
+            <FeaturedSidePanel featured={featured} bestSellers={bestSellers} />
+          ) : undefined
+        }
+      />
+
+      {/* ── 2. Category Shortcuts Horizontal Strip (12 Categories) ───────── */}
+      <HomeCategoryTiles rows={categoryRows} />
+
+      {/* ── 3. Trust and Reassurance Strip (4 Cards) ────────────────────── */}
       <HomeTrustStrip />
-      {featured && <FeaturedBubble featured={featured} />}
 
-      <div id="homepage-content">
-        <HomeCategoryTiles rows={categoryRows} />
-        <HomeBestSellers items={bestSellers} />
+      {/* ── 4. Category Promotional Banners (Whey, Créatine, Vitamines) ──── */}
+      <HomePromoBanners />
 
-        {creatine && <HomeCategoryRow row={creatine} variant="spotlight" eyebrow="Force & puissance" bgClass={SOFT} />}
-        {whey && <HomeCategoryRow row={whey} variant="spotlight" flip eyebrow="Récupération & masse" bgClass="bg-white" pinnedId={pinnedId} />}
+      {/* ── 5. Best-Selling Products Carousel ("Meilleures ventes") ──────── */}
+      <HomeBestSellers items={bestSellers} />
 
-        <HomeSplitFeature />
+      {/* ── 6. Brands Carousel ("Nos marques") ───────────────────────────── */}
+      <HomeFeaturedBrands />
 
-        {preWorkout && <HomeCategoryRow row={preWorkout} variant="rail" bgClass="bg-white" />}
-        {vitamines && <HomeCategoryRow row={vitamines} variant="grid" bgClass={SOFT} />}
-        {others.map((r, i) => (
-          <HomeCategoryRow key={r.key} row={r} variant={i % 2 === 0 ? "rail" : "grid"} bgClass={i % 2 === 0 ? "bg-white" : SOFT} />
-        ))}
+      {/* ── 7. Fitness Promotional Section ──────────────────────────────── */}
+      <HomeFitnessSplit />
 
-        <HomeGammesGrid />
-        <HomeFeaturedBrands />
-        <HomeTrustReassurance />
-        <HomeSeoSection />
-        <HomeCommunity />
-      </div>
+      {/* ── 8. Blog & Advice Previews ────────────────────────────────────── */}
+      <HomeBlogPreview articles={articles} />
+
+      {/* ── 9. Community Newsletter ──────────────────────────────────────── */}
+      <HomeNewsletter />
+
+      {/* ── 10. Technical SEO Content ────────────────────────────────────── */}
+      <HomeSeoSection />
     </div>
   );
 }

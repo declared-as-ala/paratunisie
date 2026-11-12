@@ -5,6 +5,7 @@ import "./globals.css";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { MobileTabBar } from "@/components/layout/navigation/mobile-tab-bar";
+import { ChromeGate } from "@/components/layout/chrome-gate";
 import { GlobalAiAssistant } from "@/components/layout/global-ai-assistant";
 import { AnalyticsTracker } from "@/components/analytics/analytics-tracker";
 
@@ -131,7 +132,7 @@ export default function RootLayout({
           />
         </noscript>
       </head>
-      <body className="flex min-h-full flex-col bg-background pb-[calc(4.5rem+env(safe-area-inset-bottom))] text-foreground lg:pb-0">
+      <body className="flex min-h-full max-w-[100vw] overflow-x-hidden flex-col bg-background pb-[calc(4.5rem+env(safe-area-inset-bottom))] text-foreground lg:pb-0">
         <AnalyticsTracker />
         <a
           href="#contenu-principal"
@@ -139,12 +140,16 @@ export default function RootLayout({
         >
           Aller au contenu principal
         </a>
-        <SiteHeader />
+        <ChromeGate>
+          <SiteHeader />
+        </ChromeGate>
         <main id="contenu-principal" tabIndex={-1} className="flex-1">
           {children}
         </main>
-        <SiteFooter />
-        <MobileTabBar />
+        <ChromeGate>
+          <SiteFooter />
+          <MobileTabBar />
+        </ChromeGate>
       </body>
     </html>
   );

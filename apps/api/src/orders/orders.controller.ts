@@ -4,6 +4,8 @@ import { Type } from "class-transformer";
 import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsEnum, IsInt, IsOptional, IsString, MaxLength, ValidateNested } from "class-validator";
 import { OrderStatus } from "@prisma/client";
 import { OrdersService } from "./orders.service";
+import { LandingOrdersService } from "./landing-orders.service";
+import { CreateLandingOrderDto } from "./dto/create-landing-order.dto";
 import { AdminAuthGuard } from "../admin-auth/guards/admin-auth.guard";
 import { CurrentStaff } from "../admin-auth/decorators/current-staff.decorator";
 
@@ -105,6 +107,10 @@ class CreateOrderDto {
   @IsString()
   checkoutSessionId?: string;
 
+  @IsOptional()
+  @IsInt()
+  shippingFeeMillimes?: number;
+
   @IsArray()
   @ArrayMinSize(1)
   @ValidateNested({ each: true })
@@ -114,12 +120,35 @@ class CreateOrderDto {
 
 @Controller("orders")
 export class OrdersController {
-  constructor(private readonly ordersService: OrdersService) {}
+  constructor(
+    private readonly ordersService: OrdersService,
+    private readonly landingOrders: LandingOrdersService,
+  ) {}
 
   @UseGuards(AdminAuthGuard)
   @Get()
   async getAllOrders() {
     return this.ordersService.getAllOrders();
+  }
+
+  /**
+   * Advertising landing page: one-step order. The server prices the order from the catalogue, checks stock,
+   * and is idempotent per checkoutSessionId (a double tap or a retry can never create a second order).
+   */
+  @Post("landing")
+  async createLandingOrder(@Body() body: CreateLandingOrderDto, @Req() req: Request) {
+    const forwardedFor = ((req.headers["x-forwarded-for"] as string) || "").split(",")[0].trim();
+    const clientIp = forwardedFor || (req.headers["x-real-ip"] as string) || req.socket.remoteAddress || undefined;
+    const cookieHeader = (req.headers.cookie as string) || "";
+    const cookie = (name: string) => cookieHeader.match(new RegExp(`(?:^|; )${name}=([^;]+)`))?.[1];
+    return this.landingOrders.create(body, {
+      clientIp,
+      clientUserAgent: (req.headers["user-agent"] as string) || undefined,
+      fbp: body.fbp || cookie("_fbp"),
+      fbc: body.fbc || cookie("_fbc"),
+      eventSourceUrl: body.sourceUrl || (req.headers.referer as string) || undefined,
+      rateKey: clientIp || "anon",
+    });
   }
 
   @Post()
