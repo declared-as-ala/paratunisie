@@ -3,7 +3,7 @@ import { ChevronDown, Mail, MessageCircle, Phone, Star } from "lucide-react";
 
 import type { LandingProduct, ProductRating, PublicReview } from "@/lib/api/client";
 import { COMPANY_CONFIG } from "@/lib/config/company";
-import { FREE_DELIVERY_THRESHOLD_MILLIMES, FLAT_DELIVERY_FEE_MILLIMES } from "@/lib/tunisia";
+import { FLAT_DELIVERY_FEE_MILLIMES } from "@/lib/tunisia";
 
 /**
  * Below-the-fold content. Server-rendered (no client JS): every statement comes from the catalogue record
@@ -20,14 +20,13 @@ export function WheyLandingDetails({
   rating?: ProductRating;
   seoSection?: React.ReactNode;
 }) {
-  const freeFrom = FREE_DELIVERY_THRESHOLD_MILLIMES / 1000;
   const fee = FLAT_DELIVERY_FEE_MILLIMES / 1000;
 
   const faq: { q: string; a: React.ReactNode }[] = [
     { q: "كيفاش نخلّص؟", a: "الدفع عند الاستلام: تخلّص كاش وقت توصلك الكوموند، ما فمّا حتى خلاص مسبق ولا كارط بنكية." },
     {
       q: "قدّاش التوصيل؟",
-      a: `التوصيل مجاني من ${freeFrom} DT. أقل من هذا المبلغ، التوصيل ${fee} DT لكل الولايات. المبلغ الصحيح يبان في ملخّص الكوموند قبل ما تأكّد.`,
+      a: `التوصيل ${fee} DT لكل الولايات. المبلغ الصحيح يبان في ملخّص الكوموند قبل ما تأكّد.`,
     },
     { q: "وقتاش توصلني الكوموند؟", a: "العاصمة الكبرى (تونس، أريانة، بن عروس، منوبة): 24 ساعة عمل. باقي الولايات: من 24 لـ 48 ساعة عمل." },
     {

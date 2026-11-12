@@ -222,7 +222,7 @@ export function buildProductSchema(product: ProductSchemaInput) {
         "@type": "OfferShippingDetails",
         shippingRate: {
           "@type": "MonetaryAmount",
-          value: product.priceTnd >= COMPANY_CONFIG.freeShippingThresholdTnd ? "0.000" : COMPANY_CONFIG.shippingFeeTnd.toFixed(3),
+          value: COMPANY_CONFIG.shippingFeeTnd.toFixed(3),
           currency: COMPANY_CONFIG.currency,
         },
         shippingDestination: {

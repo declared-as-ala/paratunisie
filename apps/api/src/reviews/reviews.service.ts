@@ -36,6 +36,12 @@ export class ReviewsService {
       where: {
         productId,
         status: ReviewStatus.APPROVED,
+        order: {
+          is: {
+            status: { in: VERIFIED_ORDER_STATUSES },
+            items: { some: { productId } },
+          },
+        },
       },
       include: {
         user: { select: { name: true } },
@@ -44,11 +50,16 @@ export class ReviewsService {
       orderBy: { createdAt: "desc" },
     });
 
-    return candidates.map(({ order, user, ...review }) => ({
-      ...review,
-      user: { name: user?.name || "Client Vérifié" },
-      verified: Boolean(review.verified || (order && order.userId === review.userId)),
-    }));
+    // A review whose attached order belongs to a different user than the
+    // reviewer is an ownership mismatch — never shown, regardless of its
+    // stored `verified` flag.
+    return candidates
+      .filter(({ order, userId }) => !order || order.userId === userId)
+      .map(({ order, user, ...review }) => ({
+        ...review,
+        user: { name: user?.name || "Client Vérifié" },
+        verified: Boolean(review.verified || (order && order.userId === review.userId)),
+      }));
   }
 
   async createReview(
@@ -112,9 +123,13 @@ export class ReviewsService {
         productId,
         status: ReviewStatus.APPROVED,
       },
-      select: { rating: true },
+      select: { rating: true, userId: true, order: { select: { userId: true } } },
     });
-    const ratings = candidates.map((review) => review.rating);
+    // Same ownership check as getReviewsByProduct — a mismatched review's
+    // rating must not count toward the public average either.
+    const ratings = candidates
+      .filter(({ order, userId }) => !order || order.userId === userId)
+      .map((review) => review.rating);
     const total = ratings.reduce((sum, rating) => sum + rating, 0);
     return {
       average: ratings.length > 0 ? Number((total / ratings.length).toFixed(1)) : 0,

@@ -87,7 +87,7 @@ export function ProductTabs({
             </li>
             <li className="flex items-center gap-2">
               <Check className="size-3.5 text-emerald-600 shrink-0" />
-              Frais de livraison : 7 DT (Gratuit dès 99 DT)
+              Frais de livraison : 7 DT
             </li>
             <li className="flex items-center gap-2">
               <Check className="size-3.5 text-emerald-600 shrink-0" />
@@ -213,7 +213,7 @@ export function ProductTabs({
         <TabsContent value="delivery" className="pt-6">
           <div className="max-w-2xl space-y-4 text-sm leading-6 text-ink">
             <p>Livraison rapide dans toute la Tunisie sous 24 à 48 heures ouvrées.</p>
-            <p>Frais de livraison : 7 DT (Gratuit à partir de 99 DT d’achat).</p>
+            <p>Frais de livraison : 7 DT pour toute la Tunisie.</p>
             <p>Paiement en espèces à la livraison.</p>
             <p>Retours possibles sous 7 jours pour les produits non ouverts et dans leur emballage d’origine.</p>
           </div>

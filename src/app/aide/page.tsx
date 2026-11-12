@@ -19,7 +19,7 @@ const FAQS = [
   },
   {
     q: "Quels sont les frais de livraison ?",
-    a: "La livraison est GRATUITE dès 99 DT de commande. Pour les commandes inférieures à 99 DT, les frais s'élèvent à 7 DT."
+    a: "Les frais de livraison s'élèvent à 7 DT pour toute la Tunisie."
   },
   {
     q: "Comment payer ma commande ?",

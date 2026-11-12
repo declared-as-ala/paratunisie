@@ -24,11 +24,11 @@ describe("normalizeTunisianLocalPhone", () => {
 });
 
 describe("delivery policy", () => {
-  it("is 7 DT under 99 DT and free from 99 DT", () => {
+  it("is a flat 7 DT regardless of order size", () => {
     expect(computeDeliveryFeeMillimes(0)).toBe(FLAT_DELIVERY_FEE_MILLIMES);
     expect(computeDeliveryFeeMillimes(98_999)).toBe(7_000);
-    expect(computeDeliveryFeeMillimes(99_000)).toBe(0);
-    expect(computeDeliveryFeeMillimes(259_000)).toBe(0);
+    expect(computeDeliveryFeeMillimes(99_000)).toBe(7_000);
+    expect(computeDeliveryFeeMillimes(259_000)).toBe(7_000);
   });
 });
 

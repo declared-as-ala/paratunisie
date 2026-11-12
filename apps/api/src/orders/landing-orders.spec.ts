@@ -51,7 +51,7 @@ describe("LandingOrdersService.create", () => {
     const arg = orders.createOrder.mock.calls[0][0];
     expect(arg.items).toEqual([{ productId: "p1", productVariantId: "v1", quantity: 2, priceMillimes: 259000 }]);
     expect(arg.phone).toBe("98123456");
-    expect(res).toMatchObject({ id: "ord_new_123456", reference: "PT-123456", subtotalMillimes: 518000, deliveryFeeMillimes: 0, replayed: false });
+    expect(res).toMatchObject({ id: "ord_new_123456", reference: "PT-123456", subtotalMillimes: 518000, deliveryFeeMillimes: 7000, replayed: false });
     expect(drafts.markConverted).toHaveBeenCalledWith("chk_lp_1", "ord_new_123456");
   });
 

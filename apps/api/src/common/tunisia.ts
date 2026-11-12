@@ -6,11 +6,10 @@ export const GOVERNORATES = [
   "Sfax", "Sidi Bouzid", "Siliana", "Sousse", "Tataouine", "Tozeur", "Tunis", "Zaghouan",
 ] as const;
 
-/** Documented policy (/livraison, /aide): flat 7 DT under 99 DT, free from 99 DT. */
-export const FREE_DELIVERY_THRESHOLD_MILLIMES = 99_000;
+/** Documented policy (/livraison, /aide): flat 7 DT on every order, no free-delivery threshold. */
 export const FLAT_DELIVERY_FEE_MILLIMES = 7_000;
 
-export function computeDeliveryFeeMillimes(netProductSubtotalMillimes: number): number {
+export function computeDeliveryFeeMillimes(_netProductSubtotalMillimes: number): number {
   return FLAT_DELIVERY_FEE_MILLIMES;
 }
 

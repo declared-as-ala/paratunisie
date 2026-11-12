@@ -6,7 +6,6 @@ import { openCartDrawer } from "@/hooks/use-cart-drawer";
 import { trackAddToCart } from "@/lib/meta-pixel";
 
 const STORAGE_KEY = "paratunisie-cart";
-export const FREE_DELIVERY_THRESHOLD = 99_000; // 99 DT in millimes
 
 export type CartItem = {
   productId: string;
@@ -138,11 +137,6 @@ export function useCart() {
     [state],
   );
 
-  const freeDeliveryRemaining = useMemo(
-    () => Math.max(0, FREE_DELIVERY_THRESHOLD - subtotal),
-    [subtotal],
-  );
-
   const hasFreeDelivery = false;
 
   /**
@@ -168,9 +162,8 @@ export function useCart() {
       isInCart,
       itemCount,
       subtotal,
-      freeDeliveryRemaining,
       hasFreeDelivery,
     }),
-    [state, addItem, removeItem, updateQuantity, clearCart, isInCart, itemCount, subtotal, freeDeliveryRemaining, hasFreeDelivery],
+    [state, addItem, removeItem, updateQuantity, clearCart, isInCart, itemCount, subtotal, hasFreeDelivery],
   );
 }

@@ -14,12 +14,11 @@ export const GOVERNORATE_LABELS_AR: Record<(typeof GOVERNORATES)[number], string
   Siliana: "سليانة", Sousse: "سوسة", Tataouine: "تطاوين", Tozeur: "توزر", Tunis: "تونس", Zaghouan: "زغوان",
 };
 
-export const FREE_DELIVERY_THRESHOLD_MILLIMES = 99_000;
 export const FLAT_DELIVERY_FEE_MILLIMES = 7_000;
 
-/** Documented policy (/livraison): 7 DT under 99 DT, free from 99 DT. The server applies the same rule. */
-export function deliveryFeeMillimes(subtotalMillimes: number): number {
-  return subtotalMillimes >= FREE_DELIVERY_THRESHOLD_MILLIMES ? 0 : FLAT_DELIVERY_FEE_MILLIMES;
+/** Documented policy (/livraison): flat 7 DT on every order. The server applies the same rule. */
+export function deliveryFeeMillimes(_subtotalMillimes: number): number {
+  return FLAT_DELIVERY_FEE_MILLIMES;
 }
 
 /** 8-digit national number, or null if the input is not a valid Tunisian number. */

@@ -49,8 +49,8 @@ describe("landing draft capture", () => {
     const data = prisma.abandonedCheckout.create.mock.calls[0][0].data;
     expect(data.phone).toBe("98123456");
     expect(data.subtotalMillimes).toBe(518000);
-    expect(data.shippingFeeMillimes).toBe(0);
-    expect(data.totalMillimes).toBe(518000);
+    expect(data.shippingFeeMillimes).toBe(7000);
+    expect(data.totalMillimes).toBe(525000);
     expect(data.status).toBe("DRAFT");
     expect(data.contactConsent).toBe(false);
     expect(data.privacyNoticeShown).toBe(true);
