@@ -42,8 +42,8 @@ Last updated: 2026-11-14 (Batch 1 secured; P1 root cause; Wave 1 canary + rollou
 | SEO-003 | P0 | Obtain GSC / Merchant access | BLOCKED | Low | MCP error | Real data in BASELINE |
 | SEO-004 | P1 | Legacy URL redirects | VERIFIED (live 2026-11-14) | Low | 308 tests | Live curl: all 5 redirect, /proteine-sousse 404 |
 | SEO-005 | P1 | Return-policy schema matches /retours | VERIFIED (live 2026-11-14) | Low | JSON-LD diff | Live JSON-LD shows `merchantReturnDays: 7`, no fee/method |
-| SEO-006 | P1 | Availability semantics for on-order products | BLOCKED (business) | Medium | 98.6% OutOfStock | Decision |
-| SEO-007 | P2 | Fix kg/g unit typos in 6 names | READY | Low | SQL | SQL |
+| SEO-006 | P1 | Availability semantics for on-order products | BLOCKED (business decision, see §12) | Medium | checkout code + UI | Decision |
+| SEO-007 | P2 | Fix kg/g unit typos | DONE for the 2 real typos (4 others are correct French decimals) | Low | SQL | names + seoTitle now `2,268 kg`; backup table `_wave_backup_typos`; slugs unchanged |
 | SEO-008 | P2 | Duplicate-name report in admin | TODO | Low | SQL | Report |
 | SEO-009 | P1 | Rating policy | VERIFIED | Low | `aggregateRating` absent | curl |
 | SEO-010 | P0 | Indexation proposal + dry run | READY (see docs/seo/CATALOG_AUDIT.md) | Medium | Counts | Approval |
@@ -127,3 +127,17 @@ Status words: "made indexable" only. Google indexing is NOT confirmed; needs GSC
 
 ## 11. Deploy log (Wave 1 code fixes)
 See `docs/seo/IMPLEMENTATION_LOG.md`. Backups of the pre-change files: `/root/paratunisie-backups/seo-batch1/*.pre-wave1`.
+
+## 12. Findings P3–P7 (investigation; no further production changes beyond SEO-007)
+**P3 Categories (11 noindex + others).** 13 of 51 categories are indexable. All 11 target categories are ACTIVE, have 0 characters of `seoContent` (except boosters-hormonaux: 395 chars) and 0–3 in-stock products each. `whey-isolate` (138 products, 8 in stock) and `barres-proteinees` are also noindex. Cause: `apply-product-seo-quality.ts` noindexes any category with no indexable product; categories with Wave 1 products can now qualify. Pilot candidates (strong intent + in-stock + indexable products): `whey-isolate`, `acides-amines`, `boosters-hormonaux`. Not done yet: writing the French category copy and the pilot indexing (needs the content first). Top five to write for: whey-isolate, acides-amines, boosters-hormonaux, collagene, mineraux.
+**P4 Data quality.** Unit typos: only `2268 kg` x2 were wrong (fixed); `2,268 kg`/`1,215 kg` are valid French decimals. Duplicate names: 75 groups / 154 products, 0 groups span multiple brands (same-brand variants, e.g. flavour or iHerb duplicates); no merges or deletions made. Next: admin report (read-only) listing groups with sku/variant labels.
+**P5 Stock vs backorder.** Facts: the main checkout (`orders.service.ts`) does not reject zero-stock items (only the landing-order flow does); the product page says "Disponible sur commande"; but JSON-LD says `OutOfStock` for the 11,7xx zero-stock products. Site behaviour and schema disagree. Google requires `BackOrder`/`PreOrder` to carry an availability date; no real lead time exists in the data. Decision needed from the owner: (a) real supplier lead time per brand (then BackOrder + date), or (b) honest "indisponible" and block ordering. Until then schema stays `OutOfStock` (not misleading). 34 of 164 in-stock products have stock exactly 100 and 52 have >=100: likely nominal, needs a real stock count.
+**P6 Reviews.** 2,500 REJECTED reviews: 50 customer accounts, 50 products, 0 `verified`, 0 linked to an order (only 14 orders exist in total), ratings only 4–5 (avg 4.86), 398 distinct texts reused up to 140 times, dated Jan–Aug 2026. Treated as seeded/synthetic. Status kept REJECTED; none approved or deleted. Storefront and JSON-LD show no reviews or aggregateRating (verified), consistent with status.
+**P7 GSC and performance.** GSC MCP failed again with `CONNECT_TIMEOUT` (30 s) — a network/auth connection failure from this environment, not a confirmed missing permission. Minimum needed: a Search Console property for `paratunisie.com` (domain or URL-prefix) with the connecting Google account added as at least *Restricted* user, OR performance exports (Pages and Queries, last 16 months, CSV) plus the Indexing > Pages report export. Performance (repeatable `curl`, 3 runs each, production): TTFB ~0.83–1.09 s for home, /creatine, /whey-isolate, a product page and /marques (one 1.7 s outlier); `Cache-Control: private, no-cache, no-store` on all pages => every request is rendered. Home HTML 598 KB not yet reduced. Caching change is a high-risk global change: NOT done, awaiting approval (proposal: ISR with short revalidate on product/category/home, keep cart/account dynamic).
+
+## 13. Next batch (recommended)
+1. Write French content for the top five categories and pilot-index whey-isolate, acides-amines, boosters-hormonaux (after review).
+2. Clean "PROTEIN.TN" phrasing in the 2 descriptions; fix sync sanitizer (SEO-016); verify stock numbers; owner confirms prices of the 27 machines.
+3. Owner decision on availability semantics (SEO-006).
+4. Admin duplicate/data-quality report.
+5. Caching proposal (SEO-011) and GSC access (SEO-003).
