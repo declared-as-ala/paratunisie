@@ -66,6 +66,14 @@ describe("evaluateProductSeoQuality", () => {
     expect(lookalike.issues.map((issue) => issue.code)).toContain("EXTERNAL_HOTLINKED_IMAGE");
   });
 
+  it("requires human review for hormone / unapproved compounds", () => {
+    for (const name of ["MK-677 - 60 Capsules", "Nutricost DHEA – 25 mg – 120 gélules", "Ostarine MK-2866 caps"]) {
+      const result = evaluateProductSeoQuality({ ...validProduct, name, slug: name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") });
+      expect(result.issues.map((issue) => issue.code)).toContain("RESTRICTED_SUBSTANCE_REVIEW");
+    }
+    expect(evaluateProductSeoQuality(validProduct).issues.map((issue) => issue.code)).not.toContain("RESTRICTED_SUBSTANCE_REVIEW");
+  });
+
   it("blocks absolute commercial claims without substantiation", () => {
     const result = evaluateProductSeoQuality({
       ...validProduct,

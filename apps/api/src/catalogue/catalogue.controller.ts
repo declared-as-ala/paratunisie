@@ -2,6 +2,7 @@ import { Controller, Get, Post, Patch, Delete, Param, Query, Body, UseGuards, Us
 import { FileInterceptor } from "@nestjs/platform-express";
 import { CatalogueService } from "./catalogue.service";
 import { SeoChecklistService } from "./seo-checklist.service";
+import { CatalogueQualityService } from "./catalogue-quality.service";
 import { CatalogueSeoService, SeoEntityType } from "./catalogue-seo.service";
 import { AdminAuthGuard } from "../admin-auth/guards/admin-auth.guard";
 import { ArrayMaxSize, ArrayMinSize, IsArray, IsString } from "class-validator";
@@ -20,6 +21,7 @@ export class CatalogueController {
     private readonly catalogueService: CatalogueService,
     private readonly catalogueSeoService: CatalogueSeoService,
     private readonly seoChecklistService: SeoChecklistService,
+    private readonly qualityService: CatalogueQualityService,
   ) {}
 
   @Post("upload-image")
@@ -61,6 +63,24 @@ export class CatalogueController {
   @UseGuards(AdminAuthGuard)
   optimizeChecklist(@Param("type") type: string, @Param("id") id: string, @Body() body: { repair?: boolean }) {
     return this.seoChecklistService.optimize(type, id, body.repair !== false);
+  }
+
+  /** Read-only data-quality report (duplicates, units, brands, images...). Never mutates data. */
+  @Get("admin/quality-report/summary")
+  @UseGuards(AdminAuthGuard)
+  qualityReportSummary() {
+    return this.qualityService.summary();
+  }
+
+  @Get("admin/quality-report")
+  @UseGuards(AdminAuthGuard)
+  qualityReport(
+    @Query("check") check: string,
+    @Query("page") page?: string,
+    @Query("pageSize") pageSize?: string,
+    @Query("q") q?: string,
+  ) {
+    return this.qualityService.list(check, Number(page), Number(pageSize), q);
   }
 
   @Get("admin/products")

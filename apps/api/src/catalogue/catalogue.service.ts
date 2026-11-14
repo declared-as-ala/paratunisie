@@ -309,7 +309,8 @@ export class CatalogueService {
   private async applyProductSeoGate(id: string, requestedIndexable: boolean) {
     const [product, titles] = await Promise.all([
       this.prisma.product.findUnique({ where: { id }, include: { brand: true, category: true, variants: true, images: true } }),
-      this.prisma.product.findMany({ select: { id: true, name: true } }),
+      // Only published products can collide: DRAFT twins are never served, so they cannot dilute or duplicate a public title.
+      this.prisma.product.findMany({ where: { publishState: "PUBLISHED" }, select: { id: true, name: true } }),
     ]);
     if (!product) throw new NotFoundException("Produit introuvable");
     const normalizedTitle = this.normalizeProductTitle(product.name);

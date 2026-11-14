@@ -16,6 +16,7 @@ async function main() {
 
   const titleCounts = new Map<string, number>();
   for (const product of products) {
+    if (product.publishState !== "PUBLISHED") continue; // DRAFT twins are never served
     const key = normalizeTitle(product.name);
     titleCounts.set(key, (titleCounts.get(key) || 0) + 1);
   }

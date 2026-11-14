@@ -71,7 +71,9 @@ export function buildPageMetadata(input: BaseMetadataInput): Metadata {
     try { const parsed = JSON.parse(input.seoKeywords); if (Array.isArray(parsed) && parsed.length) keywords = parsed; } catch { keywords = input.seoKeywords.split(',').map((value) => value.trim()).filter(Boolean); }
   }
 
-  const sourceImage = input.ogImage || input.image;
+  // og:image must be an image we host: ignore third-party hotlinks (legacy Sobitas/iHerb values) and fall back to the product image.
+  const isOwnImage = (url?: string | null) => !!url && (url.startsWith("/") || /^https:\/\/(?:www\.)?paratunisie\.com\//i.test(url));
+  const sourceImage = (isOwnImage(input.ogImage) ? input.ogImage : null) || input.image;
   const ogImage = sourceImage
     ? sourceImage.startsWith("http")
       ? sourceImage

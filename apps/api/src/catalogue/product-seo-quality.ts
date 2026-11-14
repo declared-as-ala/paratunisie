@@ -43,6 +43,10 @@ const PLACEHOLDER_IMAGES = new Set([
 // Images mirrored to our own MinIO bucket are controlled storage, not third-party hotlinks.
 const OWN_MEDIA_URL = /^https:\/\/(?:www\.)?paratunisie\.com\/paratunisie-media\//i;
 
+// Compounds that are unapproved, prescription-only or controlled in many markets. A product naming one of them must be
+// reviewed by a human (legality, claims, suitability) before it can be indexed. Matching is on name/slug only.
+const RESTRICTED_SUBSTANCE = /(?<![a-z0-9])(?:mk-?677|ibutamoren|sarms?|ostarine|ligandrol|lgd-?4033|rad-?140|testolone|cardarine|gw-?501516|stenabolic|dhea|7-?keto|pregnenolone|prohormones?|1-?andro|4-?andro|epiandrosterone|clenbuterol|ephedra|ephedrine|dnp|oxandrolone|anavar|tamoxifen|nolvadex|clomiphene|hcg)(?![a-z0-9])/i;
+
 function normalized(value: string | null | undefined) {
   return (value || "").replace(/\s+/g, " ").trim();
 }
@@ -68,6 +72,9 @@ export function evaluateProductSeoQuality(product: ProductSeoQualityInput): Prod
   }
   if (!slug || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
     add("INVALID_SLUG", "BLOCKER", 40, "Slug is missing or not canonical-safe.");
+  }
+  if (RESTRICTED_SUBSTANCE.test(`${name} ${slug.replace(/-/g, " ")}`)) {
+    add("RESTRICTED_SUBSTANCE_REVIEW", "BLOCKER", 100, "Product names a hormone/unapproved compound; legality and claims need human review.");
   }
   if (!product.brand?.id || normalized(product.brand.name).length < 2) {
     add("MISSING_BRAND", "BLOCKER", 100, "A valid brand is required.");

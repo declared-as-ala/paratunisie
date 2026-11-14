@@ -10,6 +10,7 @@ import {
   PackageSearch,
   Upload,
   Hourglass,
+  ClipboardCheck,
 } from "lucide-react";
 
 export type NavItem = {
@@ -42,6 +43,7 @@ export const navSections: NavSection[] = [
       { label: "Marques", href: "/admin/marques", icon: Tags },
       { label: "Catégories", href: "/admin/categories", icon: Tags },
       { label: "Importation", href: "/admin/importation", icon: Upload },
+      { label: "Qualité du catalogue", href: "/admin/qualite-catalogue", icon: ClipboardCheck },
     ],
   },
   {

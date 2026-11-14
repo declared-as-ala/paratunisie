@@ -76,8 +76,16 @@ function rebrand(text) {
     .replace(/(?<![./\w@-])Protein\.tn/g, "ParaTunisie")
     .replace(/(?<![./\w@-])protein\.tn/g, "paratunisie.com");
 }
+// Any line that names the legacy shop (any case, with/without www, inside **bold**) is self-promotion for another
+// brand: drop it BEFORE re-branding. Regression: "chez **PROTEIN.TN**", "www.protein.tn", "CONSEIL DE L'EXPERT PROTEIN.TN".
+const LEGACY_BRAND_LINE = /protein\.tn|sobitas/i;
 function clean(md) {
-  return rebrand(md)
+  return rebrand(
+    md
+      .split("\n")
+      .filter((l) => !LEGACY_BRAND_LINE.test(l) && !DROP_LINE.test(l))
+      .join("\n"),
+  )
     .split("\n")
     .filter((l) => !DROP_LINE.test(l))
     .join("\n")
@@ -113,7 +121,7 @@ function parseFaq(raw) {
         answer: plain(String(x.answer ?? x.a ?? x.reponse ?? x.content ?? "")),
       }))
       .map((x) => ({ question: rebrand(x.question), answer: rebrand(x.answer) }))
-      .filter((x) => x.question && x.answer && !DROP_LINE.test(x.question) && !DROP_LINE.test(x.answer));
+      .filter((x) => x.question && x.answer && !DROP_LINE.test(x.question) && !DROP_LINE.test(x.answer) && !LEGACY_BRAND_LINE.test(x.question) && !LEGACY_BRAND_LINE.test(x.answer));
   } catch {
     return [];
   }
@@ -376,7 +384,9 @@ async function syncImages() {
   console.log(`images finished: ok ${ok}, failed ${bad}`);
 }
 
-(async () => {
+module.exports = { clean, rebrand };
+
+if (require.main === module) (async () => {
   const mode = process.argv[2];
   if (mode === "db") await syncDb(process.argv.includes("--apply"));
   else if (mode === "images") await syncImages();

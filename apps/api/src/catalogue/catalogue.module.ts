@@ -5,11 +5,12 @@ import { AdminAuthModule } from "../admin-auth/admin-auth.module";
 import { SearchModule } from "../search/search.module";
 import { CatalogueSeoService } from "./catalogue-seo.service";
 import { SeoChecklistService } from "./seo-checklist.service";
+import { CatalogueQualityService } from "./catalogue-quality.service";
 
 @Module({
   imports: [AdminAuthModule, SearchModule],
   controllers: [CatalogueController],
-  providers: [CatalogueService, CatalogueSeoService, SeoChecklistService],
+  providers: [CatalogueService, CatalogueSeoService, SeoChecklistService, CatalogueQualityService],
   exports: [CatalogueService],
 })
 export class CatalogueModule {}

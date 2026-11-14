@@ -1,7 +1,15 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildCategoryMetadata, buildProductMetadata } from './metadata';
+import { buildCategoryMetadata, buildPageMetadata, buildProductMetadata } from './metadata';
 import { buildProductSchema } from './schema';
+
+describe('social image ownership', () => {
+  it('never exposes a third-party og:image and falls back to the product image', () => {
+    const metadata = buildPageMetadata({ title: 'X', description: 'Y', path: '/produits/x', image: 'https://paratunisie.com/paratunisie-media/products/x.webp', ogImage: 'https://admin.protein.tn/storage/produits/a.jpg' });
+    assert.equal(JSON.stringify(metadata.openGraph), JSON.stringify(metadata.openGraph).replace(/protein\.tn/g, ''));
+    assert.match(JSON.stringify(metadata.openGraph), /paratunisie-media\/products\/x\.webp/);
+  });
+});
 
 describe('catalogue search rendering', () => {
   it('keeps a discoverable page two with its own title and canonical', () => {
