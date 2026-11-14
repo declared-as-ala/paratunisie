@@ -11,8 +11,6 @@ import {
 import { buildCanonicalUrl } from "@/lib/seo/canonical";
 import { articles } from "@/lib/data/articles";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 export const metadata: Metadata = {
   title: "Parapharmacie en Ligne & Nutrition Sportive en Tunisie | ParaTunisie",

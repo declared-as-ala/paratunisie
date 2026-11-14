@@ -24,7 +24,7 @@ function call(method, url, headers, body) {
 }
 async function token() {
   const now = Math.floor(Date.now() / 1000);
-  const u = b64({ alg: "RS256", typ: "JWT" }) + "." + b64({ iss: key.client_email, scope: "https://www.googleapis.com/auth/webmasters.readonly", aud: "https://oauth2.googleapis.com/token", iat: now, exp: now + 3000 });
+  const u = b64({ alg: "RS256", typ: "JWT" }) + "." + b64({ iss: key.client_email, scope: process.env.GSC_WRITE === "1" ? "https://www.googleapis.com/auth/webmasters" : "https://www.googleapis.com/auth/webmasters.readonly", aud: "https://oauth2.googleapis.com/token", iat: now, exp: now + 3000 });
   const jwt = u + "." + crypto.createSign("RSA-SHA256").update(u).sign(key.private_key, "base64url");
   const r = await call("POST", "https://oauth2.googleapis.com/token", { "Content-Type": "application/x-www-form-urlencoded" }, "grant_type=" + encodeURIComponent("urn:ietf:params:oauth:grant-type:jwt-bearer") + "&assertion=" + jwt);
   if (r.status !== 200) throw new Error("token HTTP " + r.status);
@@ -50,6 +50,11 @@ const iso = (d) => d.toISOString().slice(0, 10);
     console.log("HTTP", r.status);
     for (const s of r.json.sitemap || []) console.log(JSON.stringify({ path: s.path, lastSubmitted: s.lastSubmitted, lastDownloaded: s.lastDownloaded, errors: s.errors, warnings: s.warnings, contents: s.contents }));
     if (!(r.json.sitemap || []).length) console.log(JSON.stringify(r.json).slice(0, 300));
+  } else if (cmd === "submit-sitemap") {
+    // Write action: requires GSC_WRITE=1. Resubmits an existing sitemap of this property only.
+    if (process.env.GSC_WRITE !== "1") return console.log("refused: set GSC_WRITE=1 to submit");
+    const r = await call("PUT", `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(SITE)}/sitemaps/${encodeURIComponent(arg1)}`, { Authorization: auth.Authorization });
+    console.log("submit HTTP", r.status, JSON.stringify(r.json).slice(0, 200));
   } else if (cmd === "inspect") {
     const r = await call("POST", "https://searchconsole.googleapis.com/v1/urlInspection/index:inspect", auth, JSON.stringify({ inspectionUrl: arg1, siteUrl: SITE, languageCode: "fr" }));
     console.log("HTTP", r.status);

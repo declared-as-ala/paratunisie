@@ -179,12 +179,27 @@ function parseFaq(value?: string): { question: string; answer: string }[] {
 
 /* ─── Fetch helpers ─────────────────────────────────────────────────── */
 
+/**
+ * Opt-in short-TTL caching for PUBLIC catalogue reads (home, product pages). OFF unless PUBLIC_CACHE_SECONDS > 0,
+ * so production behaviour is unchanged until a rollout is explicitly approved. Never applied in the browser, to
+ * non-GET calls, or to anything outside the public catalogue (cart, checkout, account, admin stay uncached).
+ * Freshness: entries expire after N seconds and can be flushed immediately with revalidateTag("catalogue").
+ * See docs/seo/CACHING_PLAN.md.
+ */
+function publicCacheSeconds(path: string, init?: RequestInit): number {
+  if (typeof window !== "undefined" || (init?.method && init.method !== "GET")) return 0;
+  if (!/^\/(catalogue\/(products|categories|brands|sitemap-data)|content\/articles)(?:[/?]|$)/.test(path)) return 0;
+  const seconds = Number(process.env.PUBLIC_CACHE_SECONDS);
+  return Number.isFinite(seconds) && seconds > 0 ? Math.min(seconds, 600) : 0;
+}
+
 async function apiFetch<T>(path: string, init?: RequestInit): Promise<T | null> {
   const url = `${getApiBase()}${path}`;
+  const cacheSeconds = publicCacheSeconds(path, init);
   const criticalCatalogue = typeof window === "undefined" && process.env.NODE_ENV === "production" && /^\/catalogue\/(products|categories|brands)(?:[/?]|$)/.test(path);
   try {
     const res = await fetch(url, {
-      cache: "no-store",
+      ...(cacheSeconds > 0 ? { next: { revalidate: cacheSeconds, tags: ["catalogue"] } } : { cache: "no-store" as const }),
       signal: AbortSignal.timeout(5000),
       ...init,
     });

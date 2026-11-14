@@ -1,0 +1,3623 @@
+{
+ "window_days": 90,
+ "totals": {
+  "queries": 1310,
+  "nonbrand_queries": 1305,
+  "pages": 951
+ },
+ "striking_distance_4_20": [
+  {
+   "query": "citrolax",
+   "clicks": 1,
+   "impressions": 240,
+   "ctr": 0.42,
+   "position": 7.8,
+   "pages": [
+    [
+     "/produits/citrolax-solution-orale-fl-300ml",
+     1,
+     240
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "enemacol",
+   "clicks": 0,
+   "impressions": 111,
+   "ctr": 0.0,
+   "position": 9.7,
+   "pages": [
+    [
+     "/produits/enemacol-solution-biphasique-133ml",
+     0,
+     111
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "cc cream pierre cardin",
+   "clicks": 0,
+   "impressions": 94,
+   "ctr": 0.0,
+   "position": 9.0,
+   "pages": [
+    [
+     "/produits/pierre-cardin-cc-cream-30-ml-spf15-light-570",
+     0,
+     94
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "\"145 beige rose\" \"accord parfait\"",
+   "clicks": 0,
+   "impressions": 76,
+   "ctr": 0.0,
+   "position": 9.5,
+   "pages": [
+    [
+     "/marques/loreal",
+     0,
+     76
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "vominat",
+   "clicks": 0,
+   "impressions": 70,
+   "ctr": 0.0,
+   "position": 5.5,
+   "pages": [
+    [
+     "/produits/vominat-baby-vomissements-sirop-120ml",
+     0,
+     70
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "vominat baby",
+   "clicks": 0,
+   "impressions": 69,
+   "ctr": 0.0,
+   "position": 6.7,
+   "pages": [
+    [
+     "/produits/vominat-baby-vomissements-sirop-120ml",
+     0,
+     69
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "paratunis",
+   "clicks": 1,
+   "impressions": 62,
+   "ctr": 1.61,
+   "position": 4.8,
+   "pages": [
+    [
+     "/",
+     1,
+     62
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "pierre cardin cc cream",
+   "clicks": 0,
+   "impressions": 59,
+   "ctr": 0.0,
+   "position": 7.8,
+   "pages": [
+    [
+     "/produits/pierre-cardin-cc-cream-30-ml-spf15-light-570",
+     0,
+     59
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "minoxidil tunisie",
+   "clicks": 2,
+   "impressions": 56,
+   "ctr": 3.57,
+   "position": 9.7,
+   "pages": [
+    [
+     "/produits/minoxidil-5",
+     1,
+     39
+    ],
+    [
+     "/produits/minoxidil-2-spray",
+     1,
+     17
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "dip belt tunisie",
+   "clicks": 11,
+   "impressions": 50,
+   "ctr": 22.0,
+   "position": 6.5,
+   "pages": [
+    [
+     "/produits/dip-belt",
+     8,
+     29
+    ],
+    [
+     "/produits/bandes-de-tirage",
+     3,
+     13
+    ],
+    [
+     "/produits/bandes-de-poignet",
+     0,
+     5
+    ],
+    [
+     "/produits/gant-de-fitness",
+     0,
+     3
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "meboderma",
+   "clicks": 2,
+   "impressions": 49,
+   "ctr": 4.08,
+   "position": 8.3,
+   "pages": [
+    [
+     "/produits/meboderma-pommade-40g",
+     2,
+     49
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "bucco spray",
+   "clicks": 0,
+   "impressions": 40,
+   "ctr": 0.0,
+   "position": 7.4,
+   "pages": [
+    [
+     "/produits/bucco-spray-30ml",
+     0,
+     40
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "alopexy 5 tunisie",
+   "clicks": 7,
+   "impressions": 33,
+   "ctr": 21.21,
+   "position": 6.8,
+   "pages": [
+    [
+     "/produits/alopexy-5",
+     7,
+     33
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "pytheal",
+   "clicks": 0,
+   "impressions": 32,
+   "ctr": 0.0,
+   "position": 9.7,
+   "pages": [
+    [
+     "/marques/pytheal",
+     0,
+     32
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "gripoff",
+   "clicks": 0,
+   "impressions": 32,
+   "ctr": 0.0,
+   "position": 10.0,
+   "pages": [
+    [
+     "/produits/gripoff-sirop-120ml",
+     0,
+     32
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "vominat baby posologie",
+   "clicks": 0,
+   "impressions": 31,
+   "ctr": 0.0,
+   "position": 4.9,
+   "pages": [
+    [
+     "/produits/vominat-baby-vomissements-sirop-120ml",
+     0,
+     31
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "alopexy tunisie",
+   "clicks": 4,
+   "impressions": 30,
+   "ctr": 13.33,
+   "position": 8.9,
+   "pages": [
+    [
+     "/produits/alopexy-5",
+     4,
+     30
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "mira white",
+   "clicks": 0,
+   "impressions": 30,
+   "ctr": 0.0,
+   "position": 8.6,
+   "pages": [
+    [
+     "/marques/mira-white",
+     0,
+     22
+    ],
+    [
+     "/produits/miradent-mirawhite-gelee-dentifrice-100ml",
+     0,
+     8
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "blastofer",
+   "clicks": 0,
+   "impressions": 29,
+   "ctr": 0.0,
+   "position": 9.9,
+   "pages": [
+    [
+     "/produits/blastofer-30-gellules",
+     0,
+     29
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "minoxidil 5 tunisie",
+   "clicks": 2,
+   "impressions": 28,
+   "ctr": 7.14,
+   "position": 9.3,
+   "pages": [
+    [
+     "/produits/minoxidil-5",
+     2,
+     28
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "natufolic",
+   "clicks": 1,
+   "impressions": 28,
+   "ctr": 3.57,
+   "position": 7.0,
+   "pages": [
+    [
+     "/produits/natufolic-acide-folique-gelules-b30",
+     1,
+     28
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "inosifol",
+   "clicks": 2,
+   "impressions": 27,
+   "ctr": 7.41,
+   "position": 7.0,
+   "pages": [
+    [
+     "/produits/inosifol-b-60-gelules-fr-pharma",
+     2,
+     25
+    ],
+    [
+     "/marques/fr-pharma",
+     0,
+     2
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "mk 677 prix tunisie",
+   "clicks": 1,
+   "impressions": 27,
+   "ctr": 3.7,
+   "position": 9.2,
+   "pages": [
+    [
+     "/produits/mk-677-60-capsules",
+     1,
+     27
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "vominat kids",
+   "clicks": 0,
+   "impressions": 23,
+   "ctr": 0.0,
+   "position": 5.7,
+   "pages": [
+    [
+     "/produits/vominat-baby-vomissements-sirop-120ml",
+     0,
+     23
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "mk677 tunisie prix",
+   "clicks": 4,
+   "impressions": 21,
+   "ctr": 19.05,
+   "position": 7.9,
+   "pages": [
+    [
+     "/produits/mk-677-60-capsules",
+     4,
+     21
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "alopexy 2 prix tunisie",
+   "clicks": 1,
+   "impressions": 21,
+   "ctr": 4.76,
+   "position": 9.2,
+   "pages": [
+    [
+     "/produits/alopexy-2",
+     1,
+     21
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "charbonat",
+   "clicks": 0,
+   "impressions": 21,
+   "ctr": 0.0,
+   "position": 7.4,
+   "pages": [
+    [
+     "/produits/charbonat-30-gelules",
+     0,
+     21
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "hydroquinone tunisie",
+   "clicks": 0,
+   "impressions": 21,
+   "ctr": 0.0,
+   "position": 11.1,
+   "pages": [
+    [
+     "/produits/parachimic-hydroquinone-50g",
+     0,
+     21
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "bionnex tunisie prix",
+   "clicks": 0,
+   "impressions": 20,
+   "ctr": 0.0,
+   "position": 7.9,
+   "pages": [
+    [
+     "/produits/bionnex-serum-anti-chute-boite-12-10ml-exp-03-21",
+     0,
+     20
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "apederm",
+   "clicks": 1,
+   "impressions": 17,
+   "ctr": 5.88,
+   "position": 13.0,
+   "pages": [
+    [
+     "/produits/apederm-trios-ecran-solaire-invisible-anti-age-anti-taches-spf-50",
+     1,
+     14
+    ],
+    [
+     "/produits/apederm-gel-lavant-pour-toute-la-famille-250ml",
+     0,
+     1
+    ],
+    [
+     "/produits/apederm-gel-lavant-visage-et-corps-pour-toute-la-famille-500ml",
+     0,
+     1
+    ],
+    [
+     "/produits/apederm-gel-moussant-peau-mixte-a-grasse-250ml",
+     0,
+     1
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "penta b",
+   "clicks": 0,
+   "impressions": 17,
+   "ctr": 0.0,
+   "position": 10.2,
+   "pages": [
+    [
+     "/produits/penta-b-vit-b1-b2-b5-b9-b12-gelules",
+     0,
+     17
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "buccospray prix",
+   "clicks": 1,
+   "impressions": 16,
+   "ctr": 6.25,
+   "position": 7.1,
+   "pages": [
+    [
+     "/produits/bucco-spray-30ml",
+     1,
+     16
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "alopexy 5 prix tunisie",
+   "clicks": 0,
+   "impressions": 16,
+   "ctr": 0.0,
+   "position": 9.6,
+   "pages": [
+    [
+     "/produits/alopexy-5",
+     0,
+     16
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "inflamix sirop",
+   "clicks": 0,
+   "impressions": 16,
+   "ctr": 0.0,
+   "position": 9.3,
+   "pages": [
+    [
+     "/produits/inflamix-sirop-sans-sucre-120ml",
+     0,
+     16
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "varispray",
+   "clicks": 0,
+   "impressions": 16,
+   "ctr": 0.0,
+   "position": 8.8,
+   "pages": [
+    [
+     "/produits/pediakids-varispray-40ml",
+     0,
+     16
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "enemacol prix tunisie",
+   "clicks": 0,
+   "impressions": 15,
+   "ctr": 0.0,
+   "position": 9.2,
+   "pages": [
+    [
+     "/produits/enemacol-solution-biphasique-133ml",
+     0,
+     15
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "aphtoval",
+   "clicks": 0,
+   "impressions": 15,
+   "ctr": 0.0,
+   "position": 9.0,
+   "pages": [
+    [
+     "/produits/holis-aphtoval-gel-pour-aphtes-buccaux-15g",
+     0,
+     15
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "alaninu",
+   "clicks": 0,
+   "impressions": 14,
+   "ctr": 0.0,
+   "position": 9.4,
+   "pages": [
+    [
+     "/marques/alani-nu",
+     0,
+     14
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "ceinture lestée tunisie",
+   "clicks": 0,
+   "impressions": 14,
+   "ctr": 0.0,
+   "position": 9.1,
+   "pages": [
+    [
+     "/produits/dip-belt",
+     0,
+     11
+    ],
+    [
+     "/produits/bandes-de-tirage",
+     0,
+     3
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "deca poux",
+   "clicks": 0,
+   "impressions": 14,
+   "ctr": 0.0,
+   "position": 8.3,
+   "pages": [
+    [
+     "/produits/deca-poux-mousse-2en1-shamp-lotion-anti-poux-100ml",
+     0,
+     14
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "alopexy 2 tunisie",
+   "clicks": 3,
+   "impressions": 12,
+   "ctr": 25.0,
+   "position": 6.3,
+   "pages": [
+    [
+     "/produits/alopexy-2",
+     3,
+     12
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "atherolive",
+   "clicks": 1,
+   "impressions": 12,
+   "ctr": 8.33,
+   "position": 8.6,
+   "pages": [
+    [
+     "/produits/atherolive-30-gelules",
+     1,
+     12
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "optifer comprime",
+   "clicks": 0,
+   "impressions": 12,
+   "ctr": 0.0,
+   "position": 9.4,
+   "pages": [
+    [
+     "/produits/optifer-14-mg-comprime-a-croquer-b-30",
+     0,
+     5
+    ],
+    [
+     "/produits/optifer-14-mg-comprime-a-croquer-b-60",
+     0,
+     5
+    ],
+    [
+     "/marques/optifer",
+     0,
+     2
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "inflamix 120 ml",
+   "clicks": 0,
+   "impressions": 12,
+   "ctr": 0.0,
+   "position": 8.5,
+   "pages": [
+    [
+     "/produits/inflamix-sirop-sans-sucre-120ml",
+     0,
+     12
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "\"145 beige rose\" \"accord parfait\" l'oréal",
+   "clicks": 0,
+   "impressions": 11,
+   "ctr": 0.0,
+   "position": 9.3,
+   "pages": [
+    [
+     "/marques/loreal",
+     0,
+     11
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "curagrip",
+   "clicks": 0,
+   "impressions": 11,
+   "ctr": 0.0,
+   "position": 8.1,
+   "pages": [
+    [
+     "/produits/aleonat-curagrip-15-gelules",
+     0,
+     11
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "flavoplus",
+   "clicks": 0,
+   "impressions": 11,
+   "ctr": 0.0,
+   "position": 9.1,
+   "pages": [
+    [
+     "/produits/arrazi-flavoplus-b20",
+     0,
+     11
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "erexia",
+   "clicks": 0,
+   "impressions": 11,
+   "ctr": 0.0,
+   "position": 5.5,
+   "pages": [
+    [
+     "/produits/erexia-b-60-gelules",
+     0,
+     11
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "estozen",
+   "clicks": 0,
+   "impressions": 11,
+   "ctr": 0.0,
+   "position": 10.6,
+   "pages": [
+    [
+     "/produits/herbex-estozen-boite-15",
+     0,
+     11
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "now foods tunisie",
+   "clicks": 4,
+   "impressions": 10,
+   "ctr": 40.0,
+   "position": 16.4,
+   "pages": [
+    [
+     "/probiotiques/now-foods-probiotic-10-30-gelules-vegetales",
+     2,
+     3
+    ],
+    [
+     "/produits/now-foods-calcium-magnesium-250-comprimes",
+     0,
+     2
+    ],
+    [
+     "/produits/now-foods-vitamin-a-250-capsules-molles",
+     1,
+     1
+    ],
+    [
+     "/produits/now-foods-vitamin-d3-k2-120-gelules",
+     1,
+     1
+    ],
+    [
+     "/marques/now-foods",
+     0,
+     1
+    ],
+    [
+     "/produits/now-foods-liquid-vitamin-d-3-59-ml",
+     0,
+     1
+    ],
+    [
+     "/produits/now-foods-super-antioxidants-120-gelules-vegetales",
+     0,
+     1
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "citrolax posologie",
+   "clicks": 0,
+   "impressions": 10,
+   "ctr": 0.0,
+   "position": 7.4,
+   "pages": [
+    [
+     "/produits/citrolax-solution-orale-fl-300ml",
+     0,
+     10
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "mixon",
+   "clicks": 0,
+   "impressions": 10,
+   "ctr": 0.0,
+   "position": 11.4,
+   "pages": [
+    [
+     "/produits/mixon-gelules",
+     0,
+     10
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "vominat sirop enfant",
+   "clicks": 0,
+   "impressions": 10,
+   "ctr": 0.0,
+   "position": 7.0,
+   "pages": [
+    [
+     "/produits/vominat-baby-vomissements-sirop-120ml",
+     0,
+     10
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "paro plus",
+   "clicks": 1,
+   "impressions": 9,
+   "ctr": 11.11,
+   "position": 8.2,
+   "pages": [
+    [
+     "/marques/paro-plus",
+     1,
+     7
+    ],
+    [
+     "/produits/paro-plus-care-dentifrice-60ml",
+     0,
+     2
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "brazilian glow tunisie",
+   "clicks": 0,
+   "impressions": 9,
+   "ctr": 0.0,
+   "position": 18.0,
+   "pages": [
+    [
+     "/marques/brazilian-glow",
+     0,
+     9
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "sport life",
+   "clicks": 0,
+   "impressions": 9,
+   "ctr": 0.0,
+   "position": 9.2,
+   "pages": [
+    [
+     "/marques/sport-life",
+     0,
+     9
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "citrolax sirop",
+   "clicks": 0,
+   "impressions": 9,
+   "ctr": 0.0,
+   "position": 9.6,
+   "pages": [
+    [
+     "/produits/citrolax-solution-orale-fl-300ml",
+     0,
+     9
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "cc creme pierre cardin",
+   "clicks": 0,
+   "impressions": 9,
+   "ctr": 0.0,
+   "position": 8.9,
+   "pages": [
+    [
+     "/produits/pierre-cardin-cc-cream-30-ml-spf15-light-570",
+     0,
+     9
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "mullein en tunisie",
+   "clicks": 0,
+   "impressions": 9,
+   "ctr": 0.0,
+   "position": 10.3,
+   "pages": [
+    [
+     "/produits/swanson-vitamins-mullein-leaf-extract-standardized-60-gelules",
+     0,
+     9
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "vomicroc",
+   "clicks": 0,
+   "impressions": 9,
+   "ctr": 0.0,
+   "position": 9.4,
+   "pages": [
+    [
+     "/produits/vomicroc-b15-comprimes-a-croquer",
+     0,
+     9
+    ]
+   ],
+   "brand": false
+  }
+ ],
+ "high_impr_low_ctr_queries": [
+  {
+   "query": "citrolax",
+   "clicks": 1,
+   "impressions": 240,
+   "ctr": 0.42,
+   "position": 7.8,
+   "pages": [
+    [
+     "/produits/citrolax-solution-orale-fl-300ml",
+     1,
+     240
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "enemacol",
+   "clicks": 0,
+   "impressions": 111,
+   "ctr": 0.0,
+   "position": 9.7,
+   "pages": [
+    [
+     "/produits/enemacol-solution-biphasique-133ml",
+     0,
+     111
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "cc cream pierre cardin",
+   "clicks": 0,
+   "impressions": 94,
+   "ctr": 0.0,
+   "position": 9.0,
+   "pages": [
+    [
+     "/produits/pierre-cardin-cc-cream-30-ml-spf15-light-570",
+     0,
+     94
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "\"145 beige rose\" \"accord parfait\"",
+   "clicks": 0,
+   "impressions": 76,
+   "ctr": 0.0,
+   "position": 9.5,
+   "pages": [
+    [
+     "/marques/loreal",
+     0,
+     76
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "vominat",
+   "clicks": 0,
+   "impressions": 70,
+   "ctr": 0.0,
+   "position": 5.5,
+   "pages": [
+    [
+     "/produits/vominat-baby-vomissements-sirop-120ml",
+     0,
+     70
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "vominat baby",
+   "clicks": 0,
+   "impressions": 69,
+   "ctr": 0.0,
+   "position": 6.7,
+   "pages": [
+    [
+     "/produits/vominat-baby-vomissements-sirop-120ml",
+     0,
+     69
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "paratunis",
+   "clicks": 1,
+   "impressions": 62,
+   "ctr": 1.61,
+   "position": 4.8,
+   "pages": [
+    [
+     "/",
+     1,
+     62
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "pierre cardin cc cream",
+   "clicks": 0,
+   "impressions": 59,
+   "ctr": 0.0,
+   "position": 7.8,
+   "pages": [
+    [
+     "/produits/pierre-cardin-cc-cream-30-ml-spf15-light-570",
+     0,
+     59
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "paratunise",
+   "clicks": 1,
+   "impressions": 58,
+   "ctr": 1.72,
+   "position": 3.4,
+   "pages": [
+    [
+     "/",
+     1,
+     53
+    ],
+    [
+     "/homme",
+     0,
+     3
+    ],
+    [
+     "/shop",
+     0,
+     2
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "bucco spray",
+   "clicks": 0,
+   "impressions": 40,
+   "ctr": 0.0,
+   "position": 7.4,
+   "pages": [
+    [
+     "/produits/bucco-spray-30ml",
+     0,
+     40
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "pytheal",
+   "clicks": 0,
+   "impressions": 32,
+   "ctr": 0.0,
+   "position": 9.7,
+   "pages": [
+    [
+     "/marques/pytheal",
+     0,
+     32
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "gripoff",
+   "clicks": 0,
+   "impressions": 32,
+   "ctr": 0.0,
+   "position": 10.0,
+   "pages": [
+    [
+     "/produits/gripoff-sirop-120ml",
+     0,
+     32
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "vominat baby posologie",
+   "clicks": 0,
+   "impressions": 31,
+   "ctr": 0.0,
+   "position": 4.9,
+   "pages": [
+    [
+     "/produits/vominat-baby-vomissements-sirop-120ml",
+     0,
+     31
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "mira white",
+   "clicks": 0,
+   "impressions": 30,
+   "ctr": 0.0,
+   "position": 8.6,
+   "pages": [
+    [
+     "/marques/mira-white",
+     0,
+     22
+    ],
+    [
+     "/produits/miradent-mirawhite-gelee-dentifrice-100ml",
+     0,
+     8
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "blastofer",
+   "clicks": 0,
+   "impressions": 29,
+   "ctr": 0.0,
+   "position": 9.9,
+   "pages": [
+    [
+     "/produits/blastofer-30-gellules",
+     0,
+     29
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "vominat kids",
+   "clicks": 0,
+   "impressions": 23,
+   "ctr": 0.0,
+   "position": 5.7,
+   "pages": [
+    [
+     "/produits/vominat-baby-vomissements-sirop-120ml",
+     0,
+     23
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "charbonat",
+   "clicks": 0,
+   "impressions": 21,
+   "ctr": 0.0,
+   "position": 7.4,
+   "pages": [
+    [
+     "/produits/charbonat-30-gelules",
+     0,
+     21
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "hydroquinone tunisie",
+   "clicks": 0,
+   "impressions": 21,
+   "ctr": 0.0,
+   "position": 11.1,
+   "pages": [
+    [
+     "/produits/parachimic-hydroquinone-50g",
+     0,
+     21
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "bionnex tunisie prix",
+   "clicks": 0,
+   "impressions": 20,
+   "ctr": 0.0,
+   "position": 7.9,
+   "pages": [
+    [
+     "/produits/bionnex-serum-anti-chute-boite-12-10ml-exp-03-21",
+     0,
+     20
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "penta b",
+   "clicks": 0,
+   "impressions": 17,
+   "ctr": 0.0,
+   "position": 10.2,
+   "pages": [
+    [
+     "/produits/penta-b-vit-b1-b2-b5-b9-b12-gelules",
+     0,
+     17
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "alopexy 5 prix tunisie",
+   "clicks": 0,
+   "impressions": 16,
+   "ctr": 0.0,
+   "position": 9.6,
+   "pages": [
+    [
+     "/produits/alopexy-5",
+     0,
+     16
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "inflamix sirop",
+   "clicks": 0,
+   "impressions": 16,
+   "ctr": 0.0,
+   "position": 9.3,
+   "pages": [
+    [
+     "/produits/inflamix-sirop-sans-sucre-120ml",
+     0,
+     16
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "varispray",
+   "clicks": 0,
+   "impressions": 16,
+   "ctr": 0.0,
+   "position": 8.8,
+   "pages": [
+    [
+     "/produits/pediakids-varispray-40ml",
+     0,
+     16
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "enemacol prix tunisie",
+   "clicks": 0,
+   "impressions": 15,
+   "ctr": 0.0,
+   "position": 9.2,
+   "pages": [
+    [
+     "/produits/enemacol-solution-biphasique-133ml",
+     0,
+     15
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "aphtoval",
+   "clicks": 0,
+   "impressions": 15,
+   "ctr": 0.0,
+   "position": 9.0,
+   "pages": [
+    [
+     "/produits/holis-aphtoval-gel-pour-aphtes-buccaux-15g",
+     0,
+     15
+    ]
+   ],
+   "brand": false
+  }
+ ],
+ "cannibalization": [
+  {
+   "query": "coffret clarenia tunisie",
+   "clicks": 0,
+   "impressions": 259,
+   "ctr": 0.0,
+   "position": 65.2,
+   "pages": [
+    [
+     "/produits/clarenia-coffret-glamour",
+     0,
+     124
+    ],
+    [
+     "/marques/clarenia",
+     0,
+     71
+    ],
+    [
+     "/produits/clarenia-coffret-glamour-2",
+     0,
+     64
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "filorga tunisie",
+   "clicks": 0,
+   "impressions": 186,
+   "ctr": 0.0,
+   "position": 41.3,
+   "pages": [
+    [
+     "/marques/filorga",
+     0,
+     166
+    ],
+    [
+     "/produits/filorga-coffret-expertise-anti-rides",
+     0,
+     20
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "clermine",
+   "clicks": 0,
+   "impressions": 137,
+   "ctr": 0.0,
+   "position": 57.9,
+   "pages": [
+    [
+     "/marques/clermine",
+     0,
+     88
+    ],
+    [
+     "/produits/clermine-creme-eclaircissante-30g",
+     0,
+     49
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "complément alimentaires tunisie",
+   "clicks": 0,
+   "impressions": 125,
+   "ctr": 0.0,
+   "position": 65.1,
+   "pages": [
+    [
+     "/complements-alimentaires",
+     0,
+     101
+    ],
+    [
+     "/",
+     0,
+     24
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "proteine anabolic tunisie",
+   "clicks": 0,
+   "impressions": 118,
+   "ctr": 0.0,
+   "position": 66.3,
+   "pages": [
+    [
+     "/produits/anabolic-whey-80-2-25kg-proactive",
+     0,
+     76
+    ],
+    [
+     "/whey-proteine",
+     0,
+     41
+    ],
+    [
+     "/produits/anabolic-mass-gainer-dark-chocolate-1-28kg",
+     0,
+     1
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "cytol basic",
+   "clicks": 0,
+   "impressions": 106,
+   "ctr": 0.0,
+   "position": 81.6,
+   "pages": [
+    [
+     "/produits/cytol-basic-creme-apaisante-50ml",
+     0,
+     93
+    ],
+    [
+     "/produits/cytol-basic-creme-apaisante-100ml",
+     0,
+     13
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "profertil tunisie",
+   "clicks": 0,
+   "impressions": 81,
+   "ctr": 0.0,
+   "position": 72.7,
+   "pages": [
+    [
+     "/marques/profertil",
+     0,
+     78
+    ],
+    [
+     "/produits/profertil-homme-60-capsules",
+     0,
+     3
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "protection solaire",
+   "clicks": 0,
+   "impressions": 71,
+   "ctr": 0.0,
+   "position": 81.5,
+   "pages": [
+    [
+     "/solaire",
+     0,
+     49
+    ],
+    [
+     "/conseils/protection-solaire-tunisie-guide",
+     0,
+     22
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "écran svr sun secure blur",
+   "clicks": 0,
+   "impressions": 71,
+   "ctr": 0.0,
+   "position": 69.8,
+   "pages": [
+    [
+     "/produits/svr-ecran-sun-secure-blur-spf50-50-ml-sans-parfum",
+     0,
+     39
+    ],
+    [
+     "/produits/svr-ecran-sun-secure-blur-spf50-50-ml",
+     0,
+     20
+    ],
+    [
+     "/produits/svr-ecran-sun-secure-blur-teinte-spf50-50-ml",
+     0,
+     12
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "paratunise",
+   "clicks": 1,
+   "impressions": 58,
+   "ctr": 1.72,
+   "position": 3.4,
+   "pages": [
+    [
+     "/",
+     1,
+     53
+    ],
+    [
+     "/homme",
+     0,
+     3
+    ],
+    [
+     "/shop",
+     0,
+     2
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "minoxidil tunisie",
+   "clicks": 2,
+   "impressions": 56,
+   "ctr": 3.57,
+   "position": 9.7,
+   "pages": [
+    [
+     "/produits/minoxidil-5",
+     1,
+     39
+    ],
+    [
+     "/produits/minoxidil-2-spray",
+     1,
+     17
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "gold standard whey tunisie",
+   "clicks": 0,
+   "impressions": 56,
+   "ctr": 0.0,
+   "position": 43.0,
+   "pages": [
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-protein-double-rich-chocolate-2-29-kg",
+     0,
+     10
+    ],
+    [
+     "/produits/whey-gold-standard-908g",
+     0,
+     10
+    ],
+    [
+     "/produits/100-whey-gold-standard-2-27kg",
+     0,
+     8
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-protein-delicious-strawberry-2-26-kg",
+     0,
+     7
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-chocolate-mint-2-24-kg",
+     0,
+     5
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-protein-double-rich-chocolate-899-g",
+     0,
+     5
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-chocolate-malt-2-27-kg",
+     0,
+     4
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-rocky-road-2-27-kg",
+     0,
+     4
+    ],
+    [
+     "/whey-proteine",
+     0,
+     3
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "dip belt tunisie",
+   "clicks": 11,
+   "impressions": 50,
+   "ctr": 22.0,
+   "position": 6.5,
+   "pages": [
+    [
+     "/produits/dip-belt",
+     8,
+     29
+    ],
+    [
+     "/produits/bandes-de-tirage",
+     3,
+     13
+    ],
+    [
+     "/produits/bandes-de-poignet",
+     0,
+     5
+    ],
+    [
+     "/produits/gant-de-fitness",
+     0,
+     3
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "omega 3",
+   "clicks": 0,
+   "impressions": 50,
+   "ctr": 0.0,
+   "position": 68.7,
+   "pages": [
+    [
+     "/conseils/omega-3-tunisie-guide",
+     0,
+     44
+    ],
+    [
+     "/omega-3",
+     0,
+     5
+    ],
+    [
+     "/blog/omega-3-aliments-quels-sont-les-meilleurs-sources-pour-votre-sante",
+     0,
+     1
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "coffret filorga tunisie",
+   "clicks": 0,
+   "impressions": 47,
+   "ctr": 0.0,
+   "position": 38.5,
+   "pages": [
+    [
+     "/produits/filorga-coffret-anti-rides-time-filler-50ml",
+     0,
+     27
+    ],
+    [
+     "/produits/filorga-coffret-expertise-anti-rides",
+     0,
+     20
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "complément alimentaire tunisie",
+   "clicks": 0,
+   "impressions": 46,
+   "ctr": 0.0,
+   "position": 66.8,
+   "pages": [
+    [
+     "/complements-alimentaires",
+     0,
+     34
+    ],
+    [
+     "/",
+     0,
+     12
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "parapharmacie tunisie",
+   "clicks": 0,
+   "impressions": 38,
+   "ctr": 0.0,
+   "position": 90.8,
+   "pages": [
+    [
+     "/",
+     0,
+     37
+    ],
+    [
+     "/marques/parapharmacie",
+     0,
+     1
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "whey gold standard prix tunisie",
+   "clicks": 0,
+   "impressions": 36,
+   "ctr": 0.0,
+   "position": 36.9,
+   "pages": [
+    [
+     "/produits/100-whey-gold-standard-2-27kg",
+     0,
+     6
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-protein-double-rich-chocolate-2-29-kg",
+     0,
+     6
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-protein-delicious-strawberry-2-26-kg",
+     0,
+     5
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-rocky-road-2-27-kg",
+     0,
+     5
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-chocolate-mint-2-24-kg",
+     0,
+     4
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-protein-double-rich-chocolate-899-g",
+     0,
+     4
+    ],
+    [
+     "/produits/whey-gold-standard-908g",
+     0,
+     4
+    ],
+    [
+     "/whey-proteine",
+     0,
+     2
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "whey gold standard tunisie",
+   "clicks": 0,
+   "impressions": 34,
+   "ctr": 0.0,
+   "position": 41.8,
+   "pages": [
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-protein-delicious-strawberry-2-26-kg",
+     0,
+     7
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-protein-double-rich-chocolate-2-29-kg",
+     0,
+     5
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-protein-double-rich-chocolate-899-g",
+     0,
+     5
+    ],
+    [
+     "/produits/whey-gold-standard-908g",
+     0,
+     5
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-chocolate-mint-2-24-kg",
+     0,
+     4
+    ],
+    [
+     "/produits/100-whey-gold-standard-2-27kg",
+     0,
+     3
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-rocky-road-2-27-kg",
+     0,
+     3
+    ],
+    [
+     "/whey-proteine",
+     0,
+     2
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "parapharmacie tunisie en ligne",
+   "clicks": 0,
+   "impressions": 31,
+   "ctr": 0.0,
+   "position": 82.6,
+   "pages": [
+    [
+     "/",
+     0,
+     25
+    ],
+    [
+     "/shop",
+     0,
+     6
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "whey protein",
+   "clicks": 0,
+   "impressions": 31,
+   "ctr": 0.0,
+   "position": 70.3,
+   "pages": [
+    [
+     "/conseils/whey-protein-tunisie-guide",
+     0,
+     16
+    ],
+    [
+     "/whey-proteine",
+     0,
+     15
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "mira white",
+   "clicks": 0,
+   "impressions": 30,
+   "ctr": 0.0,
+   "position": 8.6,
+   "pages": [
+    [
+     "/marques/mira-white",
+     0,
+     22
+    ],
+    [
+     "/produits/miradent-mirawhite-gelee-dentifrice-100ml",
+     0,
+     8
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "nutrition sportive",
+   "clicks": 0,
+   "impressions": 29,
+   "ctr": 0.0,
+   "position": 76.7,
+   "pages": [
+    [
+     "/nutrition-sportive",
+     0,
+     20
+    ],
+    [
+     "/conseils",
+     0,
+     9
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "inosifol",
+   "clicks": 2,
+   "impressions": 27,
+   "ctr": 7.41,
+   "position": 7.0,
+   "pages": [
+    [
+     "/produits/inosifol-b-60-gelules-fr-pharma",
+     2,
+     25
+    ],
+    [
+     "/marques/fr-pharma",
+     0,
+     2
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "l theanine tunisie",
+   "clicks": 5,
+   "impressions": 27,
+   "ctr": 18.52,
+   "position": 56.0,
+   "pages": [
+    [
+     "/produits/source-naturals-l-theanine-120-gelules",
+     2,
+     11
+    ],
+    [
+     "/produits/vitamatic-l-theanine-240-comprimes",
+     1,
+     7
+    ],
+    [
+     "/produits/now-foods-l-theanine-90-gelules-vegetales",
+     1,
+     3
+    ],
+    [
+     "/produits/source-naturals-serene-science-l-theanine-60-comprimes",
+     1,
+     3
+    ],
+    [
+     "/produits/source-naturals-caffeine-l-theanine-60-comprimes",
+     0,
+     3
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "parapharmacie en ligne",
+   "clicks": 0,
+   "impressions": 27,
+   "ctr": 0.0,
+   "position": 90.1,
+   "pages": [
+    [
+     "/",
+     0,
+     15
+    ],
+    [
+     "/marques/parapharmacie",
+     0,
+     12
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "supplements tunisie",
+   "clicks": 0,
+   "impressions": 27,
+   "ctr": 0.0,
+   "position": 84.2,
+   "pages": [
+    [
+     "/complements-alimentaires",
+     0,
+     9
+    ],
+    [
+     "/",
+     0,
+     6
+    ],
+    [
+     "/shop",
+     0,
+     5
+    ],
+    [
+     "/vitamines",
+     0,
+     4
+    ],
+    [
+     "/a-propos",
+     0,
+     1
+    ],
+    [
+     "/marques",
+     0,
+     1
+    ],
+    [
+     "/produits/biotyna-60-caps-real-pharm",
+     0,
+     1
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "parapharmacie",
+   "clicks": 0,
+   "impressions": 25,
+   "ctr": 0.0,
+   "position": 80.1,
+   "pages": [
+    [
+     "/marques/parapharmacie",
+     0,
+     24
+    ],
+    [
+     "/",
+     0,
+     1
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "whey gold standard",
+   "clicks": 0,
+   "impressions": 25,
+   "ctr": 0.0,
+   "position": 76.1,
+   "pages": [
+    [
+     "/produits/100-whey-gold-standard-2-27kg",
+     0,
+     5
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-protein-delicious-strawberry-2-26-kg",
+     0,
+     5
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-protein-double-rich-chocolate-2-29-kg",
+     0,
+     5
+    ],
+    [
+     "/produits/whey-gold-standard-908g",
+     0,
+     4
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-chocolate-mint-2-24-kg",
+     0,
+     3
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-protein-double-rich-chocolate-899-g",
+     0,
+     2
+    ],
+    [
+     "/produits/100-whey-gold-standard-4-5kg",
+     0,
+     1
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "proteine whey",
+   "clicks": 0,
+   "impressions": 23,
+   "ctr": 0.0,
+   "position": 78.5,
+   "pages": [
+    [
+     "/conseils/whey-protein-tunisie-guide",
+     0,
+     13
+    ],
+    [
+     "/whey-proteine",
+     0,
+     10
+    ]
+   ],
+   "brand": false
+  }
+ ],
+ "pages_low_ctr": [
+  {
+   "page": "/livraison",
+   "clicks": 4,
+   "impressions": 619,
+   "ctr": 0.65,
+   "position": 6.1
+  },
+  {
+   "page": "/contact",
+   "clicks": 1,
+   "impressions": 532,
+   "ctr": 0.19,
+   "position": 7.6
+  },
+  {
+   "page": "/whey-proteine",
+   "clicks": 0,
+   "impressions": 359,
+   "ctr": 0.0,
+   "position": 68.5
+  },
+  {
+   "page": "/produits/citrolax-solution-orale-fl-300ml",
+   "clicks": 1,
+   "impressions": 265,
+   "ctr": 0.38,
+   "position": 7.8
+  },
+  {
+   "page": "/produits/vominat-baby-vomissements-sirop-120ml",
+   "clicks": 0,
+   "impressions": 255,
+   "ctr": 0.0,
+   "position": 6.1
+  },
+  {
+   "page": "/marques/filorga",
+   "clicks": 0,
+   "impressions": 234,
+   "ctr": 0.0,
+   "position": 50.3
+  },
+  {
+   "page": "/solaire",
+   "clicks": 0,
+   "impressions": 230,
+   "ctr": 0.0,
+   "position": 76.3
+  },
+  {
+   "page": "/complements-alimentaires",
+   "clicks": 0,
+   "impressions": 200,
+   "ctr": 0.0,
+   "position": 69.5
+  },
+  {
+   "page": "/produits/pierre-cardin-cc-cream-30-ml-spf15-light-570",
+   "clicks": 0,
+   "impressions": 162,
+   "ctr": 0.0,
+   "position": 8.6
+  },
+  {
+   "page": "/marques/clarenia",
+   "clicks": 0,
+   "impressions": 158,
+   "ctr": 0.0,
+   "position": 66.6
+  },
+  {
+   "page": "/marques/daylong",
+   "clicks": 0,
+   "impressions": 156,
+   "ctr": 0.0,
+   "position": 73.4
+  },
+  {
+   "page": "/marques/bio-orient",
+   "clicks": 0,
+   "impressions": 146,
+   "ctr": 0.0,
+   "position": 77.9
+  },
+  {
+   "page": "/marques/eye-care",
+   "clicks": 0,
+   "impressions": 135,
+   "ctr": 0.0,
+   "position": 35.9
+  },
+  {
+   "page": "/produits/enemacol-solution-biphasique-133ml",
+   "clicks": 0,
+   "impressions": 128,
+   "ctr": 0.0,
+   "position": 9.6
+  },
+  {
+   "page": "/produits/clarenia-coffret-glamour",
+   "clicks": 0,
+   "impressions": 124,
+   "ctr": 0.0,
+   "position": 67.9
+  },
+  {
+   "page": "/paiement",
+   "clicks": 0,
+   "impressions": 118,
+   "ctr": 0.0,
+   "position": 8.1
+  },
+  {
+   "page": "/marques/loreal",
+   "clicks": 0,
+   "impressions": 103,
+   "ctr": 0.0,
+   "position": 11.7
+  },
+  {
+   "page": "/marques/impact-nutrition",
+   "clicks": 0,
+   "impressions": 101,
+   "ctr": 0.0,
+   "position": 53.9
+  },
+  {
+   "page": "/nutrition-sportive",
+   "clicks": 0,
+   "impressions": 101,
+   "ctr": 0.0,
+   "position": 72.6
+  },
+  {
+   "page": "/marques/chicco",
+   "clicks": 0,
+   "impressions": 96,
+   "ctr": 0.0,
+   "position": 59.5
+  },
+  {
+   "page": "/produits/cytol-basic-creme-apaisante-50ml",
+   "clicks": 0,
+   "impressions": 94,
+   "ctr": 0.0,
+   "position": 81.5
+  },
+  {
+   "page": "/produits/avene-hydrance-spf30-creme-hydratante-40ml",
+   "clicks": 0,
+   "impressions": 92,
+   "ctr": 0.0,
+   "position": 29.3
+  },
+  {
+   "page": "/marques/clermine",
+   "clicks": 0,
+   "impressions": 88,
+   "ctr": 0.0,
+   "position": 57.4
+  },
+  {
+   "page": "/magnesium",
+   "clicks": 0,
+   "impressions": 80,
+   "ctr": 0.0,
+   "position": 80.3
+  },
+  {
+   "page": "/produits/anabolic-whey-80-2-25kg-proactive",
+   "clicks": 0,
+   "impressions": 80,
+   "ctr": 0.0,
+   "position": 60.7
+  },
+  {
+   "page": "/marques/profertil",
+   "clicks": 1,
+   "impressions": 79,
+   "ctr": 1.27,
+   "position": 72.5
+  },
+  {
+   "page": "/creatine",
+   "clicks": 1,
+   "impressions": 72,
+   "ctr": 1.39,
+   "position": 87.1
+  },
+  {
+   "page": "/produits/bucco-spray-30ml",
+   "clicks": 1,
+   "impressions": 70,
+   "ctr": 1.43,
+   "position": 7.6
+  },
+  {
+   "page": "/marques/cetaphil",
+   "clicks": 0,
+   "impressions": 70,
+   "ctr": 0.0,
+   "position": 87.9
+  },
+  {
+   "page": "/marques/dermedic",
+   "clicks": 0,
+   "impressions": 70,
+   "ctr": 0.0,
+   "position": 65.0
+  },
+  {
+   "page": "/produits/clarenia-coffret-glamour-2",
+   "clicks": 0,
+   "impressions": 64,
+   "ctr": 0.0,
+   "position": 61.0
+  },
+  {
+   "page": "/produits/cotagro-croquette-pour-chien-20kg-junior",
+   "clicks": 0,
+   "impressions": 64,
+   "ctr": 0.0,
+   "position": 68.0
+  },
+  {
+   "page": "/produits/isdin-ecran-solaire-fusion-fluide-mineral-spf-50-50-ml",
+   "clicks": 0,
+   "impressions": 57,
+   "ctr": 0.0,
+   "position": 58.0
+  },
+  {
+   "page": "/homme",
+   "clicks": 0,
+   "impressions": 56,
+   "ctr": 0.0,
+   "position": 80.1
+  },
+  {
+   "page": "/produits/gripoff-sirop-120ml",
+   "clicks": 0,
+   "impressions": 55,
+   "ctr": 0.0,
+   "position": 9.7
+  },
+  {
+   "page": "/conseils/omega-3-tunisie-guide",
+   "clicks": 0,
+   "impressions": 53,
+   "ctr": 0.0,
+   "position": 72.3
+  },
+  {
+   "page": "/marques/parapharmacie",
+   "clicks": 0,
+   "impressions": 50,
+   "ctr": 0.0,
+   "position": 84.3
+  },
+  {
+   "page": "/produits/clermine-creme-eclaircissante-30g",
+   "clicks": 0,
+   "impressions": 49,
+   "ctr": 0.0,
+   "position": 58.7
+  },
+  {
+   "page": "/marques/toute-la-gamme-ultrasun",
+   "clicks": 0,
+   "impressions": 47,
+   "ctr": 0.0,
+   "position": 53.5
+  },
+  {
+   "page": "/a-propos",
+   "clicks": 0,
+   "impressions": 46,
+   "ctr": 0.0,
+   "position": 8.0
+  }
+ ],
+ "top_nonbrand": [
+  {
+   "query": "coffret clarenia tunisie",
+   "clicks": 0,
+   "impressions": 259,
+   "ctr": 0.0,
+   "position": 65.2,
+   "pages": [
+    [
+     "/produits/clarenia-coffret-glamour",
+     0,
+     124
+    ],
+    [
+     "/marques/clarenia",
+     0,
+     71
+    ],
+    [
+     "/produits/clarenia-coffret-glamour-2",
+     0,
+     64
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "citrolax",
+   "clicks": 1,
+   "impressions": 240,
+   "ctr": 0.42,
+   "position": 7.8,
+   "pages": [
+    [
+     "/produits/citrolax-solution-orale-fl-300ml",
+     1,
+     240
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "filorga tunisie",
+   "clicks": 0,
+   "impressions": 186,
+   "ctr": 0.0,
+   "position": 41.3,
+   "pages": [
+    [
+     "/marques/filorga",
+     0,
+     166
+    ],
+    [
+     "/produits/filorga-coffret-expertise-anti-rides",
+     0,
+     20
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "protection solaire tunisie",
+   "clicks": 0,
+   "impressions": 173,
+   "ctr": 0.0,
+   "position": 73.1,
+   "pages": [
+    [
+     "/solaire",
+     0,
+     173
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "clermine",
+   "clicks": 0,
+   "impressions": 137,
+   "ctr": 0.0,
+   "position": 57.9,
+   "pages": [
+    [
+     "/marques/clermine",
+     0,
+     88
+    ],
+    [
+     "/produits/clermine-creme-eclaircissante-30g",
+     0,
+     49
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "eye care tunisie",
+   "clicks": 0,
+   "impressions": 135,
+   "ctr": 0.0,
+   "position": 35.9,
+   "pages": [
+    [
+     "/marques/eye-care",
+     0,
+     135
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "bio orient tunisie",
+   "clicks": 0,
+   "impressions": 132,
+   "ctr": 0.0,
+   "position": 78.2,
+   "pages": [
+    [
+     "/marques/bio-orient",
+     0,
+     132
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "complément alimentaires tunisie",
+   "clicks": 0,
+   "impressions": 125,
+   "ctr": 0.0,
+   "position": 65.1,
+   "pages": [
+    [
+     "/complements-alimentaires",
+     0,
+     101
+    ],
+    [
+     "/",
+     0,
+     24
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "proteine anabolic tunisie",
+   "clicks": 0,
+   "impressions": 118,
+   "ctr": 0.0,
+   "position": 66.3,
+   "pages": [
+    [
+     "/produits/anabolic-whey-80-2-25kg-proactive",
+     0,
+     76
+    ],
+    [
+     "/whey-proteine",
+     0,
+     41
+    ],
+    [
+     "/produits/anabolic-mass-gainer-dark-chocolate-1-28kg",
+     0,
+     1
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "enemacol",
+   "clicks": 0,
+   "impressions": 111,
+   "ctr": 0.0,
+   "position": 9.7,
+   "pages": [
+    [
+     "/produits/enemacol-solution-biphasique-133ml",
+     0,
+     111
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "cytol basic",
+   "clicks": 0,
+   "impressions": 106,
+   "ctr": 0.0,
+   "position": 81.6,
+   "pages": [
+    [
+     "/produits/cytol-basic-creme-apaisante-50ml",
+     0,
+     93
+    ],
+    [
+     "/produits/cytol-basic-creme-apaisante-100ml",
+     0,
+     13
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "whey tunisie",
+   "clicks": 0,
+   "impressions": 101,
+   "ctr": 0.0,
+   "position": 77.0,
+   "pages": [
+    [
+     "/whey-proteine",
+     0,
+     101
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "chicco tunisie",
+   "clicks": 0,
+   "impressions": 96,
+   "ctr": 0.0,
+   "position": 59.5,
+   "pages": [
+    [
+     "/marques/chicco",
+     0,
+     96
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "cc cream pierre cardin",
+   "clicks": 0,
+   "impressions": 94,
+   "ctr": 0.0,
+   "position": 9.0,
+   "pages": [
+    [
+     "/produits/pierre-cardin-cc-cream-30-ml-spf15-light-570",
+     0,
+     94
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "avene creme hydratant tunisie",
+   "clicks": 0,
+   "impressions": 92,
+   "ctr": 0.0,
+   "position": 29.3,
+   "pages": [
+    [
+     "/produits/avene-hydrance-spf30-creme-hydratante-40ml",
+     0,
+     92
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "impact nutrition",
+   "clicks": 0,
+   "impressions": 88,
+   "ctr": 0.0,
+   "position": 52.0,
+   "pages": [
+    [
+     "/marques/impact-nutrition",
+     0,
+     88
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "profertil tunisie",
+   "clicks": 0,
+   "impressions": 81,
+   "ctr": 0.0,
+   "position": 72.7,
+   "pages": [
+    [
+     "/marques/profertil",
+     0,
+     78
+    ],
+    [
+     "/produits/profertil-homme-60-capsules",
+     0,
+     3
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "daylong tunisie",
+   "clicks": 0,
+   "impressions": 79,
+   "ctr": 0.0,
+   "position": 72.8,
+   "pages": [
+    [
+     "/marques/daylong",
+     0,
+     79
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "nutrition sportive tunisie",
+   "clicks": 0,
+   "impressions": 79,
+   "ctr": 0.0,
+   "position": 67.3,
+   "pages": [
+    [
+     "/nutrition-sportive",
+     0,
+     79
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "clarenia tunisie",
+   "clicks": 0,
+   "impressions": 78,
+   "ctr": 0.0,
+   "position": 67.8,
+   "pages": [
+    [
+     "/marques/clarenia",
+     0,
+     78
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "\"145 beige rose\" \"accord parfait\"",
+   "clicks": 0,
+   "impressions": 76,
+   "ctr": 0.0,
+   "position": 9.5,
+   "pages": [
+    [
+     "/marques/loreal",
+     0,
+     76
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "protection solaire",
+   "clicks": 0,
+   "impressions": 71,
+   "ctr": 0.0,
+   "position": 81.5,
+   "pages": [
+    [
+     "/solaire",
+     0,
+     49
+    ],
+    [
+     "/conseils/protection-solaire-tunisie-guide",
+     0,
+     22
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "écran svr sun secure blur",
+   "clicks": 0,
+   "impressions": 71,
+   "ctr": 0.0,
+   "position": 69.8,
+   "pages": [
+    [
+     "/produits/svr-ecran-sun-secure-blur-spf50-50-ml-sans-parfum",
+     0,
+     39
+    ],
+    [
+     "/produits/svr-ecran-sun-secure-blur-spf50-50-ml",
+     0,
+     20
+    ],
+    [
+     "/produits/svr-ecran-sun-secure-blur-teinte-spf50-50-ml",
+     0,
+     12
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "vominat",
+   "clicks": 0,
+   "impressions": 70,
+   "ctr": 0.0,
+   "position": 5.5,
+   "pages": [
+    [
+     "/produits/vominat-baby-vomissements-sirop-120ml",
+     0,
+     70
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "cetaphil",
+   "clicks": 0,
+   "impressions": 70,
+   "ctr": 0.0,
+   "position": 87.9,
+   "pages": [
+    [
+     "/marques/cetaphil",
+     0,
+     70
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "vominat baby",
+   "clicks": 0,
+   "impressions": 69,
+   "ctr": 0.0,
+   "position": 6.7,
+   "pages": [
+    [
+     "/produits/vominat-baby-vomissements-sirop-120ml",
+     0,
+     69
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "dermedic tunisie",
+   "clicks": 0,
+   "impressions": 68,
+   "ctr": 0.0,
+   "position": 64.4,
+   "pages": [
+    [
+     "/marques/dermedic",
+     0,
+     68
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "daylong tunisie prix",
+   "clicks": 0,
+   "impressions": 65,
+   "ctr": 0.0,
+   "position": 69.5,
+   "pages": [
+    [
+     "/marques/daylong",
+     0,
+     65
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "filorga",
+   "clicks": 0,
+   "impressions": 64,
+   "ctr": 0.0,
+   "position": 73.6,
+   "pages": [
+    [
+     "/marques/filorga",
+     0,
+     64
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "cotagro croquettes chien",
+   "clicks": 0,
+   "impressions": 64,
+   "ctr": 0.0,
+   "position": 68.0,
+   "pages": [
+    [
+     "/produits/cotagro-croquette-pour-chien-20kg-junior",
+     0,
+     64
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "paratunis",
+   "clicks": 1,
+   "impressions": 62,
+   "ctr": 1.61,
+   "position": 4.8,
+   "pages": [
+    [
+     "/",
+     1,
+     62
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "pierre cardin cc cream",
+   "clicks": 0,
+   "impressions": 59,
+   "ctr": 0.0,
+   "position": 7.8,
+   "pages": [
+    [
+     "/produits/pierre-cardin-cc-cream-30-ml-spf15-light-570",
+     0,
+     59
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "paratunise",
+   "clicks": 1,
+   "impressions": 58,
+   "ctr": 1.72,
+   "position": 3.4,
+   "pages": [
+    [
+     "/",
+     1,
+     53
+    ],
+    [
+     "/homme",
+     0,
+     3
+    ],
+    [
+     "/shop",
+     0,
+     2
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "minoxidil tunisie",
+   "clicks": 2,
+   "impressions": 56,
+   "ctr": 3.57,
+   "position": 9.7,
+   "pages": [
+    [
+     "/produits/minoxidil-5",
+     1,
+     39
+    ],
+    [
+     "/produits/minoxidil-2-spray",
+     1,
+     17
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "gold standard whey tunisie",
+   "clicks": 0,
+   "impressions": 56,
+   "ctr": 0.0,
+   "position": 43.0,
+   "pages": [
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-protein-double-rich-chocolate-2-29-kg",
+     0,
+     10
+    ],
+    [
+     "/produits/whey-gold-standard-908g",
+     0,
+     10
+    ],
+    [
+     "/produits/100-whey-gold-standard-2-27kg",
+     0,
+     8
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-protein-delicious-strawberry-2-26-kg",
+     0,
+     7
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-chocolate-mint-2-24-kg",
+     0,
+     5
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-protein-double-rich-chocolate-899-g",
+     0,
+     5
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-chocolate-malt-2-27-kg",
+     0,
+     4
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-rocky-road-2-27-kg",
+     0,
+     4
+    ],
+    [
+     "/whey-proteine",
+     0,
+     3
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "dip belt tunisie",
+   "clicks": 11,
+   "impressions": 50,
+   "ctr": 22.0,
+   "position": 6.5,
+   "pages": [
+    [
+     "/produits/dip-belt",
+     8,
+     29
+    ],
+    [
+     "/produits/bandes-de-tirage",
+     3,
+     13
+    ],
+    [
+     "/produits/bandes-de-poignet",
+     0,
+     5
+    ],
+    [
+     "/produits/gant-de-fitness",
+     0,
+     3
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "omega 3",
+   "clicks": 0,
+   "impressions": 50,
+   "ctr": 0.0,
+   "position": 68.7,
+   "pages": [
+    [
+     "/conseils/omega-3-tunisie-guide",
+     0,
+     44
+    ],
+    [
+     "/omega-3",
+     0,
+     5
+    ],
+    [
+     "/blog/omega-3-aliments-quels-sont-les-meilleurs-sources-pour-votre-sante",
+     0,
+     1
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "meboderma",
+   "clicks": 2,
+   "impressions": 49,
+   "ctr": 4.08,
+   "position": 8.3,
+   "pages": [
+    [
+     "/produits/meboderma-pommade-40g",
+     2,
+     49
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "ultrasun tunisie",
+   "clicks": 0,
+   "impressions": 47,
+   "ctr": 0.0,
+   "position": 53.5,
+   "pages": [
+    [
+     "/marques/toute-la-gamme-ultrasun",
+     0,
+     47
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "coffret filorga tunisie",
+   "clicks": 0,
+   "impressions": 47,
+   "ctr": 0.0,
+   "position": 38.5,
+   "pages": [
+    [
+     "/produits/filorga-coffret-anti-rides-time-filler-50ml",
+     0,
+     27
+    ],
+    [
+     "/produits/filorga-coffret-expertise-anti-rides",
+     0,
+     20
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "complément alimentaire tunisie",
+   "clicks": 0,
+   "impressions": 46,
+   "ctr": 0.0,
+   "position": 66.8,
+   "pages": [
+    [
+     "/complements-alimentaires",
+     0,
+     34
+    ],
+    [
+     "/",
+     0,
+     12
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "bioderma",
+   "clicks": 0,
+   "impressions": 45,
+   "ctr": 0.0,
+   "position": 83.4,
+   "pages": [
+    [
+     "/marques/bioderma",
+     0,
+     45
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "bucco spray",
+   "clicks": 0,
+   "impressions": 40,
+   "ctr": 0.0,
+   "position": 7.4,
+   "pages": [
+    [
+     "/produits/bucco-spray-30ml",
+     0,
+     40
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "parapharmacie tunisie",
+   "clicks": 0,
+   "impressions": 38,
+   "ctr": 0.0,
+   "position": 90.8,
+   "pages": [
+    [
+     "/",
+     0,
+     37
+    ],
+    [
+     "/marques/parapharmacie",
+     0,
+     1
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "soin visage homme",
+   "clicks": 0,
+   "impressions": 38,
+   "ctr": 0.0,
+   "position": 83.5,
+   "pages": [
+    [
+     "/homme",
+     0,
+     38
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "whey gold standard prix tunisie",
+   "clicks": 0,
+   "impressions": 36,
+   "ctr": 0.0,
+   "position": 36.9,
+   "pages": [
+    [
+     "/produits/100-whey-gold-standard-2-27kg",
+     0,
+     6
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-protein-double-rich-chocolate-2-29-kg",
+     0,
+     6
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-protein-delicious-strawberry-2-26-kg",
+     0,
+     5
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-rocky-road-2-27-kg",
+     0,
+     5
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-chocolate-mint-2-24-kg",
+     0,
+     4
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-protein-double-rich-chocolate-899-g",
+     0,
+     4
+    ],
+    [
+     "/produits/whey-gold-standard-908g",
+     0,
+     4
+    ],
+    [
+     "/whey-proteine",
+     0,
+     2
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "whey gold standard tunisie",
+   "clicks": 0,
+   "impressions": 34,
+   "ctr": 0.0,
+   "position": 41.8,
+   "pages": [
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-protein-delicious-strawberry-2-26-kg",
+     0,
+     7
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-protein-double-rich-chocolate-2-29-kg",
+     0,
+     5
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-protein-double-rich-chocolate-899-g",
+     0,
+     5
+    ],
+    [
+     "/produits/whey-gold-standard-908g",
+     0,
+     5
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-chocolate-mint-2-24-kg",
+     0,
+     4
+    ],
+    [
+     "/produits/100-whey-gold-standard-2-27kg",
+     0,
+     3
+    ],
+    [
+     "/produits/optimum-nutrition-gold-standard-100-whey-rocky-road-2-27-kg",
+     0,
+     3
+    ],
+    [
+     "/whey-proteine",
+     0,
+     2
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "alopexy 5 tunisie",
+   "clicks": 7,
+   "impressions": 33,
+   "ctr": 21.21,
+   "position": 6.8,
+   "pages": [
+    [
+     "/produits/alopexy-5",
+     7,
+     33
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "pytheal",
+   "clicks": 0,
+   "impressions": 32,
+   "ctr": 0.0,
+   "position": 9.7,
+   "pages": [
+    [
+     "/marques/pytheal",
+     0,
+     32
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "gripoff",
+   "clicks": 0,
+   "impressions": 32,
+   "ctr": 0.0,
+   "position": 10.0,
+   "pages": [
+    [
+     "/produits/gripoff-sirop-120ml",
+     0,
+     32
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "protéine tunisie",
+   "clicks": 0,
+   "impressions": 32,
+   "ctr": 0.0,
+   "position": 69.7,
+   "pages": [
+    [
+     "/whey-proteine",
+     0,
+     32
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "whey protein tunisie",
+   "clicks": 0,
+   "impressions": 32,
+   "ctr": 0.0,
+   "position": 58.4,
+   "pages": [
+    [
+     "/whey-proteine",
+     0,
+     32
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "parapharmacie tunisie en ligne",
+   "clicks": 0,
+   "impressions": 31,
+   "ctr": 0.0,
+   "position": 82.6,
+   "pages": [
+    [
+     "/",
+     0,
+     25
+    ],
+    [
+     "/shop",
+     0,
+     6
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "whey protein",
+   "clicks": 0,
+   "impressions": 31,
+   "ctr": 0.0,
+   "position": 70.3,
+   "pages": [
+    [
+     "/conseils/whey-protein-tunisie-guide",
+     0,
+     16
+    ],
+    [
+     "/whey-proteine",
+     0,
+     15
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "vominat baby posologie",
+   "clicks": 0,
+   "impressions": 31,
+   "ctr": 0.0,
+   "position": 4.9,
+   "pages": [
+    [
+     "/produits/vominat-baby-vomissements-sirop-120ml",
+     0,
+     31
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "alopexy tunisie",
+   "clicks": 4,
+   "impressions": 30,
+   "ctr": 13.33,
+   "position": 8.9,
+   "pages": [
+    [
+     "/produits/alopexy-5",
+     4,
+     30
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "mira white",
+   "clicks": 0,
+   "impressions": 30,
+   "ctr": 0.0,
+   "position": 8.6,
+   "pages": [
+    [
+     "/marques/mira-white",
+     0,
+     22
+    ],
+    [
+     "/produits/miradent-mirawhite-gelee-dentifrice-100ml",
+     0,
+     8
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "nutrition sportive",
+   "clicks": 0,
+   "impressions": 29,
+   "ctr": 0.0,
+   "position": 76.7,
+   "pages": [
+    [
+     "/nutrition-sportive",
+     0,
+     20
+    ],
+    [
+     "/conseils",
+     0,
+     9
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "blastofer",
+   "clicks": 0,
+   "impressions": 29,
+   "ctr": 0.0,
+   "position": 9.9,
+   "pages": [
+    [
+     "/produits/blastofer-30-gellules",
+     0,
+     29
+    ]
+   ],
+   "brand": false
+  },
+  {
+   "query": "minoxidil 5 tunisie",
+   "clicks": 2,
+   "impressions": 28,
+   "ctr": 7.14,
+   "position": 9.3,
+   "pages": [
+    [
+     "/produits/minoxidil-5",
+     2,
+     28
+    ]
+   ],
+   "brand": false
+  }
+ ]
+}

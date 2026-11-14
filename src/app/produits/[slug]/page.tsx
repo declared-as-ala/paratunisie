@@ -34,7 +34,6 @@ function hasDistinctSeoContent(description: string, seoContent?: string | null):
   return seoText.length >= 80 && !descriptionText.includes(seoText) && !seoText.includes(descriptionText);
 }
 
-export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,

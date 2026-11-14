@@ -20,6 +20,19 @@ function normalize(value: string) {
   return value.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
+let brandsPromise: Promise<{ name: string; slug: string }[]> | null = null;
+function loadBrandsOnce() {
+  if (!brandsPromise) {
+    brandsPromise = fetchBrands()
+      .then((brands) => brands.map(({ name, slug }) => ({ name, slug })))
+      .catch(() => {
+        brandsPromise = null; // allow a retry on the next keystroke
+        return [];
+      });
+  }
+  return brandsPromise;
+}
+
 export function SearchOverlay({
   variant = "full",
   className = "",
@@ -37,9 +50,19 @@ export function SearchOverlay({
   const [isSearchingProducts, setIsSearchingProducts] = useState(false);
   const [allBrands, setAllBrands] = useState<{ name: string; slug: string }[]>([]);
 
+  // Brand names are only needed once the visitor types: load them lazily (never on page load) and share one request
+  // between the desktop and mobile instances. The full brand list is ~440 KB, so it must not block every page view.
+  const hasQuery = value.trim().length > 0;
   useEffect(() => {
-    fetchBrands().then(setAllBrands);
-  }, []);
+    if (!hasQuery) return;
+    let active = true;
+    loadBrandsOnce().then((brands) => {
+      if (active) setAllBrands(brands);
+    });
+    return () => {
+      active = false;
+    };
+  }, [hasQuery]);
 
   useEffect(() => {
     const query = value.trim();

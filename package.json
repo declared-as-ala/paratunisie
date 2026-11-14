@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "seo:check": "node ops/seo/seo-regression.cjs",
     "lint": "eslint src packages",
     "marketing": "node --env-file=.env scripts/marketing-hub.js"
   },
