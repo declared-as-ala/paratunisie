@@ -3,30 +3,22 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { BookOpen, ChevronDown, Dumbbell, Home, Leaf, Menu, Pill, Search, Tag, User } from "lucide-react";
+import { ChevronDown, Menu, Search } from "lucide-react";
 
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Logo } from "@/components/layout/logo";
-import { navExtras, navGroups, type NavGroup } from "@/lib/data/storefront-navigation";
-
-const ICONS: Record<NavGroup["icon"], React.ComponentType<{ className?: string }>> = {
-  dumbbell: Dumbbell,
-  leaf: Leaf,
-  pill: Pill,
-  tag: Tag,
-  book: BookOpen,
-};
+import { primaryNav } from "@/lib/data/storefront-navigation";
+import type { ShopDepartment } from "@/lib/api/client";
 
 const rowClass =
   "flex min-h-12 items-center gap-3 rounded-xl px-3 text-[0.9375rem] font-semibold text-ink transition-colors hover:bg-soft-nude active:bg-soft-nude focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary";
 
-/** Slide-out mobile navigation: search, expandable category groups, extras and account. */
-export function MobileMenu() {
+/** Slide-out mobile navigation: search, primary links and expandable shop departments. */
+export function MobileMenu({ departments }: { departments: ShopDepartment[] }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const [expanded, setExpanded] = useState<string | null>("nutrition");
+  const [expanded, setExpanded] = useState<string | null>(null);
 
-  // Close on navigation.
   useEffect(() => setOpen(false), [pathname]);
 
   return (
@@ -66,67 +58,60 @@ export function MobileMenu() {
             </form>
 
             <nav aria-label="Navigation mobile">
-              <Link href="/" className={rowClass} aria-current={pathname === "/" ? "page" : undefined}>
-                <Home className="size-[18px] text-primary" aria-hidden /> Accueil
-              </Link>
-
-              {navGroups.map((group) => {
-                const Icon = ICONS[group.icon];
-                const isOpen = expanded === group.key;
-                const panelId = `mobile-nav-${group.key}`;
-                return (
-                  <div key={group.key} className="mt-0.5">
-                    <button
-                      type="button"
-                      onClick={() => setExpanded(isOpen ? null : group.key)}
-                      aria-expanded={isOpen}
-                      aria-controls={panelId}
-                      className={`${rowClass} w-full justify-between text-start`}
-                    >
-                      <span className="flex items-center gap-3">
-                        <Icon className="size-[18px] text-primary" aria-hidden /> {group.label}
-                      </span>
-                      <ChevronDown className={`size-4 text-ink-muted transition-transform duration-200 motion-reduce:transition-none ${isOpen ? "rotate-180" : ""}`} aria-hidden />
-                    </button>
-                    <div
-                      id={panelId}
-                      className={`grid transition-[grid-template-rows] duration-200 ease-out motion-reduce:transition-none ${isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}
-                    >
-                      <ul className="min-h-0 overflow-hidden" hidden={!isOpen}>
-                        <li>
-                          <Link href={group.href} className="ms-9 flex min-h-11 items-center rounded-lg px-3 text-sm font-bold text-primary hover:bg-soft-nude">
-                            Tout voir
-                          </Link>
-                        </li>
-                        {group.links.map((link) => (
-                          <li key={link.href}>
-                            <Link
-                              href={link.href}
-                              aria-current={pathname === link.href ? "page" : undefined}
-                              className="ms-9 flex min-h-11 items-center rounded-lg px-3 text-sm font-medium text-ink-muted transition-colors hover:bg-soft-nude hover:text-ink aria-[current=page]:font-bold aria-[current=page]:text-primary"
-                            >
-                              {link.label}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                );
-              })}
-
-              <div className="my-2 border-t border-border/70" />
-              {navExtras.map((item) => {
-                const Icon = ICONS[item.icon];
-                return (
-                  <Link key={item.href} href={item.href} className={rowClass} aria-current={pathname.startsWith(item.href) ? "page" : undefined}>
-                    <Icon className="size-[18px] text-primary" aria-hidden /> {item.label}
+              {primaryNav.map((item) => (
+                <div key={item.href}>
+                  <Link
+                    href={item.href}
+                    className={rowClass}
+                    aria-current={(item.href === "/" ? pathname === "/" : pathname.startsWith(item.href)) ? "page" : undefined}
+                  >
+                    {item.label}
                   </Link>
-                );
-              })}
-              <Link href="/compte" className={rowClass}>
-                <User className="size-[18px] text-primary" aria-hidden /> Mon compte
-              </Link>
+
+                  {item.href === "/shop" &&
+                    departments.map((dept) => {
+                      const isOpen = expanded === dept.key;
+                      const panelId = `mobile-nav-${dept.key}`;
+                      return (
+                        <div key={dept.key} className="ms-3">
+                          <button
+                            type="button"
+                            onClick={() => setExpanded(isOpen ? null : dept.key)}
+                            aria-expanded={isOpen}
+                            aria-controls={panelId}
+                            className={`${rowClass} w-full justify-between text-start text-sm`}
+                          >
+                            <span>
+                              {dept.label}
+                              <span className="ms-2 text-xs font-medium text-ink-muted">{dept.categories.length}</span>
+                            </span>
+                            <ChevronDown className={`size-4 text-ink-muted transition-transform duration-200 motion-reduce:transition-none ${isOpen ? "rotate-180" : ""}`} aria-hidden />
+                          </button>
+                          <ul id={panelId} hidden={!isOpen}>
+                            <li>
+                              <Link href={dept.href} className="ms-4 flex min-h-11 items-center rounded-lg px-3 text-sm font-bold text-primary hover:bg-soft-nude">
+                                Tout le rayon
+                              </Link>
+                            </li>
+                            {dept.categories.map((cat) => (
+                              <li key={cat.slug}>
+                                <Link
+                                  href={`/${cat.slug}`}
+                                  aria-current={pathname === `/${cat.slug}` ? "page" : undefined}
+                                  className="ms-4 flex min-h-11 items-center justify-between rounded-lg px-3 text-sm font-medium text-ink-muted transition-colors hover:bg-soft-nude hover:text-ink aria-[current=page]:font-bold aria-[current=page]:text-primary"
+                                >
+                                  {cat.name}
+                                  <span className="text-xs tabular-nums text-ink-faint">{cat.count}</span>
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      );
+                    })}
+                </div>
+              ))}
+
             </nav>
           </div>
         </SheetContent>

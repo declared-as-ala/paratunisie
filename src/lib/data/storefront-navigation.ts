@@ -1,76 +1,43 @@
-/** Shared canonical URLs: desktop and mobile must never diverge. Every href is a live route. */
-export const storefrontNavigation = [
-  { label: "Accueil", href: "/" },
-  { label: "Créatine & Force", href: "/creatine" },
-  { label: "Whey Protéine", href: "/whey-proteine" },
-  { label: "Mass Gainer", href: "/gainers-proteines" },
-  { label: "Énergie & Boosters", href: "/pre-workout" },
-  { label: "BCAA & EAA", href: "/acides-amines" },
-  { label: "Santé & Vitamines", href: "/vitamines" },
-  { label: "Ashwagandha", href: "/ashwagandha" },
-  { label: "Accessoires", href: "/accessoires" },
-  { label: "Marques", href: "/marques" },
-  { label: "Conseils", href: "/conseils" },
-] as const;
-
+/** Shared navigation definitions: desktop and mobile must never diverge. Every href is a live route. */
 export type NavLink = { label: string; href: string };
-export type NavGroup = { key: string; label: string; href: string; icon: "dumbbell" | "leaf" | "pill" | "tag" | "book"; links: NavLink[] };
 
-/** Category taxonomy for the mega menu and the mobile drawer (mirrors the catalogue's real categories). */
-export const navGroups: NavGroup[] = [
+export const primaryNav: NavLink[] = [
+  { label: "Accueil", href: "/" },
+  { label: "Boutique", href: "/shop" },
+  { label: "Packs", href: "/pack-anti-stress" },
+  { label: "Marques", href: "/marques" },
+  { label: "Blog", href: "/conseils" },
+  { label: "Contact", href: "/contact" },
+  { label: "Qui sommes nous", href: "/a-propos" },
+];
+
+/**
+ * The six shop departments of the mega menu. Only the grouping lives here:
+ * names, counts and products of each category slug come from the catalogue.
+ */
+export const SHOP_DEPARTMENTS: { key: string; label: string; href: string; slugs: string[] }[] = [
   {
-    key: "nutrition",
-    label: "Nutrition sportive",
-    href: "/nutrition-sportive",
-    icon: "dumbbell",
-    links: [
-      { label: "Whey Protéine", href: "/whey-proteine" },
-      { label: "Whey Isolate", href: "/whey-isolate" },
-      { label: "Mass Gainer", href: "/gainers-proteines" },
-      { label: "Créatine", href: "/creatine" },
-      { label: "Pre-Workout & Énergie", href: "/pre-workout" },
-      { label: "BCAA & EAA", href: "/acides-amines" },
-      { label: "Brûleurs de graisse", href: "/bruleurs-de-graisse" },
-      { label: "L-Carnitine", href: "/l-carnitine" },
-      { label: "Accessoires", href: "/accessoires" },
-    ],
+    key: "proteines",
+    label: "Protéines en poudre",
+    href: "/whey-proteine",
+    slugs: ["whey-proteine", "whey-isolate", "caseine", "proteines-multi-sources", "proteine-de-boeuf", "whey-hydrolysee", "proteines-vegetales", "barres-proteinees"],
   },
+  { key: "prise-de-masse", label: "Prise de masse", href: "/gainers-proteines", slugs: ["gainers-proteines", "glucides", "glucides-energie"] },
+  {
+    key: "performance",
+    label: "Performance",
+    href: "/nutrition-sportive",
+    slugs: ["creatine", "pre-workout", "intra-workout", "post-workout", "acides-amines", "bcaa", "eaa", "citrulline", "l-arginine", "beta-alanine"],
+  },
+  { key: "perte-de-poids", label: "Perte de poids", href: "/bruleurs-de-graisse", slugs: ["bruleurs-de-graisse", "l-carnitine", "cla"] },
   {
     key: "sante",
-    label: "Vitamines & minéraux",
-    href: "/vitamines",
-    icon: "pill",
-    links: [
-      { label: "Vitamines", href: "/vitamines" },
-      { label: "Minéraux", href: "/mineraux" },
-      { label: "Zinc", href: "/zinc" },
-      { label: "Magnésium", href: "/magnesium" },
-      { label: "Oméga 3", href: "/omega-3" },
-      { label: "Immunité", href: "/immunite" },
-    ],
-  },
-  {
-    key: "bienetre",
-    label: "Compléments",
+    label: "Santé et vitalité",
     href: "/complements-alimentaires",
-    icon: "leaf",
-    links: [
-      { label: "Ashwagandha", href: "/ashwagandha" },
-      { label: "Sommeil & stress", href: "/sommeil-stress" },
-      { label: "Probiotiques", href: "/probiotiques" },
-      { label: "Articulations", href: "/articulations" },
-      { label: "Plantes & herbes", href: "/plantes-et-herbes" },
+    slugs: [
+      "vitamines", "mineraux", "magnesium", "zinc", "omega-3", "immunite", "antioxydants", "articulations", "collagene", "probiotiques", "digestion",
+      "plantes-et-herbes", "sommeil-stress", "ashwagandha", "tribulus", "zma", "glutamine", "hmb", "boosters-hormonaux", "beaute-cheveux", "enfants",
     ],
   },
-];
-
-export const navExtras: (NavLink & { icon: NavGroup["icon"] })[] = [
-  { label: "Marques", href: "/marques", icon: "tag" },
-  { label: "Conseils & guides", href: "/conseils", icon: "book" },
-];
-
-export const mobileNavigationGroups = [
-  { label: "Nutrition sportive", items: storefrontNavigation.slice(1, 6) },
-  { label: "Santé & bien-être", items: storefrontNavigation.slice(6, 8) },
-  { label: "Découvrir", items: storefrontNavigation.slice(8) },
+  { key: "equipement", label: "Équipement de sport", href: "/accessoires", slugs: ["accessoires", "vetements", "materiel-de-musculation", "cardio-fitness"] },
 ];

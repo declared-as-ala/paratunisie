@@ -37,6 +37,7 @@ export type ProductSummary = {
   seoIntro?: string | null;
   seoContent?: string | null;
   seoKeywords?: string[];
+  faq?: { question: string; answer: string }[];
   ogTitle?: string | null;
   ogDescription?: string | null;
   ogImage?: string | null;

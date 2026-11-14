@@ -58,6 +58,12 @@ const nextConfig: NextConfig = {
   },
   async redirects() {
     return [
+      // Historical/legacy URLs with a genuinely equivalent current page (SEO-004). /proteine-sousse has no equivalent and stays 404.
+      { source: "/blog", destination: "/conseils", permanent: true },
+      { source: "/blog/:slug", destination: "/conseils/:slug", permanent: true },
+      { source: "/brands", destination: "/marques", permanent: true },
+      { source: "/brands/:slug", destination: "/marques/:slug", permanent: true },
+      { source: "/qui-sommes-nous", destination: "/a-propos", permanent: true },
       // /mass-gainer was linked from the nav and articles but never existed (404); the real category is /gainers-proteines.
       { source: "/mass-gainer", destination: "/gainers-proteines", permanent: true },
       {

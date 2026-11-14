@@ -3,18 +3,12 @@ import {
   ShoppingCart,
   Package,
   Users,
-  Settings,
   Tags,
   BookOpen,
   Star,
   Boxes,
-  BarChart3,
-  Wallet,
-  Gift,
-  FileBarChart,
   PackageSearch,
   Upload,
-  Home,
   Hourglass,
 } from "lucide-react";
 
@@ -32,14 +26,6 @@ export const navSections: NavSection[] = [
   {
     title: "Vue d'ensemble",
     items: [{ label: "Tableau de bord", href: "/admin", icon: LayoutDashboard }],
-  },
-  {
-    title: "Analyse et rapports",
-    items: [
-      { label: "Analytics", href: "/admin/analytics", icon: BarChart3 },
-      { label: "Rapports", href: "/admin/rapports", icon: FileBarChart },
-      { label: "Rentabilité", href: "/admin/rentabilite", icon: Wallet },
-    ],
   },
   {
     title: "Commandes",
@@ -63,7 +49,6 @@ export const navSections: NavSection[] = [
     items: [
       { label: "Clients", href: "/admin/clients", icon: Users },
       { label: "Avis", href: "/admin/avis", icon: Star },
-      { label: "Fidélité", href: "/admin/fidelite", icon: Gift },
     ],
   },
   {
@@ -73,13 +58,8 @@ export const navSections: NavSection[] = [
   {
     title: "Contenu et SEO",
     items: [
-      { label: "Page d'accueil", href: "/admin/page-accueil", icon: Home },
       { label: "Conseils & Articles", href: "/admin/articles", icon: BookOpen },
     ],
-  },
-  {
-    title: "Paramètres",
-    items: [{ label: "Paramètres", href: "/admin/parametres", icon: Settings }],
   },
 ];
 

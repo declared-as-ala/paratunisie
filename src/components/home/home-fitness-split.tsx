@@ -9,12 +9,12 @@ import { ArrowRight, CheckCircle2, Dumbbell, Flame, Heart, Sparkles, Zap } from 
  */
 export function HomeFitnessSplit() {
   return (
-    <section aria-label="Nos objectifs fitness et engagements" className="bg-[#FAF7F5] py-6 sm:py-12">
+    <section aria-label="Nos objectifs fitness et engagements" className="bg-[#FAF8F6] py-6 sm:py-12">
       <div className="mx-auto max-w-[1440px] px-3 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-[1.35fr_1fr] gap-4 sm:gap-5 items-stretch">
           
           {/* ── LEFT: Objectifs Fitness ? On vous accompagne ! ─────────── */}
-          <div className="relative min-h-[360px] sm:min-h-[460px] rounded-2xl sm:rounded-3xl overflow-hidden bg-[#5E203C] text-white p-5 sm:p-10 flex flex-col justify-between shadow-sm">
+          <div className="relative min-h-[360px] sm:min-h-[460px] rounded-2xl sm:rounded-3xl overflow-hidden bg-[#0A0D10] text-white p-5 sm:p-10 flex flex-col justify-between shadow-sm">
             {/* Background Athlete Image */}
             <div className="absolute inset-0 size-full overflow-hidden select-none">
               <Image
@@ -25,7 +25,7 @@ export function HomeFitnessSplit() {
                 className="object-cover object-[70%_center] sm:object-[65%_center]"
               />
               {/* Dark Burgundy Gradient Overlay for Clean Text Legibility */}
-              <div className="absolute inset-0 bg-gradient-to-r from-[#4A122A] via-[#4A122A]/90 sm:via-[#4A122A]/70 to-[#4A122A]/20 sm:to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#5A1B3D] via-[#5A1B3D]/90 sm:via-[#5A1B3D]/70 to-[#5A1B3D]/20 sm:to-transparent" />
             </div>
 
             {/* Title */}
@@ -65,7 +65,7 @@ export function HomeFitnessSplit() {
             <div className="relative z-10">
               <Link
                 href="/conseils"
-                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-white px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-[#5E203C] shadow-sm transition-all hover:bg-[#FAF7F5] hover:scale-[1.02] active:scale-[0.98]"
+                className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-full bg-white px-5 py-2.5 sm:py-3 text-xs sm:text-sm font-bold text-[#0A0D10] shadow-sm transition-all hover:bg-[#FAF8F6] hover:scale-[1.02] active:scale-[0.98]"
               >
                 <span>Découvrir nos guides</span>
                 <ArrowRight size={14} />

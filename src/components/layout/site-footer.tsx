@@ -29,12 +29,12 @@ const HELP_LINKS = [
 
 /**
  * Premium Burgundy Footer matching the reference image:
- * Deep burgundy background (#4A122A), 5 structured columns,
+ * Deep burgundy background (#5A1B3D), 5 structured columns,
  * social icons, contact details, copyright, and payment methods.
  */
 export function SiteFooter() {
   return (
-    <footer className="bg-[#4A122A] text-white pt-12 sm:pt-16 pb-8 border-t border-white/10">
+    <footer className="bg-[#5A1B3D] text-white pt-12 sm:pt-16 pb-8 border-t border-white/10">
       <div className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8">
         
         {/* ── 5 Main Columns Grid ───────────────────────────────────────── */}
@@ -197,13 +197,13 @@ export function SiteFooter() {
 
           {/* Payment Badges */}
           <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
-            <span className="rounded bg-white px-2 py-1 text-[10px] font-bold text-[#4A122A] shadow-2xs">
+            <span className="rounded bg-white px-2 py-1 text-[10px] font-bold text-[#5A1B3D] shadow-2xs">
               VISA
             </span>
-            <span className="rounded bg-white px-2 py-1 text-[10px] font-bold text-[#4A122A] shadow-2xs">
+            <span className="rounded bg-white px-2 py-1 text-[10px] font-bold text-[#5A1B3D] shadow-2xs">
               Mastercard
             </span>
-            <span className="rounded bg-white px-2 py-1 text-[10px] font-bold text-[#4A122A] shadow-2xs">
+            <span className="rounded bg-white px-2 py-1 text-[10px] font-bold text-[#5A1B3D] shadow-2xs">
               Konnect
             </span>
             <span className="rounded bg-white/20 border border-white/30 px-2 py-1 text-[10px] font-semibold text-white">

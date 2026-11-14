@@ -8,6 +8,7 @@
 
 import type { ProductSummary } from "@/lib/data/products";
 import { products as localProducts } from "@/lib/data/products";
+import { SHOP_DEPARTMENTS } from "@/lib/data/storefront-navigation";
 
 const MOCK_FALLBACK_ENABLED = process.env.NODE_ENV !== "production";
 
@@ -24,21 +25,36 @@ function getApiBase() {
  * that prefix exists for JSON fetch calls, not static files, so it has to
  * be stripped or a relative product.image path 404s against a
  * /api/v1/uploads/... URL that doesn't exist.
+ *
+ * The browser resolves a root-relative "/uploads/..." src against the page's
+ * own origin. That's correct in production (web and API share one public
+ * origin behind the gateway) but wrong whenever the frontend's origin isn't
+ * the API's — e.g. local dev pointed at the public prod API — so uploads are
+ * always made absolute against NEXT_PUBLIC_API_URL's origin when it's set.
  */
+function getAssetOrigin(): string {
+  const publicBase = process.env.NEXT_PUBLIC_API_URL;
+  if (!publicBase) return "";
+  try {
+    return new URL(publicBase).origin;
+  } catch {
+    return "";
+  }
+}
+
 function resolveImageUrl(rawImage: string | null | undefined): string {
   if (!rawImage) return "/assets/product-unavailable.svg";
   if (
     rawImage.startsWith("http://") ||
     rawImage.startsWith("https://") ||
-    rawImage.startsWith("/assets/") ||
-    rawImage.startsWith("/uploads/")
+    rawImage.startsWith("/assets/")
   ) {
     return rawImage;
   }
-  if (rawImage.startsWith("uploads/")) {
-    return `/${rawImage}`;
-  }
-  return rawImage;
+  const path = rawImage.startsWith("/") ? rawImage : `/${rawImage}`;
+  if (!path.startsWith("/uploads/")) return path;
+  const origin = getAssetOrigin();
+  return origin ? `${origin}${path}` : path;
 }
 
 export type PublicReview = {
@@ -85,6 +101,7 @@ export type RawProduct = {
   seoIntro?: string | null;
   seoContent?: string | null;
   seoKeywords?: string;
+  seoFaq?: string;
   ogTitle?: string | null;
   ogDescription?: string | null;
   ogImage?: string | null;
@@ -128,6 +145,7 @@ function transformProduct(raw: RawProduct): ProductSummary {
     seoIntro: raw.seoIntro ?? null,
     seoContent: raw.seoContent ?? null,
     seoKeywords: parseJsonStringArray(raw.seoKeywords),
+    faq: parseFaq(raw.seoFaq),
     ogTitle: raw.ogTitle ?? null,
     ogDescription: raw.ogDescription ?? null,
     ogImage: raw.ogImage ?? null,
@@ -140,6 +158,20 @@ function parseJsonStringArray(value?: string): string[] {
   try {
     const parsed = JSON.parse(value);
     return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+function parseFaq(value?: string): { question: string; answer: string }[] {
+  if (!value) return [];
+  try {
+    const parsed: unknown = JSON.parse(value);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (item): item is { question: string; answer: string } =>
+        typeof item?.question === "string" && typeof item?.answer === "string" && item.question.trim() !== "" && item.answer.trim() !== ""
+    );
   } catch {
     return [];
   }
@@ -611,6 +643,162 @@ export async function fetchCategories(): Promise<{ name: string; slug: string }[
   /* Fallback: derive from local products */
   const catSet = [...new Set(localProducts.map((p) => p.category))].sort();
   return catSet.map((name) => ({ name, slug: name.toLowerCase() }));
+}
+
+export type CategoryDepartment = {
+  key: string;
+  name: string;
+  slug: string;
+  totalCount: number;
+  children: { name: string; slug: string; count: number }[];
+};
+
+type RawCategoryWithCount = {
+  id: string;
+  name: string;
+  slug: string;
+  parentId: string | null;
+  _count?: { products: number };
+};
+
+/**
+ * The two real top-level catalogue departments (Nutrition Sportive,
+ * Compléments Alimentaires), each with their real subcategories and live
+ * product counts. Single-product orphan categories with no children
+ * (leftover taxonomy leaves) are dropped rather than shown as departments.
+ */
+export async function fetchCategoryDepartments(): Promise<CategoryDepartment[]> {
+  const raw = await apiFetch<RawCategoryWithCount[]>("/catalogue/categories");
+  if (!raw) return [];
+
+  const roots = raw.filter((c) => !c.parentId);
+  return roots
+    .map((root) => {
+      const children = raw
+        .filter((c) => c.parentId === root.id)
+        .map((c) => ({ name: c.name, slug: c.slug, count: c._count?.products ?? 0 }))
+        .sort((a, b) => b.count - a.count);
+      const directCount = root._count?.products ?? 0;
+      const totalCount = directCount + children.reduce((sum, c) => sum + c.count, 0);
+      return { key: root.slug, name: root.name, slug: root.slug, totalCount, children };
+    })
+    .filter((d) => d.children.length > 0)
+    .sort((a, b) => b.totalCount - a.totalCount);
+}
+
+export type ShopDepartment = {
+  key: string;
+  label: string;
+  href: string;
+  thumbnail: string | null;
+  categories: { name: string; slug: string; count: number }[];
+  products: { slug: string; name: string; image: string; priceMillimes: number }[];
+};
+
+const NAV_CACHE: RequestInit = { cache: "force-cache", next: { revalidate: 300 } };
+
+/**
+ * Mega-menu data: the six shop departments resolved against the live
+ * catalogue (real category names, counts and three products each).
+ * Cached five minutes because it renders in the header of every page.
+ * Departments whose categories no longer exist are dropped.
+ */
+async function loadShopDepartments(): Promise<ShopDepartment[]> {
+  const raw = await apiFetch<RawCategoryWithCount[]>("/catalogue/categories", NAV_CACHE);
+  if (!raw) return [];
+  const bySlug = new Map(raw.map((c) => [c.slug, c]));
+
+  const departments = await Promise.all(
+    SHOP_DEPARTMENTS.map(async (dept): Promise<ShopDepartment | null> => {
+      const categories = dept.slugs
+        .map((slug) => bySlug.get(slug))
+        .filter((c): c is RawCategoryWithCount => Boolean(c))
+        .map((c) => ({ name: c.name, slug: c.slug, count: c._count?.products ?? 0 }));
+      if (categories.length === 0) return null;
+
+      const res = await apiFetch<{ data: RawProduct[] }>(`/catalogue/products?category=${categories[0].slug}&limit=3`, NAV_CACHE);
+      const products = (res?.data ?? []).map(transformProduct).map((p) => ({
+        slug: p.slug,
+        name: p.name,
+        image: p.image,
+        priceMillimes: p.priceMillimes,
+      }));
+      return { key: dept.key, label: dept.label, href: dept.href, thumbnail: products[0]?.image ?? null, categories, products };
+    })
+  );
+  return departments.filter((d): d is ShopDepartment => d !== null);
+}
+
+export type BrandRayonStat = { slug: string; name: string; count: number; inStock: number };
+export type BrandRayon = {
+  slug: string;
+  title: string;
+  linkLabel: string;
+  sport: boolean;
+  brandCount: number;
+  productCount: number;
+  brands: BrandRayonStat[];
+};
+
+const BRAND_RAYONS = [
+  { slug: "whey-proteine", title: "Whey protéine", linkLabel: "whey protéine", sport: true },
+  { slug: "whey-isolate", title: "Whey isolate", linkLabel: "whey isolate", sport: true },
+  { slug: "creatine", title: "Créatine", linkLabel: "créatine", sport: true },
+  { slug: "pre-workout", title: "Pré-workout", linkLabel: "pré-workout", sport: true },
+  { slug: "gainers-proteines", title: "Mass gainers", linkLabel: "mass gainers", sport: true },
+  { slug: "bruleurs-de-graisse", title: "Brûleurs de graisse", linkLabel: "brûleurs de graisse", sport: true },
+  { slug: "bcaa", title: "BCAA", linkLabel: "BCAA", sport: true },
+  { slug: "omega-3", title: "Oméga 3", linkLabel: "oméga 3", sport: false },
+] as const;
+
+const BRANDS_CACHE: RequestInit = { cache: "force-cache", next: { revalidate: 300 } };
+
+/**
+ * Brands per shelf, aggregated from the live catalogue (every product of each
+ * rayon, paged 100 at a time). Brands with the most products in stock first.
+ */
+export async function fetchBrandRayons(): Promise<BrandRayon[]> {
+  return Promise.all(
+    BRAND_RAYONS.map(async (rayon): Promise<BrandRayon> => {
+      const products: ProductSummary[] = [];
+      let page = 1;
+      let totalPages = 1;
+      do {
+        const res = await apiFetch<{ data: RawProduct[]; meta?: PaginationMeta }>(
+          `/catalogue/products?category=${rayon.slug}&limit=100&page=${page}`,
+          BRANDS_CACHE
+        );
+        if (!res) break;
+        products.push(...res.data.map(transformProduct));
+        totalPages = res.meta?.totalPages ?? 1;
+        page += 1;
+      } while (page <= totalPages);
+
+      const byBrand = new Map<string, BrandRayonStat>();
+      for (const p of products) {
+        const slug = p.brandSlug;
+        if (!slug) continue;
+        const entry = byBrand.get(slug) ?? { slug, name: p.brand, count: 0, inStock: 0 };
+        entry.count += 1;
+        if (p.inStock) entry.inStock += 1;
+        byBrand.set(slug, entry);
+      }
+      const brands = [...byBrand.values()].sort((a, b) => b.inStock - a.inStock || b.count - a.count || a.name.localeCompare(b.name));
+      return { slug: rayon.slug, title: rayon.title, linkLabel: rayon.linkLabel, sport: rayon.sport, brandCount: brands.length, productCount: products.length, brands };
+    })
+  );
+}
+
+/**
+ * The header renders on every page, so a catalogue outage (or an unreachable
+ * API during `next build`) must degrade to a plain "Boutique" link, never fail the page.
+ */
+export async function fetchShopDepartments(): Promise<ShopDepartment[]> {
+  try {
+    return await loadShopDepartments();
+  } catch {
+    return [];
+  }
 }
 
 export async function fetchProductReviews(productId: string): Promise<PublicReview[]> {

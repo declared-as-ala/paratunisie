@@ -384,6 +384,31 @@ const STATUS_LABEL: Record<string, string> = Object.fromEntries(STATUS_OPTIONS.m
 
 /* ─── Page Component ─────────────────────────────────────────────────── */
 
+/** wa.me link with a French confirmation request for the client's order; null if the phone number is unusable. */
+function buildOrderConfirmationWhatsAppUrl(order: Pick<CustomOrder, "customerName" | "phone" | "reference" | "total" | "city" | "items">): string | null {
+  let digits = (order.phone || "").replace(/\D/g, "");
+  if (digits.startsWith("00216")) digits = digits.slice(5);
+  else if (digits.length === 11 && digits.startsWith("216")) digits = digits.slice(3);
+  if (digits.length !== 8) return null;
+
+  const lines = (order.items || []).map((item) => `• ${item.productName} × ${item.quantity}`).join("\n");
+  const total = typeof order.total === "number" ? order.total.toFixed(3) : String(order.total);
+  const message = [
+    `عسلامة ${order.customerName || ""}،`.replace(" ،", "،"),
+    "",
+    `هنا ParaTunisie. وصلتنا الكوموند متاعك ${order.reference}:`,
+    lines,
+    "",
+    `المجموع: ${total} دينار (الدفع عند التسليم)${order.city ? `، التوصيل لـ ${order.city}` : ""}.`,
+    "",
+    "باش نبعثولك الكوموند، يزّي ردّ علينا بـ \"أيه\" (OUI) باش تأكّد الكوموند متاعك.",
+    "يعيّشك على ثقتك!",
+  ]
+    .filter((l, i, arr) => !(l === "" && arr[i - 1] === ""))
+    .join("\n");
+  return `https://wa.me/216${digits}?text=${encodeURIComponent(message)}`;
+}
+
 function CommandesInner() {
   const router = useRouter();
   const params = useSearchParams();
@@ -1541,6 +1566,21 @@ function CommandesInner() {
                       <td className="py-3 px-4 font-black text-slate-900">{typeof order.total === "number" ? order.total.toFixed(3) : order.total} DT</td>
                       <td className="py-3 px-4 text-right">
                         <div className="flex items-center justify-end gap-2 text-slate-400">
+                          {(() => {
+                            const waUrl = buildOrderConfirmationWhatsAppUrl(order);
+                            return waUrl ? (
+                              <a
+                                href={waUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 rounded-lg bg-emerald-50 px-2 py-1 text-[0.6875rem] font-bold text-emerald-700 hover:bg-emerald-100 transition-colors"
+                                title="Confirmer la commande par WhatsApp"
+                              >
+                                <MessageCircle size={13} aria-hidden />
+                                <span>Confirmer</span>
+                              </a>
+                            ) : null;
+                          })()}
                           <button
                             type="button"
                             onClick={() => handleOpenView(order.id)}
@@ -1591,6 +1631,20 @@ function CommandesInner() {
                 </span>
               </div>
               <div className="flex items-center gap-4">
+                {(() => {
+                  const waUrl = buildOrderConfirmationWhatsAppUrl(formData);
+                  return waUrl ? (
+                    <a
+                      href={waUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition-colors shadow-xs flex items-center gap-1.5"
+                    >
+                      <MessageCircle size={13} aria-hidden />
+                      <span>Confirmer par WhatsApp</span>
+                    </a>
+                  ) : null;
+                })()}
                 {drawerMode === "edit" && (
                   <button
                     type="button"

@@ -1,78 +1,108 @@
 import { HomeHero } from "@/components/home/home-hero";
 import { FeaturedSidePanel } from "@/components/home/featured-side-panel";
-import { HomeCategoryTiles } from "@/components/home/home-category-tiles";
+import { HomeGoals, type PopularSubcategory } from "@/components/home/home-goals";
+import { HomeProductCarousel } from "@/components/home/home-product-carousel";
 import { HomeTrustStrip } from "@/components/home/home-trust-strip";
-import { HomePromoBanners } from "@/components/home/home-promo-banners";
-import { HomeBestSellers } from "@/components/home/home-best-sellers";
 import { HomeFeaturedBrands } from "@/components/home/home-featured-brands";
-import { HomeFitnessSplit } from "@/components/home/home-fitness-split";
 import { HomeBlogPreview } from "@/components/home/home-blog-preview";
 import { HomeNewsletter } from "@/components/home/home-newsletter";
 import { HomeSeoSection } from "@/components/home/home-seo-section";
-import type { FeaturedProduct, HomepageCategoryRow } from "@/lib/api/client";
+import { Pill, Flame, Sparkles, Magnet, Droplet, Bone } from "lucide-react";
+import type { BrandListItem, CategoryDepartment, FeaturedProduct, ShopDepartment } from "@/lib/api/client";
 import type { ProductSummary } from "@/lib/data/products";
 import type { Article } from "@/lib/data/articles";
 
+/** Icons for the handful of subcategories surfaced in the popular rail — purely decorative, never a data source. */
+const POPULAR_SLUGS: Record<string, PopularSubcategory["icon"]> = {
+  "whey-proteine": Pill,
+  creatine: Flame,
+  vitamines: Sparkles,
+  magnesium: Magnet,
+  "omega-3": Droplet,
+  articulations: Bone,
+};
+
+function buildPopularSubcategories(departments: CategoryDepartment[]): PopularSubcategory[] {
+  const all = departments.flatMap((d) => d.children);
+  return Object.entries(POPULAR_SLUGS)
+    .map(([slug, icon]) => {
+      const match = all.find((c) => c.slug === slug);
+      return match ? { name: match.name, slug: match.slug, count: match.count, icon } : null;
+    })
+    .filter((x): x is PopularSubcategory => x !== null);
+}
+
+export type HomeCollection = {
+  id: string;
+  title: string;
+  accent: string;
+  subtitle: string;
+  href: string;
+  products: ProductSummary[];
+};
+
 /**
- * Redesigned ParaTunisie Homepage:
- * 1. Hero with Pack Anti-Stress Banner + "À LA UNE SPORT" (Right)
- * 2. 12-item Category Shortcuts Strip (including highlighted Anti-Stress tile)
- * 3. 4-card Trust & Service Strip
- * 4. 3 Category Promotional Banners (Whey, Créatine, Vitamines & Minéraux)
- * 5. Best-Selling Products ("Meilleures ventes")
- * 6. Brands Carousel ("Nos marques")
- * 7. Fitness Promotional Section
- * 8. Blog & Advice Previews
- * 9. Community Newsletter
- * 10. Technical SEO Content
+ * ParaTunisie Homepage — editorial wellness meets sports commerce:
+ * 1. Hero
+ * 2. Shoppez selon votre objectif (goal cards + popular subcategories)
+ * 5. Five category carousels: Créatine, Whey, Mass Gainers, Vitamines, Pre-Workout
+ * 7. Trust & service strip
+ * 8. Brands carousel
+ * 9. Blog & advice carousel
+ * 10. Newsletter
+ * 11. Technical SEO content
  */
 export function HomePage({
-  categoryRows,
+  collections,
   featured,
   bestSellers,
   articles = [],
+  departments = [],
+  shopDepartments = [],
+  brands = [],
 }: {
-  categoryRows: HomepageCategoryRow[];
+  collections: HomeCollection[];
   featured: FeaturedProduct | null;
   bestSellers: ProductSummary[];
   articles?: Article[];
+  departments?: CategoryDepartment[];
+  shopDepartments?: ShopDepartment[];
+  brands?: BrandListItem[];
 }) {
+  const popularSubcategories = buildPopularSubcategories(departments);
+
   return (
-    <div className="overflow-hidden bg-[#FAF7F5]">
-      {/* ── 1. Hero with Pack Anti-Stress + "À LA UNE SPORT" on Right ──────── */}
+    <div className="overflow-hidden bg-background">
+      {/* ── 1. Hero ──────────────────────────────────────────────────────── */}
       <HomeHero
         rightAside={
           featured ? (
-            <FeaturedSidePanel featured={featured} bestSellers={bestSellers} />
+            <FeaturedSidePanel featured={featured} />
           ) : undefined
         }
       />
 
-      {/* ── 2. Category Shortcuts Horizontal Strip (12 Categories) ───────── */}
-      <HomeCategoryTiles rows={categoryRows} />
+      {/* ── 3. Shoppez selon votre objectif ──────────────────────────────── */}
+      <HomeGoals departments={shopDepartments} popular={popularSubcategories} />
 
-      {/* ── 3. Trust and Reassurance Strip (4 Cards) ────────────────────── */}
+      {/* ── 5. Category carousels, in merchandising order ────────────────── */}
+      {collections.map((collection, i) => (
+        <HomeProductCarousel key={collection.id} {...collection} tinted={i % 2 === 0} />
+      ))}
+
+      {/* ── 7. Trust and Reassurance Strip ───────────────────────────────── */}
       <HomeTrustStrip />
 
-      {/* ── 4. Category Promotional Banners (Whey, Créatine, Vitamines) ──── */}
-      <HomePromoBanners />
+      {/* ── 8. Brands Carousel ("Nos marques") ───────────────────────────── */}
+      <HomeFeaturedBrands brands={brands} />
 
-      {/* ── 5. Best-Selling Products Carousel ("Meilleures ventes") ──────── */}
-      <HomeBestSellers items={bestSellers} />
-
-      {/* ── 6. Brands Carousel ("Nos marques") ───────────────────────────── */}
-      <HomeFeaturedBrands />
-
-      {/* ── 7. Fitness Promotional Section ──────────────────────────────── */}
-      <HomeFitnessSplit />
-
-      {/* ── 8. Blog & Advice Previews ────────────────────────────────────── */}
+      {/* ── 9. Blog & Advice Carousel ─────────────────────────────────────── */}
       <HomeBlogPreview articles={articles} />
 
-      {/* ── 9. Community Newsletter ──────────────────────────────────────── */}
+      {/* ── 10. Newsletter ───────────────────────────────────────────────── */}
       <HomeNewsletter />
 
-      {/* ── 10. Technical SEO Content ────────────────────────────────────── */}
+      {/* ── 11. Technical SEO Content ────────────────────────────────────── */}
       <HomeSeoSection />
     </div>
   );

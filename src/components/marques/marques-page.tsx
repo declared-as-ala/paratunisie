@@ -1,398 +1,285 @@
-"use client";
-
-import Link from "next/link";
 import Image from "next/image";
-import { Search, X, Award, ChevronRight, Sparkles, ShieldCheck, Truck, CheckCircle2, Zap } from "lucide-react";
-import { useCallback, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { ArrowRight, Search } from "lucide-react";
 
-export interface BrandItem {
-  id?: string;
-  slug: string;
-  name: string;
-  logo?: string | null;
-  image?: string | null;
-  tagline?: string | null;
-  description?: string | null;
-  origin?: string | null;
-  featured?: boolean;
-  productCount?: number;
-  inStockCount?: number;
-}
+import { BrandDirectory } from "@/components/marques/brand-directory";
+import { COMPANY_CONFIG } from "@/lib/config/company";
+import type { BrandListItem, BrandRayon } from "@/lib/api/client";
 
-function normalize(s: string): string {
-  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-}
+const formatCount = (n: number) => n.toLocaleString("fr-FR").replace(/ | /g, " ");
+const plural = (n: number, one: string, many: string) => `${formatCount(n)} ${n > 1 ? many : one}`;
 
-function firstLetter(name: string): string {
-  const norm = normalize(name).trim();
-  const c = norm.charAt(0).toUpperCase();
-  return c >= "A" && c <= "Z" ? c : "#";
-}
+const sectionTitle = "font-serif text-2xl font-extrabold uppercase tracking-tight text-foreground sm:text-3xl";
 
-const ALPHABET = ["TOUS", ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""), "#"];
+/** Brands page: catalogue hero, flagship sports brands, other brands, brands per rayon, A–Z directory, FAQ. */
+export function MarquesPage({
+  brands,
+  rayons,
+  categoryCount,
+}: {
+  brands: BrandListItem[];
+  rayons: BrandRayon[];
+  categoryCount: number;
+}) {
+  const live = brands.filter((b) => (b.productCount ?? 0) > 0);
+  const productTotal = live.reduce((sum, b) => sum + (b.productCount ?? 0), 0);
+  const bySlug = new Map(live.map((b) => [b.slug, b]));
 
-export function MarquesPage({ initialBrands }: { initialBrands: BrandItem[] }) {
-  const brands = initialBrands;
-  const [query, setQuery] = useState("");
-  const [selectedLetter, setSelectedLetter] = useState<string>("TOUS");
-  const letterRefs = useRef<Map<string, HTMLDivElement>>(new Map());
-
-  const allSorted = useMemo(() => {
-    return [...brands].sort((a, b) => {
-      // Put brands with products first, then alphabetical
-      if ((b.productCount || 0) !== (a.productCount || 0)) {
-        return (b.productCount || 0) - (a.productCount || 0);
-      }
-      return normalize(a.name).localeCompare(normalize(b.name));
-    });
-  }, [brands]);
-
-  const activeLetters = useMemo(() => {
-    const set = new Set<string>();
-    for (const b of brands) {
-      set.add(firstLetter(b.name));
+  // Sports flagship brands: brands present in the sports rayons, in-stock first.
+  const sportStats = new Map<string, { inStock: number; count: number }>();
+  for (const rayon of rayons.filter((r) => r.sport)) {
+    for (const b of rayon.brands) {
+      const cur = sportStats.get(b.slug) ?? { inStock: 0, count: 0 };
+      sportStats.set(b.slug, { inStock: cur.inStock + b.inStock, count: cur.count + b.count });
     }
-    return set;
-  }, [brands]);
+  }
+  const flagships = [...sportStats.entries()]
+    .map(([slug, stat]) => ({ brand: bySlug.get(slug), ...stat }))
+    .filter((x): x is { brand: BrandListItem; inStock: number; count: number } => Boolean(x.brand?.logo))
+    .sort((a, b) => b.inStock - a.inStock || (b.brand.productCount ?? 0) - (a.brand.productCount ?? 0))
+    .slice(0, Math.min(24, Math.floor(sportStats.size / 6) * 6 || 6));
+  const flagshipSlugs = new Set(flagships.map((f) => f.brand.slug));
 
-  const featuredBrands = useMemo(() => {
-    return allSorted.filter((b) => b.featured || (b.productCount && b.productCount >= 5)).slice(0, 12);
-  }, [allSorted]);
+  const others = live
+    .filter((b) => !flagshipSlugs.has(b.slug))
+    .sort((a, b) => (b.productCount ?? 0) - (a.productCount ?? 0))
+    .slice(0, 8);
 
-  const filteredBrands = useMemo(() => {
-    let list = allSorted;
-    if (query.trim()) {
-      const q = normalize(query.trim());
-      list = list.filter(
-        (b) => normalize(b.name).includes(q) || normalize(b.slug).includes(q) || (b.tagline && normalize(b.tagline).includes(q))
-      );
-    } else if (selectedLetter !== "TOUS") {
-      list = list.filter((b) => firstLetter(b.name) === selectedLetter);
-    }
-    return list;
-  }, [allSorted, query, selectedLetter]);
+  const wheyBrands = rayons.find((r) => r.slug === "whey-proteine")?.brands.slice(0, 4).map((b) => b.name).join(", ");
+  const creatineBrands = rayons.find((r) => r.slug === "creatine")?.brands.slice(0, 4).map((b) => b.name).join(", ");
 
-  // Group by alphabetical letters for section view
-  const groupedByLetter = useMemo(() => {
-    const map = new Map<string, BrandItem[]>();
-    const sortedAlpha = [...filteredBrands].sort((a, b) => normalize(a.name).localeCompare(normalize(b.name)));
-    for (const b of sortedAlpha) {
-      const l = firstLetter(b.name);
-      if (!map.has(l)) map.set(l, []);
-      map.get(l)!.push(b);
-    }
-    return map;
-  }, [filteredBrands]);
-
-  const visibleLetters = useMemo(() => Array.from(groupedByLetter.keys()).sort(), [groupedByLetter]);
-
-  const jumpToLetter = useCallback((letter: string) => {
-    setSelectedLetter(letter);
-    setQuery("");
-    if (letter === "TOUS") {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
-    const el = letterRefs.current.get(letter);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, []);
-
-  const setLetterRef = useCallback(
-    (letter: string) => (el: HTMLDivElement | null) => {
-      if (el) letterRefs.current.set(letter, el);
+  const faq: { q: string; a: string }[] = [
+    {
+      q: `Combien de marques trouve-t-on sur ${COMPANY_CONFIG.name} ?`,
+      a: `${formatCount(live.length)} marques ont au moins un produit publié, pour ${formatCount(productTotal)} produits. Elles sont toutes listées de A à Z dans le répertoire ci-dessus.`,
     },
-    []
-  );
-
-  const isSearching = query.trim().length > 0;
+    ...(wheyBrands
+      ? [{ q: "Quelles marques de whey protéine sont disponibles ?", a: `Parmi les marques du rayon whey : ${wheyBrands}. Retrouvez la liste complète dans la rubrique « Whey protéine » ci-dessus.` }]
+      : []),
+    ...(creatineBrands
+      ? [{ q: "Quelles marques de créatine sont disponibles ?", a: `Parmi les marques du rayon créatine : ${creatineBrands}. Retrouvez la liste complète dans la rubrique « Créatine » ci-dessus.` }]
+      : []),
+    {
+      q: "Les produits vendus sont-ils authentiques ?",
+      a: `${COMPANY_CONFIG.guarantees.authenticity}. Consultez la marque et le format sur chaque fiche, puis vérifiez le scellé, le lot et la date indiqués sur le produit reçu.`,
+    },
+    {
+      q: "Et si ma marque n'est pas dans la liste ?",
+      a: "Contactez-nous en précisant la marque et le produit souhaités : nous étudions chaque demande.",
+    },
+    {
+      q: "Comment se passe la livraison ?",
+      a: `Livraison en ${COMPANY_CONFIG.deliveryTime} dans les ${COMPANY_CONFIG.coverage}, frais de livraison de ${COMPANY_CONFIG.shippingFeeTnd} DT, paiement à la livraison.`,
+    },
+  ];
 
   return (
-    <div className="bg-[#FAF7F5] min-h-screen text-ink pb-24">
-      {/* ── 1. HERO HEADER ─────────────────────────────────────────────────── */}
-      <header className="relative overflow-hidden bg-gradient-to-b from-[#FFF5F3] via-[#FAF7F5] to-[#FAF7F5] border-b border-border/60">
-        <div className="mx-auto max-w-[1440px] px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
-          {/* Breadcrumb */}
-          <nav aria-label="Fil d'Ariane" className="text-xs text-ink-muted mb-4 font-medium">
-            <ol className="flex items-center gap-2">
-              <li>
-                <Link href="/" className="hover:text-primary transition-colors">
-                  Accueil
-                </Link>
-              </li>
-              <li aria-hidden className="opacity-40">/</li>
-              <li aria-current="page" className="text-ink font-bold">
-                Toutes les marques
-              </li>
-            </ol>
-          </nav>
+    <div className="bg-background pb-20 text-ink">
+      <div className="mx-auto max-w-[1440px] px-3 sm:px-6 lg:px-8">
+        <nav aria-label="Fil d'Ariane" className="py-4 text-xs font-medium text-ink-muted">
+          <ol className="flex items-center gap-2">
+            <li>
+              <Link href="/" className="transition-colors hover:text-primary">Accueil</Link>
+            </li>
+            <li aria-hidden className="opacity-40">/</li>
+            <li aria-current="page" className="font-bold text-ink">Marques</li>
+          </ol>
+        </nav>
 
+        {/* ── Hero ─────────────────────────────────────────────────────── */}
+        <header className="grid gap-8 rounded-[2rem] bg-secondary p-6 text-white sm:p-10 lg:grid-cols-[1fr_auto] lg:items-end">
           <div className="max-w-3xl">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-bold text-primary mb-3">
-              <Award size={14} className="text-primary" />
-              Compléments &amp; Nutrition Sportive
-            </span>
-            <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-ink leading-tight">
-              Toutes nos marques
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary-soft/80">Le catalogue</p>
+            <h1 className="mt-3 font-serif text-3xl font-extrabold uppercase leading-[1.05] tracking-tight sm:text-5xl">
+              Marques de protéines et compléments en Tunisie
             </h1>
-            <p className="mt-3 text-xs sm:text-sm text-ink-muted leading-relaxed max-w-2xl">
-              Découvrez <strong>{brands.length > 0 ? brands.length : 45} marques</strong> de compléments alimentaires, protéines, créatines et vitamines présentes dans notre catalogue.
+            <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/80 sm:text-base">
+              Chaque marque de nutrition sportive (whey, créatine, pré-workout, gainers) et de compléments santé a sa page : catalogue complet et prix en dinars. Livraison dans les {COMPANY_CONFIG.coverage}.
             </p>
-
-            {/* ── SEARCH INPUT ───────────────────────────────────────────── */}
-            <div className="mt-6 max-w-xl relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-primary size-5" />
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  if (e.target.value) setSelectedLetter("TOUS");
-                }}
-                placeholder="Rechercher une marque (ex: Optimum Nutrition, BioTechUSA, OstroVit)..."
-                className="w-full h-12 rounded-2xl border border-border/90 bg-white pl-12 pr-10 text-xs sm:text-sm font-semibold text-ink shadow-xs placeholder:text-ink-muted/60 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
-              />
-              {query && (
-                <button
-                  type="button"
-                  onClick={() => setQuery("")}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-muted hover:text-ink p-1"
-                >
-                  <X className="size-4" />
-                </button>
-              )}
+            <div className="mt-6 flex flex-wrap gap-3">
+              <a
+                href="#repertoire"
+                className="inline-flex h-12 items-center gap-2 rounded-full bg-primary px-6 text-xs font-extrabold uppercase tracking-wide text-white transition-colors hover:bg-primary-hover"
+              >
+                <Search className="size-4" aria-hidden /> Chercher une marque
+              </a>
+              <a
+                href="#marques-phares"
+                className="inline-flex h-12 items-center gap-2 rounded-full border border-white/30 px-6 text-xs font-bold text-white transition-colors hover:bg-white/10"
+              >
+                Marques phares <ArrowRight className="size-4" aria-hidden />
+              </a>
             </div>
           </div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-[1440px] px-4 sm:px-6 lg:px-8 mt-8">
-        {/* ── 2. STICKY ALPHABETICAL FILTER BAR (A-Z) ───────────────────────── */}
-        <div className="sticky top-20 z-20 rounded-2xl border border-border/80 bg-white/95 backdrop-blur-md p-2.5 sm:p-3 shadow-xs mb-10">
-          <div className="flex items-center gap-1 overflow-x-auto scrollbar-none py-0.5 justify-start sm:justify-center">
-            {ALPHABET.map((letter) => {
-              const active = letter === "TOUS" || activeLetters.has(letter);
-              const isSelected = selectedLetter === letter;
-              return (
-                <button
-                  key={letter}
-                  type="button"
-                  onClick={() => active && jumpToLetter(letter)}
-                  disabled={!active}
-                  className={`h-8 sm:h-9 min-w-8 sm:min-w-9 px-2 shrink-0 rounded-xl text-xs font-black transition-all flex items-center justify-center ${
-                    isSelected
-                      ? "bg-primary text-white shadow-xs"
-                      : active
-                      ? "bg-soft-nude/80 text-ink hover:bg-primary/20 hover:text-primary cursor-pointer"
-                      : "opacity-25 cursor-not-allowed text-ink-muted"
-                  }`}
-                >
-                  {letter}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* ── 3. FEATURED BRANDS (MARQUES EN VEDETTE) ─────────────────────────── */}
-        {!isSearching && selectedLetter === "TOUS" && featuredBrands.length > 0 && (
-          <section className="mb-14">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
-                <Sparkles size={18} className="text-primary" />
-                <h2 className="font-serif text-2xl font-bold text-ink">Marques en Vedette</h2>
+          <dl className="grid grid-cols-3 gap-6 border-t border-white/15 pt-6 lg:border-s lg:border-t-0 lg:ps-8 lg:pt-0">
+            {[
+              ["Marques", formatCount(live.length)],
+              ["Produits", formatCount(productTotal)],
+              ["Catégories", formatCount(categoryCount)],
+            ].map(([label, value]) => (
+              <div key={label}>
+                <dt className="text-[0.6875rem] font-bold uppercase tracking-[0.14em] text-white/60">{label}</dt>
+                <dd className="mt-1 font-serif text-3xl font-extrabold tabular-nums sm:text-4xl">{value}</dd>
               </div>
-              <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
-                Les plus populaires
-              </span>
+            ))}
+          </dl>
+        </header>
+
+        <main className="mt-12 space-y-16">
+          {/* ── Nutrition sportive : marques phares ───────────────────── */}
+          {flagships.length > 0 && (
+            <section id="marques-phares" aria-labelledby="brands-flagship" className="scroll-mt-48">
+              <h2 id="brands-flagship" className={sectionTitle}>Nutrition sportive : marques phares</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted">
+                Les marques présentes dans nos rayons whey, créatine, pré-workout et gainers, celles qui ont du stock aujourd&apos;hui en premier.
+              </p>
+              <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+                {flagships.map(({ brand, inStock }) => (
+                  <li key={brand.slug}>
+                    <Link
+                      href={`/marques/${brand.slug}`}
+                      className="group flex h-full flex-col items-center rounded-xl bg-card p-4 text-center ring-1 ring-border-strong/60 transition-all hover:-translate-y-0.5 hover:ring-primary/50 hover:shadow-[0_18px_30px_-22px_rgba(90,27,61,0.5)]"
+                    >
+                      <span className="relative block h-16 w-full">
+                        <Image
+                          src={brand.logo as string}
+                          alt=""
+                          fill
+                          sizes="(max-width: 640px) 45vw, 200px"
+                          className="object-contain transition-transform duration-300 group-hover:scale-105"
+                        />
+                      </span>
+                      <span className="mt-3 text-sm font-extrabold text-foreground">{brand.name}</span>
+                      <span className="mt-1 flex items-center gap-1.5 text-xs text-ink-muted">
+                        {plural(brand.productCount ?? 0, "produit", "produits")}
+                        {inStock > 0 && (
+                          <span className="inline-flex items-center gap-1 font-semibold text-emerald-700">
+                            <span aria-hidden className="size-1.5 rounded-full bg-emerald-500" />
+                            en stock
+                          </span>
+                        )}
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+
+              {others.length > 0 && (
+                <div className="mt-8">
+                  <h3 className="text-xs font-extrabold uppercase tracking-[0.16em] text-ink-muted">Autres marques phares</h3>
+                  <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-1">
+                    {others.map((b) => (
+                      <li key={b.slug}>
+                        <Link href={`/marques/${b.slug}`} className="inline-flex min-h-11 items-center gap-1.5 text-sm font-bold text-foreground hover:text-primary">
+                          {b.name}
+                          <span className="font-normal text-ink-muted">· {plural(b.productCount ?? 0, "produit", "produits")}</span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* ── Les marques par rayon ─────────────────────────────────── */}
+          {rayons.some((r) => r.brandCount > 0) && (
+            <section aria-labelledby="brands-rayons">
+              <h2 id="brands-rayons" className={sectionTitle}>Les marques par rayon</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-ink-muted">
+                Les marques de chaque rayon, celles qui ont du stock aujourd&apos;hui en premier, avec leur nombre de références.
+              </p>
+              <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {rayons
+                  .filter((r) => r.brandCount > 0)
+                  .map((rayon) => (
+                    <article key={rayon.slug} className="flex flex-col rounded-2xl bg-card p-6 ring-1 ring-border-strong/60">
+                      <h3 className="font-serif text-lg font-extrabold uppercase tracking-tight text-foreground">{rayon.title}</h3>
+                      <p className="mt-1 text-xs font-semibold text-ink-muted">
+                        {plural(rayon.brandCount, "marque", "marques")} · {plural(rayon.productCount, "produit", "produits")}
+                      </p>
+                      <ul className="mt-4 flex-1 divide-y divide-border/60">
+                        {rayon.brands.slice(0, 6).map((b) => (
+                          <li key={b.slug}>
+                            <Link href={`/marques/${b.slug}`} className="flex min-h-10 items-center justify-between gap-3 text-sm text-foreground hover:text-primary">
+                              <span className="truncate font-semibold">{b.name}</span>
+                              <span className="shrink-0 text-xs text-ink-muted">
+                                {plural(b.count, "produit", "produits")}
+                                {b.inStock > 0 && <span className="text-emerald-700"> ({b.inStock} en stock)</span>}
+                              </span>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                      <Link href={`/${rayon.slug}`} className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold text-primary hover:text-primary-hover">
+                        Tout le rayon {rayon.linkLabel} <ArrowRight className="size-4" aria-hidden />
+                      </Link>
+                    </article>
+                  ))}
+              </div>
+            </section>
+          )}
+
+          {/* ── Répertoire A–Z ────────────────────────────────────────── */}
+          <BrandDirectory brands={live.map((b) => ({ slug: b.slug, name: b.name, count: b.productCount ?? 0 }))} />
+
+          {/* ── À propos ──────────────────────────────────────────────── */}
+          <section aria-labelledby="brands-about" className="rounded-3xl bg-primary-soft/60 p-6 sm:p-10">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-primary">Acheter vos marques sur {COMPANY_CONFIG.name}</p>
+            <h2 id="brands-about" className={`${sectionTitle} mt-2`}>Deux catalogues, une seule liste</h2>
+            <div className="mt-6 grid gap-6 md:grid-cols-3">
+              <div>
+                <h3 className="text-sm font-extrabold uppercase tracking-wide text-foreground">Nutrition sportive et santé</h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink-muted">
+                  Whey, créatine, pré-workout, gainers, mais aussi vitamines, minéraux, oméga 3 et plantes : les deux familles cohabitent dans ce répertoire, classées de A à Z et par rayon.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-extrabold uppercase tracking-wide text-foreground">Une page par marque</h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink-muted">
+                  Chaque nom de cette liste mène au catalogue complet de la marque, avec les mêmes prix et la même disponibilité que le reste de la boutique.
+                </p>
+              </div>
+              <div>
+                <h3 className="text-sm font-extrabold uppercase tracking-wide text-foreground">Commander, où que vous soyez</h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink-muted">
+                  Livraison en {COMPANY_CONFIG.deliveryTime} dans les {COMPANY_CONFIG.coverage} : {COMPANY_CONFIG.shippingFeeTnd} DT, paiement à la livraison.
+                </p>
+              </div>
             </div>
+          </section>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
-              {featuredBrands.map((brand) => (
-                <Link
-                  key={brand.slug}
-                  href={`/marques/${brand.slug}`}
-                  className="group relative flex flex-col items-center justify-between rounded-2xl border border-border/80 bg-white p-4 transition-all duration-200 hover:-translate-y-1 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5"
-                >
-                  {/* Brand Logo Well */}
-                  <div className="relative flex h-16 sm:h-20 w-full items-center justify-center rounded-xl bg-white p-2">
-                    {brand.logo ? (
-                      <img
-                        src={brand.logo}
-                        alt={`${brand.name} Tunisie`}
-                        className="max-h-full max-w-full object-contain filter contrast-105 group-hover:scale-105 transition-transform duration-200"
-                        loading="lazy"
-                      />
-                    ) : (
-                      <div className="size-12 rounded-xl bg-primary/10 text-primary font-serif font-black text-xl flex items-center justify-center">
-                        {brand.name.charAt(0)}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Brand Name & Counts */}
-                  <div className="w-full text-center mt-2">
-                    <h3 className="font-serif font-bold text-xs sm:text-sm text-ink group-hover:text-primary transition-colors truncate">
-                      {brand.name}
-                    </h3>
-                    <div className="mt-1 flex items-center justify-center gap-1.5 text-[0.6875rem] font-semibold text-ink-muted">
-                      <span>{brand.productCount || 0} produit{(brand.productCount || 0) > 1 ? "s" : ""}</span>
-                      {brand.productCount && brand.productCount > 0 ? (
-                        <span className="inline-flex items-center text-[0.625rem] text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded font-bold">
-                          En stock
-                        </span>
-                      ) : null}
-                    </div>
-                  </div>
-                </Link>
+          {/* ── FAQ ───────────────────────────────────────────────────── */}
+          <section aria-labelledby="brands-faq">
+            <h2 id="brands-faq" className={sectionTitle}>Questions fréquentes</h2>
+            <div className="mt-6 divide-y divide-border-strong/60 rounded-2xl bg-card ring-1 ring-border-strong/60">
+              {faq.map(({ q, a }) => (
+                <details key={q} className="group px-5 py-1">
+                  <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 text-sm font-bold text-foreground [&::-webkit-details-marker]:hidden">
+                    {q}
+                    <span aria-hidden className="text-xl leading-none text-primary transition-transform group-open:rotate-45">+</span>
+                  </summary>
+                  <p className="pb-4 text-sm leading-relaxed text-ink-muted">{a}</p>
+                </details>
               ))}
             </div>
           </section>
-        )}
 
-        {/* ── 4. COMPLETE ALPHABETICAL DIRECTORY ────────────────────────────── */}
-        <section aria-label="Répertoire des marques">
-          <div className="flex items-center justify-between border-b border-border/80 pb-4 mb-6">
-            <h2 className="font-serif text-2xl font-bold text-ink">
-              {isSearching
-                ? `Résultats de recherche (${filteredBrands.length})`
-                : selectedLetter !== "TOUS"
-                ? `Marques commençant par « ${selectedLetter} » (${filteredBrands.length})`
-                : "Toutes les marques (A-Z)"}
-            </h2>
-            <span className="text-xs font-semibold text-ink-muted">
-              {filteredBrands.length} marque{filteredBrands.length > 1 ? "s" : ""}
-            </span>
-          </div>
-
-          {filteredBrands.length === 0 ? (
-            <div className="rounded-2xl border border-border bg-white p-12 text-center">
-              <Search className="mx-auto size-10 text-ink-muted/60 mb-3" />
-              <h3 className="font-serif text-lg font-bold text-ink">Aucune marque ne correspond à votre recherche</h3>
-              <p className="text-xs text-ink-muted mt-1">Essayez un autre mot-clé ou réinitialisez les filtres.</p>
-              <button
-                type="button"
-                onClick={() => {
-                  setQuery("");
-                  setSelectedLetter("TOUS");
-                }}
-                className="mt-4 rounded-xl bg-primary text-white text-xs font-bold px-4 py-2 hover:bg-primary/90 transition-colors"
-              >
-                Afficher toutes les marques
-              </button>
-            </div>
-          ) : (
-            <div className="space-y-10">
-              {visibleLetters.map((letter) => {
-                const list = groupedByLetter.get(letter) || [];
-                return (
-                  <div key={letter} ref={setLetterRef(letter)} className="scroll-mt-36">
-                    {/* Letter Divider */}
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="size-9 rounded-xl bg-[#E11D48] text-white font-black text-sm flex items-center justify-center shadow-xs">
-                        {letter}
-                      </div>
-                      <span className="text-xs font-bold text-ink-muted">
-                        {list.length} marque{list.length > 1 ? "s" : ""}
-                      </span>
-                      <div className="flex-1 h-px bg-border/60" />
-                    </div>
-
-                    {/* Brand Cards Grid */}
-                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4">
-                      {list.map((brand) => (
-                        <Link
-                          key={brand.slug}
-                          href={`/marques/${brand.slug}`}
-                          className="group relative flex flex-col items-center justify-between rounded-2xl border border-border/80 bg-white p-3.5 sm:p-4 transition-all duration-200 hover:-translate-y-1 hover:border-primary/50 hover:shadow-md hover:shadow-primary/5"
-                        >
-                          {/* Brand Logo Well */}
-                          <div className="relative flex h-16 sm:h-20 w-full items-center justify-center rounded-xl bg-white p-2">
-                            {brand.logo ? (
-                              <img
-                                src={brand.logo}
-                                alt={`${brand.name} Tunisie`}
-                                className="max-h-full max-w-full object-contain filter contrast-105 group-hover:scale-105 transition-transform duration-200"
-                                loading="lazy"
-                              />
-                            ) : (
-                              <div className="size-11 rounded-xl bg-primary/10 text-primary font-serif font-black text-lg flex items-center justify-center">
-                                {brand.name.charAt(0)}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Brand Name & Counts */}
-                          <div className="w-full text-center mt-2">
-                            <h3 className="font-serif font-bold text-xs sm:text-sm text-ink group-hover:text-primary transition-colors truncate">
-                              {brand.name}
-                            </h3>
-                            <div className="mt-1 flex items-center justify-center gap-1.5 text-[0.6875rem] font-semibold text-ink-muted">
-                              <span>{brand.productCount || 0} produit{(brand.productCount || 0) > 1 ? "s" : ""}</span>
-                              {brand.productCount && brand.productCount > 0 ? (
-                                <span className="inline-flex items-center text-[0.6rem] text-emerald-700 bg-emerald-50 px-1 py-0.2 rounded font-bold">
-                                  En stock
-                                </span>
-                              ) : null}
-                            </div>
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </section>
-
-        {/* ── 5. SEO & TRUST SECTION (FOOTER BANNER) ────────────────────────── */}
-        <section className="mt-20 rounded-3xl border border-border/80 bg-gradient-to-br from-white via-[#FFF9F8] to-[#FFF5F3] p-6 sm:p-10 shadow-xs">
-          <div className="max-w-4xl mx-auto space-y-6">
-            <div className="text-center space-y-2">
-              <span className="inline-flex items-center gap-1 text-xs font-bold uppercase tracking-wider text-primary">
-                <ShieldCheck size={16} /> Informations &amp; contrôle à réception
-              </span>
-              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-ink">
-                Pourquoi choisir vos compléments alimentaires sur ParaTunisie ?
-              </h2>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
-              <div className="rounded-2xl border border-border/60 bg-white/90 p-5 space-y-2">
-                <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
-                  <ShieldCheck size={20} />
-                </div>
-                <h3 className="font-bold text-sm text-ink">100% Produits Originaux</h3>
-                <p className="text-xs text-ink-muted leading-relaxed">
-                  Consultez la marque et le format sur chaque fiche, puis vérifiez le scellé, le lot et la date indiqués sur le produit reçu.
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-border/60 bg-white/90 p-5 space-y-2">
-                <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
-                  <Truck size={20} />
-                </div>
-                <h3 className="font-bold text-sm text-ink">Livraison Rapide 24/48h</h3>
-                <p className="text-xs text-ink-muted leading-relaxed">
-                  Expédition express sur toute la Tunisie avec suivi en direct par SMS et paiement sécurisé à la livraison.
-                </p>
-              </div>
-
-              <div className="rounded-2xl border border-border/60 bg-white/90 p-5 space-y-2">
-                <div className="size-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
-                  <Zap size={20} />
-                </div>
-                <h3 className="font-bold text-sm text-ink">Prix affichés clairement</h3>
-                <p className="text-xs text-ink-muted leading-relaxed">
-                  Tarifs compétitifs sur les plus grands laboratoires de musculation et de santé, avec promotions régulières et programme de fidélité.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
+          {/* ── CTA ───────────────────────────────────────────────────── */}
+          <section className="rounded-[2rem] bg-secondary p-8 text-center text-white sm:p-12">
+            <h2 className="font-serif text-2xl font-extrabold uppercase tracking-tight sm:text-3xl">Vous ne trouvez pas votre marque ?</h2>
+            <p className="mx-auto mt-3 max-w-xl text-sm text-white/80">
+              Dites-nous laquelle et quel produit exactement, nous étudions chaque demande.
+            </p>
+            <Link
+              href="/contact"
+              className="mt-6 inline-flex h-12 items-center gap-2 rounded-full bg-primary px-8 text-xs font-extrabold uppercase tracking-wide text-white transition-colors hover:bg-primary-hover"
+            >
+              Nous écrire <ArrowRight className="size-4" aria-hidden />
+            </Link>
+          </section>
+        </main>
+      </div>
     </div>
   );
 }

@@ -1,6 +1,9 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { useRef } from "react";
 import type { Article } from "@/lib/data/articles";
 
 const FALLBACK_ARTICLES = [
@@ -43,18 +46,25 @@ const FALLBACK_ARTICLES = [
 ];
 
 /**
- * "Derniers articles et conseils" section matching reference:
- * Header with bar icon, title, subtitle, "Voir tous les articles →",
- * and 4 responsive cards with category badges, images, titles, excerpts, and date.
+ * "Derniers articles et conseils" carousel: header with "Voir tous les articles →",
+ * and up to 5 swipeable cards with category badges, images, titles, excerpts, and date.
  */
 export function HomeBlogPreview({ articles = [] }: { articles?: Article[] }) {
-  // Use passed articles or curated fallback articles
-  const items = articles.length >= 4 ? articles.slice(0, 4) : null;
+  const scrollRef = useRef<HTMLDivElement>(null);
+  // Use real passed articles when any exist; curated fallback only covers the empty case.
+  const items = articles.length > 0 ? articles.slice(0, 5) : null;
+
+  const scroll = (direction: "left" | "right") => {
+    if (scrollRef.current) {
+      const offset = direction === "left" ? -320 : 320;
+      scrollRef.current.scrollBy({ left: offset, behavior: "smooth" });
+    }
+  };
 
   return (
-    <section aria-labelledby="home-blog-heading" className="bg-[#FAF7F5] py-8 sm:py-12 border-t border-border/50">
+    <section aria-labelledby="home-blog-heading" className="bg-[#FAF8F6] py-8 sm:py-12 border-t border-border/50">
       <div className="mx-auto max-w-[1440px] px-3 sm:px-6 lg:px-8">
-        
+
         {/* ── Section Header ────────────────────────────────────────────── */}
         <div className="mb-5 sm:mb-6 flex items-end justify-between gap-3">
           <div className="flex items-start gap-2.5 sm:gap-3 min-w-0">
@@ -75,18 +85,41 @@ export function HomeBlogPreview({ articles = [] }: { articles?: Article[] }) {
             </div>
           </div>
 
-          <Link
-            href="/conseils"
-            className="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-ink hover:text-primary transition-colors shrink-0"
-          >
-            <span className="sm:hidden">Tout voir</span>
-            <span className="hidden sm:inline">Voir tous les articles</span>
-            <ArrowRight size={14} />
-          </Link>
+          <div className="flex items-center gap-3 shrink-0">
+            <Link
+              href="/conseils"
+              className="inline-flex items-center gap-1 text-xs sm:text-sm font-bold text-ink hover:text-primary transition-colors"
+            >
+              <span className="sm:hidden">Tout voir</span>
+              <span className="hidden sm:inline">Voir tous les articles</span>
+              <ArrowRight size={14} />
+            </Link>
+            <div className="hidden sm:flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => scroll("left")}
+                aria-label="Articles précédents"
+                className="flex size-8 items-center justify-center rounded-full border border-border/80 bg-white text-ink shadow-2xs hover:border-primary hover:text-primary transition-colors cursor-pointer"
+              >
+                <ChevronLeft size={16} />
+              </button>
+              <button
+                type="button"
+                onClick={() => scroll("right")}
+                aria-label="Articles suivants"
+                className="flex size-8 items-center justify-center rounded-full border border-border/80 bg-white text-ink shadow-2xs hover:border-primary hover:text-primary transition-colors cursor-pointer"
+              >
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* ── 4 Blog Cards Grid (No horizontal scroll on mobile) ────────── */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-5">
+        {/* ── Blog Cards Carousel ──────────────────────────────────────── */}
+        <div
+          ref={scrollRef}
+          className="-mx-3 flex snap-x snap-mandatory scroll-px-3 gap-3.5 overflow-x-auto px-3 pb-2 [scrollbar-width:none] sm:-mx-6 sm:scroll-px-6 sm:gap-5 sm:px-6 lg:-mx-8 lg:scroll-px-8 lg:px-8 [&::-webkit-scrollbar]:hidden"
+        >
           {(items ? items.map((art) => ({
             slug: art.slug,
             title: art.title,
@@ -98,7 +131,7 @@ export function HomeBlogPreview({ articles = [] }: { articles?: Article[] }) {
           })) : FALLBACK_ARTICLES).map((post) => (
             <article
               key={post.slug}
-              className="group flex flex-col overflow-hidden rounded-2xl sm:rounded-3xl border border-border/70 bg-white shadow-2xs transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md"
+              className="group flex w-[82vw] max-w-[20rem] shrink-0 snap-start flex-col overflow-hidden rounded-2xl border border-border/70 bg-white shadow-2xs transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-md sm:w-[19rem] sm:rounded-3xl"
             >
               {/* Cover Image Container */}
               <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-100">
@@ -106,7 +139,7 @@ export function HomeBlogPreview({ articles = [] }: { articles?: Article[] }) {
                   src={post.image}
                   alt={post.title}
                   fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                  sizes="(max-width: 640px) 82vw, 19rem"
                   className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
                 

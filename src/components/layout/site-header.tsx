@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Heart, Phone, ShoppingBag, User, ShieldCheck, CreditCard, Truck } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Heart, MessageCircle, Phone, ShoppingBag, ShieldCheck, Truck } from "lucide-react";
 
 import { useCart } from "@/hooks/use-cart";
 import { useWishlist } from "@/hooks/use-wishlist";
@@ -11,6 +12,8 @@ import { SearchOverlay } from "@/components/layout/navigation/search-overlay";
 import { MegaMenu } from "@/components/layout/navigation/mega-menu";
 import { MobileMenu } from "@/components/layout/navigation/mobile-menu";
 import { CartDrawer } from "@/components/cart/cart-drawer";
+import { COMPANY_CONFIG } from "@/lib/config/company";
+import type { ShopDepartment } from "@/lib/api/client";
 
 function Badge({ count }: { count: number }) {
   if (count <= 0) return null;
@@ -21,46 +24,62 @@ function Badge({ count }: { count: number }) {
   );
 }
 
-export function SiteHeader() {
+export function SiteHeader({ departments = [] }: { departments?: ShopDepartment[] }) {
   const { itemCount } = useCart();
   const { count: wishlistCount } = useWishlist();
   const { setOpen: setCartOpen } = useCartDrawer();
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/70 bg-white/95 backdrop-blur-md">
-      {/* ── 1. Top Utility / Announcement Bar (Deep Burgundy) ─────────────── */}
-      <div className="bg-[#5E203C] text-white">
+    <header
+      className={`sticky top-0 z-40 bg-white/90 backdrop-blur-xl transition-shadow duration-300 motion-reduce:transition-none ${
+        scrolled ? "shadow-[0_8px_30px_-18px_rgba(36,19,29,0.35)]" : "border-b border-border/60"
+      }`}
+    >
+      {/* ── 1. Top Utility Bar (fixed height: collapsing it shifts the page and makes the header jitter) ── */}
+      <div className="bg-secondary text-white">
         <div className="mx-auto flex h-8 max-w-[1440px] items-center justify-between px-4 text-[0.6875rem] sm:text-xs font-medium">
-          {/* Left: Value propositions */}
-          <div className="flex items-center gap-4 sm:gap-6 overflow-hidden">
-            <span className="flex items-center gap-1.5 truncate">
-              <Truck size={13} className="text-white/80 shrink-0" aria-hidden />
-              <span>Livraison partout en Tunisie</span>
-            </span>
-            <span className="hidden md:flex items-center gap-1.5 text-white/90 shrink-0">
-              <ShieldCheck size={13} className="text-white/80 shrink-0" aria-hidden />
-              <span>Produits 100% authentiques</span>
-            </span>
-            <span className="hidden lg:flex items-center gap-1.5 text-white/90 shrink-0">
-              <CreditCard size={13} className="text-white/80 shrink-0" aria-hidden />
-              <span>Paiement à la livraison ou en ligne</span>
-            </span>
-          </div>
-
-          {/* Right: Phone support */}
-          <div className="flex items-center gap-2 shrink-0">
-            <a href="tel:+21697991266" className="flex items-center gap-1.5 text-white/95 hover:text-white transition-colors">
+          {/* Left: contact */}
+          <div className="flex items-center gap-4 shrink-0">
+            <a href={`tel:${COMPANY_CONFIG.phoneRaw}`} className="flex items-center gap-1.5 text-white/95 hover:text-white transition-colors">
               <Phone size={12} className="text-white/80" aria-hidden />
-              <span className="hidden sm:inline">Besoin d&apos;aide ?</span>
-              <span className="font-bold">+216 97 991 266</span>
+              <span className="font-bold">{COMPANY_CONFIG.phone}</span>
+            </a>
+            <a
+              href={COMPANY_CONFIG.socials.whatsapp}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hidden sm:flex items-center gap-1.5 text-white/95 hover:text-white transition-colors"
+            >
+              <MessageCircle size={12} className="text-white/80" aria-hidden />
+              <span>WhatsApp</span>
             </a>
           </div>
+
+          {/* Center: authenticity */}
+          <span className="hidden lg:flex items-center gap-1.5 text-white/90">
+            <ShieldCheck size={13} className="text-white/80 shrink-0" aria-hidden />
+            <span>Produits 100% authentiques</span>
+          </span>
+
+          {/* Right: delivery policy */}
+          <span className="flex items-center gap-1.5 truncate text-white/90">
+            <Truck size={13} className="text-white/80 shrink-0" aria-hidden />
+            <span className="truncate">Livraison {COMPANY_CONFIG.deliveryTime} · paiement à la livraison</span>
+          </span>
         </div>
       </div>
 
       {/* ── 2. Main Row (Logo, Central Search, Account, Wishlist, Cart) ────── */}
-      <div className="mx-auto flex h-14 sm:h-16 max-w-[1440px] items-center gap-2 sm:gap-3 px-3 sm:px-6 lg:h-20 lg:gap-8 lg:px-8">
-        <MobileMenu />
+      <div className="mx-auto flex h-16 sm:h-[4.5rem] max-w-[1440px] items-center gap-2 sm:gap-3 px-3 sm:px-6 lg:h-20 lg:gap-8 lg:px-8">
+        <MobileMenu departments={departments} />
 
         {/* Brand Logo */}
         <Link href="/" aria-label="ParaTunisie — Accueil" className="shrink-0">
@@ -72,43 +91,30 @@ export function SiteHeader() {
           <SearchOverlay variant="full" />
         </div>
 
-        {/* User Actions with Labels */}
-        <div className="ms-auto flex items-center gap-1.5 sm:gap-4 lg:gap-6">
-          {/* Mon compte */}
-          <Link
-            href="/compte"
-            className="group flex flex-col items-center gap-0.5 text-ink hover:text-primary transition-colors text-center p-1.5 sm:px-1"
-            aria-label="Mon compte"
-          >
-            <User size={20} className="transition-transform group-hover:scale-105" aria-hidden />
-            <span className="hidden sm:inline text-[0.6875rem] font-semibold text-ink-muted group-hover:text-primary">Mon compte</span>
-          </Link>
-
-          {/* Favoris */}
+        {/* User actions */}
+        <div className="ms-auto flex items-center gap-1 sm:gap-2">
           <Link
             href="/favoris"
-            className="group flex flex-col items-center gap-0.5 text-ink hover:text-primary transition-colors text-center p-1.5 sm:px-1"
             aria-label={`Favoris (${wishlistCount})`}
+            className="group relative flex size-11 items-center justify-center rounded-full text-ink transition-colors hover:bg-primary-soft hover:text-primary"
           >
-            <div className="relative">
-              <Heart size={20} className="transition-transform group-hover:scale-105" aria-hidden />
-              <Badge count={wishlistCount} />
-            </div>
-            <span className="hidden sm:inline text-[0.6875rem] font-semibold text-ink-muted group-hover:text-primary">Favoris</span>
+            <Heart size={21} className="transition-transform duration-200 group-hover:scale-110 motion-reduce:transition-none" aria-hidden />
+            <Badge count={wishlistCount} />
           </Link>
 
-          {/* Panier */}
           <button
             type="button"
             onClick={() => setCartOpen(true)}
-            className="group flex flex-col items-center gap-0.5 text-ink hover:text-primary transition-colors text-center p-1.5 sm:px-1 cursor-pointer"
             aria-label={`Panier (${itemCount})`}
+            className="group relative flex h-11 items-center gap-2 rounded-full bg-secondary ps-4 pe-4 text-sm font-bold text-white transition-colors hover:bg-primary cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
           >
-            <div className="relative">
-              <ShoppingBag size={20} className="transition-transform group-hover:scale-105" aria-hidden />
-              <Badge count={itemCount} />
-            </div>
-            <span className="hidden sm:inline text-[0.6875rem] font-semibold text-ink-muted group-hover:text-primary">Panier</span>
+            <ShoppingBag size={18} aria-hidden />
+            <span className="hidden sm:inline">Panier</span>
+            {itemCount > 0 && (
+              <span className="flex min-w-5 items-center justify-center rounded-full bg-white px-1.5 text-[0.6875rem] font-extrabold leading-5 text-secondary tabular-nums">
+                {itemCount > 99 ? "99+" : itemCount}
+              </span>
+            )}
           </button>
         </div>
       </div>
@@ -118,29 +124,11 @@ export function SiteHeader() {
         <SearchOverlay variant="compact" className="w-full" />
       </div>
 
-      {/* ── 3. Desktop Navigation Bar (Categories + Promotions/Nouveautés) ── */}
-      <div className="relative hidden border-t border-border/60 bg-white lg:block">
-        <div className="mx-auto flex max-w-[1440px] items-center justify-between px-8">
-          <nav aria-label="Navigation principale">
-            <MegaMenu />
-          </nav>
-
-          {/* Right badges: Promotions % and Nouveautés */}
-          <div className="flex items-center gap-2 py-1.5">
-            <Link
-              href="/shop?filter=promotions"
-              className="inline-flex items-center gap-1.5 rounded-full bg-red-600 px-3 py-1 text-xs font-bold text-white shadow-2xs hover:bg-red-700 transition-all hover:scale-[1.02] active:scale-95"
-            >
-              <span>Promotions %</span>
-            </Link>
-            <Link
-              href="/shop?sort=newest"
-              className="inline-flex items-center gap-1.5 rounded-full bg-[#4A122A] px-3 py-1 text-xs font-bold text-white shadow-2xs hover:bg-[#380D20] transition-all hover:scale-[1.02] active:scale-95"
-            >
-              <span>Nouveautés</span>
-            </Link>
-          </div>
-        </div>
+      {/* ── 3. Desktop navigation ──────────────────────────────────────── */}
+      <div className="relative hidden border-t border-border/50 lg:block">
+        <nav aria-label="Navigation principale" className="mx-auto flex max-w-[1440px] justify-center px-8">
+          <MegaMenu departments={departments} />
+        </nav>
       </div>
 
       <CartDrawer />

@@ -2,25 +2,22 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { BadgeCheck, Check, Heart, Minus, Plus, Truck, Wallet, Zap, X, ShoppingBag, Loader2, CheckCircle2, AlertCircle, Gift, Star, Mail } from "lucide-react";
+import { ArrowUpRight, Check, Heart, Minus, Phone, Plus, Share2, ShieldCheck, Zap, X, ShoppingBag, Loader2, CheckCircle2, AlertCircle, MessageCircle, Star, Mail } from "lucide-react";
 
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { COMPANY_CONFIG } from "@/lib/config/company";
+import { deliveryFeeMillimes as computeDeliveryFee } from "@/lib/tunisia";
+import { phoneHref, whatsappHref } from "@/lib/contact";
 import { useCart } from "@/hooks/use-cart";
 import { formatPrice, type ProductSummary } from "@/lib/data/products";
 import { createExpressOrder, type ProductRating } from "@/lib/api/client";
 import { trackViewContent, trackInitiateCheckout, trackPurchase } from "@/lib/meta-pixel";
 import { trackProductView, trackAddToCart, trackBeginCheckout, trackPurchase as trackFirstPartyPurchase } from "@/lib/analytics/tracker";
 import { trackGoogleAdsPurchase } from "@/lib/google-ads";
-import { calculatePointsEarned } from "@/lib/loyalty";
 import { getCustomerSession } from "@/lib/customer-auth";
 import { DemanderModal } from "@/components/product/demander-modal";
 import { saveCheckoutDraft, saveCheckoutDraftImmediate, markCheckoutAbandoned, getCheckoutSessionId, resetCheckoutSession } from "@/lib/checkout/abandoned-tracker";
-
-const reassurance = [
-  { icon: BadgeCheck, label: "Produit authentique" },
-  { icon: Truck, label: "Livraison partout en Tunisie" },
-  { icon: Wallet, label: "Paiement à la livraison disponible" },
-] as const;
 
 const GOUVERNORATS_TUNISIE = [
   "Tunis", "Ariana", "Ben Arous", "Manouba", "Nabeul", "Bizerte", "Sousse", "Monastir", "Mahdia",
@@ -92,7 +89,7 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
   }, [addItem, product, selected.label, selected.priceMillimes, quantity]);
 
   const subtotalMillimes = selected.priceMillimes * quantity;
-  const deliveryFeeMillimes = subtotalMillimes >= 99_000 ? 0 : 7_000;
+  const deliveryFeeMillimes = computeDeliveryFee(subtotalMillimes);
   const totalMillimes = subtotalMillimes + deliveryFeeMillimes;
 
   const handleOpenQuickOrder = () => {
@@ -266,272 +263,263 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
     }
   };
 
+  const hasSale = Boolean(
+    sizeIndex === defaultIndex && product.regularPriceMillimes && product.regularPriceMillimes > selected.priceMillimes,
+  );
+  const savingMillimes = hasSale && product.regularPriceMillimes ? product.regularPriceMillimes - selected.priceMillimes : 0;
+  const discountPercent = hasSale && product.regularPriceMillimes ? Math.round((savingMillimes / product.regularPriceMillimes) * 100) : 0;
+  const reference = product.sku && product.sku !== product.id ? product.sku : null;
+  const whatsappOrderHref = `${whatsappHref}?text=${encodeURIComponent(
+    `Bonjour, je souhaite commander : ${product.name} (${selected.label}) x${quantity} — ${COMPANY_CONFIG.siteUrl}/produits/${product.slug}`,
+  )}`;
+
+  const handleShare = async () => {
+    const url = `${COMPANY_CONFIG.siteUrl}/produits/${product.slug}`;
+    try {
+      if (navigator.share) await navigator.share({ title: product.name, url });
+      else await navigator.clipboard.writeText(url);
+    } catch {
+      /* user dismissed the share sheet */
+    }
+  };
+
+  const outlineBtn =
+    "inline-flex h-12 flex-1 items-center justify-center gap-2 rounded-full border border-border-strong bg-card px-4 text-[0.8125rem] font-bold text-foreground transition-colors hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary cursor-pointer";
+
   return (
     <div className="w-full max-w-full min-w-0">
-      <Link
-        href={`/marques/${product.brandSlug || product.brand.toLowerCase().replace(/\s+/g, "-")}`}
-        className="text-[0.6875rem] sm:text-xs font-semibold tracking-[0.14em] text-primary uppercase hover:underline"
-      >
-        {product.brand}
-      </Link>
-      <h1 className="mt-1 sm:mt-2 font-serif text-xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-ink leading-snug">
+      <p className="flex items-center gap-3 text-xs font-bold uppercase tracking-[0.2em] text-primary">
+        <span aria-hidden className="h-px w-6 bg-primary" />
+        {product.category}
+      </p>
+      <h1 className="mt-3 font-serif text-2xl font-extrabold uppercase leading-[1.05] tracking-tight text-foreground sm:text-3xl lg:text-4xl">
         {product.seoH1 || product.name}
       </h1>
 
-      {rating && rating.count > 0 && (
-        <div className="mt-2 flex items-center gap-1.5">
-          <span className="flex gap-0.5 text-amber-400" aria-hidden>
-            {[1, 2, 3, 4, 5].map((s) => (
-              <Star key={s} className={`size-3.5 ${s <= Math.round(rating.average) ? "fill-amber-400 text-amber-400" : "fill-slate-100 text-slate-200"}`} />
-            ))}
-          </span>
-          <span className="text-xs font-bold text-ink">{rating.average.toFixed(1)}</span>
-          <span className="text-xs text-ink-muted">({rating.count} avis)</span>
-        </div>
-      )}
-
-      <p className="mt-1.5 sm:mt-2 text-xs sm:text-base leading-relaxed text-ink-muted">{product.seoIntro || product.benefit}</p>
-
-      {/* Stock + Delivery indicators */}
-      <div className="mt-2.5 sm:mt-3 flex flex-wrap items-center gap-2">
-        {product.inStock ? (
-          <>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[0.6875rem] font-semibold border bg-emerald-500/10 border-emerald-500/20 text-emerald-700">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              En stock
-            </span>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[0.6875rem] font-semibold bg-blue-500/10 border border-blue-500/20 text-blue-700">
-              <Truck className="size-3" />
-              Livraison 24–48h
-            </span>
-          </>
-        ) : (
-          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[0.6875rem] font-semibold border bg-amber-500/10 border-amber-500/20 text-amber-700">
-            <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
-            Disponible sur commande
+      <div className="mt-4 flex flex-wrap items-center gap-2">
+        <Link
+          href={`/marques/${product.brandSlug || product.brand.toLowerCase().replace(/\s+/g, "-")}`}
+          className="inline-flex h-10 items-center gap-2 rounded-xl bg-muted px-3 text-xs hover:bg-primary-soft"
+        >
+          <span className="text-[0.625rem] font-semibold uppercase tracking-wide text-ink-muted">Marque</span>
+          <span className="font-extrabold uppercase text-foreground">{product.brand}</span>
+          <ArrowUpRight className="size-3.5 text-ink-muted" aria-hidden />
+        </Link>
+        <span className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-muted px-3 text-xs font-bold text-foreground">
+          <ShieldCheck className="size-4 text-emerald-600" aria-hidden /> 100% authentique
+        </span>
+        {rating && rating.count > 0 && (
+          <span className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-muted px-3 text-xs font-bold text-foreground">
+            <Star className="size-4 fill-amber-400 text-amber-400" aria-hidden />
+            {rating.average.toFixed(1)} <span className="font-normal text-ink-muted">({rating.count} avis)</span>
           </span>
         )}
       </div>
 
-      <p className="font-tabular mt-3 sm:mt-5 text-xl sm:text-2xl font-bold text-ink">
-        {formatPrice(selected.priceMillimes)}
-      </p>
-
-      {/* Loyalty points reward banner */}
-      {product.inStock && (
-        <div className="mt-3 flex items-start gap-2.5 rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 text-xs">
-          <Gift className="size-4 text-amber-600 shrink-0 mt-0.5" />
-          <div>
-            <p className="font-bold text-ink">
-              🎁 Gagnez {calculatePointsEarned(selected.priceMillimes * quantity)} points avec cet achat
-            </p>
-            <p className="text-[0.6875rem] text-ink-muted mt-0.5">
-              20 points = 1 DT de réduction sur vos prochaines commandes
-            </p>
-          </div>
-        </div>
+      {(product.seoIntro || product.benefit) && (
+        <p className="mt-5 border-s-2 border-primary ps-4 text-sm leading-7 text-ink-muted sm:text-base">
+          {product.seoIntro || product.benefit}
+        </p>
       )}
 
-      {product.sizes.length > 1 && (
-        <div className="mt-4 sm:mt-6">
-          <p className="text-xs sm:text-sm font-medium text-ink" id="size-label">
-            Format
-          </p>
-          <div role="radiogroup" aria-labelledby="size-label" className="mt-1.5 flex flex-wrap gap-2">
-            {product.sizes.map((size, index) => (
+      {/* ── Buy box ─────────────────────────────────────────────────── */}
+      <div className="mt-6 rounded-3xl bg-card p-5 shadow-[0_24px_50px_-36px_rgba(90,27,61,0.5)] ring-1 ring-border-strong/60 sm:p-6">
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+          <p className="font-tabular font-serif text-4xl font-extrabold tracking-tight text-primary">{formatPrice(selected.priceMillimes)}</p>
+          {hasSale && product.regularPriceMillimes && (
+            <>
+              <span className="font-tabular text-base text-ink-muted line-through">{formatPrice(product.regularPriceMillimes)}</span>
+              <span className="rounded-full bg-primary px-2 py-0.5 text-xs font-extrabold text-white">-{discountPercent}%</span>
+            </>
+          )}
+        </div>
+        {savingMillimes > 0 && <p className="mt-1 text-xs font-bold text-emerald-700">Vous économisez {formatPrice(savingMillimes)}</p>}
+
+        <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border/60 pt-4 text-xs">
+          {product.inStock ? (
+            <span className="inline-flex items-center gap-1.5 font-bold text-emerald-700">
+              <Check className="size-4" aria-hidden /> En stock
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 font-bold text-amber-700">
+              <span className="size-2 rounded-full bg-amber-500" aria-hidden /> Disponible sur commande
+            </span>
+          )}
+          {reference && (
+            <span className="inline-flex items-center gap-1.5 rounded-lg bg-muted px-2.5 py-1 font-semibold text-ink-muted">
+              Référence <span className="font-mono text-foreground">{reference}</span>
+            </span>
+          )}
+        </div>
+
+        {product.sizes.length > 1 && (
+          <div className="mt-4 flex items-center gap-4 border-t border-border/60 pt-4">
+            <label htmlFor="size-select" className="text-sm font-bold text-foreground">Format</label>
+            <select
+              id="size-select"
+              value={sizeIndex}
+              onChange={(e) => setSizeIndex(Number(e.target.value))}
+              className="h-11 min-w-0 flex-1 rounded-xl border border-border-strong bg-card px-3 text-sm font-semibold text-foreground focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+            >
+              {product.sizes.map((size, index) => (
+                <option key={size.label} value={index}>
+                  {size.label} — {formatPrice(size.priceMillimes)}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {product.inStock && (
+          <div className="mt-4 flex items-center justify-between gap-4 border-t border-border/60 pt-4">
+            <div className="flex items-center gap-4">
+              <p className="text-sm font-bold text-foreground" id="quantity-label">Quantité</p>
+              <div className="flex items-center rounded-xl border border-border-strong bg-card">
+                <button
+                  type="button"
+                  aria-label="Diminuer la quantité"
+                  onClick={() => setQuantity((current) => Math.max(1, current - 1))}
+                  className="flex size-11 items-center justify-center text-ink-muted transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-primary active:scale-90"
+                >
+                  <Minus className="size-4" aria-hidden />
+                </button>
+                <span aria-labelledby="quantity-label" className="font-tabular w-8 text-center text-sm font-bold text-foreground">{quantity}</span>
+                <button
+                  type="button"
+                  aria-label="Augmenter la quantité"
+                  onClick={() => setQuantity((current) => current + 1)}
+                  className="flex size-11 items-center justify-center text-ink-muted transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-primary active:scale-90"
+                >
+                  <Plus className="size-4" aria-hidden />
+                </button>
+              </div>
+            </div>
+            <p className="text-sm text-ink-muted">
+              Total <strong className="font-tabular text-base text-foreground">{formatPrice(selected.priceMillimes * quantity)}</strong>
+            </p>
+          </div>
+        )}
+
+        {/* Main purchase buttons (observed to show the sticky bar) */}
+        <div ref={inlineBuyRef} className="mt-5 flex flex-col gap-2.5">
+          {product.inStock ? (
+            <>
               <button
-                key={size.label}
                 type="button"
-                role="radio"
-                aria-checked={index === sizeIndex}
-                onClick={() => setSizeIndex(index)}
-                className={`min-h-10 sm:min-h-11 rounded-lg border px-3 sm:px-4 text-xs sm:text-sm font-medium transition-colors focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none ${
-                  index === sizeIndex
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-border text-ink hover:border-primary hover:text-primary"
+                onClick={handleAdd}
+                className={`flex h-14 w-full items-center justify-center gap-2.5 rounded-full text-sm font-extrabold uppercase tracking-wide transition-all active:scale-[0.98] cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary ${
+                  added
+                    ? "bg-secondary text-white"
+                    : "bg-primary text-primary-foreground shadow-[0_14px_28px_-14px_rgba(233,30,99,0.9)] hover:bg-primary-hover"
                 }`}
               >
-                {size.label}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {product.inStock && (
-        <div className="mt-4 sm:mt-6 flex items-center gap-3">
-          <p className="text-xs sm:text-sm font-medium text-ink" id="quantity-label">
-            Quantité
-          </p>
-          <div className="flex items-center rounded-lg border border-border bg-white">
-            <button
-              type="button"
-              aria-label="Diminuer la quantité"
-              onClick={() => setQuantity((current) => Math.max(1, current - 1))}
-              className="flex size-9 sm:size-11 items-center justify-center text-ink-muted transition-transform duration-100 hover:text-ink focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none active:scale-90"
-            >
-              <Minus className="size-3.5 sm:size-4" aria-hidden />
-            </button>
-            <span aria-labelledby="quantity-label" className="font-tabular w-8 text-center text-xs sm:text-sm font-bold text-ink">
-              {quantity}
-            </span>
-            <button
-              type="button"
-              aria-label="Augmenter la quantité"
-              onClick={() => setQuantity((current) => current + 1)}
-              className="flex size-9 sm:size-11 items-center justify-center text-ink-muted transition-transform duration-100 hover:text-ink focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none active:scale-90"
-            >
-              <Plus className="size-3.5 sm:size-4" aria-hidden />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Main Flow Purchase Buttons (Observed by IntersectionObserver) */}
-      <div ref={inlineBuyRef} className="mt-5 sm:mt-7 flex flex-col gap-2.5 sm:gap-3 max-w-md">
-        {product.inStock ? (
-          <>
-            {/* 1. Ajouter au panier & Favorite */}
-            <div className="flex items-center gap-2.5 sm:gap-3">
-              <Button
-                type="button"
-                size="lg"
-                variant={added ? "secondary" : "default"}
-                onClick={handleAdd}
-                className="flex-1 rounded-xl font-bold py-3.5 sm:py-6 text-xs sm:text-base shadow-xs h-11 sm:h-13"
-              >
-                {added ? <Check className="size-4 sm:size-5" /> : <ShoppingBag className="size-4 sm:size-5" />}
+                {added ? <Check className="size-5" aria-hidden /> : <ShoppingBag className="size-5" aria-hidden />}
                 {added ? "Ajouté au panier" : "Ajouter au panier"}
-              </Button>
-
-              <Button
-                type="button"
-                variant="outline"
-                size="icon-lg"
-                aria-label={saved ? "Retirer des favoris" : "Ajouter aux favoris"}
-                aria-pressed={saved}
-                onClick={() => setSaved((current) => !current)}
-                className="rounded-xl h-11 w-11 sm:h-13 sm:w-13 shrink-0"
-              >
-                <Heart className={saved ? "fill-primary text-primary" : ""} />
-              </Button>
-            </div>
-
-            {/* 2. Acheter maintenant */}
-            <Button
+              </button>
+              <div className="flex flex-col gap-2.5 sm:flex-row">
+                <button type="button" onClick={handleOpenQuickOrder} className={outlineBtn}>
+                  <Zap className="size-4" aria-hidden /> Commander maintenant
+                </button>
+                <a href={whatsappOrderHref} target="_blank" rel="noopener noreferrer" className={outlineBtn}>
+                  <MessageCircle className="size-4 text-emerald-600" aria-hidden /> Commander sur WhatsApp
+                </a>
+              </div>
+            </>
+          ) : (
+            <button
               type="button"
-              size="lg"
-              onClick={handleOpenQuickOrder}
-              className="w-full bg-gradient-to-r from-[#d4a359] via-[#c89b3c] to-[#b88628] hover:from-[#c89b3c] hover:via-[#b88628] hover:to-[#a0741f] text-white font-extrabold rounded-xl py-3.5 sm:py-6 text-xs sm:text-base gap-2 shadow-md transition-all active:scale-[0.98] h-11 sm:h-13 border border-[#b88628]/30"
-            >
-              <Zap size={18} className="fill-white text-white" />
-              Acheter maintenant · {formatPrice(selected.priceMillimes * quantity)}
-            </Button>
-          </>
-        ) : (
-          /* SUR COMMANDE CTA BUTTON */
-          <div className="flex items-center gap-2.5 sm:gap-3">
-            <Button
-              type="button"
-              size="lg"
               onClick={() => setDemanderOpen(true)}
-              className="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl py-3.5 sm:py-6 text-xs sm:text-base gap-2 shadow-md transition-all active:scale-[0.98] h-11 sm:h-13"
+              className="flex h-14 w-full items-center justify-center gap-2.5 rounded-full bg-secondary text-sm font-extrabold uppercase tracking-wide text-white transition-colors hover:bg-primary cursor-pointer"
             >
-              <Mail size={18} />
-              Demander ce produit
-            </Button>
+              <Mail className="size-5" aria-hidden /> Demander ce produit
+            </button>
+          )}
+        </div>
 
-            <Button
-              type="button"
-              variant="outline"
-              size="icon-lg"
-              aria-label={saved ? "Retirer des favoris" : "Ajouter aux favoris"}
-              aria-pressed={saved}
-              onClick={() => setSaved((current) => !current)}
-              className="rounded-xl h-11 w-11 sm:h-13 sm:w-13 shrink-0"
-            >
-              <Heart className={saved ? "fill-primary text-primary" : ""} />
-            </Button>
+        <div className="mt-4 flex items-center justify-center gap-6 text-sm font-semibold text-ink-muted">
+          <button
+            type="button"
+            aria-pressed={saved}
+            onClick={() => setSaved((current) => !current)}
+            className="inline-flex min-h-11 items-center gap-2 hover:text-primary cursor-pointer"
+          >
+            <Heart className={`size-4 ${saved ? "fill-primary text-primary" : ""}`} aria-hidden />
+            {saved ? "Retirer des favoris" : "Ajouter aux favoris"}
+          </button>
+          <button type="button" onClick={handleShare} className="inline-flex min-h-11 items-center gap-2 hover:text-primary cursor-pointer">
+            <Share2 className="size-4" aria-hidden /> Partager
+          </button>
+        </div>
+
+        <p className="mt-2 border-t border-border/60 pt-4 text-xs leading-relaxed text-ink-muted">
+          Livraison {COMPANY_CONFIG.deliveryTime} · {COMPANY_CONFIG.shippingFeeTnd} DT · Paiement à la livraison
+        </p>
+
+        <div className="mt-4 grid grid-cols-2 gap-3 border-t border-border/60 pt-4 text-center">
+          <div>
+            <ShieldCheck className="mx-auto size-5 text-primary" aria-hidden />
+            <p className="mt-1 text-xs font-bold text-foreground">Authenticité</p>
+            <p className="text-[0.6875rem] text-ink-muted">Produits d&apos;origine</p>
           </div>
-        )}
+          <a href={phoneHref} className="block hover:text-primary">
+            <Phone className="mx-auto size-5 text-primary" aria-hidden />
+            <p className="mt-1 text-xs font-bold text-foreground">Conseil</p>
+            <p className="text-[0.6875rem] text-ink-muted">{COMPANY_CONFIG.phoneDisplay}</p>
+          </a>
+        </div>
       </div>
 
-      <ul className="mt-6 sm:mt-8 space-y-2.5 sm:space-y-3 border-t border-border pt-4 sm:pt-6">
-        {reassurance.map(({ icon: Icon, label }) => (
-          <li key={label} className="flex items-center gap-2.5 text-xs sm:text-sm text-ink">
-            <Icon className="size-4 shrink-0 text-primary" aria-hidden />
-            {label}
-          </li>
-        ))}
-      </ul>
-
-      {/* Mobile Sticky Purchase Action Bar — ONLY visible when inline buttons scroll OUT of view */}
+      {/* Sticky purchase bar: appears once the inline buttons scroll out of view */}
       <div
-        className={`fixed inset-x-0 bottom-[calc(56px+env(safe-area-inset-bottom))] z-40 flex flex-col gap-1.5 border-t border-border/80 bg-white/95 p-2.5 backdrop-blur-md lg:hidden shadow-[0_-4px_20px_rgba(0,0,0,0.1)] transition-all duration-300 ${
-          showStickyBar
-            ? "translate-y-0 opacity-100 pointer-events-auto"
-            : "translate-y-full opacity-0 pointer-events-none"
+        className={`fixed inset-x-0 bottom-[calc(56px+env(safe-area-inset-bottom))] z-40 border-t border-border-strong/60 bg-white/95 p-2.5 shadow-[0_-8px_30px_-12px_rgba(36,19,29,0.3)] backdrop-blur-md transition-all duration-300 motion-reduce:transition-none lg:bottom-0 lg:p-3 ${
+          showStickyBar ? "translate-y-0 opacity-100 pointer-events-auto" : "translate-y-full opacity-0 pointer-events-none"
         }`}
       >
-        {product.inStock ? (
-          <>
-            <div className="flex items-center gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                aria-label={saved ? "Retirer des favoris" : "Ajouter aux favoris"}
-                aria-pressed={saved}
-                onClick={() => setSaved((current) => !current)}
-                className="shrink-0 rounded-xl h-10 w-10 border-border"
-              >
-                <Heart className={saved ? "fill-primary text-primary size-4" : "size-4"} />
-              </Button>
-              <Button
-                type="button"
-                size="lg"
-                variant={added ? "secondary" : "default"}
-                onClick={handleAdd}
-                className="flex-1 text-xs font-bold rounded-xl h-10 gap-1.5"
-              >
-                {added ? <Check className="size-4" /> : <ShoppingBag className="size-4" />}
-                {added ? "Ajouté" : "Ajouter au panier"}
-              </Button>
-            </div>
-            <Button
-              type="button"
-              size="lg"
-              onClick={handleOpenQuickOrder}
-              className="w-full bg-gradient-to-r from-[#d4a359] via-[#c89b3c] to-[#b88628] hover:from-[#c89b3c] hover:via-[#b88628] hover:to-[#a0741f] text-white font-extrabold text-xs gap-1.5 rounded-xl h-10 shadow-sm"
-            >
-              <Zap size={14} className="fill-white text-white" />
-              Acheter maintenant · {formatPrice(selected.priceMillimes * quantity)}
-            </Button>
-          </>
-        ) : (
-          <div className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="icon"
-              aria-label={saved ? "Retirer des favoris" : "Ajouter aux favoris"}
-              aria-pressed={saved}
-              onClick={() => setSaved((current) => !current)}
-              className="shrink-0 rounded-xl h-10 w-10 border-border"
-            >
-              <Heart className={saved ? "fill-primary text-primary size-4" : "size-4"} />
-            </Button>
-            <Button
-              type="button"
-              size="lg"
-              onClick={() => setDemanderOpen(true)}
-              className="flex-1 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-xl h-10 text-xs gap-1.5 shadow-sm"
-            >
-              <Mail size={15} />
-              Demander ce produit
-            </Button>
+        <div className="mx-auto flex max-w-[1280px] items-center gap-3 lg:px-5">
+          <span className="relative hidden size-12 shrink-0 overflow-hidden rounded-xl bg-muted/60 ring-1 ring-border/60 lg:block">
+            <Image src={product.image} alt="" fill sizes="48px" className="object-contain p-1" />
+          </span>
+          <div className="hidden min-w-0 flex-1 lg:block">
+            <p className="truncate text-sm font-extrabold text-foreground">{product.name}</p>
+            <p className="text-xs text-ink-muted">{product.brand}</p>
           </div>
-        )}
+          <div className="ms-auto flex flex-1 items-center gap-2 lg:flex-none">
+            <p className="hidden text-end lg:block">
+              <span className="block text-[0.625rem] font-bold uppercase tracking-wide text-ink-muted">Total</span>
+              <span className="font-tabular text-base font-extrabold text-foreground">{formatPrice(selected.priceMillimes * quantity)}</span>
+            </p>
+            {product.inStock ? (
+              <>
+                <button
+                  type="button"
+                  onClick={handleAdd}
+                  className={`flex h-11 flex-1 items-center justify-center gap-2 rounded-full px-6 text-xs font-extrabold uppercase tracking-wide transition-colors cursor-pointer lg:flex-none ${
+                    added ? "bg-secondary text-white" : "bg-primary text-primary-foreground hover:bg-primary-hover"
+                  }`}
+                >
+                  {added ? <Check className="size-4" aria-hidden /> : <ShoppingBag className="size-4" aria-hidden />}
+                  {added ? "Ajouté" : "Ajouter au panier"}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleOpenQuickOrder}
+                  className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full border border-border-strong bg-card px-5 text-xs font-bold text-foreground transition-colors hover:border-primary hover:text-primary cursor-pointer lg:flex-none"
+                >
+                  <Zap className="size-4" aria-hidden /> Commander
+                  <span className="hidden xl:inline"> maintenant</span>
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setDemanderOpen(true)}
+                className="flex h-11 flex-1 items-center justify-center gap-2 rounded-full bg-secondary px-6 text-xs font-extrabold uppercase tracking-wide text-white cursor-pointer lg:flex-none"
+              >
+                <Mail className="size-4" aria-hidden /> Demander ce produit
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Demander Modal */}
@@ -590,7 +578,7 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
               <form onSubmit={handleQuickOrderSubmit} className="space-y-4">
                 <div>
                   <div className="flex items-center gap-2">
-                    <Zap size={20} className="text-[#c89b3c] fill-[#c89b3c]" />
+                    <Zap size={20} className="text-primary fill-primary" />
                     <h3 className="text-xl font-serif font-bold text-ink">Commande Rapide 1-Clic</h3>
                   </div>
                   <p className="text-xs text-ink-muted mt-1">
@@ -632,9 +620,7 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
                   </div>
                   <div className="flex justify-between text-ink-muted font-medium">
                     <span>Frais de livraison (Tunisie) :</span>
-                    <span className="font-bold text-emerald-700">
-                      {deliveryFeeMillimes === 0 ? "OFFERT 🎉" : formatPrice(deliveryFeeMillimes)}
-                    </span>
+                    <span className="font-bold text-ink">{formatPrice(deliveryFeeMillimes)}</span>
                   </div>
                   <div className="flex justify-between border-t border-border/60 pt-2 text-sm font-black text-ink">
                     <span>Total à payer à la livraison :</span>
@@ -724,7 +710,7 @@ export function ProductPurchasePanel({ product, rating }: { product: ProductSumm
                   <Button
                     type="submit"
                     disabled={submitting}
-                    className="w-full h-12 rounded-xl bg-gradient-to-r from-[#d4a359] via-[#c89b3c] to-[#b88628] hover:from-[#c89b3c] hover:via-[#b88628] hover:to-[#a0741f] text-white font-extrabold text-sm gap-2 shadow-md transition-all active:scale-[0.98]"
+                    className="w-full h-12 rounded-xl bg-primary hover:bg-primary-hover text-white font-extrabold text-sm gap-2 shadow-md transition-all active:scale-[0.98]"
                   >
                     {submitting ? (
                       <>

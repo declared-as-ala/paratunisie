@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 import { MarquesPage } from "@/components/marques/marques-page";
-import { fetchBrands } from "@/lib/api/client";
+import { fetchBrandRayons, fetchBrands, fetchCategoryDepartments } from "@/lib/api/client";
 import { buildPageMetadata, buildBreadcrumbsSchema } from "@/lib/seo";
 
 export const metadata: Metadata = buildPageMetadata({
@@ -20,7 +20,8 @@ export const dynamic = "force-dynamic";
 export const revalidate = 0;
 
 export default async function MarquesRoute() {
-  const brands = await fetchBrands();
+  const [brands, rayons, departments] = await Promise.all([fetchBrands(), fetchBrandRayons(), fetchCategoryDepartments()]);
+  const categoryCount = departments.reduce((sum, d) => sum + d.children.length, 0);
   const breadcrumbJsonLd = buildBreadcrumbsSchema([
     { name: "Accueil", url: "/" },
     { name: "Marques", url: "/marques" },
@@ -34,7 +35,7 @@ export default async function MarquesRoute() {
           __html: JSON.stringify(breadcrumbJsonLd).replace(/</g, "\\u003c"),
         }}
       />
-      <MarquesPage initialBrands={brands} />
+      <MarquesPage brands={brands} rayons={rayons} categoryCount={categoryCount} />
     </>
   );
 }

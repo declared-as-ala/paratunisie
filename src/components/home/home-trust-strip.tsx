@@ -13,7 +13,7 @@ const TRUST_ITEMS = [
  */
 export function HomeTrustStrip() {
   return (
-    <section aria-label="Engagements et garanties ParaTunisie" className="bg-[#FAF7F5] py-3 sm:py-6">
+    <section aria-label="Engagements et garanties ParaTunisie" className="bg-[#FAF8F6] py-3 sm:py-6">
       <div className="mx-auto max-w-[1440px] px-3 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
           {TRUST_ITEMS.map(({ icon: Icon, title, text, ...rest }) => {

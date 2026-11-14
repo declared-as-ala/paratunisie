@@ -2,6 +2,37 @@
 
 Mandatory, updated after every meaningful development task (`CLAUDE.md` §15). Newest entry first.
 
+## 2026-11-14 — Deployed redesign; catalogue replaced by Sobitas (D-0033)
+
+- Deployed the new storefront to the production VPS (`/root/paratunisie`, `paratunisie-web` only); rollback image tags and source backups are in `/root/paratunisie-backups`.
+- Synced the catalogue with the live Sobitas database: 11,888 published products (4,766 updated in place, 7,122 created, 7 hidden), 24 new categories, 203 new brands. Dry run on a scratch DB first; backups taken before.
+- All 11,888 product images mirrored into MinIO (`paratunisie-media/products/`), 0 failures, public read policy on `products/*` only.
+- Meilisearch fully reindexed; `?q=` search works again.
+- Product page rebuilt (Protein.tn-style), mobile tab bar now Accueil/Boutique/Créatine/Whey/Mass Gainer, À la une hidden on mobile, account entries removed from navbar.
+- Not committed to git. `ops/ovh/sobitas-sync.cjs` is the sync script (run `db` then `images`).
+
+## 2026-11-13 (continued) — Protein.tn-style navbar and mega-menu, five homepage category carousels, fabricated ratings removed
+
+- **Navbar**: top bar (phone, WhatsApp, delivery policy from `COMPANY_CONFIG`), primary links Accueil / Boutique / Packs / Marques / Blog / Contact / Qui sommes nous (`src/lib/data/storefront-navigation.ts`), all pointing at existing routes.
+- **Mega-menu** (`mega-menu.tsx`, `mobile-menu.tsx`): six departments whose grouping is defined in code and whose category names, counts and three products each come from the catalogue via `fetchShopDepartments()` (fetched in the root layout, cached 5 minutes). Product strip is labelled "À découvrir dans ce rayon", not "Populaire", because the API has no sales-ranked sort per category.
+- **Homepage**: the ten category rows were replaced by five carousels in fixed order (Créatine, Whey Protéine, Mass Gainers, Vitamines, Pre-Workout) using `HomeProductCarousel` (native scroll-snap, arrow controls).
+- **Fabricated data removed** (`CLAUDE.md` §20): product cards showed five stars and a review count computed from the product ID; the "À la une" panel showed a default -15% badge, a crossed-out price of price × 1.18 and "(124 avis)". All removed; discount and compare-at price now show only with real sale data.
+- **Palette**: tokens moved to plum `#5A1B3D`, rose `#E91E63`, blush `#F8E7ED`, cream `#FAF8F6`, text `#24131D`.
+- **Catalogue source**: no new database connection was built. ParaTunisie's own Postgres already holds the imported Sobitas catalogue and serves it through `/api/v1`; the storefront reads only that API.
+- **Verified**: `tsc --noEmit` and `npm run lint` clean (0 errors); in the browser the mega-menu opens, switches department, closes on Escape, the Créatine carousel arrows scroll, and add-to-cart opens the cart drawer with the right product and price.
+- **Not done**: live search suggestions still return nothing because the production API's `q=` search returns zero results; no theme toggle; no mobile-viewport check; nothing committed or deployed.
+
+## 2026-11-13 — Homepage rebuilt live: real production data wired in, then identity repainted cream/plum/rose (D-0032)
+
+Implemented in the local dev environment (not yet committed — see D-0032):
+- **Live data, not mocks**: local API wasn't running, so `.env` now points `API_URL`/`NEXT_PUBLIC_API_URL` at `https://paratunisie.com/api/v1` (the real Sobitas-derived catalogue, already public). Fixed a latent bug in `resolveImageUrl` (`src/lib/api/client.ts`) that left product image `src`s root-relative — broken whenever the frontend's origin isn't the API's, which is exactly this setup; now resolved absolutely against `NEXT_PUBLIC_API_URL`'s origin.
+- **Homepage composition rebuilt**: removed the old category-icon strip, 3 promo banners, and fitness-split section; replaced with one row per real catalogue category (5 real products each, via the already-existing-but-unused `HomeCategoryRow` component), plus four new sections (`HomeUniverses`, `HomeGoals`, `HomeEssentials`, `HomeWellnessBanner`) backed by a new `fetchCategoryDepartments()` client function and category-filtered product fetches.
+- **Fixed two non-functional carousels**: `HomeFeaturedBrands` and `HomeBlogPreview` had scroll-button refs attached to non-scrolling CSS grids — clicking the arrows did nothing. Converted both to real horizontally-scrollable flex rows.
+- **Visual identity**: swapped twice this session — bold ink/orange (Unbounded/Hanken Grotesk) first, then cream/plum/rose editorial (Fraunces/Manrope) per the user's follow-up reference image and brief. All through the same CSS custom properties, not component-by-component rewrites.
+- **Verification**: `npx tsc --noEmit` and `npm run lint` both clean (0 errors) after all changes. Visually verified live in a real browser against the running `next dev` server — hero, universes, goals rail, essentials, wellness banner, category rows, trust strip, both carousels, and footer all confirmed rendering with real prices/images/counts.
+- **Known gap**: `/catalogue/products?q=...` (free-text search) returns zero results for every term tried against the live API — worked around by fetching per-category instead; not a frontend bug, needs backend/search-index investigation separately.
+- **Not done**: not committed to git, not deployed, no responsive screenshot pass below 1440px yet, hero has no lifestyle/model photo (deliberately not fabricated — see D-0032).
+
 ## 2026-10-14 (continued) — Corrected www-redirect root cause; added security headers, tap-target, robots.txt and logo fixes; merged 3 more specialist audits
 
 ### Correction to the entry below

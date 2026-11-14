@@ -48,7 +48,7 @@ export function HomeCategoryTiles({ rows }: { rows: HomepageCategoryRow[] }) {
   };
 
   return (
-    <section aria-labelledby="home-categories" className="bg-[#FAF7F5] py-4 sm:py-7">
+    <section aria-labelledby="home-categories" className="bg-[#FAF8F6] py-4 sm:py-7">
       <div className="mx-auto max-w-[1440px] px-3 sm:px-6 lg:px-8">
         <ul className="grid grid-cols-3 min-[380px]:grid-cols-4 sm:grid-cols-6 lg:grid-cols-12 gap-2.5 sm:gap-3.5">
           {CATEGORY_STRIP_ITEMS.map((item) => {
@@ -63,7 +63,7 @@ export function HomeCategoryTiles({ rows }: { rows: HomepageCategoryRow[] }) {
                 >
                   {/* Badge for special Anti-Stress tile */}
                   {item.badge && (
-                    <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-20 whitespace-nowrap rounded-full bg-gradient-to-r from-[#E11D48] to-[#BE123C] px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-white shadow-xs">
+                    <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-20 whitespace-nowrap rounded-full bg-gradient-to-r from-[#E91E63] to-[#C2185B] px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-white shadow-xs">
                       {item.badge}
                     </span>
                   )}
@@ -72,7 +72,7 @@ export function HomeCategoryTiles({ rows }: { rows: HomepageCategoryRow[] }) {
                   <span
                     className={`relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-2xl transition-all duration-300 group-hover:-translate-y-1 motion-reduce:transition-none ${
                       isSpecial
-                        ? "bg-white border-2 border-[#E11D48] shadow-[0_0_16px_rgba(225,29,72,0.35)] ring-2 ring-[#E11D48]/20"
+                        ? "bg-white border-2 border-[#E91E63] shadow-[0_0_16px_rgba(225,29,72,0.35)] ring-2 ring-[#E91E63]/20"
                         : "bg-white border border-border/80 shadow-2xs group-hover:border-primary/40 group-hover:shadow-[0_12px_24px_-10px_rgba(94,32,60,0.25)]"
                     }`}
                   >
@@ -89,7 +89,7 @@ export function HomeCategoryTiles({ rows }: { rows: HomepageCategoryRow[] }) {
 
                   {/* Category Label */}
                   {isSpecial ? (
-                    <span className="inline-block px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#E11D48] to-[#BE123C] text-[0.6875rem] sm:text-xs font-black text-white shadow-2xs">
+                    <span className="inline-block px-2.5 py-0.5 rounded-full bg-gradient-to-r from-[#E91E63] to-[#C2185B] text-[0.6875rem] sm:text-xs font-black text-white shadow-2xs">
                       {item.label}
                     </span>
                   ) : (

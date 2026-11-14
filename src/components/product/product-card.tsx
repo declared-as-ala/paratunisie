@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Check, Heart, Mail, Plus } from "lucide-react";
+import { Check, Heart, Mail, ShoppingBag } from "lucide-react";
 import { useCallback, useState } from "react";
 
 import { useCart } from "@/hooks/use-cart";
@@ -111,18 +111,6 @@ export function ProductCard({ product, priority = false, highlight }: ProductCar
             <Link href={href} className="transition-colors hover:text-primary">{product.name}</Link>
           </h3>
 
-          {/* Star Rating */}
-          <div className="mt-1 sm:mt-1.5 flex items-center gap-1 text-[10px] sm:text-[11px] text-amber-400">
-            <div className="flex items-center">
-              {[...Array(5)].map((_, i) => (
-                <span key={i} className="text-[11px] sm:text-xs">★</span>
-              ))}
-            </div>
-            <span className="text-[0.625rem] sm:text-[0.6875rem] font-medium text-ink-muted">
-              ({(product.id.charCodeAt(product.id.length - 1) % 40) + 45})
-            </span>
-          </div>
-
           <div className="mt-auto pt-2 sm:pt-2.5">
             <div className="flex flex-wrap items-baseline gap-x-1.5 gap-y-0.5">
               <span className="whitespace-nowrap font-tabular text-xs min-[375px]:text-sm sm:text-base font-black tracking-tight text-primary">
@@ -131,10 +119,6 @@ export function ProductCard({ product, priority = false, highlight }: ProductCar
               {product.regularPriceMillimes && isAvailable ? (
                 <span className="whitespace-nowrap font-tabular text-[0.625rem] sm:text-[0.6875rem] text-ink-muted line-through">
                   {formatPrice(product.regularPriceMillimes)}
-                </span>
-              ) : discountPercent > 0 ? (
-                <span className="whitespace-nowrap font-tabular text-[0.625rem] sm:text-[0.6875rem] text-ink-muted line-through">
-                  {formatPrice(Math.round(currentPriceMillimes * 1.18))}
                 </span>
               ) : null}
             </div>
@@ -145,10 +129,10 @@ export function ProductCard({ product, priority = false, highlight }: ProductCar
                 type="button"
                 onClick={handleAdd}
                 aria-label={added ? `${product.name} déjà dans le panier` : `Ajouter ${product.name} au panier`}
-                className={`mt-2.5 flex h-9 sm:h-10 w-full items-center justify-center gap-1.5 rounded-xl text-xs font-bold transition-all active:scale-[0.98] cursor-pointer ${
+                className={`group/add mt-2.5 flex h-10 w-full items-center justify-center gap-2 rounded-full text-[0.8125rem] font-bold tracking-wide transition-all duration-200 active:scale-[0.97] cursor-pointer motion-reduce:transition-none sm:h-11 ${
                   added
-                    ? "bg-emerald-600 text-white shadow-2xs"
-                    : "bg-primary text-white hover:bg-primary-hover shadow-2xs hover:shadow-xs"
+                    ? "bg-secondary text-white ring-1 ring-secondary"
+                    : "bg-primary text-white shadow-[0_10px_22px_-12px_rgba(233,30,99,0.9)] hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-[0_14px_26px_-12px_rgba(233,30,99,0.95)]"
                 }`}
               >
                 {added ? (
@@ -158,8 +142,8 @@ export function ProductCard({ product, priority = false, highlight }: ProductCar
                   </>
                 ) : (
                   <>
-                    <Plus size={14} strokeWidth={2.5} />
-                    <span>Ajouter</span>
+                    <ShoppingBag size={15} strokeWidth={2.25} className="transition-transform duration-200 group-hover/add:-rotate-6" />
+                    <span>Ajouter au panier</span>
                   </>
                 )}
               </button>

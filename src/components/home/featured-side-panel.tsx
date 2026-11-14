@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ChevronRight, Flame, Heart, Star } from "lucide-react";
+import { ArrowRight, Flame, Heart } from "lucide-react";
 
-import { formatPrice, type ProductSummary } from "@/lib/data/products";
+import { formatPrice } from "@/lib/data/products";
 import type { FeaturedProduct } from "@/lib/api/client";
 import { FeaturedActions, FeaturedImpression, TrackedLink } from "@/components/home/featured-product-actions";
 
@@ -13,15 +13,12 @@ import { FeaturedActions, FeaturedImpression, TrackedLink } from "@/components/h
  */
 export function FeaturedSidePanel({
   featured,
-  bestSellers,
 }: {
   featured: FeaturedProduct;
-  bestSellers: ProductSummary[];
 }) {
   const { product, config } = featured;
   const title = config.headline || product.name;
   const inStock = product.inStock !== false;
-  const others = bestSellers.filter((p) => p.id !== product.id).slice(0, 3);
 
   // Discount calculation
   const hasSale = Boolean(
@@ -30,30 +27,32 @@ export function FeaturedSidePanel({
   );
   const discountPercent = hasSale && product.regularPriceMillimes
     ? Math.round(((product.regularPriceMillimes - product.priceMillimes) / product.regularPriceMillimes) * 100)
-    : 15; // default promo indication matching reference
+    : 0;
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-3xl border border-border/80 bg-white shadow-[0_20px_50px_-25px_rgba(94,32,60,0.35)]">
+    <div className="flex h-full flex-col overflow-hidden rounded-[2rem] bg-white shadow-[0_30px_70px_-40px_rgba(90,27,61,0.45)] ring-1 ring-border/60">
       {/* ── Header: À LA UNE ────────────────────────────────────────────── */}
-      <div className="flex items-center justify-between border-b border-border/70 bg-[#FAF7F5] px-5 py-3">
-        <div className="flex items-center gap-1.5 text-primary font-bold text-xs uppercase tracking-wider">
-          <Flame size={15} className="text-red-500 fill-red-500" aria-hidden />
+      <div className="flex items-center justify-between bg-secondary px-5 py-3.5 text-white">
+        <div className="flex items-center gap-2 font-bold text-xs uppercase tracking-[0.16em]">
+          <Flame size={15} className="fill-primary text-primary" aria-hidden />
           <span>À LA UNE</span>
         </div>
-        <span className="text-[0.625rem] font-bold uppercase tracking-[0.16em] text-ink-muted/80">
+        <span className="text-[0.625rem] font-bold uppercase tracking-[0.16em] text-white/70">
           PRODUIT DU MOMENT
         </span>
       </div>
 
       {/* ── Main Featured Product Card ──────────────────────────────────── */}
       <FeaturedImpression product={product}>
-        <div className="p-3.5 sm:p-5">
+        <div className="p-3.5 sm:p-4">
           {/* Image Container with Badges */}
-          <div className="relative aspect-[16/10] sm:aspect-[16/9] lg:aspect-[4/3] w-full overflow-hidden rounded-2xl bg-gradient-to-b from-[#FAF7F5] to-[#F3ECE8] p-2.5 sm:p-3">
+          <div className="relative aspect-[16/10] sm:aspect-[16/9] lg:aspect-[16/10] w-full overflow-hidden rounded-3xl bg-primary-soft/60 p-3 sm:p-4">
             {/* Discount Badge */}
-            <span className="absolute start-2.5 top-2.5 z-10 rounded-full bg-red-600 px-2 py-0.5 text-[0.625rem] font-bold text-white shadow-2xs">
-              -{discountPercent}%
-            </span>
+            {discountPercent > 0 && (
+              <span className="absolute start-2.5 top-2.5 z-10 rounded-full bg-primary px-2 py-0.5 text-[0.625rem] font-bold text-white shadow-2xs">
+                -{discountPercent}%
+              </span>
+            )}
 
             {/* Wishlist Heart */}
             <button
@@ -77,7 +76,7 @@ export function FeaturedSidePanel({
                 alt={product.imageAlt || `${product.name} — ${product.brand}`}
                 fill
                 priority
-                sizes="360px"
+                sizes="(max-width: 1024px) 90vw, 400px"
                 className="object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none"
               />
             </TrackedLink>
@@ -89,7 +88,7 @@ export function FeaturedSidePanel({
           </p>
 
           {/* Product Title */}
-          <h3 className="mt-0.5 line-clamp-1 text-base font-bold text-ink">
+          <h3 className="mt-1 line-clamp-2 font-serif text-lg font-semibold leading-snug text-ink">
             <TrackedLink
               href={`/produits/${product.slug}`}
               product={product}
@@ -105,34 +104,20 @@ export function FeaturedSidePanel({
             {product.benefit || "Protéine premium pour la prise de masse et la récupération musculaire."}
           </p>
 
-          {/* Star Rating */}
-          <div className="mt-2 flex items-center gap-1.5 text-xs text-amber-500">
-            <div className="flex items-center text-amber-400">
-              {[...Array(5)].map((_, i) => (
-                <Star key={i} size={13} className="fill-amber-400 text-amber-400" />
-              ))}
-            </div>
-            <span className="text-[0.6875rem] font-medium text-ink-muted">(124 avis)</span>
-          </div>
-
           {/* Price & Stock Availability */}
           <div className="mt-3 flex items-baseline justify-between gap-2">
             <div className="flex items-baseline gap-2">
-              <span className="font-tabular text-xl sm:text-2xl font-black tracking-tight text-primary">
+              <span className="font-tabular text-2xl sm:text-3xl font-black tracking-tight text-primary">
                 {formatPrice(product.priceMillimes)}
               </span>
-              {product.regularPriceMillimes ? (
+              {hasSale && product.regularPriceMillimes ? (
                 <span className="font-tabular text-xs text-ink-muted/70 line-through">
                   {formatPrice(product.regularPriceMillimes)}
                 </span>
-              ) : (
-                <span className="font-tabular text-xs text-ink-muted/70 line-through">
-                  {formatPrice(Math.round(product.priceMillimes * 1.18))}
-                </span>
-              )}
+              ) : null}
             </div>
 
-            <span className={`inline-flex items-center gap-1 text-xs font-bold ${inStock ? "text-emerald-600" : "text-amber-600"}`}>
+            <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold ${inStock ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
               <span className={`size-1.5 rounded-full ${inStock ? "bg-emerald-500" : "bg-amber-500"}`} aria-hidden />
               {inStock ? "En stock" : "Indisponible"}
             </span>
@@ -156,51 +141,10 @@ export function FeaturedSidePanel({
         </div>
       </FeaturedImpression>
 
-      {/* ── 3 Smaller Featured Products ─────────────────────────────────── */}
-      {others.length > 0 && (
-        <ul className="mt-auto border-t border-border/70 divide-y divide-border/60 bg-white">
-          {others.map((p) => (
-            <li key={p.id}>
-              <Link
-                href={`/produits/${p.slug}`}
-                className="group flex items-center gap-3 px-4 py-2.5 transition-colors hover:bg-soft-nude/40"
-              >
-                {/* Thumbnail */}
-                <span className="relative size-12 shrink-0 overflow-hidden rounded-xl bg-[#FAF7F5] p-1 border border-border/60">
-                  <Image
-                    src={p.image}
-                    alt={p.name}
-                    fill
-                    sizes="48px"
-                    className="object-contain mix-blend-multiply group-hover:scale-105 transition-transform"
-                  />
-                </span>
-
-                {/* Details */}
-                <div className="min-w-0 flex-1">
-                  <p className="line-clamp-1 text-xs font-semibold text-ink group-hover:text-primary transition-colors">
-                    {p.name}
-                  </p>
-                  <p className="mt-0.5 font-tabular text-xs font-bold text-primary">
-                    {formatPrice(p.priceMillimes)}
-                  </p>
-                </div>
-
-                <ChevronRight
-                  size={15}
-                  className="shrink-0 text-ink-muted transition-transform group-hover:translate-x-0.5"
-                  aria-hidden
-                />
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-
       {/* ── Footer Link: Voir toute la boutique ─────────────────────────── */}
       <Link
         href="/shop"
-        className="flex items-center justify-center gap-1.5 border-t border-border/70 bg-[#FAF7F5]/80 px-4 py-3 text-xs font-bold text-primary hover:text-primary-hover hover:underline transition-colors"
+        className="flex items-center justify-center gap-1.5 border-t border-border/70 bg-primary-soft/50 px-4 py-3.5 text-xs font-bold text-primary hover:text-primary-hover transition-colors"
       >
         <span>Voir toute la boutique</span>
         <ArrowRight size={14} aria-hidden />

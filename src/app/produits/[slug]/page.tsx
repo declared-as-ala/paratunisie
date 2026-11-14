@@ -3,8 +3,6 @@ import { notFound, permanentRedirect } from "next/navigation";
 
 import { ProductDetailView } from "@/components/product/product-detail-view";
 import { ProductRichText } from "@/components/product/product-rich-text";
-import { WheyLandingPageView } from "@/components/landing/whey-landing-page";
-import { WHEY_LANDING_SLUG } from "@/lib/landing";
 import type { ProductSummary } from "@/lib/data/products";
 import {
   getRoutineCompletionProducts,
@@ -13,7 +11,6 @@ import {
 } from "@/lib/data/products";
 import {
   fetchProductBySlug,
-  fetchLandingProduct,
   type ProductRating,
   type PublicReview,
   fetchProductRating,
@@ -114,36 +111,6 @@ export default async function ProductPage({
     const redirect = await fetchSeoRedirect(`/produits/${slug}`);
     if (redirect) permanentRedirect(redirect);
     notFound();
-  }
-
-  /* Direct-order landing layout for the advertised product only. Same URL, same metadata, same schema. */
-  if (slug === WHEY_LANDING_SLUG) {
-    const [landing, reviews, rating] = await Promise.all([
-      fetchLandingProduct(slug),
-      fetchProductReviews(product.id),
-      fetchProductRating(product.id),
-    ]);
-    if (landing) {
-      return (
-        <>
-          {productSchemas(product, rating, reviews)}
-          <WheyLandingPageView
-            product={landing}
-            reviews={reviews}
-            rating={rating}
-            seoSection={
-              hasDistinctSeoContent(product.description, product.seoContent) ? (
-                <section className="rounded-3xl border border-[var(--lp-line)] bg-white p-5 sm:p-7">
-                  <h2 className="text-lg font-extrabold text-[var(--lp-deep)]">À propos de {product.name}</h2>
-                  <ProductRichText content={product.seoContent!} className="mt-3 text-sm leading-7 text-[var(--lp-ink)]/80" />
-                </section>
-              ) : null
-            }
-          />
-        </>
-      );
-    }
-    // Landing data unavailable: fall through to the regular product page.
   }
 
   /* Fetch all products for "similar" and "routine completion" rails */

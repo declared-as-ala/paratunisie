@@ -35,7 +35,7 @@ export function HomeCategoryRow({
       <section aria-labelledby={`row-${row.key}`} className={`py-10 sm:py-14 ${bgClass}`}>
         <div className="mx-auto grid max-w-[1440px] gap-5 px-4 sm:px-6 lg:grid-cols-[22rem_1fr] lg:gap-8 lg:px-8">
           <div
-            className={`relative flex flex-col justify-end overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-[#6a2848] to-[#3f1329] p-6 text-primary-foreground sm:p-8 lg:min-h-[28rem] ${flip ? "lg:order-2" : ""}`}
+            className={`relative flex flex-col justify-end overflow-hidden rounded-3xl bg-gradient-to-br from-primary via-[#AD1457] to-secondary p-6 text-primary-foreground sm:p-8 lg:min-h-[28rem] ${flip ? "lg:order-2" : ""}`}
           >
             <div aria-hidden className="pointer-events-none absolute -end-16 -top-16 size-56 rounded-full bg-white/10 blur-2xl" />
             {eyebrow && <p className="relative text-[0.6875rem] font-semibold uppercase tracking-[0.2em] text-white/70">{eyebrow}</p>}

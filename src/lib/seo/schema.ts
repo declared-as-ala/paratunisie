@@ -214,9 +214,9 @@ export function buildProductSchema(product: ProductSchemaInput) {
       hasMerchantReturnPolicy: {
         "@type": "MerchantReturnPolicy",
         returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
-        merchantReturnDays: 3,
-        returnMethod: "https://schema.org/ReturnByMail",
-        returnFees: "https://schema.org/FreeReturn",
+        // Mirrors /retours: 7 days from reception. The page does not say who pays return shipping or how
+        // the parcel travels, so returnFees and returnMethod are deliberately omitted (SEO-005).
+        merchantReturnDays: 7,
       },
       shippingDetails: {
         "@type": "OfferShippingDetails",

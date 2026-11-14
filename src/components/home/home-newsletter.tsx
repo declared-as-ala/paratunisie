@@ -46,7 +46,7 @@ export function HomeNewsletter() {
   };
 
   return (
-    <section aria-labelledby="home-newsletter-heading" className="bg-[#FAF7F5] py-8 sm:py-12">
+    <section aria-labelledby="home-newsletter-heading" className="bg-[#FAF8F6] py-8 sm:py-12">
       <div className="mx-auto max-w-[1440px] px-3 sm:px-6 lg:px-8">
         <div className="rounded-3xl border border-border/80 bg-gradient-to-br from-[#FAF3F0] to-[#F5ECE8] p-6 sm:p-10 lg:p-12 shadow-2xs">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 lg:gap-12">

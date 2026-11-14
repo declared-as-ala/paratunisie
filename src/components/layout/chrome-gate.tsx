@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 
-import { WHEY_LANDING_PATH, PACK_ANTI_STRESS_PATH } from "@/lib/landing";
+import { PACK_ANTI_STRESS_PATH } from "@/lib/landing";
 
 /**
  * Direct-order landing pages render their own minimal chrome.
@@ -13,8 +13,6 @@ import { WHEY_LANDING_PATH, PACK_ANTI_STRESS_PATH } from "@/lib/landing";
 export function ChromeGate({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isLanding =
-    pathname === WHEY_LANDING_PATH ||
-    pathname.startsWith(`${WHEY_LANDING_PATH}/`) ||
     pathname === PACK_ANTI_STRESS_PATH ||
     pathname.startsWith(`${PACK_ANTI_STRESS_PATH}/`);
 

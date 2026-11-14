@@ -2,6 +2,29 @@
 
 Only significant architectural/product/design decisions are logged here — not trivial choices (`CLAUDE.md` §15).
 
+## D-0033 — Catalogue replaced with the live Sobitas (protein.tn) catalogue; images mirrored to MinIO
+
+**Date:** 2026-11-14
+**Decision:** At the owner's explicit request the ParaTunisie catalogue was synchronised with the live Sobitas database (`protein_db`, MySQL on the same VPS) using `ops/ovh/sobitas-sync.cjs`. Existing products were matched by variant SKU (= Sobitas product id; 4,743) then by slug (23) and updated in place, so orders, reviews and article links survive. 7,122 products were created, giving 11,888 published products (Sobitas publishes 11,888; only 164 are in stock). The 7 ParaTunisie-only products were set to DRAFT, not deleted. 24 Sobitas subcategories and 203 brands that did not exist were created (under the existing "Nutrition Sportive" / "Compléments Alimentaires" roots); other categories were matched by slug, with `mass-gainers` merged into `gainers-proteines`. Existing slugs, SEO fields and `indexable` flags were kept; new products are `indexable=false` until SEO copy exists.
+Sobitas copy speaks as protein.tn, so descriptions are rebranded to ParaTunisie and any line making protein.tn-only claims (free delivery from 300 DT, the Sousse shop, protein.tn phone numbers, "URL canonique") is dropped (CLAUDE.md §20, policy is a flat 7 DT).
+Images: every published product's image (11.5k are iHerb CDN hotlinks) is downloaded and stored in the MinIO bucket `paratunisie-media` under `products/<slug>.<ext>`, and the product/image URLs point at `https://paratunisie.com/paratunisie-media/products/...`. The bucket had no public-read policy, so one was added for the `products/*` prefix only.
+**Backups before the change:** `/root/paratunisie-backups/db-before-sobitas-sync-*.dump`, `db-pre-apply-*.dump`, `uploads-before-*.tgz`. The dry run was executed on a restored scratch database first.
+**Risk:** the iHerb images are third-party content now stored on our own storage; rights are the owner's call (see `EXTERNAL_IMAGE_RIGHTS_REQUIRED.md`).
+**Side effect:** a full Meilisearch reindex fixed the previously empty `?q=` search.
+
+---
+
+## D-0032 — Homepage visual identity replaced again: cream/plum/rose editorial direction
+
+**Date:** 2026-11-13
+**Decision:** Replaced the homepage's visual identity a second time within the same session — from the earlier bold ink (#10151A) + orange (#FF5A1F) + Unbounded/Hanken Grotesk direction to a warm-cream (#FBF8F5) + deep-plum (#401528) + rose-accent (#D94F75) editorial direction, typeset in Fraunces (serif display) + Manrope (UI sans). Repointed the same design tokens (`--background`, `--foreground`, `--primary`, `--primary-soft`, `--secondary`, `--font-sans`, `--font-serif`) in `globals.css`/`layout.tsx` rather than inventing new ones, so every already-token-driven component (header, footer, trust strip, brand carousel, blog carousel, category rows) re-themed automatically; only components with hardcoded hex literals from the previous pass needed a mechanical find/replace.
+Added four new homepage sections matching the new IA spec, all wired to real, currently-live catalogue data (no fabricated copy, counts, or product data): `HomeUniverses` ("Deux univers, un même objectif : vous.") using a new `fetchCategoryDepartments()` API client function that derives the two real top-level departments (Nutrition Sportive, Compléments Alimentaires) with live subcategory/product counts, filtering out four single-product orphan "root" categories (EAA, Beta-Alanine, Citrulline, Boosters) that have no children; `HomeGoals` ("Shoppez selon votre objectif.") linking to real, already-indexed category routes only (`/creatine`, `/pre-workout`, `/sommeil-stress`, `/plantes-et-herbes`), plus a popular-subcategories pill rail with live counts; `HomeEssentials` ("Les essentiels du moment.") and `HomeWellnessBanner` ("Votre routine. Votre équilibre."), both populated by category-filtered catalogue fetches (not the `q=` free-text search endpoint, which returns zero results for every query tried against the live API — flagged as a product-data issue for the API team, not routed around with mock data).
+Rebuilt `HomeHero` as an editorial split layout (blush product panel left, headline/CTA right) instead of the previous full-bleed dark panel. No lifestyle/model photography was sourced or fabricated for the hero's photo slot — the brief's reference image included a photo of a person, which this change deliberately omits per `CLAUDE.md` §20; a licensed photo can be dropped in later.
+**Reason:** User supplied a new ChatGPT-generated reference image and a detailed implementation brief requesting this specific palette, typography, and information architecture, explicitly authorizing a full identity replacement (second one this session) and a lifestyle-photography treatment this session will not fabricate.
+**Consequence:** The bold ink/orange identity from earlier this session (and its own now-superseded D-level rationale, never separately logged) lasted roughly one working session. Three full homepage visual identities have now existed in git history within days of each other (original rose-plum → ink/orange → cream/plum/rose). Not yet committed to git — left as working-tree changes pending the user's review and explicit commit instruction, per `CLAUDE.md` §0 and this session's standing "don't commit without being asked" practice.
+
+---
+
 ## D-0031 — Growth Sprint 2 (pre-existing uncommitted work) reviewed and integrated into git history
 
 **Date:** 2026-10-14

@@ -18,7 +18,7 @@ export async function HomeSplitFeature() {
     name: product.name, subtitle: `${product.brand} - ${product.size}`, price: formatPrice(product.priceMillimes), image: product.image, href: `/produits/${product.slug}`,
   }));
   return (
-    <section className="bg-gradient-to-b from-[#FAF7F5]/80 via-white to-background py-20 sm:py-24 border-y border-border/70">
+    <section className="bg-gradient-to-b from-[#FAF8F6]/80 via-white to-background py-20 sm:py-24 border-y border-border/70">
       <div className="mx-auto max-w-[1440px] px-4 md:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Column: Editorial Brand Story & Bullet Points (5 cols) */}

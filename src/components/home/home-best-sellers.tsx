@@ -24,7 +24,7 @@ export function HomeBestSellers({ items }: { items: ProductSummary[] }) {
   };
 
   return (
-    <section aria-labelledby="home-best-sellers" className="bg-[#FAF7F5] py-8 sm:py-12">
+    <section aria-labelledby="home-best-sellers" className="bg-[#FAF8F6] py-8 sm:py-12">
       <div className="mx-auto max-w-[1440px] px-3 sm:px-6 lg:px-8">
         
         {/* ── Section Header ────────────────────────────────────────────── */}

@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
-import { HomePage } from "@/components/home/home-page";
-import { fetchBestSellers, fetchFeaturedProduct, fetchHomepageCategoryRows } from "@/lib/api/client";
+import { HomePage, type HomeCollection } from "@/components/home/home-page";
+import {
+  fetchBestSellers,
+  fetchBrands,
+  fetchCategoryDepartments,
+  fetchFeaturedProduct,
+  fetchPaginatedProducts,
+  fetchShopDepartments,
+} from "@/lib/api/client";
 import { buildCanonicalUrl } from "@/lib/seo/canonical";
 import { articles } from "@/lib/data/articles";
 
@@ -25,20 +32,75 @@ export const metadata: Metadata = {
 };
 
 export default async function Home() {
-  const [categoryRows, featured, bestSellers] = await Promise.all([
-    fetchHomepageCategoryRows(),
-    fetchFeaturedProduct(),
-    fetchBestSellers(10),
-  ]);
+  const list = (category: string, limit: number) => fetchPaginatedProducts({ category, limit }).then((r) => r.products);
 
-  const recentArticles = articles.slice(0, 4);
+  const [featured, bestSellers, departments, shopDepartments, brands, creatine, whey, isolate, gainers, vitamines, preWorkout] =
+    await Promise.all([
+      fetchFeaturedProduct(),
+      fetchBestSellers(10),
+      fetchCategoryDepartments(),
+      fetchShopDepartments(),
+      fetchBrands(),
+      list("creatine", 8),
+      list("whey-proteine", 5),
+      list("whey-isolate", 3),
+      list("gainers-proteines", 8),
+      list("vitamines", 8),
+      list("pre-workout", 8),
+    ]);
+
+  const collections: HomeCollection[] = [
+    {
+      id: "home-creatine",
+      title: "Créatine",
+      accent: "Force & Performance",
+      subtitle: "Monohydrate micronisée et formules avancées, des marques de référence.",
+      href: "/creatine",
+      products: creatine,
+    },
+    {
+      id: "home-whey",
+      title: "Whey Protéine",
+      accent: "Nutrition & Récupération",
+      subtitle: "Concentrées et isolates pour compléter vos apports en protéines.",
+      href: "/whey-proteine",
+      products: [...whey, ...isolate],
+    },
+    {
+      id: "home-gainers",
+      title: "Mass Gainers",
+      accent: "Prise de Masse",
+      subtitle: "Formules riches en calories et en protéines pour accompagner votre prise de masse.",
+      href: "/gainers-proteines",
+      products: gainers,
+    },
+    {
+      id: "home-vitamines",
+      title: "Vitamines",
+      accent: "Vitalité au quotidien",
+      subtitle: "Vitamines C, D3 et multivitamines pour votre routine de tous les jours.",
+      href: "/vitamines",
+      products: vitamines,
+    },
+    {
+      id: "home-pre-workout",
+      title: "Pre-Workout",
+      accent: "Énergie & Intensité",
+      subtitle: "Boosters à prendre avant la séance, à choisir selon votre tolérance aux stimulants.",
+      href: "/pre-workout",
+      products: preWorkout,
+    },
+  ];
 
   return (
     <HomePage
-      categoryRows={categoryRows}
+      collections={collections}
       featured={featured}
       bestSellers={bestSellers}
-      articles={recentArticles}
+      articles={articles.slice(0, 5)}
+      departments={departments}
+      shopDepartments={shopDepartments}
+      brands={brands}
     />
   );
 }

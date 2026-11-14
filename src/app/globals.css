@@ -13,7 +13,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-inter);
-  --font-serif: var(--font-fraunces);
+  --font-serif: var(--font-archivo);
   --font-heading: var(--font-serif);
   --color-ring: var(--ring);
   --color-input: var(--input);
@@ -78,30 +78,30 @@
 
 :root {
   /* Surfaces */
-  --background: #fcf8f6; /* warm ivory */
-  --foreground: #2b2326; /* deep cocoa */
+  --background: #faf8f6; /* warm cream */
+  --foreground: #24131d; /* deep plum/ink */
   --card: #ffffff;
-  --card-foreground: #2b2326;
+  --card-foreground: #24131d;
   --popover: #ffffff;
-  --popover-foreground: #2b2326;
+  --popover-foreground: #24131d;
 
   /* Brand */
-  --primary: #7b2f52; /* deep rose plum */
-  --primary-hover: #5e203c;
-  --primary-soft: #ead2dc;
-  --primary-foreground: #fcf8f6;
-  --brand-dusty-rose: #c98fa8;
-  --brand-blush: #ead2dc;
-  --brand-champagne: #c8a46b;
+  --primary: #e91e63; /* rose accent */
+  --primary-hover: #c2185b;
+  --primary-soft: #f8e7ed; /* blush panel */
+  --primary-foreground: #ffffff;
+  --brand-dusty-rose: #e91e63;
+  --brand-blush: #f8e7ed;
+  --brand-champagne: #5a1b3d;
 
-  /* Secondary / muted / accent (shadcn generic roles, tinted warm) */
-  --secondary: #c98fa8; /* dusty rose */
-  --secondary-foreground: #2b2326;
-  --soft-nude: #f5ece8;
-  --muted: #f5ece8;
-  --muted-foreground: #716268;
-  --accent: #c8a46b; /* champagne gold */
-  --accent-foreground: #2b2326;
+  /* Secondary / muted / accent (shadcn generic roles) */
+  --secondary: #5a1b3d; /* deep plum, used for dark blocks/CTAs */
+  --secondary-foreground: #ffffff;
+  --soft-nude: #f8e7ed;
+  --muted: #f3ece7;
+  --muted-foreground: #705660;
+  --accent: #5a1b3d;
+  --accent-foreground: #ffffff;
 
   /* State */
   --destructive: #b3402c;
@@ -117,39 +117,39 @@
   --success-bg: #eaf3ee;
 
   /* Structure */
-  --border: #e7d9d5;
-  --border-strong: #d4c4bf;
-  --input: #e7d9d5;
-  --ring: #c98fa8;
+  --border: #ecdfe2;
+  --border-strong: #ddc7cd;
+  --input: #ecdfe2;
+  --ring: #e91e63;
   --radius: 0.5rem;
 
   /* Text scale */
-  --ink-faint: #a89a9f;
+  --ink-faint: #a3899a;
 }
 
 .dark {
-  --background: #251c20;
-  --foreground: #fcf8f6;
-  --card: #32252b;
-  --card-foreground: #fcf8f6;
-  --popover: #32252b;
-  --popover-foreground: #fcf8f6;
+  --background: #2b0f1c;
+  --foreground: #fbf8f5;
+  --card: #5A1B3D;
+  --card-foreground: #fbf8f5;
+  --popover: #5A1B3D;
+  --popover-foreground: #fbf8f5;
 
-  --primary: #e0acc0;
-  --primary-hover: #efc8d7;
-  --primary-soft: #6a4555;
-  --primary-foreground: #2b2326;
-  --brand-dusty-rose: #c98fa8;
-  --brand-blush: #6a4555;
-  --brand-champagne: #d8b980;
+  --primary: #d94f75;
+  --primary-hover: #e87a97;
+  --primary-soft: #4a1e33;
+  --primary-foreground: #ffffff;
+  --brand-dusty-rose: #fbf8f5;
+  --brand-blush: #4a1e33;
+  --brand-champagne: #d94f75;
 
-  --secondary: #49343d;
-  --secondary-foreground: #fcf8f6;
-  --soft-nude: #34272d;
-  --muted: #49343d;
-  --muted-foreground: #cbbbc1;
-  --accent: #5a3b49;
-  --accent-foreground: #fcf8f6;
+  --secondary: #4a1e33;
+  --secondary-foreground: #fbf8f5;
+  --soft-nude: #5A1B3D;
+  --muted: #4a1e33;
+  --muted-foreground: #cbb3bf;
+  --accent: #4a1e33;
+  --accent-foreground: #fbf8f5;
 
   --destructive: #d97158;
   --destructive-foreground: #251c20;
@@ -163,13 +163,13 @@
   --success-foreground: #251c20;
   --success-bg: #1e332a;
 
-  --border: rgba(252, 248, 246, 0.14);
-  --border-strong: rgba(252, 248, 246, 0.22);
-  --input: rgba(252, 248, 246, 0.18);
-  --ring: #c98fa8;
+  --border: rgba(251, 248, 245, 0.14);
+  --border-strong: rgba(251, 248, 245, 0.22);
+  --input: rgba(251, 248, 245, 0.18);
+  --ring: #d94f75;
 
   /* Text scale */
-  --ink-faint: #8d7d83;
+  --ink-faint: #8d7482;
 }
 
 @layer base {

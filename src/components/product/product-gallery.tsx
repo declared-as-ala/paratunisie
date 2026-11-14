@@ -2,11 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ZoomIn, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 import Image from "next/image";
 
-export function ProductGallery({ image, alt }: { image: string; alt: string }) {
+export function ProductGallery({ image, alt, badge }: { image: string; alt: string; badge?: string }) {
   const [imgSrc, setImgSrc] = useState(image || "/assets/product-unavailable.svg");
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -19,7 +18,7 @@ export function ProductGallery({ image, alt }: { image: string; alt: string }) {
       <button
         type="button"
         onClick={() => dialogRef.current?.showModal()}
-        className="group relative flex aspect-square w-full max-h-[320px] sm:max-h-[420px] lg:max-h-[560px] items-center justify-center overflow-hidden rounded-2xl bg-white border border-border/80 shadow-xs focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:outline-none cursor-zoom-in"
+        className="group relative block aspect-square w-full overflow-hidden rounded-3xl bg-white ring-1 ring-border-strong/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary cursor-zoom-in"
         aria-label={`Agrandir l'image : ${alt}`}
       >
         <Image
@@ -28,14 +27,20 @@ export function ProductGallery({ image, alt }: { image: string; alt: string }) {
           fill
           priority
           fetchPriority="high"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 560px"
-          className="object-contain p-4 sm:p-6 transition-transform duration-[var(--duration-large)] ease-[var(--ease-out-standard)] group-hover:scale-105"
+          sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 620px"
+          className="object-contain p-6 sm:p-10 transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none"
           onError={() => setImgSrc("/assets/product-unavailable.svg")}
         />
-        <span className="absolute end-3 bottom-3 sm:end-4 sm:bottom-4 z-10 flex size-9 sm:size-11 items-center justify-center rounded-full bg-white/90 backdrop-blur-xs text-ink shadow-sm border border-border/60">
-          <ZoomIn className="size-4 sm:size-5" aria-hidden />
+        <span className="absolute end-4 bottom-4 z-10 inline-flex h-10 items-center gap-2 rounded-full bg-white px-4 text-xs font-bold text-foreground shadow-sm ring-1 ring-border-strong/60">
+          <ZoomIn className="size-4" aria-hidden />
+          Agrandir
         </span>
       </button>
+      {badge && (
+        <span className="pointer-events-none absolute start-4 top-4 z-10 rounded-full bg-primary px-3 py-1.5 text-xs font-extrabold text-white shadow-sm">
+          {badge}
+        </span>
+      )}
 
       <dialog
         ref={dialogRef}
@@ -54,16 +59,14 @@ export function ProductGallery({ image, alt }: { image: string; alt: string }) {
             onError={() => setImgSrc("/assets/product-unavailable.svg")}
           />
         </div>
-        <Button
+        <button
           type="button"
-          variant="secondary"
-          size="icon-lg"
           aria-label="Fermer l'aperçu"
           onClick={() => dialogRef.current?.close()}
-          className="absolute end-4 top-4 rounded-full"
+          className="absolute end-4 top-4 flex size-11 items-center justify-center rounded-full bg-muted text-foreground hover:bg-primary-soft"
         >
-          <X />
-        </Button>
+          <X className="size-5" aria-hidden />
+        </button>
       </dialog>
     </div>
   );

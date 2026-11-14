@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Fraunces } from "next/font/google";
+import { Archivo, Inter } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 import { SiteHeader } from "@/components/layout/site-header";
@@ -12,6 +12,7 @@ import { AnalyticsTracker } from "@/components/analytics/analytics-tracker";
 import { buildCanonicalUrl } from "@/lib/seo/canonical";
 import { buildOrganizationSchema, buildOnlineStoreSchema, buildWebSiteSchema } from "@/lib/seo/schema";
 import { COMPANY_CONFIG } from "@/lib/config/company";
+import { fetchShopDepartments } from "@/lib/api/client";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -19,10 +20,11 @@ const inter = Inter({
   display: "swap",
 });
 
-const fraunces = Fraunces({
-  variable: "--font-fraunces",
+const archivo = Archivo({
+  variable: "--font-archivo",
   subsets: ["latin"],
-  axes: ["opsz", "SOFT", "WONK"],
+  weight: ["500", "600", "700", "800", "900"],
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -80,13 +82,15 @@ const storeJsonLd = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const departments = await fetchShopDepartments();
+
   return (
     <html
       lang="fr"
-      className={`${inter.variable} ${fraunces.variable} h-full antialiased`}
+      className={`${inter.variable} ${archivo.variable} h-full antialiased`}
     >
       <head>
         <meta name="facebook-domain-verification" content="mi1xyp6q8u3nc8f83zth36dg94otvu" />
@@ -141,7 +145,7 @@ export default function RootLayout({
           Aller au contenu principal
         </a>
         <ChromeGate>
-          <SiteHeader />
+          <SiteHeader departments={departments} />
         </ChromeGate>
         <main id="contenu-principal" tabIndex={-1} className="flex-1">
           {children}

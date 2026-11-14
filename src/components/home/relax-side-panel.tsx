@@ -206,7 +206,7 @@ export function RelaxSidePanel({
             {isPack ? (
               <Link
                 href="/pack-anti-stress"
-                className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-[#8B263E] hover:bg-[#5E203C] text-white py-3 px-4 font-black text-sm shadow-md transition-all active:scale-95"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-2xl bg-[#8B263E] hover:bg-[#0A0D10] text-white py-3 px-4 font-black text-sm shadow-md transition-all active:scale-95"
               >
                 <span>Commander le Pack (159 DT)</span>
                 <ArrowRight size={15} />

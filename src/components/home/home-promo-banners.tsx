@@ -10,7 +10,7 @@ import { ArrowRight } from "lucide-react";
  */
 export function HomePromoBanners() {
   return (
-    <section aria-label="Sélections et promotions vedettes" className="bg-[#FAF7F5] py-3 sm:py-6">
+    <section aria-label="Sélections et promotions vedettes" className="bg-[#FAF8F6] py-3 sm:py-6">
       <div className="mx-auto max-w-[1440px] px-3 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-5">
 
@@ -87,7 +87,7 @@ export function HomePromoBanners() {
           {/* ── Banner 3: Vitamines & Minéraux ──────────────────────────── */}
           <Link
             href="/vitamines"
-            className="group relative h-40 sm:h-56 lg:h-64 rounded-2xl sm:rounded-3xl overflow-hidden bg-[#5E203C] text-white p-5 sm:p-7 flex flex-col justify-between shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-primary"
+            className="group relative h-40 sm:h-56 lg:h-64 rounded-2xl sm:rounded-3xl overflow-hidden bg-[#0A0D10] text-white p-5 sm:p-7 flex flex-col justify-between shadow-xs transition-all duration-300 hover:-translate-y-1 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-primary"
           >
             {/* Background Image */}
             <Image
@@ -98,7 +98,7 @@ export function HomePromoBanners() {
               className="object-cover object-right group-hover:scale-105 transition-transform duration-500"
             />
             {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-r from-[#5E203C]/95 via-[#5E203C]/85 to-[#5E203C]/15 sm:to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#0A0D10]/95 via-[#0A0D10]/85 to-[#0A0D10]/15 sm:to-transparent" />
 
             {/* Content */}
             <div className="relative z-10 max-w-[70%] sm:max-w-[65%]">
@@ -112,7 +112,7 @@ export function HomePromoBanners() {
 
             {/* Pill CTA Button */}
             <div className="relative z-10 mt-auto">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs font-bold text-[#5E203C] shadow-sm transition-all group-hover:bg-[#FAF7F5]">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 sm:px-4 py-1.5 sm:py-2 text-xs font-bold text-[#0A0D10] shadow-sm transition-all group-hover:bg-[#FAF8F6]">
                 <span>Voir la sélection</span>
                 <ArrowRight size={13} className="transition-transform group-hover:translate-x-1" />
               </span>
