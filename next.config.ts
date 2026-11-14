@@ -64,6 +64,15 @@ const nextConfig: NextConfig = {
       { source: "/brands", destination: "/marques", permanent: true },
       { source: "/brands/:slug", destination: "/marques/:slug", permanent: true },
       { source: "/qui-sommes-nous", destination: "/a-propos", permanent: true },
+      // Recovered from Search Console (historic 404s with clicks). Only exact equivalents or exact product-type categories;
+      // see docs/seo/REDIRECT_MAP.csv. Old catalogue items with no current equivalent intentionally stay 404.
+      { source: "/probiotiques/now-foods-probiotic-10-30-gelules-vegetales", destination: "/produits/now-foods-probiotic-10-30-gelules-vegetales", permanent: true },
+      { source: "/magnesium/thorne-magnesium-glycinate-180-gelules", destination: "/produits/thorne-magnesium-glycinate-180-gelules", permanent: true },
+      { source: "/magnesium/micro-ingredients-mag-duo-advanced-magnesium-formula-lemonade-180-g", destination: "/produits/micro-ingredients-mag-duo-advanced-magnesium-formula-lemonade-180-g", permanent: true },
+      { source: "/articulations/dr-kellyann-bone-broth-fast-track-turmeric-ginger-21-g", destination: "/produits/dr-kellyann-bone-broth-fast-track-turmeric-ginger-21-g", permanent: true },
+      { source: "/produits/young-health-omega-3-boite-90-capsules", destination: "/omega-3", permanent: true },
+      { source: "/produits/calmag-calcium-magnesium-b30", destination: "/magnesium", permanent: true },
+      { source: "/produits/apederm-seamag-magnesium-marin-60-gelules", destination: "/magnesium", permanent: true },
       // /mass-gainer was linked from the nav and articles but never existed (404); the real category is /gainers-proteines.
       { source: "/mass-gainer", destination: "/gainers-proteines", permanent: true },
       {

@@ -38,8 +38,8 @@ const iso = (d) => d.toISOString().slice(0, 10);
   if (cmd === "perf") {
     const days = Number(arg2) || 90;
     const end = new Date(Date.now() - 2 * 864e5), start = new Date(end.getTime() - days * 864e5);
-    const body = { startDate: iso(start), endDate: iso(end), rowLimit: Number(process.env.ROWS||15) };
-    if (arg1 && arg1 !== "none") { body.dimensions = [arg1]; }
+    const body = { startDate: iso(start), endDate: iso(end), rowLimit: Number(process.env.ROWS||15), ...(process.env.START ? { startDate: process.env.START } : {}), ...(process.env.END ? { endDate: process.env.END } : {}) };
+    if (arg1 && arg1 !== "none") { body.dimensions = arg1.split(","); }
     const r = await call("POST", `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(SITE)}/searchAnalytics/query`, auth, JSON.stringify(body));
     console.log("HTTP", r.status, `range ${body.startDate}..${body.endDate}`);
     if (r.status !== 200) return console.log(JSON.stringify(r.json.error || r.json).slice(0, 300));

@@ -54,7 +54,8 @@ export async function generateMetadata({
     description: product.description,
     seoTitle: product.seoTitle,
     seoDescription: product.seoDescription,
-    image: product.ogImage || product.image,
+    image: product.image,
+    ogImage: product.ogImage,
     indexable: product.indexable,
     inStock: product.inStock,
   });
