@@ -1,6 +1,6 @@
 # TASKS.md — ParaTunisie SEO Recovery (single source of truth)
 
-Last updated: 2026-11-14. Evidence below comes from live requests to paratunisie.com and read-only SQL on the production database. Nothing here is estimated or invented; unknowns are marked.
+Last updated: 2026-11-14 (Batch 1 secured; P1 root cause; Wave 1 canary + rollout done). Evidence below comes from live requests to paratunisie.com and read-only SQL on the production database. Nothing here is estimated or invented; unknowns are marked.
 
 ## 1. Executive Summary
 
@@ -37,7 +37,7 @@ Last updated: 2026-11-14. Evidence below comes from live requests to paratunisie
 
 | ID | Priority | Task | Status | Risk | Evidence | Verification |
 |---|---|---|---|---|---|---|
-| SEO-001 | P0 | Staged product indexation | BLOCKED (approval) | High | SQL counts | After approval |
+| SEO-001 | P0 | Staged product indexation | WAVE 1 DONE (53 of 95 in-stock); rest of catalogue still noindex (see §10) | High | SQL + live curl | 53 pages verified live, sitemap 153 products |
 | SEO-002 | P0 | Content + indexation for 11 big categories | READY (content to write) | Medium | SQL | meta robots |
 | SEO-003 | P0 | Obtain GSC / Merchant access | BLOCKED | Low | MCP error | Real data in BASELINE |
 | SEO-004 | P1 | Legacy URL redirects | VERIFIED (live 2026-11-14) | Low | 308 tests | Live curl: all 5 redirect, /proteine-sousse 404 |
@@ -83,3 +83,47 @@ Dependencies: SEO-001/002 need approval; SEO-006 needs a business decision; SEO-
 3. Provide Search Console access (or CSV exports) to unlock SEO-003.
 4. Decide availability semantics for on-order products (SEO-006).
 5. Fix the 6 unit typos (SEO-007) and add the duplicate-name report.
+
+## 8. P0 — Batch 1 secured (2026-11-14)
+- Git: commit `f638b63` on branch `seo/recovery-batch1` (not pushed). Contains the storefront redesign, catalogue-sync tooling, Batch 1 redirects, schema fix, docs. Excluded on purpose: `.env`, `apps/api/.env`, two stray reference PNGs. Secrets scan of the staged diff: clean.
+- Production images (server): web `latest` = `0b0c66aeb1fa`, admin `4972a7f420dc`, api `457d028c5f26`. Checkpoint tags `checkpoint-batch1` created for all three. Pre-Batch-1 web image: `rollback-seo1` (`d252ecd0fe3c`).
+- DB checkpoint: `/root/paratunisie-backups/db-checkpoint-post-batch1-20261114.dump` (8.6 MB, `pg_restore -l` lists 64 table-data entries = valid archive). Older pre-sync dumps also listed OK.
+- Redirect verification (live): `/blog`, `/brands`, `/qui-sommes-nous` -> 308 -> 200. A real article `/blog/complements-avant-pendant-apres-entrainement` -> `/conseils/<same slug>` 200; `/brands/golds-gym` -> `/marques/golds-gym` 200.
+- Defect found while verifying: unknown `/conseils/<slug>` returned **500** (API answers 200 with an empty body, `res.json()` threw). Fixed in `src/app/conseils/[slug]/page.tsx` (deployed with the Wave 1 build; see §11).
+
+## 9. Wave 1 results (P2)
+| Step | Result |
+|---|---|
+| In-stock, published, noindex candidates | 95 |
+| Passed every check | **53 made indexable** |
+| Blocked | 42 (reasons below) |
+| Canary | 10 products (diverse categories) applied first, verified live, then remaining 43 |
+| Live verification | All 53: `robots: index, follow`, self-canonical, one H1, Product JSON-LD `InStock`, no `X-Robots-Tag` header, image 200; JSON-LD price = visible price = DB price (10 checked in detail) |
+| Sitemap product URLs | 100 -> **153** |
+
+Checks applied per product: existing code gate `evaluateProductSeoQuality` (published, valid slug/name/brand/category, description >= 160 chars, not the bulk template, no absolute claims, real image, valid price, availability consistency, unique title) + live image fetch (200, `image/*`) + no PROTEIN.TN/Sobitas text + no unsubstantiated "garanti" claim + non-generic brand + price between 3 and 2,000 DT.
+
+Blocked (42):
+- 27 gym machines/benches: prices of 2,490–35,000 DT cannot be verified against any source available to me. Need the owner to confirm price and stock. Not an automatic rejection of the product.
+- 6 brand "Autres marques" (generic brand would put a meaningless brand in schema): glove, vitamin E, two shakers, EAA Powervis, GymHub shaker.
+- 3 thin packs (description 39–48 chars): PACK PREMIUM ELITE, PACK PROFESSIONNEL, PACK GAIN MUSCULAIRE RAPIDE.
+- 2 duplicate titles: Magnesium+Calcium+B6 (also contains "PROTEIN.TN" text), Tantor Whey 2,267 g.
+- 3 with unsubstantiated guarantee wording ("service professionnel garanti", "usage intensif garanti"): C4 Original, Challenger Creatine 300 g, Banc réglable MND.
+- 1 with third-party text: LIPO 6 Intense Ultra Concentrate ("PROTEIN.TN").
+(The sync sanitizer missed "chez PROTEIN.TN" phrasing written in upper case with markdown bold; the 2 affected descriptions should be cleaned, SEO-016.)
+
+Caveat (stock): many in-stock products show a stock of exactly 100 (e.g. 96–100). That looks like a nominal value from the source, not a counted inventory. Indexing is allowed because the user defined these as in stock, but the real stock must be confirmed before ads/Merchant feed (see P5).
+
+Rollback: before-state JSON per batch in `/root/paratunisie-backups/wave1-before-0-10.json` and `wave1-before-10-53.json` (id, slug, indexable, score, issues, reviewedAt). Restore = set `indexable=false` for those ids (all were false).
+Status words: "made indexable" only. Google indexing is NOT confirmed; needs GSC (blocked).
+
+## 10. P1 — Root cause of 11,788 noindex products
+1. **Source of the flag:** `Product.indexable` (database column). `src/lib/seo/metadata.ts:164` sets `robots: noindex` iff `product.indexable === false`. Not dynamic: no stock, content, device or user-agent logic; Googlebot receives the same HTML (tested with a Googlebot UA: same robots meta, no `X-Robots-Tag` header).
+2. **Who set it false:** the catalogue sync (`ops/ovh/sobitas-sync.cjs`, D-0033) inserts new products with `indexable=false` by design, and the API import service does the same (`apps/api/src/imports/services/imports.service.ts:436`). So 11,788 new products started noindex.
+3. **Second independent cause (latent bug):** the existing gate `evaluateProductSeoQuality` (also run on every admin save via `applyProductSeoGate`, `catalogue.service.ts:321`) blocked 100% of migrated products because it treated our own MinIO URLs (`https://paratunisie.com/paratunisie-media/...`) as "EXTERNAL_HOTLINKED_IMAGE". Fixed to accept our own media origin (with a lookalike-domain test). Without this fix, any admin edit would have re-set the 53 products to noindex.
+4. **Sitemap eligibility** (`catalogue.service.ts getSitemapData`): product must be PUBLISHED, `indexable=true`, self-canonical; a category appears only if ACTIVE, indexable, and containing at least one indexable product; brands likewise.
+5. **robots.txt:** no disallow on `/produits`; canonical is self-referencing on all sampled pages.
+6. **Decision:** no global removal of noindex. Indexation proceeds by validated waves only. Quality gate stats for the whole catalogue are in `docs/seo/CATALOG_AUDIT.md`.
+
+## 11. Deploy log (Wave 1 code fixes)
+See `docs/seo/IMPLEMENTATION_LOG.md`. Backups of the pre-change files: `/root/paratunisie-backups/seo-batch1/*.pre-wave1`.

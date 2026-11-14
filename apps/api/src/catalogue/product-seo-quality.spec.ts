@@ -59,6 +59,13 @@ describe("evaluateProductSeoQuality", () => {
     ]));
   });
 
+  it("accepts absolute image URLs served from our own media bucket", () => {
+    const result = evaluateProductSeoQuality({ ...validProduct, image: "https://paratunisie.com/paratunisie-media/products/x.webp" });
+    expect(result.issues.map((issue) => issue.code)).not.toContain("EXTERNAL_HOTLINKED_IMAGE");
+    const lookalike = evaluateProductSeoQuality({ ...validProduct, image: "https://paratunisie.com.evil.example/paratunisie-media/x.webp" });
+    expect(lookalike.issues.map((issue) => issue.code)).toContain("EXTERNAL_HOTLINKED_IMAGE");
+  });
+
   it("blocks absolute commercial claims without substantiation", () => {
     const result = evaluateProductSeoQuality({
       ...validProduct,

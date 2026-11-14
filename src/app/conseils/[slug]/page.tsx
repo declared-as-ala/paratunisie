@@ -81,7 +81,9 @@ async function fetchArticleBySlug(slug: string): Promise<Article | null> {
       signal: AbortSignal.timeout(5000),
     });
     if (res.ok) {
-      const data = await res.json();
+      // The API answers 200 with an empty body for unknown slugs; treat that as "not found", not an outage.
+      const raw = await res.text();
+      const data = raw.trim() ? JSON.parse(raw) : null;
       if (data && data.slug) {
         let blocks: { type?: string; text?: string }[] = [];
         try { blocks = JSON.parse(data.content || "[]"); } catch {}

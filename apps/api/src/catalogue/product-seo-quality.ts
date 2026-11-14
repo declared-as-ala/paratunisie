@@ -40,6 +40,9 @@ const PLACEHOLDER_IMAGES = new Set([
   "/placeholder.svg",
 ]);
 
+// Images mirrored to our own MinIO bucket are controlled storage, not third-party hotlinks.
+const OWN_MEDIA_URL = /^https:\/\/(?:www\.)?paratunisie\.com\/paratunisie-media\//i;
+
 function normalized(value: string | null | undefined) {
   return (value || "").replace(/\s+/g, " ").trim();
 }
@@ -105,7 +108,7 @@ export function evaluateProductSeoQuality(product: ProductSeoQualityInput): Prod
   }
   if (!image || PLACEHOLDER_IMAGES.has(image.toLowerCase())) {
     add("MISSING_OR_PLACEHOLDER_IMAGE", "BLOCKER", 45, "A real product image is required.");
-  } else if (/^https?:\/\//i.test(image)) {
+  } else if (/^https?:\/\//i.test(image) && !OWN_MEDIA_URL.test(image)) {
     add("EXTERNAL_HOTLINKED_IMAGE", "BLOCKER", 45, "Image must be migrated to controlled storage before indexing.");
   }
   if (variants.length === 0 || !variants.some((variant) => Number.isInteger(variant.priceMillimes) && variant.priceMillimes > 0)) {
