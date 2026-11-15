@@ -244,15 +244,23 @@ const mockSuppliers: Supplier[] = [
 
 const mockPurchaseHistory: PurchasePriceHistory[] = [];
 
-export default function ProduitsPage() { return <SeoChecklistProvider type="product"><ChecklistPage /></SeoChecklistProvider>; }
+export default function ProduitsPage() {
+  const [ids, setIds] = useState<string[]>([]);
+  return <SeoChecklistProvider type="product" ids={ids}><ChecklistPage onVisibleIds={setIds} /></SeoChecklistProvider>;
+}
 
-function ChecklistPage() {
+function ChecklistPage({ onVisibleIds }: { onVisibleIds?: (ids: string[]) => void }) {
   const { toast } = useToast();
   const [products, setProducts] = useState<(Product & { image?: string })[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [brandFilter, setBrandFilter] = useState<string>("");
   const [categoryFilter, setCategoryFilter] = useState<string>("");
+  const [stockFilter, setStockFilter] = useState<string>("");
+  const [indexFilter, setIndexFilter] = useState<string>("");
+  const [seoBand, setSeoBand] = useState<string>("");
+  const [sortBy, setSortBy] = useState<string>("");
+  const [stats, setStats] = useState<Record<string, number> | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [totalProducts, setTotalProducts] = useState(0);
@@ -297,6 +305,12 @@ function ChecklistPage() {
         if (search.trim()) params.set("q", search.trim());
         if (brandFilter) params.set("brand", brandFilter);
         if (categoryFilter) params.set("category", categoryFilter);
+        if (stockFilter) params.set("stock", stockFilter);
+        if (indexFilter) params.set("indexable", indexFilter);
+        if (seoBand === "low") { params.set("seoMax", "69"); }
+        else if (seoBand === "mid") { params.set("seoMin", "70"); params.set("seoMax", "89"); }
+        else if (seoBand === "high") { params.set("seoMin", "90"); }
+        if (sortBy) params.set("sort", sortBy);
 
         const res = await apiClient.get<any>(`/catalogue/admin/products?${params.toString()}`);
         let rawList: any[] = [];
@@ -358,7 +372,7 @@ function ChecklistPage() {
     }, 200);
 
     return () => clearTimeout(timer);
-  }, [currentPage, pageSize, search, brandFilter, categoryFilter]);
+  }, [currentPage, pageSize, search, brandFilter, categoryFilter, stockFilter, indexFilter, seoBand, sortBy]);
 
   // Reset page when filters change
   const handleSearchChange = (val: string) => {
@@ -387,6 +401,12 @@ function ChecklistPage() {
   );
 
   const visibleIds = useMemo(() => products.map((product) => product.id), [products]);
+  useEffect(() => { onVisibleIds?.(visibleIds); }, [visibleIds, onVisibleIds]);
+  const loadStats = useCallback(async () => {
+    try { setStats(await apiClient.get<Record<string, number>>("/catalogue/admin/stock-stats")); } catch { setStats(null); }
+  }, []);
+  useEffect(() => { void loadStats(); }, [loadStats]);
+  useEffect(() => { const saved = () => { void loadStats(); }; window.addEventListener("catalogue-saved", saved); return () => window.removeEventListener("catalogue-saved", saved); }, [loadStats]);
   const visibleSelectedCount = useMemo(
     () => visibleIds.reduce((count: number, id: string) => count + (selectedIds.has(id) ? 1 : 0), 0),
     [visibleIds, selectedIds]
@@ -494,10 +514,10 @@ function ChecklistPage() {
           <div>
             <h1 className="page-title">Produits</h1>
             <p className="page-subtitle">
-              {counts.total} produits au catalogue (Boutique client)
+              {(stats?.total ?? counts.total).toLocaleString("fr-FR")} produits au catalogue ({(stats?.published ?? 0).toLocaleString("fr-FR")} publiés)
             </p>
-            <p className="text-xs text-slate-500 font-medium mt-0.5">
-              En stock ({counts.inStock}) • Faible stock ({counts.lowStock}) • Ruptures ({counts.outOfStock})
+            <p className="text-xs text-slate-500 font-medium mt-0.5" title="Chiffres de tout le catalogue (pas seulement la page affichée)">
+              {stats ? <>Avec stock ({stats.in_stock}) dont achetables vérifiés ({stats.purchasable_verified}) • Stock faible ≤ 5 ({stats.low_stock}) • Sur commande ({stats.on_order.toLocaleString("fr-FR")}) • Stock non vérifié ({stats.unverified_stock + stats.machines_in_stock})</> : "Chiffres du catalogue indisponibles"}
             </p>
           </div>
         </div>
@@ -561,6 +581,31 @@ function ChecklistPage() {
               {c.name}
             </option>
           ))}
+        </select>
+
+        <select aria-label="Disponibilité" value={stockFilter} onChange={(e) => { setStockFilter(e.target.value); setCurrentPage(1); }} className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20">
+          <option value="">Toute disponibilité</option>
+          <option value="purchasable">Achetables vérifiés</option>
+          <option value="instock">Avec stock</option>
+          <option value="low">Stock faible (≤ 5)</option>
+          <option value="onorder">Sur commande</option>
+        </select>
+        <select aria-label="Indexation" value={indexFilter} onChange={(e) => { setIndexFilter(e.target.value); setCurrentPage(1); }} className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20">
+          <option value="">Indexation : toutes</option>
+          <option value="true">Indexables</option>
+          <option value="false">Noindex</option>
+        </select>
+        <select aria-label="Score SEO" value={seoBand} onChange={(e) => { setSeoBand(e.target.value); setCurrentPage(1); }} className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20">
+          <option value="">Score SEO : tous</option>
+          <option value="low">Faible (&lt; 70)</option>
+          <option value="mid">Moyen (70–89)</option>
+          <option value="high">Élevé (≥ 90)</option>
+        </select>
+        <select aria-label="Tri" value={sortBy} onChange={(e) => { setSortBy(e.target.value); setCurrentPage(1); }} className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-primary/20">
+          <option value="">Tri : stock puis nouveautés</option>
+          <option value="seo_asc">Score SEO croissant</option>
+          <option value="seo_desc">Score SEO décroissant</option>
+          <option value="name">Nom A–Z</option>
         </select>
       </div>
 

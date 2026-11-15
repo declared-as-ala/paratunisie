@@ -30,6 +30,8 @@ export class ApiError extends Error {
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const res = await fetch(`${getApiBaseUrl()}${path}`, {
     ...options,
+    // No request may stay pending forever: a stalled API must surface as an error the UI can show and retry.
+    signal: options.signal ?? (typeof AbortSignal !== "undefined" && "timeout" in AbortSignal ? AbortSignal.timeout(60_000) : undefined),
     credentials: "include",
     headers: {
       "Content-Type": "application/json",

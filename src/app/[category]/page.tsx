@@ -218,6 +218,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         subcategoryTabs={subcategoryTabs}
         seoContent={page === 1 && !filtered(query) ? category.seoContent : null}
         faqs={faqs}
+        comparisonProducts={allCategoryProducts.filter((p) => p.inStock !== false)}
       />
     </>
   );

@@ -17,6 +17,7 @@ describe("ReviewsService", () => {
       user: { findUnique: jest.fn().mockResolvedValue({ id: "user-1" }) },
       product: { findFirst: jest.fn().mockResolvedValue({ id: "product-1" }) },
       order: { findFirst: jest.fn().mockResolvedValue(null) },
+      reviewModeration: { create: jest.fn().mockResolvedValue({}) },
       $transaction: jest.fn((operations: Promise<unknown>[]) => Promise.all(operations)),
     } as any;
     return { prisma, service: new ReviewsService(prisma) };
@@ -53,6 +54,7 @@ describe("ReviewsService", () => {
     prisma.review.update.mockResolvedValue({ id: "review-1", status: ReviewStatus.APPROVED });
     await service.updateStatus("review-1", ReviewStatus.APPROVED);
     expect(prisma.review.update.mock.calls[0][0].data.status).toBe(ReviewStatus.APPROVED);
+    expect(prisma.reviewModeration.create.mock.calls[0][0].data).toEqual({ reviewId: "review-1", action: ReviewStatus.APPROVED, actor: "admin" }); // moderation history
   });
 
   it("rejects a review", async () => {
@@ -114,18 +116,13 @@ describe("ReviewsService", () => {
     }));
   });
 
-  it("marks a purchase verified only from a matching valid order", async () => {
+  it("never grants the verified flag through the open endpoint, even when an order id is supplied", async () => {
     const { prisma, service } = setup();
     prisma.order.findFirst.mockResolvedValue({ id: "order-1" });
     prisma.review.create.mockImplementation(({ data }: any) => Promise.resolve(data));
     const result = await service.createReview("user-1", "product-1", { rating: 5, orderId: "order-1" });
-    expect(prisma.order.findFirst.mock.calls[0][0].where).toEqual({
-      id: "order-1",
-      userId: "user-1",
-      status: { in: [OrderStatus.CONFIRMEE, OrderStatus.PREPARATION, OrderStatus.PRETE_EXPEDITION, OrderStatus.EXPEDIEE, OrderStatus.LIVREE] },
-      items: { some: { productId: "product-1" } },
-    });
-    expect(result).toEqual(expect.objectContaining({ verified: true, orderId: "order-1", status: ReviewStatus.PENDING }));
+    // Verified purchase can only come from a private invitation link tied to a real order (see review-invitations.service).
+    expect(result).toEqual(expect.objectContaining({ verified: false, orderId: undefined, status: ReviewStatus.PENDING }));
   });
 
   it("clears a stale verified flag when an updated review has no eligible order", async () => {

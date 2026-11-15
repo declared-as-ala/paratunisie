@@ -1,0 +1,21 @@
+{
+ "dashboard": {
+  "date": "2026-11-15T23:52:27.154Z",
+  "pages": 312,
+  "valid": 312,
+  "validWithWarnings": 0,
+  "invalid": 0,
+  "missingGtin": 312,
+  "missingBrand": 0,
+  "missingSku": 0,
+  "missingImage": 0,
+  "missingOffer": 0,
+  "priceMismatch": 0,
+  "availabilityMismatch": 0,
+  "reviewMarkupIssues": 0,
+  "markdownInDescription": 0,
+  "pagesWithReviewMarkup": 0
+ },
+ "topErrors": {},
+ "failing": []
+}

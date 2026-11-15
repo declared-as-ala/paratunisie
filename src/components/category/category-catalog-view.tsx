@@ -25,6 +25,9 @@ import {
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { CategoryProductCard } from "@/components/category/category-product-card";
 import { ProductRichText } from "@/components/product/product-rich-text";
+import { CategoryGuide } from "@/components/category/category-guide";
+import { CategoryPriceComparison } from "@/components/category/category-price-comparison";
+import { buildComparison, type ComparableProduct } from "@/lib/category/comparison";
 import type { ProductSummary } from "@/lib/data/products";
 
 export interface BreadcrumbItem {
@@ -75,6 +78,8 @@ export interface CategoryCatalogViewProps {
   subcategoryTabs?: SubcategoryTab[];
   seoContent?: string | null;
   faqs?: FaqItem[];
+  /** In-stock products of the whole category, used for the live price-per-100 g comparison. */
+  comparisonProducts?: ComparableProduct[];
 }
 
 const RAYONS_LIST = [
@@ -225,9 +230,11 @@ export function CategoryCatalogView({
   subcategoryTabs,
   seoContent,
   faqs = [],
+  comparisonProducts = [],
 }: CategoryCatalogViewProps) {
   const router = useRouter();
   const pathname = usePathname();
+  const hasComparison = buildComparison(comparisonProducts).rows.filter((r) => r.per100gDt !== null).length >= 2;
 
   const [searchInput, setSearchInput] = useState(currentQuery.q || "");
   const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
@@ -509,9 +516,18 @@ export function CategoryCatalogView({
                 {title}
               </h1>
               {description && (
-                <p className="mt-1.5 max-w-3xl text-xs sm:text-sm text-ink-muted line-clamp-2">
+                <p className={`mt-1.5 max-w-3xl text-[13px] leading-6 text-ink-muted sm:text-sm ${seoContent ? "line-clamp-5 sm:line-clamp-4" : "line-clamp-2"}`}>
                   {description}
                 </p>
+              )}
+              {seoContent && (
+                <nav aria-label="Accès rapide" className="mt-2.5">
+                  <ul className="flex flex-wrap gap-2">
+                    {hasComparison && <li><a href="#comparatif-prix" className="inline-flex min-h-9 items-center rounded-full bg-primary-soft/60 px-3.5 text-xs font-bold text-secondary hover:bg-primary-soft hover:text-primary">Comparatif des prix</a></li>}
+                    <li><a href="#guide" className="inline-flex min-h-9 items-center rounded-full bg-primary-soft/60 px-3.5 text-xs font-bold text-secondary hover:bg-primary-soft hover:text-primary">Guide d&apos;achat</a></li>
+                    {faqs.length > 0 && <li><a href="#category-faq-title" className="inline-flex min-h-9 items-center rounded-full bg-primary-soft/60 px-3.5 text-xs font-bold text-secondary hover:bg-primary-soft hover:text-primary">Questions fréquentes</a></li>}
+                  </ul>
+                </nav>
               )}
             </header>
           </div>
@@ -891,6 +907,20 @@ export function CategoryCatalogView({
 
               {/* ── Below-the-Fold Editorial, Brands, FAQ & Discovery ──── */}
               <div className="mt-10 sm:mt-14 pt-8 sm:pt-10 border-t border-border/80 space-y-5 lg:space-y-7">
+                {seoContent ? (
+                  <CategoryGuide
+                    content={seoContent}
+                    categoryName={categoryName}
+                    hasFaq={faqs.length > 0}
+                    summary={
+                      <p className="text-ink">
+                        <strong>Prix de {categoryName.toLowerCase()} :</strong> de <strong>{minDt}</strong> à <strong>{maxDt} DT</strong> pour les <strong>{inStockCount || totalCount}</strong> références disponibles. Livraison en 24 à 48 h partout en Tunisie, paiement à la livraison.
+                      </p>
+                    }
+                    comparison={hasComparison ? <CategoryPriceComparison products={comparisonProducts} categoryName={categoryName} /> : undefined}
+                  />
+                ) : (
+                  <>
                 {/* 1. Conseil d'achat & Guide Section */}
                 <section
                   aria-labelledby="category-guide-title"
@@ -904,14 +934,6 @@ export function CategoryCatalogView({
                       <strong>{inStockCount || totalCount}</strong> références disponibles, livrées en{" "}
                       <strong>24–48h</strong> partout en Tunisie avec paiement à la livraison.
                     </p>
-                    {seoContent && (
-                      <div className="mt-4">
-                        <ProductRichText
-                          content={seoContent}
-                          className="text-xs sm:text-sm leading-relaxed text-ink-muted"
-                        />
-                      </div>
-                    )}
                   </div>
 
                   {/* Conseil d'achat Header */}
@@ -971,6 +993,9 @@ export function CategoryCatalogView({
                     </aside>
                   </div>
                 </section>
+
+                  </>
+                )}
 
                 {/* 2. Marques de ce rayon */}
                 {availableBrands.length > 0 && (

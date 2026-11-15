@@ -82,7 +82,8 @@ export class ReviewsService {
     if (!product) throw new NotFoundException("Produit introuvable");
 
     const productId = product.id;
-    const verifiedOrder = await this.findVerifiedOrder(userId, productId, data.orderId);
+    // The open endpoint is unauthenticated, so it can never grant the verified flag: only a private invitation link tied to a real order can.
+    const verifiedOrder = null as { id: string } | null;
 
     const existingReview = await this.prisma.review.findFirst({
       where: { userId, productId },
@@ -198,7 +199,9 @@ export class ReviewsService {
       throw new BadRequestException("Statut de modération invalide");
     }
     await this.getAdminReview(id);
-    return this.prisma.review.update({ where: { id }, data: { status }, include: reviewInclude });
+    const updated = await this.prisma.review.update({ where: { id }, data: { status }, include: reviewInclude });
+    await this.prisma.reviewModeration.create({ data: { reviewId: id, action: status, actor: "admin" } });
+    return updated;
   }
 
   async deleteReview(id: string) {

@@ -1,6 +1,7 @@
 import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from "@nestjs/common";
 import { OrderStatus } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
+import { priceOrderLines, type PricedLine, type RequestedLine } from "./order-pricing";
 import { InventoryService } from "../inventory/inventory.service";
 import { computeDeliveryFeeMillimes } from "../common/tunisia";
 import { isValidTransition, getAllowedTransitions, statusLabel } from "./order-status";
@@ -117,6 +118,25 @@ export class OrdersService {
     return seededOrders;
   }
 
+  /** Loads the real variants of the requested products in ONE query and prices the lines (see order-pricing.ts). */
+  private async priceItems(items: RequestedLine[] | undefined): Promise<PricedLine[]> {
+    const requested = items ?? [];
+    const productIds = [...new Set(requested.map((i) => i?.productId).filter((v): v is string => typeof v === "string" && v.length > 0))];
+    const variantIds = [...new Set(requested.map((i) => i?.productVariantId).filter((v): v is string => typeof v === "string" && v.length > 0))];
+    const variants = requested.length === 0 || (productIds.length === 0 && variantIds.length === 0)
+      ? []
+      : await this.prisma.productVariant.findMany({
+          where: { OR: [...(productIds.length ? [{ productId: { in: productIds } }] : []), ...(variantIds.length ? [{ id: { in: variantIds } }] : [])] },
+          select: { id: true, productId: true, label: true, priceMillimes: true, stock: true, product: { select: { id: true, name: true, publishState: true } } },
+        });
+    // A variant id may belong to a product that was not named in productId: include its siblings too.
+    const extraProducts = [...new Set(variants.map((v) => v.productId))].filter((id) => !productIds.includes(id));
+    const siblings = extraProducts.length
+      ? await this.prisma.productVariant.findMany({ where: { productId: { in: extraProducts }, id: { notIn: variants.map((v) => v.id) } }, select: { id: true, productId: true, label: true, priceMillimes: true, stock: true, product: { select: { id: true, name: true, publishState: true } } } })
+      : [];
+    return priceOrderLines(requested, [...variants, ...siblings]);
+  }
+
   async createOrder(data: {
     userId?: string;
     email?: string;
@@ -137,10 +157,10 @@ export class OrdersService {
     shippingFeeMillimes?: number;
     items: { productId?: string; productVariantId?: string; quantity: number; priceMillimes: number }[];
   }) {
-    const rawSubtotalMillimes = (data.items || []).reduce(
-      (sum, item) => sum + item.priceMillimes * item.quantity,
-      0,
-    );
+    // Server-authoritative pricing (financial integrity): every price comes from the catalogue; a price sent by the browser
+    // is only compared with it to reject stale or manipulated carts. Done first, before any user, loyalty or notification side effect.
+    const pricedLines = await this.priceItems(data.items);
+    const rawSubtotalMillimes = pricedLines.reduce((sum, line) => sum + line.priceMillimes * line.quantity, 0);
 
     // 1. Resolve User
     let targetUser: any = null;
@@ -223,45 +243,20 @@ export class OrdersService {
     }
 
     const netProductSubtotal = Math.max(0, rawSubtotalMillimes - loyaltyDiscountMillimes);
-    const deliveryFeeMillimes = typeof data.shippingFeeMillimes === 'number' && data.shippingFeeMillimes >= 0 ? data.shippingFeeMillimes : computeDeliveryFeeMillimes(netProductSubtotal);
+    // Shipping is never taken from the request (a client could send 0): it follows the published delivery policy.
+    const deliveryFeeMillimes = computeDeliveryFeeMillimes(netProductSubtotal);
     const finalTotalMillimes = netProductSubtotal + deliveryFeeMillimes;
 
     // Points earned only on net amount paid for products (shipping excluded)
     const loyaltyPointsEarned = calculatePointsEarned(netProductSubtotal);
 
-    // 2. Resolve items to real Product & ProductVariant records.
-    const createItemInputs: { productId: string; productVariantId: string; quantity: number; priceMillimes: number }[] = [];
-
-    for (const item of data.items || []) {
-      let pId = item.productId;
-      let vId = item.productVariantId;
-
-      if (vId) {
-        const variant = await this.prisma.productVariant.findUnique({ where: { id: vId } });
-        if (!variant) {
-          throw new BadRequestException(`Variante de produit introuvable (${vId}). Veuillez actualiser votre panier.`);
-        }
-        pId = variant.productId;
-      } else if (pId) {
-        const prod = await this.prisma.product.findUnique({ where: { id: pId }, include: { variants: true } });
-        if (!prod) {
-          throw new BadRequestException(`Produit introuvable (${pId}). Veuillez actualiser votre panier.`);
-        }
-        if (prod.variants.length === 0) {
-          throw new BadRequestException(`Le produit "${prod.name}" n'a plus de variante disponible.`);
-        }
-        vId = prod.variants[0].id;
-      } else {
-        throw new BadRequestException("Chaque article de la commande doit référencer un produit réel.");
-      }
-
-      createItemInputs.push({
-        productId: pId,
-        productVariantId: vId,
-        quantity: item.quantity,
-        priceMillimes: item.priceMillimes,
-      });
-    }
+    // 2. Order lines carry the catalogue price and the exact variant that was priced.
+    const createItemInputs: { productId: string; productVariantId: string; quantity: number; priceMillimes: number }[] = pricedLines.map((line) => ({
+      productId: line.productId,
+      productVariantId: line.productVariantId,
+      quantity: line.quantity,
+      priceMillimes: line.priceMillimes,
+    }));
 
     try {
       const createdOrder = await this.prisma.order.create({

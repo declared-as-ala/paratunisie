@@ -52,3 +52,30 @@ export function calculateChecklist(type: ChecklistType, row: any, context: Check
   const score = checks.reduce((sum, check) => sum + (check.passed ? check.points : 0), 0);
   return { id: row.id, name: row.name, slug: row.slug, type, score, total: 100, grade: score >= 90 ? "Excellent" : score >= 70 ? "À améliorer" : "Insuffisant", checks, verifiedAt: evidence?.checkedAt || null, verificationError: evidence?.error || null };
 }
+
+/**
+ * Public-page evidence implied by the stored data of a CATEGORY (no network call). The category template always renders one H1,
+ * breadcrumbs, a CollectionPage + ItemList of the products it lists and links to them, so those checks follow from the data.
+ * Mirrors the sitemap rule: an active, indexable, self-canonical category with at least one indexable product.
+ */
+export function derivedCategoryEvidence(row: any, members: { indexable: boolean }[], origin = "https://paratunisie.com"): PageEvidence {
+  const active = row.status === "ACTIVE";
+  const hasProducts = members.length > 0;
+  const hasIndexableProduct = members.some((p) => p.indexable);
+  const selfCanonical = !row.canonicalUrl || row.canonicalUrl === `${origin}/${row.slug}`;
+  const contentLinks = (String(row.seoContent ?? "").match(/\]\(\//g) ?? []).length;
+  const indexable = active && row.indexable !== false && row.followLinks !== false && hasIndexableProduct && selfCanonical;
+  return {
+    checkedAt: new Date().toISOString(),
+    http: active,
+    indexable,
+    sitemap: indexable,
+    h1: Boolean(plainText(row.seoH1 || row.name)),
+    metadata: Boolean(plainText(row.seoTitle) && plainText(row.seoDescription)),
+    schema: active && hasProducts,
+    offer: active && hasProducts,
+    breadcrumb: active,
+    internalLinks: members.length >= 2 || contentLinks >= 2,
+    image: realImage(row.ogImage || row.image),
+  };
+}

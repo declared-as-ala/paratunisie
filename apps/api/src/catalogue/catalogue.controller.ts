@@ -5,6 +5,8 @@ import { SeoChecklistService } from "./seo-checklist.service";
 import { CatalogueQualityService } from "./catalogue-quality.service";
 import { CatalogueSeoService, SeoEntityType } from "./catalogue-seo.service";
 import { BrandSeoService, type BrandSeoRunOptions } from "./brand-seo.service";
+import { SeoScoreService } from "./seo-score.service";
+import { SeoJobService, type CreateJobInput } from "./seo-job.service";
 import { AdminAuthGuard } from "../admin-auth/guards/admin-auth.guard";
 import { ArrayMaxSize, ArrayMinSize, IsArray, IsString } from "class-validator";
 
@@ -22,6 +24,8 @@ export class CatalogueController {
     private readonly catalogueService: CatalogueService,
     private readonly catalogueSeoService: CatalogueSeoService,
     private readonly brandSeoService: BrandSeoService,
+    private readonly seoScoreService: SeoScoreService,
+    private readonly seoJobService: SeoJobService,
     private readonly seoChecklistService: SeoChecklistService,
     private readonly qualityService: CatalogueQualityService,
   ) {}
@@ -97,8 +101,77 @@ export class CatalogueController {
     @Query("concern") concern?: string,
     @Query("status") status?: string,
     @Query("sort") sort?: string,
+    @Query("stock") stock?: string,
+    @Query("indexable") indexable?: string,
+    @Query("seoMin") seoMin?: string,
+    @Query("seoMax") seoMax?: string,
   ) {
+    // Admin filters on score / availability / indexability run in SQL on persisted columns.
+    if (stock || indexable || seoMin !== undefined || seoMax !== undefined || sort === "seo_asc" || sort === "seo_desc") {
+      return this.seoScoreService.adminList({ page, limit, q: search || q, brand, category, status, stock, indexable, seoMin, seoMax, sort });
+    }
     return this.catalogueService.findAllProducts({ page, limit, search: search || q, brand, category, concern, status, sort });
+  }
+
+  @Get("admin/stock-stats")
+  @UseGuards(AdminAuthGuard)
+  async getStockStats() {
+    return this.seoScoreService.stockStats();
+  }
+
+  // SEO scores for the rows currently on screen (max 100 ids): never the whole catalogue.
+  @Get("seo/scores/product")
+  @UseGuards(AdminAuthGuard)
+  async getProductScores(@Query("ids") ids?: string) {
+    return { items: await this.seoScoreService.scoreProducts((ids ?? "").split(",").map((s) => s.trim()).filter(Boolean)) };
+  }
+
+  @Get("seo/scores/summary")
+  @UseGuards(AdminAuthGuard)
+  async getScoreSummary() {
+    return this.seoScoreService.summary();
+  }
+
+  @Get("seo/jobs")
+  @UseGuards(AdminAuthGuard)
+  async listSeoJobs() {
+    return this.seoJobService.list();
+  }
+
+  @Post("seo/jobs")
+  @UseGuards(AdminAuthGuard)
+  async createSeoJob(@Body() body: CreateJobInput) {
+    return this.seoJobService.create(body);
+  }
+
+  @Get("seo/jobs/:id")
+  @UseGuards(AdminAuthGuard)
+  async getSeoJob(@Param("id") id: string) {
+    return this.seoJobService.get(id);
+  }
+
+  @Post("seo/jobs/:id/cancel")
+  @UseGuards(AdminAuthGuard)
+  async cancelSeoJob(@Param("id") id: string) {
+    return this.seoJobService.cancel(id);
+  }
+
+  @Post("seo/jobs/:id/retry")
+  @UseGuards(AdminAuthGuard)
+  async retrySeoJob(@Param("id") id: string) {
+    return this.seoJobService.retryFailures(id);
+  }
+
+  @Post("seo/jobs/:id/rollback")
+  @UseGuards(AdminAuthGuard)
+  async rollbackSeoJob(@Param("id") id: string) {
+    return this.seoJobService.rollback(id);
+  }
+
+  @Get("seo/jobs/:id/export")
+  @UseGuards(AdminAuthGuard)
+  async exportSeoJob(@Param("id") id: string) {
+    return { csv: await this.seoJobService.exportCsv(id) };
   }
 
   @Get("products/:slug")

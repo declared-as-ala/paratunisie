@@ -1,0 +1,1150 @@
+{
+ "mineraux": {
+  "url": "/mineraux",
+  "impr90": 1,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": 5,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 663,
+  "idxprod": 14,
+  "instock": 1,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "citrulline": {
+  "url": "/citrulline",
+  "impr90": 24,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": 66.2,
+  "impr28": 1,
+  "clk28": 0,
+  "pos28": 83,
+  "pub": 43,
+  "idxprod": 2,
+  "instock": 1,
+  "indexable": false,
+  "content": 400,
+  "top_queries": [
+   [
+    9,
+    0,
+    69.2,
+    "citruline tunisie"
+   ],
+   [
+    8,
+    0,
+    65,
+    "citrulline tunisie"
+   ],
+   [
+    4,
+    0,
+    88.3,
+    "citrulline"
+   ],
+   [
+    1,
+    0,
+    77,
+    "l-citrulline"
+   ]
+  ]
+ },
+ "immunite": {
+  "url": "/immunite",
+  "impr90": 2,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": 4,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 840,
+  "idxprod": 7,
+  "instock": 0,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "glucides": {
+  "url": "/glucides",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 7,
+  "idxprod": 4,
+  "instock": 4,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "caseine": {
+  "url": "/caseine",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 15,
+  "idxprod": 2,
+  "instock": 0,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "proteines-multi-sources": {
+  "url": "/proteines-multi-sources",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 68,
+  "idxprod": 1,
+  "instock": 1,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "proteine-de-boeuf": {
+  "url": "/proteine-de-boeuf",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 15,
+  "idxprod": 2,
+  "instock": 1,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "whey-hydrolysee": {
+  "url": "/whey-hydrolysee",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 5,
+  "idxprod": 3,
+  "instock": 4,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "probiotiques": {
+  "url": "/probiotiques",
+  "impr90": 2,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": 5,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 433,
+  "idxprod": 6,
+  "instock": 0,
+  "indexable": false,
+  "content": 2301,
+  "top_queries": []
+ },
+ "l-carnitine": {
+  "url": "/l-carnitine",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 87,
+  "idxprod": 9,
+  "instock": 3,
+  "indexable": false,
+  "content": 1554,
+  "top_queries": []
+ },
+ "ashwagandha": {
+  "url": "/ashwagandha",
+  "impr90": 22,
+  "clk90": 1,
+  "ctr90": 4.55,
+  "pos90": 70.1,
+  "impr28": 8,
+  "clk28": 0,
+  "pos28": 75.8,
+  "pub": 116,
+  "idxprod": 3,
+  "instock": 3,
+  "indexable": true,
+  "content": 1309,
+  "top_queries": [
+   [
+    16,
+    1,
+    89.6,
+    "ashwagandha tunisie"
+   ],
+   [
+    1,
+    0,
+    52,
+    "bio ashwagandha ksm 66 natural elements"
+   ],
+   [
+    1,
+    0,
+    45,
+    "ashwagandha tunisie prix"
+   ],
+   [
+    1,
+    0,
+    7,
+    "ashwagandha ksm-66 tunisie"
+   ]
+  ]
+ },
+ "sommeil-stress": {
+  "url": "/sommeil-stress",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 771,
+  "idxprod": 8,
+  "instock": 0,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "articulations": {
+  "url": "/articulations",
+  "impr90": 1,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": 82,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 592,
+  "idxprod": 5,
+  "instock": 0,
+  "indexable": false,
+  "content": 0,
+  "top_queries": [
+   [
+    1,
+    0,
+    82,
+    "pack douleurs articulaires tunisie"
+   ]
+  ]
+ },
+ "plantes-et-herbes": {
+  "url": "/plantes-et-herbes",
+  "impr90": 1,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": 3,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 1519,
+  "idxprod": 16,
+  "instock": 0,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "intra-workout": {
+  "url": "/intra-workout",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 12,
+  "idxprod": 0,
+  "instock": 0,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "post-workout": {
+  "url": "/post-workout",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 10,
+  "idxprod": 0,
+  "instock": 0,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "complements-alimentaires": {
+  "url": "/complements-alimentaires",
+  "impr90": 209,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": 66.9,
+  "impr28": 84,
+  "clk28": 0,
+  "pos28": 65.8,
+  "pub": 0,
+  "idxprod": 0,
+  "instock": 0,
+  "indexable": true,
+  "content": 2735,
+  "top_queries": [
+   [
+    101,
+    0,
+    63.9,
+    "complément alimentaires tunisie"
+   ],
+   [
+    34,
+    0,
+    64.6,
+    "complément alimentaire tunisie"
+   ],
+   [
+    16,
+    0,
+    89.3,
+    "compléments alimentaires"
+   ],
+   [
+    9,
+    0,
+    85.6,
+    "supplements tunisie"
+   ],
+   [
+    6,
+    0,
+    74.2,
+    "marque compléments alimentaires naturels tunisie"
+   ]
+  ]
+ },
+ "nutrition-sportive": {
+  "url": "/nutrition-sportive",
+  "impr90": 116,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": 65.3,
+  "impr28": 37,
+  "clk28": 0,
+  "pos28": 68.8,
+  "pub": 0,
+  "idxprod": 0,
+  "instock": 0,
+  "indexable": true,
+  "content": 2600,
+  "top_queries": [
+   [
+    80,
+    0,
+    67.3,
+    "nutrition sportive tunisie"
+   ],
+   [
+    20,
+    0,
+    90.3,
+    "nutrition sportive"
+   ],
+   [
+    1,
+    0,
+    118,
+    "nutrition gym"
+   ],
+   [
+    1,
+    0,
+    89,
+    "nutrition tunisie"
+   ]
+  ]
+ },
+ "accessoires": {
+  "url": "/accessoires",
+  "impr90": 2,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": 8,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 18,
+  "idxprod": 15,
+  "instock": 13,
+  "indexable": true,
+  "content": 437,
+  "top_queries": []
+ },
+ "bruleurs-de-graisse": {
+  "url": "/bruleurs-de-graisse",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 100,
+  "idxprod": 9,
+  "instock": 5,
+  "indexable": false,
+  "content": 417,
+  "top_queries": []
+ },
+ "beta-alanine": {
+  "url": "/beta-alanine",
+  "impr90": 2,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": 6.5,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 11,
+  "idxprod": 1,
+  "instock": 1,
+  "indexable": false,
+  "content": 382,
+  "top_queries": []
+ },
+ "vetements": {
+  "url": "/vetements",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 0,
+  "idxprod": 0,
+  "instock": 0,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "tribulus": {
+  "url": "/tribulus",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 34,
+  "idxprod": 0,
+  "instock": 0,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "materiel-de-musculation": {
+  "url": "/materiel-de-musculation",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 62,
+  "idxprod": 3,
+  "instock": 30,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "cardio-fitness": {
+  "url": "/cardio-fitness",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 8,
+  "idxprod": 7,
+  "instock": 3,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "proteines-vegetales": {
+  "url": "/proteines-vegetales",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 116,
+  "idxprod": 1,
+  "instock": 1,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "zinc": {
+  "url": "/zinc",
+  "impr90": 4,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": 34.3,
+  "impr28": 3,
+  "clk28": 0,
+  "pos28": 41.7,
+  "pub": 225,
+  "idxprod": 5,
+  "instock": 4,
+  "indexable": true,
+  "content": 2238,
+  "top_queries": [
+   [
+    2,
+    0,
+    27.5,
+    "complément zinc tunisie"
+   ],
+   [
+    1,
+    0,
+    70,
+    "zinc plus prix tunisie"
+   ]
+  ]
+ },
+ "boosters-hormonaux": {
+  "url": "/boosters-hormonaux",
+  "impr90": 6,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": 4.7,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 230,
+  "idxprod": 0,
+  "instock": 3,
+  "indexable": false,
+  "content": 395,
+  "top_queries": []
+ },
+ "beaute-cheveux": {
+  "url": "/beaute-cheveux",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 177,
+  "idxprod": 3,
+  "instock": 1,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "digestion": {
+  "url": "/digestion",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 477,
+  "idxprod": 6,
+  "instock": 0,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "enfants": {
+  "url": "/enfants",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 29,
+  "idxprod": 0,
+  "instock": 0,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "barres-proteinees": {
+  "url": "/barres-proteinees",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 143,
+  "idxprod": 0,
+  "instock": 0,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "glucides-energie": {
+  "url": "/glucides-energie",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 26,
+  "idxprod": 1,
+  "instock": 0,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "creatine": {
+  "url": "/creatine",
+  "impr90": 99,
+  "clk90": 4,
+  "ctr90": 4.04,
+  "pos90": 71.7,
+  "impr28": 32,
+  "clk28": 2,
+  "pos28": 65.5,
+  "pub": 257,
+  "idxprod": 20,
+  "instock": 13,
+  "indexable": true,
+  "content": 3642,
+  "top_queries": [
+   [
+    14,
+    0,
+    80.8,
+    "creatine monohydrate prix tunisie"
+   ],
+   [
+    13,
+    0,
+    89.2,
+    "creatine monohydrate tunisie"
+   ],
+   [
+    11,
+    0,
+    97.3,
+    "creatine monohydrate"
+   ],
+   [
+    11,
+    0,
+    93,
+    "creatine"
+   ],
+   [
+    7,
+    1,
+    96.4,
+    "creatine tunisie"
+   ]
+  ]
+ },
+ "bcaa": {
+  "url": "/bcaa",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 112,
+  "idxprod": 2,
+  "instock": 1,
+  "indexable": true,
+  "content": 2495,
+  "top_queries": []
+ },
+ "gainers-proteines": {
+  "url": "/gainers-proteines",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 32,
+  "idxprod": 14,
+  "instock": 12,
+  "indexable": true,
+  "content": 2710,
+  "top_queries": []
+ },
+ "cla": {
+  "url": "/cla",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 30,
+  "idxprod": 0,
+  "instock": 0,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "antioxydants": {
+  "url": "/antioxydants",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 639,
+  "idxprod": 16,
+  "instock": 1,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "glutamine": {
+  "url": "/glutamine",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 58,
+  "idxprod": 3,
+  "instock": 1,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "hmb": {
+  "url": "/hmb",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 10,
+  "idxprod": 0,
+  "instock": 0,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "l-arginine": {
+  "url": "/l-arginine",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 47,
+  "idxprod": 1,
+  "instock": 0,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "zma": {
+  "url": "/zma",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 13,
+  "idxprod": 0,
+  "instock": 2,
+  "indexable": false,
+  "content": 0,
+  "top_queries": []
+ },
+ "whey-isolate": {
+  "url": "/whey-isolate",
+  "impr90": 15,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": 54.9,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 138,
+  "idxprod": 14,
+  "instock": 8,
+  "indexable": true,
+  "content": 2276,
+  "top_queries": [
+   [
+    5,
+    0,
+    75.4,
+    "whey protein isolate"
+   ],
+   [
+    2,
+    0,
+    7.5,
+    "dymatize iso 100 tunisie"
+   ],
+   [
+    1,
+    0,
+    77,
+    "protéine whey isolate"
+   ],
+   [
+    1,
+    0,
+    74,
+    "isolate whey"
+   ],
+   [
+    1,
+    0,
+    73,
+    "whey isolate tunisie"
+   ]
+  ]
+ },
+ "eaa": {
+  "url": "/eaa",
+  "impr90": 3,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": 53.3,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 52,
+  "idxprod": 4,
+  "instock": 4,
+  "indexable": true,
+  "content": 1822,
+  "top_queries": [
+   [
+    2,
+    0,
+    76,
+    "eaa prix tunisie"
+   ]
+  ]
+ },
+ "whey-proteine": {
+  "url": "/whey-proteine",
+  "impr90": 405,
+  "clk90": 3,
+  "ctr90": 0.74,
+  "pos90": 64.9,
+  "impr28": 117,
+  "clk28": 2,
+  "pos28": 63.7,
+  "pub": 168,
+  "idxprod": 10,
+  "instock": 12,
+  "indexable": true,
+  "content": 3508,
+  "top_queries": [
+   [
+    101,
+    0,
+    77,
+    "whey tunisie"
+   ],
+   [
+    41,
+    0,
+    72.7,
+    "proteine anabolic tunisie"
+   ],
+   [
+    32,
+    0,
+    69.7,
+    "protéine tunisie"
+   ],
+   [
+    32,
+    0,
+    58.4,
+    "whey protein tunisie"
+   ],
+   [
+    22,
+    0,
+    63.6,
+    "proteine tunisie"
+   ]
+  ]
+ },
+ "pre-workout": {
+  "url": "/pre-workout",
+  "impr90": 30,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": 58.8,
+  "impr28": 9,
+  "clk28": 0,
+  "pos28": 71.6,
+  "pub": 228,
+  "idxprod": 9,
+  "instock": 7,
+  "indexable": true,
+  "content": 2968,
+  "top_queries": [
+   [
+    6,
+    0,
+    98.5,
+    "pre werkout tunisie"
+   ],
+   [
+    5,
+    0,
+    82.6,
+    "pre workout"
+   ],
+   [
+    5,
+    0,
+    69.6,
+    "pre workout tunisie"
+   ],
+   [
+    1,
+    0,
+    79,
+    "preworkout"
+   ],
+   [
+    1,
+    0,
+    17,
+    "preworkout tunisie"
+   ]
+  ]
+ },
+ "omega-3": {
+  "url": "/omega-3",
+  "impr90": 8,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": 52.4,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 336,
+  "idxprod": 3,
+  "instock": 3,
+  "indexable": true,
+  "content": 2277,
+  "top_queries": [
+   [
+    5,
+    0,
+    63.2,
+    "omega 3"
+   ],
+   [
+    1,
+    0,
+    93,
+    "omega 3 tunisie"
+   ]
+  ]
+ },
+ "acides-amines": {
+  "url": "/acides-amines",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 251,
+  "idxprod": 10,
+  "instock": 3,
+  "indexable": true,
+  "content": 1898,
+  "top_queries": []
+ },
+ "collagene": {
+  "url": "/collagene",
+  "impr90": 0,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": null,
+  "impr28": 0,
+  "clk28": 0,
+  "pos28": null,
+  "pub": 274,
+  "idxprod": 6,
+  "instock": 2,
+  "indexable": false,
+  "content": 1668,
+  "top_queries": []
+ },
+ "vitamines": {
+  "url": "/vitamines",
+  "impr90": 28,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": 58.1,
+  "impr28": 22,
+  "clk28": 0,
+  "pos28": 65.4,
+  "pub": 1933,
+  "idxprod": 51,
+  "instock": 12,
+  "indexable": true,
+  "content": 2573,
+  "top_queries": [
+   [
+    8,
+    0,
+    71,
+    "multivitamin tunisie"
+   ],
+   [
+    4,
+    0,
+    81.8,
+    "supplements tunisie"
+   ],
+   [
+    3,
+    0,
+    70.3,
+    "multivitamin + tunisie"
+   ],
+   [
+    2,
+    0,
+    68,
+    "multivitamines tunisie"
+   ],
+   [
+    1,
+    0,
+    99,
+    "vitamine tunisie"
+   ]
+  ]
+ },
+ "magnesium": {
+  "url": "/magnesium",
+  "impr90": 86,
+  "clk90": 0,
+  "ctr90": 0,
+  "pos90": 77.6,
+  "impr28": 36,
+  "clk28": 0,
+  "pos28": 75.8,
+  "pub": 458,
+  "idxprod": 16,
+  "instock": 4,
+  "indexable": true,
+  "content": 2372,
+  "top_queries": [
+   [
+    24,
+    0,
+    84.4,
+    "magnésium tunisie"
+   ],
+   [
+    11,
+    0,
+    88.6,
+    "magnésium"
+   ],
+   [
+    9,
+    0,
+    73.3,
+    "magnesium"
+   ],
+   [
+    8,
+    0,
+    78.5,
+    "magnesium tunisie"
+   ],
+   [
+    5,
+    0,
+    94,
+    "magnésium bisglycinate tunisie"
+   ]
+  ]
+ }
+}

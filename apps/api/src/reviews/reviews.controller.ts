@@ -1,13 +1,14 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, UseGuards } from "@nestjs/common";
 import { AdminAuthGuard } from "../admin-auth/guards/admin-auth.guard";
 import { ReviewsService } from "./reviews.service";
+import { ReviewInvitationsService } from "./review-invitations.service";
 import { AdminReviewsQueryDto } from "./dto/admin-reviews-query.dto";
 import { CreateReviewDto } from "./dto/create-review.dto";
 import { UpdateReviewStatusDto } from "./dto/update-review-status.dto";
 
 @Controller("reviews")
 export class ReviewsController {
-  constructor(private readonly reviewsService: ReviewsService) {}
+  constructor(private readonly reviewsService: ReviewsService, private readonly invitations: ReviewInvitationsService) {}
 
   @Get("product/:productId")
   getProductReviews(@Param("productId") productId: string) {
@@ -17,6 +18,23 @@ export class ReviewsController {
   @Get("product/:productId/rating")
   getProductRating(@Param("productId") productId: string) {
     return this.reviewsService.getProductRating(productId);
+  }
+
+  // Private review links (one per real order line). Public routes: the secret token is the credential.
+  @Get("invitation/:token")
+  describeInvitation(@Param("token") token: string) {
+    return this.invitations.describe(token);
+  }
+
+  @Post("invitation/:token")
+  submitInvitation(@Param("token") token: string, @Body() body: { rating: unknown; title?: unknown; body?: unknown }) {
+    return this.invitations.submit(token, body);
+  }
+
+  @UseGuards(AdminAuthGuard)
+  @Post("admin/invitations/:orderId")
+  prepareInvitations(@Param("orderId") orderId: string) {
+    return this.invitations.prepare(orderId);
   }
 
   @Post()

@@ -222,6 +222,7 @@ model Product {
   @@index([inStock, createdAt])
   @@index([createdAt])
   @@index([name])
+  @@index([seoScore])
 }
 
 model SeoRedirect {
@@ -229,6 +230,58 @@ model SeoRedirect {
   oldPath   String   @unique
   newPath   String
   createdAt DateTime @default(now())
+}
+
+model SeoJob {
+  id              String    @id @default(cuid())
+  kind            String
+  entity          String
+  mode            String    @default("dry-run")
+  status          String    @default("QUEUED")
+  params          Json      @default("{}")
+  total           Int       @default(0)
+  processed       Int       @default(0)
+  succeeded       Int       @default(0)
+  failed          Int       @default(0)
+  skipped         Int       @default(0)
+  cursor          String?
+  errors          Json      @default("[]")
+  results         Json      @default("[]")
+  backupTable     String?
+  cancelRequested Boolean   @default(false)
+  createdBy       String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+  startedAt       DateTime?
+  finishedAt      DateTime?
+
+  @@index([status, createdAt])
+}
+
+model ReviewInvitation {
+  id        String    @id @default(cuid())
+  orderId   String
+  productId String
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  reviewId  String?
+  createdAt DateTime  @default(now())
+
+  @@unique([orderId, productId])
+  @@index([userId])
+}
+
+model ReviewModeration {
+  id        String   @id @default(cuid())
+  reviewId  String
+  action    String
+  note      String?
+  actor     String?
+  createdAt DateTime @default(now())
+
+  @@index([reviewId, createdAt])
 }
 
 model SeoChecklistAudit {

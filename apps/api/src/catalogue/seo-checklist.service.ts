@@ -3,7 +3,10 @@ import { createHash } from "node:crypto";
 import { load } from "cheerio";
 import { PrismaService } from "../prisma/prisma.service";
 import { categoryTreeIds } from "./category-tree";
-import { calculateChecklist, ChecklistType, keywords, normalize, PageEvidence, plainText, realImage } from "./seo-checklist";
+import { calculateChecklist, ChecklistType, derivedCategoryEvidence, keywords, normalize, PageEvidence, plainText, realImage } from "./seo-checklist";
+import { planCategory } from "./category-seo-draft";
+import { SeoScoreService } from "./seo-score.service";
+import { planProduct, ProductFacts } from "./product-seo-draft";
 
 const ORIGIN = "https://paratunisie.com";
 const validType = (type: string): ChecklistType => { if (type !== "product" && type !== "category") throw new BadRequestException("Type invalide"); return type; };
@@ -11,14 +14,20 @@ const fingerprint = (row: any, members: any[]) => createHash("sha256").update(JS
 
 @Injectable()
 export class SeoChecklistService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private readonly scores: SeoScoreService) {}
 
-  private async snapshot(type: ChecklistType) {
+  /**
+   * Category snapshot only (51 rows). The product catalogue (~12,000 rows) is never loaded whole: products are scored per page
+   * through SeoScoreService, and a category only needs a few light columns of its member products.
+   */
+  private async snapshot(requested: ChecklistType) {
+    const type = requested as ChecklistType;
+    if (requested === "product") throw new BadRequestException("Les scores produits sont paginés : utilisez /catalogue/seo/scores/product?ids=…");
     const [products, categories, audits] = await Promise.all([
-      this.prisma.product.findMany({ include: { brand: true, category: true, variants: true, images: true } }),
+      this.prisma.product.findMany({ select: { id: true, slug: true, categoryId: true, publishState: true, indexable: true, image: true, variants: { select: { priceMillimes: true, stock: true } } } }),
       this.prisma.category.findMany(), this.prisma.seoChecklistAudit.findMany({ where: { key: { startsWith: `${type}:` } } }),
     ]);
-    const rows: any[] = type === "product" ? products : categories;
+    const rows: any[] = categories;
     const count = (values: string[]) => { const result = new Map<string, number>(); for (const value of values) result.set(value, (result.get(value) || 0) + 1); return result; };
     const slugs = count(rows.map(row => row.slug));
     const titles = count(rows.map(row => normalize(row.seoTitle)));
@@ -31,14 +40,17 @@ export class SeoChecklistService {
       const hash = fingerprint(row, members);
       const candidate = auditMap.get(`${type}:${row.id}`);
       const saved = candidate?.sourceHash === hash && Date.now() - candidate.checkedAt.getTime() < 24 * 60 * 60 * 1000 ? candidate : undefined;
-      return { row, members, context, hash, evidence: saved?.evidence as PageEvidence | undefined };
+      const verified = saved?.evidence as PageEvidence | undefined;
+      return { row, members, context, hash, evidence: verified ?? derivedCategoryEvidence(row, members), source: verified ? "verified" : "derived" };
     });
   }
 
   async report(rawType: string) {
-    const type = validType(rawType);
+    const requested = validType(rawType);
+    const type = requested as ChecklistType;
+    if (requested === "product") throw new BadRequestException("Les scores produits sont paginés : utilisez /catalogue/seo/scores/product?ids=…");
     const rows = await this.snapshot(type);
-    const items = rows.map(item => calculateChecklist(type, item.row, item.context, item.evidence));
+    const items = rows.map(item => ({ ...calculateChecklist(type, item.row, item.context, item.evidence), source: item.source }));
     return { items, total: items.length, perfect: items.filter(i => i.score === 100).length, below100: items.filter(i => i.score < 100).length, checklistVersion: 1, note: "Checklist interne ; aucun classement Google garanti. Les contrôles publics expirent après 24 h ou une modification des données." };
   }
 
@@ -94,25 +106,52 @@ export class SeoChecklistService {
     return evidence;
   }
 
+  /** Single-product optimisation: loads only that product (never the catalogue), plans safely, applies with optimistic locking. */
+  private async optimizeProduct(id: string, repair: boolean) {
+    const load = () => this.prisma.product.findUnique({ where: { id }, include: { brand: true, category: true, variants: true, images: true } });
+    let row = await load();
+    if (!row) throw new NotFoundException("Fiche introuvable");
+    const facts: ProductFacts = {
+      id: row.id, slug: row.slug, name: row.name, description: row.description, publishState: row.publishState, inStock: row.inStock,
+      brand: row.brand, category: row.category, variantLabel: row.variants[0]?.label ?? null, image: row.image,
+      seoTitle: row.seoTitle, seoDescription: row.seoDescription, seoH1: row.seoH1, seoIntro: row.seoIntro, seoContent: row.seoContent,
+      seoKeywords: row.seoKeywords, canonicalUrl: row.canonicalUrl, ogTitle: row.ogTitle, ogDescription: row.ogDescription, ogImage: row.ogImage, imageAlt: row.imageAlt,
+    };
+    const plan = planProduct(facts);
+    const changedFields: string[] = [];
+    if (repair && plan.action === "optimize") {
+      const updated = await this.prisma.product.updateMany({ where: { id, updatedAt: row.updatedAt }, data: plan.changes });
+      if (updated.count !== 1) throw new BadRequestException("La fiche a changé. Rechargez avant d’optimiser.");
+      changedFields.push(...Object.keys(plan.changes));
+      this.scores.invalidate();
+      row = (await load())!;
+    }
+    const evidence = await this.verify("product", row, []);
+    await this.prisma.seoChecklistAudit.upsert({ where: { key: `product:${id}` }, create: { key: `product:${id}`, sourceHash: "v2", evidence: evidence as object, checkedAt: new Date(evidence.checkedAt) }, update: { sourceHash: "v2", evidence: evidence as object, checkedAt: new Date(evidence.checkedAt) } });
+    const [score] = await this.scores.scoreProducts([id], true);
+    return { ...score, changedFields, plan: { action: plan.action, reason: plan.reason, issues: plan.issues } };
+  }
+
   async optimize(rawType: string, id: string, repair = true) {
-    const type = validType(rawType);
+    const requested = validType(rawType);
+    if (requested === "product") return this.optimizeProduct(id, repair);
+    const type = requested as ChecklistType;
     let item = (await this.snapshot(type)).find(item => item.row.id === id);
     if (!item) throw new NotFoundException("Fiche introuvable");
     const changes: Record<string, any> = {};
     const row = item.row;
-    const fill = (key: string, value: any) => { if ((row[key] == null || row[key] === "" || row[key] === "[]") && value) changes[key] = value; };
-    const name = plainText(row.name);
-    fill("seoH1", name);
-    fill("canonicalUrl", `${ORIGIN}/${type === "product" ? "produits/" : ""}${row.slug}`);
-    fill("seoTitle", `${name} Tunisie | ParaTunisie`);
-    fill("seoDescription", `${name} sur ParaTunisie. Comparez le prix en Tunisie et consultez les informations de cette référence avant de commander.`);
-    fill("seoIntro", plainText(row.description).split(/(?<=[.!?])\s/).slice(0, 2).join(" "));
-    fill("seoKeywords", JSON.stringify([`${name} Tunisie`, `prix ${name}`, `acheter ${name}`]));
-    fill("imageAlt", name);
-    fill("ogTitle", changes.seoTitle || row.seoTitle);
-    fill("ogDescription", changes.seoDescription || row.seoDescription);
-    fill("ogImage", row.image || row.images?.[0]?.url || item.members[0]?.image);
-    if (type === "product" && row.category?.slug && row.brand?.slug) fill("seoContent", `## Explorer cette référence\n\nRetrouvez ${name} dans [${row.category.name}](/${row.category.slug}) et comparez les autres références [${row.brand.name}](/marques/${row.brand.slug}).`);
+    // Gap filling only (see category-seo-draft.ts): empty / out-of-range / wrong-canonical fields are completed from catalogue
+    // facts; existing text and indexability are never replaced.
+    const treeIds = categoryTreeIds(await this.prisma.category.findMany({ select: { id: true, slug: true, name: true, parentId: true } }), [row.id]);
+    const top = await this.prisma.product.groupBy({ by: ["brandId"], where: { categoryId: { in: treeIds }, publishState: "PUBLISHED", indexable: true }, _count: { _all: true }, orderBy: { _count: { brandId: "desc" } }, take: 3 });
+    const brandRows = top.length ? await this.prisma.brand.findMany({ where: { id: { in: top.map((t) => t.brandId) } }, select: { id: true, name: true } }) : [];
+    const brandNames = top.map((t) => brandRows.find((b) => b.id === t.brandId)?.name).filter((n): n is string => Boolean(n));
+    const plan = planCategory({
+      id: row.id, slug: row.slug, name: row.name, status: row.status, image: row.heroImage || row.image || item.members.find((m: any) => m.image)?.image || null, brands: brandNames,
+      seoTitle: row.seoTitle, seoDescription: row.seoDescription, seoH1: row.seoH1, seoIntro: row.seoIntro, seoKeywords: row.seoKeywords, canonicalUrl: row.canonicalUrl,
+      ogTitle: row.ogTitle, ogDescription: row.ogDescription, ogImage: row.ogImage, imageAlt: row.imageAlt,
+    });
+    if (plan.action === "optimize") Object.assign(changes, plan.changes);
     // Existing editorial text, clinical facts and indexability are never overwritten.
     if (repair && Object.keys(changes).length) {
       const model = type === "product" ? this.prisma.product : this.prisma.category;

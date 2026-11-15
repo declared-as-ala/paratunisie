@@ -63,3 +63,42 @@ describe('brand pages', () => {
     assert.equal(buildBrandCollectionSchema({ name: 'X', slug: 'x', products }).mainEntity.itemListElement.length, 24);
   });
 });
+
+describe('product structured data integrity', () => {
+  const base = { name: 'Créatine 300 g', slug: 'creatine-300-g', priceTnd: 59, inStock: true, image: 'https://paratunisie.com/paratunisie-media/products/c.webp' };
+  it('turns Markdown descriptions into plain text', async () => {
+    const { buildProductSchema } = await import('./schema');
+    const out = buildProductSchema({ ...base, description: '### Titre\n\nTexte avec **gras** et un [lien](/x).\n\n- Point un\n- Point deux' });
+    assert.doesNotMatch(out.description, /[#*\[\]]|\(\/x\)/);
+    assert.match(out.description, /Texte avec gras et un lien\./);
+  });
+  it('removes headings that sit inline in the text', async () => {
+    const { buildProductSchema } = await import('./schema');
+    const out = buildProductSchema({ ...base, description: "Poids : 0,06 kg ### Poids de l'article Le poids inclut l'emballage" });
+    assert.doesNotMatch(out.description, /#/);
+    assert.match(out.description, /Poids de l'article Le poids inclut/);
+  });
+  it('never publishes a slug or an empty value as SKU', async () => {
+    const { buildProductSchema } = await import('./schema');
+    assert.equal('sku' in buildProductSchema({ ...base, description: 'x' }), false);
+    assert.equal(buildProductSchema({ ...base, description: 'x', sku: 'REF-42' }).sku, 'REF-42');
+  });
+  it('never invents review text, author or date', async () => {
+    const { buildProductSchema } = await import('./schema');
+    const reviews = [
+      { id: '1', rating: 5, title: null, body: null, verified: true, createdAt: '2026-11-01T10:00:00Z', user: { name: 'Sami' } },
+      { id: '2', rating: 4, title: null, body: 'Bon produit, livraison rapide.', verified: true, createdAt: '2026-11-02T10:00:00Z', user: { name: null } },
+      { id: '3', rating: 4, title: null, body: 'Conforme à la description.', verified: true, createdAt: '2026-11-03T10:00:00Z', user: { name: 'Leila' } },
+    ];
+    const out = buildProductSchema({ ...base, description: 'x', rating: { average: 4.5, count: 3 }, reviews });
+    assert.equal(out.review?.length, 1, 'only the review with real text, a real author and a date is marked up');
+    assert.equal(out.review?.[0].author.name, 'Leila');
+    assert.doesNotMatch(JSON.stringify(out), /Très satisfait|Client Vérifié/);
+  });
+  it('omits ratings when there are no real reviews', async () => {
+    const { buildProductSchema } = await import('./schema');
+    const out = buildProductSchema({ ...base, description: 'x', rating: { average: 0, count: 0 }, reviews: [] });
+    assert.equal('aggregateRating' in out, false);
+    assert.equal('review' in out, false);
+  });
+});

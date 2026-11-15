@@ -111,6 +111,24 @@ export interface ProductSchemaReview {
   createdAt?: string;
 }
 
+/** Markdown and HTML to plain text for structured data (Google expects readable text, not markup). Max 5,000 characters. */
+export function plainDescription(value: string): string {
+  const text = String(value ?? "")
+    .replace(/<[^>]*>/g, " ")
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, " ")
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, "$1")
+    .replace(/^\s{0,3}#{1,6}\s*/gm, "")
+    .replace(/(^|\s)#{1,6}(?=\s|$)/g, "$1") // headings that ended up inline after whitespace collapsing
+    .replace(/(\*\*|__|\*|_|`)/g, "")
+    .replace(/^\s*[-*+]\s+/gm, "")
+    .replace(/^\s*>\s?/gm, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (text.length <= 5000) return text;
+  const cut = text.slice(0, 5000);
+  return `${cut.slice(0, Math.max(cut.lastIndexOf(". "), cut.lastIndexOf(" ")) + 1).trim()}`;
+}
+
 export interface ProductSchemaInput {
   name: string;
   slug: string;
@@ -143,30 +161,25 @@ export function buildProductSchema(product: ProductSchemaInput) {
     product.rating.average >= 1 &&
     product.rating.average <= 5;
 
-  const validReviews =
-    product.reviews && product.reviews.length > 0
-      ? product.reviews.slice(0, 5).map((r) => {
-          const authorName = r.author || r.user?.name || "Client Vérifié";
-          const publishedDate = r.createdAt
-            ? new Date(r.createdAt).toISOString().split("T")[0]
-            : new Date().toISOString().split("T")[0];
-          return {
-            "@type": "Review",
-            author: {
-              "@type": "Person",
-              name: authorName,
-            },
-            datePublished: publishedDate,
-            reviewRating: {
-              "@type": "Rating",
-              ratingValue: Math.min(5, Math.max(1, r.rating)),
-              bestRating: 5,
-              worstRating: 1,
-            },
-            reviewBody: (r.body || r.title || "Très satisfait de ce produit, excellente qualité et résultats visibles.").trim(),
-          };
-        })
-      : [];
+  // Only genuine, attributable reviews are marked up: a real author name, a real date and real text.
+  // Nothing is ever invented to fill a missing field (no default author, date or sentence).
+  const validReviews = (product.reviews ?? [])
+    .map((r) => {
+      const authorName = (r.author || r.user?.name || "").trim();
+      const text = (r.body || r.title || "").trim();
+      const created = r.createdAt ? new Date(r.createdAt) : null;
+      if (!authorName || !text || !created || Number.isNaN(created.getTime())) return null;
+      if (!Number.isFinite(r.rating) || r.rating < 1 || r.rating > 5) return null;
+      return {
+        "@type": "Review",
+        author: { "@type": "Person", name: authorName },
+        datePublished: created.toISOString().split("T")[0],
+        reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5, worstRating: 1 },
+        reviewBody: text,
+      };
+    })
+    .filter((r): r is NonNullable<typeof r> => r !== null)
+    .slice(0, 5);
 
   return {
     "@context": "https://schema.org",
@@ -185,8 +198,8 @@ export function buildProductSchema(product: ProductSchemaInput) {
         }
       : {}),
     ...(validReviews.length > 0 ? { review: validReviews } : {}),
-    description: (product.description || product.name).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim(),
-    sku: product.sku || product.slug,
+    description: plainDescription(product.description || product.name),
+    ...(product.sku ? { sku: product.sku } : {}),
     url: productUrl,
     ...(product.brandName && !/non renseign|unknown/i.test(product.brandName)
       ? {
