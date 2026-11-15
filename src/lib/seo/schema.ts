@@ -270,6 +270,40 @@ export function buildBrandSchema(brand: BrandSchemaInput) {
   };
 }
 
+export interface BrandCollectionSchemaInput {
+  name: string;
+  slug: string;
+  description?: string | null;
+  products: { slug: string; name: string }[];
+}
+
+/**
+ * CollectionPage + ItemList for a brand listing page. Only real catalogue products are listed (name and URL); no Offer,
+ * rating or review markup is generated here, so the structured data can never contradict the visible page.
+ */
+export function buildBrandCollectionSchema(input: BrandCollectionSchemaInput, limit = 24) {
+  const items = input.products.slice(0, limit);
+  const url = buildCanonicalUrl(`/marques/${input.slug}`);
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: `Produits ${input.name}`,
+    url,
+    ...(input.description ? { description: input.description } : {}),
+    isPartOf: { "@type": "WebSite", name: "ParaTunisie", url: COMPANY_CONFIG.siteUrl },
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: items.length,
+      itemListElement: items.map((p, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        url: buildCanonicalUrl(`/produits/${p.slug}`),
+        name: p.name,
+      })),
+    },
+  };
+}
+
 export interface FaqItem {
   question: string;
   answer: string;

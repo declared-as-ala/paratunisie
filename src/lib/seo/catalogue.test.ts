@@ -40,3 +40,26 @@ describe('catalogue search rendering', () => {
     assert.equal(buildProductSchema({ ...product, rating: { average: 4.5, count: 2 } }).aggregateRating?.reviewCount, 2);
   });
 });
+
+describe('brand pages', () => {
+  it('fallback metadata never claims official status', async () => {
+    const { buildBrandMetadata } = await import('./metadata');
+    const m = buildBrandMetadata({ name: 'Solgar', slug: 'solgar' });
+    const text = JSON.stringify(m);
+    assert.doesNotMatch(text, /officiel/i);
+    assert.match(JSON.stringify(m.title), /Solgar/);
+  });
+  it('CollectionPage lists real products only, without offers or ratings', async () => {
+    const { buildBrandCollectionSchema } = await import('./schema');
+    const schema = buildBrandCollectionSchema({ name: 'Solgar', slug: 'solgar', products: [{ slug: 'a', name: 'A' }, { slug: 'b', name: 'B' }] });
+    assert.equal(schema['@type'], 'CollectionPage');
+    assert.equal(schema.mainEntity.numberOfItems, 2);
+    assert.match(schema.mainEntity.itemListElement[0].url, /\/produits\/a$/);
+    assert.doesNotMatch(JSON.stringify(schema), /offers|aggregateRating|review/i);
+  });
+  it('caps the ItemList', async () => {
+    const { buildBrandCollectionSchema } = await import('./schema');
+    const products = Array.from({ length: 50 }, (_v, i) => ({ slug: `p${i}`, name: `P${i}` }));
+    assert.equal(buildBrandCollectionSchema({ name: 'X', slug: 'x', products }).mainEntity.itemListElement.length, 24);
+  });
+});

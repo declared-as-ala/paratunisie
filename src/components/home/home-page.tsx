@@ -1,5 +1,7 @@
 import { HomeHero } from "@/components/home/home-hero";
 import { FeaturedSidePanel } from "@/components/home/featured-side-panel";
+import { FeaturedCategoryPanel } from "@/components/home/featured-category-panel";
+import { HomeCheapestGrid } from "@/components/home/home-cheapest-grid";
 import { HomeGoals, type PopularSubcategory } from "@/components/home/home-goals";
 import { HomeProductCarousel } from "@/components/home/home-product-carousel";
 import { HomeTrustStrip } from "@/components/home/home-trust-strip";
@@ -8,7 +10,7 @@ import { HomeBlogPreview } from "@/components/home/home-blog-preview";
 import { HomeNewsletter } from "@/components/home/home-newsletter";
 import { HomeSeoSection } from "@/components/home/home-seo-section";
 import { Pill, Flame, Sparkles, Magnet, Droplet, Bone } from "lucide-react";
-import type { BrandListItem, CategoryDepartment, FeaturedProduct, ShopDepartment } from "@/lib/api/client";
+import type { BrandListItem, CategoryDepartment, CheapestByCategoryEntry, FeaturedProduct, ShopDepartment } from "@/lib/api/client";
 import type { ProductSummary } from "@/lib/data/products";
 import type { Article } from "@/lib/data/articles";
 
@@ -55,6 +57,7 @@ export type HomeCollection = {
 export function HomePage({
   collections,
   featured,
+  cheapest = [],
   bestSellers,
   articles = [],
   departments = [],
@@ -63,6 +66,8 @@ export function HomePage({
 }: {
   collections: HomeCollection[];
   featured: FeaturedProduct | null;
+  /** Cheapest purchasable product per main category (live catalogue). Empty → the manual featured product is shown. */
+  cheapest?: CheapestByCategoryEntry[];
   bestSellers: ProductSummary[];
   articles?: Article[];
   departments?: CategoryDepartment[];
@@ -76,11 +81,16 @@ export function HomePage({
       {/* ── 1. Hero ──────────────────────────────────────────────────────── */}
       <HomeHero
         rightAside={
-          featured ? (
+          cheapest.length >= 2 ? (
+            <FeaturedCategoryPanel entries={cheapest} />
+          ) : featured ? (
             <FeaturedSidePanel featured={featured} />
           ) : undefined
         }
       />
+
+      {/* ── 2. Les meilleurs petits prix par catégorie (also the mobile version of the hero module) ── */}
+      <HomeCheapestGrid entries={cheapest} />
 
       {/* ── 3. Shoppez selon votre objectif ──────────────────────────────── */}
       <HomeGoals departments={shopDepartments} popular={popularSubcategories} />

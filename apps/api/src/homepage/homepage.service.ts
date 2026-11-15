@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { ProductPublishState } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
+import { descendantIds, HOMEPAGE_CATEGORY_PRIORITY, selectCheapestByCategory } from "./cheapest-by-category";
 
 export interface UpdateSectionConfigDto {
   sectionKey: string;
@@ -409,6 +410,36 @@ export class HomepageService {
         variants: product.variants.map((v) => ({ label: v.label, priceMillimes: v.priceMillimes })),
       },
     };
+  }
+
+  /**
+   * "Les petits prix par catégorie": the cheapest genuinely purchasable product of each main category (subcategories
+   * included). Two queries in total (categories, then every in-stock product of the wanted categories), then a pure,
+   * unit-tested selection (see cheapest-by-category.ts). Nothing is cached here: price, stock and publication changes are
+   * visible on the next request, and the price returned is the exact variant price the cart will use.
+   */
+  async getCheapestByCategory() {
+    const categories = await this.prisma.category.findMany({ select: { id: true, slug: true, name: true, parentId: true, status: true } });
+    const wanted = HOMEPAGE_CATEGORY_PRIORITY.map((slug) => categories.find((c) => c.slug === slug)).filter((c): c is NonNullable<typeof c> => Boolean(c));
+    if (wanted.length === 0) return [];
+    const ids = new Set<string>();
+    for (const root of wanted) descendantIds(root.id, categories).forEach((id) => ids.add(id));
+
+    const products = await this.prisma.product.findMany({
+      where: {
+        publishState: ProductPublishState.PUBLISHED,
+        inStock: true,
+        categoryId: { in: [...ids] },
+        variants: { some: { stock: { gt: 0 } } },
+      },
+      select: {
+        id: true, slug: true, name: true, benefit: true, image: true, imageAlt: true, publishState: true, inStock: true, categoryId: true,
+        brand: { select: { name: true, slug: true } },
+        category: { select: { name: true, slug: true } },
+        variants: { select: { id: true, label: true, priceMillimes: true, stock: true } },
+      },
+    });
+    return selectCheapestByCategory(categories, products);
   }
 
   /**

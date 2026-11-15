@@ -287,3 +287,13 @@
 
 /* The landing product page has no tab bar, so drop the space the body reserves for it. */
 body.lp-mode { padding-bottom: 0; }
+
+/* Category switch in the homepage "À LA UNE" module: a short fade, disabled for reduced motion. */
+@keyframes cat-fade {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+.cat-fade { animation: cat-fade 0.28s ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .cat-fade { animation: none; }
+}

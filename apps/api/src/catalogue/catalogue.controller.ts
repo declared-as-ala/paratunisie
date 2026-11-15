@@ -4,6 +4,7 @@ import { CatalogueService } from "./catalogue.service";
 import { SeoChecklistService } from "./seo-checklist.service";
 import { CatalogueQualityService } from "./catalogue-quality.service";
 import { CatalogueSeoService, SeoEntityType } from "./catalogue-seo.service";
+import { BrandSeoService, type BrandSeoRunOptions } from "./brand-seo.service";
 import { AdminAuthGuard } from "../admin-auth/guards/admin-auth.guard";
 import { ArrayMaxSize, ArrayMinSize, IsArray, IsString } from "class-validator";
 
@@ -20,6 +21,7 @@ export class CatalogueController {
   constructor(
     private readonly catalogueService: CatalogueService,
     private readonly catalogueSeoService: CatalogueSeoService,
+    private readonly brandSeoService: BrandSeoService,
     private readonly seoChecklistService: SeoChecklistService,
     private readonly qualityService: CatalogueQualityService,
   ) {}
@@ -225,6 +227,19 @@ export class CatalogueController {
   @UseGuards(AdminAuthGuard)
   async generateSeoBulk(@Body() body: { type: SeoEntityType; mode?: "missing" | "all"; cursor?: string; limit?: number }) {
     return this.catalogueSeoService.generateBulk(body.type, body.mode, body.cursor, body.limit);
+  }
+
+  // Brand SEO workflow: read-only audit (score, tier, reasons), then dry-run / apply with a table snapshot.
+  @Get("seo/brands/audit")
+  @UseGuards(AdminAuthGuard)
+  async auditBrandSeo() {
+    return this.brandSeoService.audit();
+  }
+
+  @Post("seo/brands/run")
+  @UseGuards(AdminAuthGuard)
+  async runBrandSeo(@Body() body: BrandSeoRunOptions) {
+    return this.brandSeoService.run(body ?? {});
   }
 
   @Get("seo/report")

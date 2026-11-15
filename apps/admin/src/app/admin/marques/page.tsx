@@ -16,15 +16,16 @@ import {
   Trash2,
 } from "lucide-react";
 import { MarqueDrawer, type BrandModel } from "@/components/marque-drawer";
-import { BulkSeoGenerator } from "@/components/bulk-seo-generator";
+import { BrandSeoBadge, BrandSeoPanel, useBrandAudit } from "@/components/brand-seo-panel";
 import { ConfirmModal } from "@/components/confirm-modal";
 import { useToast } from "@/components/toast";
 import { apiClient, ApiError } from "@/lib/api-client";
 
-import { SeoCompletenessScore } from "@/components/seo-completeness-score";
 
 export default function MarquesAdminPage() {
   const { toast } = useToast();
+  const { audit, reload: reloadAudit } = useBrandAudit();
+  const auditBySlug = useMemo(() => new Map((audit?.rows ?? []).map((row) => [row.slug, row])), [audit]);
   const [brands, setBrands] = useState<BrandModel[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -175,7 +176,7 @@ export default function MarquesAdminPage() {
         </button>
       </div>
 
-      <BulkSeoGenerator type="brand" label="toutes les marques" />
+      <BrandSeoPanel audit={audit} onApplied={() => { void reloadAudit(); void loadBrands(); }} />
       <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-xs">
         <div className="relative min-w-[240px] max-w-md flex-1">
           <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
@@ -250,7 +251,7 @@ export default function MarquesAdminPage() {
                   <td className="px-4 py-3.5 font-mono text-[0.6875rem]">/marques/{brand.slug}</td>
                   <td className="px-4 py-3.5 text-center font-black text-slate-900">{brand.productCount ?? 0} réf.</td>
                   <td className="px-4 py-3.5 text-center">
-                    <SeoCompletenessScore article={brand} size="sm" />
+                    <BrandSeoBadge row={auditBySlug.get(brand.slug)} />
                   </td>
                   <td className="px-4 py-3.5"><div className="flex max-w-xs flex-wrap gap-1">{(brand.specialties ?? []).slice(0, 2).map((item) => <span key={item} className="rounded-lg bg-slate-100 px-2 py-0.5 text-[0.625rem] font-bold">{item}</span>)}</div></td>
                   <td className="px-4 py-3.5">{brand.featured ? <span className="inline-flex items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-[0.6875rem] font-bold text-amber-700"><Sparkles size={11} aria-hidden="true" /> Iconique</span> : "—"}</td>

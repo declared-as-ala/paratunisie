@@ -232,10 +232,11 @@ export interface BrandMetadataInput extends StoredSeo {
  * Builds metadata for Brand pages.
  */
 export function buildBrandMetadata(brand: BrandMetadataInput): Metadata {
-  const defaultTitle = `Produits ${brand.name} en Tunisie — Achat Officiel`;
+  // Fallback copy is deliberately neutral: ParaTunisie is never presented as an official distributor of a brand.
+  const defaultTitle = `Produits ${brand.name} | ParaTunisie`;
   const title = brand.seoTitle || defaultTitle;
 
-  const defaultDesc = `Retrouvez tous les produits de la marque officielle ${brand.name} en Tunisie chez ParaTunisie. Livraison express partout en Tunisie.`;
+  const defaultDesc = `Découvrez les produits ${brand.name} disponibles chez ParaTunisie : formats, prix et état de stock. Livraison en 24 à 48 h en Tunisie, paiement à la livraison.`;
   const description = brand.seoDescription || brand.description || defaultDesc;
 
   return buildPageMetadata({
@@ -245,11 +246,7 @@ export function buildBrandMetadata(brand: BrandMetadataInput): Metadata {
     path: `/marques/${brand.slug}`,
     image: brand.logo,
     noindex: brand.indexable === false,
-    keywords: [
-      brand.name.toLowerCase(),
-      `marque ${brand.name.toLowerCase()} tunisie`,
-      "produits officiels tunisie",
-    ],
+    keywords: [`${brand.name.toLowerCase()} tunisie`, `acheter ${brand.name.toLowerCase()}`],
   });
 }
 

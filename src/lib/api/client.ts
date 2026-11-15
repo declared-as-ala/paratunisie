@@ -581,6 +581,59 @@ export async function fetchFeaturedProduct(): Promise<FeaturedProduct | null> {
   return { config: raw.config, product: { ...summary, inStock: p.inStock } };
 }
 
+/**
+ * One selectable entry of the homepage "Les petits prix par catégorie" module. The product carries exactly ONE size:
+ * the cheapest purchasable variant, which is both the price shown and the line added to the cart.
+ */
+export type CheapestByCategoryEntry = {
+  categoryName: string;
+  categorySlug: string;
+  eligibleCount: number;
+  /** True only when at least two eligible products were compared, so "lowest price" is a proven statement. */
+  cheapestProven: boolean;
+  /** Size label that is safe to display (null when the catalogue label contradicts the product name). */
+  displaySize: string | null;
+  product: ProductSummary;
+};
+
+type RawCheapest = {
+  category: { name: string; slug: string };
+  eligibleCount: number;
+  cheapestProven: boolean;
+  product: {
+    id: string; slug: string; name: string; benefit: string | null; image: string; imageAlt: string | null;
+    brand: { name: string; slug: string }; category: { name: string; slug: string };
+    variant: { id: string; label: string; priceMillimes: number; stock: number };
+    displaySize: string | null;
+  };
+};
+
+/** Cheapest genuinely purchasable product of each main category (live catalogue; never cached). */
+export async function fetchCheapestByCategory(): Promise<CheapestByCategoryEntry[]> {
+  const raw = await apiFetch<RawCheapest[]>("/homepage/cheapest-by-category");
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((e) => e?.product?.variant && e.product.variant.priceMillimes > 0 && e.product.image)
+    .map((e) => ({
+      categoryName: e.category.name,
+      categorySlug: e.category.slug,
+      eligibleCount: e.eligibleCount,
+      cheapestProven: e.cheapestProven,
+      displaySize: e.product.displaySize,
+      product: transformProduct({
+        id: e.product.id,
+        slug: e.product.slug,
+        name: e.product.name,
+        benefit: e.product.benefit,
+        image: e.product.image,
+        imageAlt: e.product.imageAlt,
+        brand: { id: "", name: e.product.brand.name, slug: e.product.brand.slug },
+        category: { id: "", name: e.product.category.name, slug: e.product.category.slug },
+        variants: [e.product.variant],
+      }),
+    }));
+}
+
 /** Top products by real units sold; empty until enough genuine sales exist. */
 export async function fetchBestSellers(limit = 8): Promise<ProductSummary[]> {
   const raw = await apiFetch<RawProduct[]>(`/homepage/best-sellers?limit=${limit}`);

@@ -45,7 +45,7 @@ const OWN_MEDIA_URL = /^https:\/\/(?:www\.)?paratunisie\.com\/paratunisie-media\
 
 // Compounds that are unapproved, prescription-only or controlled in many markets. A product naming one of them must be
 // reviewed by a human (legality, claims, suitability) before it can be indexed. Matching is on name/slug only.
-const RESTRICTED_SUBSTANCE = /(?<![a-z0-9])(?:mk-?677|ibutamoren|sarms?|ostarine|ligandrol|lgd-?4033|rad-?140|testolone|cardarine|gw-?501516|stenabolic|dhea|7-?keto|pregnenolone|prohormones?|1-?andro|4-?andro|epiandrosterone|clenbuterol|ephedra|ephedrine|dnp|oxandrolone|anavar|tamoxifen|nolvadex|clomiphene|hcg)(?![a-z0-9])/i;
+export const RESTRICTED_SUBSTANCE = /(?<![a-z0-9])(?:mk-?677|ibutamoren|sarms?|ostarine|ligandrol|lgd-?4033|rad-?140|testolone|cardarine|gw-?501516|stenabolic|dhea|7-?keto|pregnenolone|prohormones?|1-?andro|4-?andro|epiandrosterone|clenbuterol|ephedra|ephedrine|dnp|oxandrolone|anavar|tamoxifen|nolvadex|clomiphene|hcg)(?![a-z0-9])/i;
 
 function normalized(value: string | null | undefined) {
   return (value || "").replace(/\s+/g, " ").trim();

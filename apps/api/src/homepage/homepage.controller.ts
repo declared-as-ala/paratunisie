@@ -17,6 +17,12 @@ export class HomepageController {
     return this.homepageService.getFeaturedProduct();
   }
 
+  // Public: cheapest purchasable product of each main category (real catalogue data only).
+  @Get("cheapest-by-category")
+  async getCheapestByCategory() {
+    return this.homepageService.getCheapestByCategory();
+  }
+
   // Public: top products by real units sold (empty until enough genuine sales exist).
   @Get("best-sellers")
   async getBestSellers(@Query("limit") limit?: string) {

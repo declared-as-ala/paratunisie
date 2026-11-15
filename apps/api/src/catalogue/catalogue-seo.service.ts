@@ -1,5 +1,6 @@
 import { BadRequestException, Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
+import { BrandSeoService } from "./brand-seo.service";
 
 export type SeoEntityType = "product" | "category" | "brand";
 
@@ -39,7 +40,7 @@ function score(data: Record<string, unknown>) {
 
 @Injectable()
 export class CatalogueSeoService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService, private readonly brandSeo: BrandSeoService) {}
 
   generateProduct(product: any) {
     const name = clean(product.name);
@@ -143,15 +144,22 @@ export class CatalogueSeoService {
       generated = this.generateCategory(entity);
       if (save) await this.prisma.category.update({ where: { id }, data: generated });
     } else if (type === "brand") {
-      entity = await this.prisma.brand.findUnique({ where: { id } });
-      if (!entity) throw new NotFoundException("Marque introuvable");
-      generated = this.generateBrand(entity);
-      if (save) await this.prisma.brand.update({ where: { id }, data: generated });
+      // Brands never use the generic template: they go through the tiered, validated, duplicate-checked engine.
+      const result = await this.brandSeo.generateOne(id, save);
+      if (!result.draft || result.action === "blocked" || result.action === "noindex" || result.action === "unchanged" || result.action === "preserve") {
+        throw new BadRequestException(`${result.reason}${result.issues.length ? " " + result.issues.map((i) => i.message).join(" ") : ""}`);
+      }
+      generated = { ...result.draft, seoKeywords: JSON.stringify(result.draft.seoKeywords), indexable: result.indexable, followLinks: true, seoIsCustom: false, seoGeneratedAt: new Date() };
     } else throw new BadRequestException("Type SEO invalide");
     return { ...generated, seoGeneratedAt: generated.seoGeneratedAt.toISOString() };
   }
 
   async generateBulk(type: SeoEntityType, mode: "missing" | "all" = "missing", cursor?: string, limit = 25) {
+    if (type === "brand") {
+      // Safe path: preserves custom and original copy, never mass-indexes, snapshots the table before writing.
+      const run = await this.brandSeo.run({ mode: "apply", regenerate: mode === "all", overwriteCustom: false });
+      return { processed: run.selected, succeeded: run.written, failures: run.failures.map((f) => ({ id: f.slug, error: f.error })), nextCursor: null, done: true };
+    }
     const take = Math.min(Math.max(Number(limit) || 25, 1), 100);
     const model: any = type === "product" ? this.prisma.product : type === "category" ? this.prisma.category : type === "brand" ? this.prisma.brand : null;
     if (!model) throw new BadRequestException("Type SEO invalide");

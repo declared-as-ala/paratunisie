@@ -6,6 +6,7 @@ import { ProductRichText } from "@/components/product/product-rich-text";
 import { BrandProducts } from "@/components/marques/brand-products";
 import { fetchBrandBySlug, fetchProducts, fetchSeoRedirect, fetchPaginatedProducts } from "@/lib/api/client";
 import { buildBrandMetadata, buildBreadcrumbsSchema, buildBrandSchema } from "@/lib/seo";
+import { buildBrandCollectionSchema } from "@/lib/seo/schema";
 
 export async function generateMetadata({
   params,
@@ -58,6 +59,12 @@ export default async function BrandPage({
 
   const brandLogo = brand.image || brand.logo || undefined;
 
+  // First 24 products in the order shoppers see by default (in stock first); real catalogue products only.
+  const listed = [...brandProducts]
+    .sort((a, b) => Number(b.inStock !== false) - Number(a.inStock !== false) || Number(b.indexable !== false) - Number(a.indexable !== false) || a.name.localeCompare(b.name, "fr"))
+    .map((p) => ({ slug: p.slug, name: p.name }));
+  const collectionJsonLd = buildBrandCollectionSchema({ name: brand.name, slug: brand.slug, description: introText, products: listed });
+
   const brandJsonLd = buildBrandSchema({
     name: brand.name,
     slug: brand.slug,
@@ -75,6 +82,12 @@ export default async function BrandPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(brandJsonLd).replace(/</g, "\\u003c") }}
       />
+      {listed.length > 0 && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionJsonLd).replace(/</g, "\\u003c") }}
+        />
+      )}
       <div className="mx-auto max-w-[1440px] px-4 pb-16 pt-6 sm:px-6 sm:pt-8 lg:px-8 lg:pt-10">
         <nav aria-label="Fil d'Ariane" className="mb-6 text-xs text-ink-muted sm:text-sm font-medium">
           <ol className="flex items-center gap-1.5 sm:gap-2">
@@ -94,7 +107,7 @@ export default async function BrandPage({
               {brandLogo ? (
                 <img
                   src={brandLogo}
-                  alt={`Logo ${brand.name} Tunisie`}
+                  alt={brand.imageAlt || `Logo ${brand.name}`}
                   className="max-h-full max-w-full object-contain filter contrast-105"
                 />
               ) : (
@@ -107,7 +120,7 @@ export default async function BrandPage({
             <div className="flex-1 space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-[0.6875rem] font-extrabold text-emerald-800 uppercase tracking-wider">
-                  Marque identifiée
+                  Marque du catalogue
                 </span>
                 {brand.origin && (
                   <span className="inline-flex items-center rounded-full bg-slate-100 px-2.5 py-0.5 text-[0.6875rem] font-bold text-slate-700">

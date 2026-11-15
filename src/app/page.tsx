@@ -4,6 +4,7 @@ import {
   fetchBestSellers,
   fetchBrands,
   fetchCategoryDepartments,
+  fetchCheapestByCategory,
   fetchFeaturedProduct,
   fetchPaginatedProducts,
   fetchShopDepartments,
@@ -32,9 +33,10 @@ export const metadata: Metadata = {
 export default async function Home() {
   const list = (category: string, limit: number) => fetchPaginatedProducts({ category, limit }).then((r) => r.products);
 
-  const [featured, bestSellers, departments, shopDepartments, brands, creatine, whey, isolate, gainers, vitamines, preWorkout] =
+  const [featured, cheapest, bestSellers, departments, shopDepartments, brands, creatine, whey, isolate, gainers, vitamines, preWorkout] =
     await Promise.all([
       fetchFeaturedProduct(),
+      fetchCheapestByCategory(),
       fetchBestSellers(10),
       fetchCategoryDepartments(),
       fetchShopDepartments(),
@@ -94,6 +96,7 @@ export default async function Home() {
     <HomePage
       collections={collections}
       featured={featured}
+      cheapest={cheapest}
       bestSellers={bestSellers}
       articles={articles.slice(0, 5)}
       departments={departments}

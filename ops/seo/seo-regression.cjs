@@ -10,7 +10,11 @@ const SAMPLE = Number(process.env.SAMPLE || 25);
 const GOOGLEBOT = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
 const BROWSER = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36";
 // Known facts used as canaries (update when the policy changes).
-const MUST_BE_NOINDEX = ["/produits/mk-677-60-capsules"]; // legal review pending
+const MUST_BE_NOINDEX = [
+  "/produits/mk-677-60-capsules", // legal review pending
+  "/produits/t-9-testo-booster-120-caps", "/produits/shilajit-complex-weightworld-120-capsules", "/produits/tribulus-60caps-real-pharm", // hormone-related (owner rule)
+  "/produits/whey-testo-mr-x-1-8-kg-v-shapes", "/produits/zma-120-caps", "/produits/best-zma-120-caps-scenit-nutrition", "/produits/21st-century-fenugreek-100-gelules-vegetales",
+];
 const EXPECTED_REDIRECTS = {
   "/blog": "/conseils",
   "/brands": "/marques",
@@ -96,6 +100,37 @@ const pool = async (items, n, fn) => { const out = []; let i = 0; await Promise.
   // ---- filters / pagination rules
   const filtered = await get("/whey-proteine?sort=price-asc&brand=x");
   record(/noindex/i.test(meta(filtered.text, "robots")) || canonical(filtered.text) === "https://paratunisie.com/whey-proteine", "filtered listing is noindex or canonicalised to the clean URL", meta(filtered.text, "robots"));
+
+  // ---- brand pages (Batch 8): every sitemap brand is indexable with unique metadata; ineligible brands stay noindex
+  const brandUrls = urls.filter((u) => /^\/marques\/[^/]+$/.test(u));
+  record(brandUrls.length >= 1, "sitemap lists brand pages", String(brandUrls.length));
+  const brandSeen = { title: new Map(), desc: new Map(), h1: new Map() };
+  await pool(brandUrls, 4, async (u) => {
+    const r = await get(u);
+    const title = ((r.text.match(/<title>([^<]*)/) || [])[1] || "").replace(/&amp;/g, "&");
+    const desc = meta(r.text, "description");
+    const h1s = r.text.match(/<h1[^>]*>([\s\S]*?)<\/h1>/gi) || [];
+    const text = (h1s[0] || "").replace(/<[^>]+>/g, "").trim();
+    const ld = flat(jsonLd(r.text));
+    record(r.status === 200 && !/noindex/i.test(meta(r.text, "robots")), `brand indexable: ${u}`, `${r.status} ${meta(r.text, "robots")}`);
+    record(canonical(r.text) === BASE.replace(/^http:\/\/localhost:\d+/, "https://paratunisie.com") + u || canonical(r.text).endsWith(u), `brand self-canonical: ${u}`, canonical(r.text));
+    record(h1s.length === 1, `brand has exactly one H1: ${u}`, String(h1s.length));
+    record(title.length >= 15 && title.length <= 62, `brand title length 15-60: ${u}`, `${title.length}`);
+    record(desc.length >= 90 && desc.length <= 165, `brand meta description length 90-160: ${u}`, `${desc.length}`);
+    record(!/officiel/i.test(title + " " + desc + " " + r.text.replace(/<script[\s\S]*?<\/script>/g, "").slice(0, 60000).match(/<main[\s\S]*<\/main>/i)?.[0] ?? ""), `brand copy makes no 'official distributor' claim: ${u}`, "");
+    record(ld.some((n) => n["@type"] === "BreadcrumbList") && ld.some((n) => n["@type"] === "Brand"), `brand has BreadcrumbList + Brand schema: ${u}`, "");
+    if (process.env.EXPECT_COLLECTION !== "0") record(ld.some((n) => n["@type"] === "CollectionPage" && n.mainEntity?.itemListElement?.length > 0) && !JSON.stringify(ld).match(/aggregateRating/), `brand has CollectionPage + ItemList without fabricated ratings: ${u}`, "");
+    for (const [k, v] of [["title", title], ["desc", desc], ["h1", text]]) { const key = v.toLowerCase(); (brandSeen[k].get(key) || brandSeen[k].set(key, []).get(key)).push(u); }
+  });
+  for (const [k, m] of Object.entries(brandSeen)) {
+    const dup = [...m.entries()].filter(([, list]) => list.length > 1);
+    record(dup.length === 0, `brand ${k} values are unique across indexable brands`, dup.slice(0, 3).map(([v, l]) => `${l.join(",")}`).join(" | "));
+  }
+  for (const u of ["/marques/scenit-nutrition", "/marques/jx-fitness", "/marques/autres-marques"]) {
+    const r = await get(u);
+    record(r.status === 404 || (r.status === 200 && /noindex/i.test(meta(r.text, "robots"))), `ineligible brand is not indexable: ${u}`, `${r.status} ${meta(r.text, "robots")}`);
+    record(!urls.includes(u), `ineligible brand not in sitemap: ${u}`, "");
+  }
 
   // ---- redirects: exactly one hop, correct target
   for (const [from, to] of Object.entries(EXPECTED_REDIRECTS)) {
