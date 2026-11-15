@@ -180,7 +180,7 @@ function parseFaq(value?: string): { question: string; answer: string }[] {
 /* ─── Fetch helpers ─────────────────────────────────────────────────── */
 
 /**
- * Opt-in short-TTL caching for PUBLIC catalogue reads (home, product pages). OFF unless PUBLIC_CACHE_SECONDS > 0,
+ * Opt-in short-TTL caching for PUBLIC catalogue reads (home, product pages, home widgets, public reviews). OFF unless PUBLIC_CACHE_SECONDS > 0,
  * so production behaviour is unchanged until a rollout is explicitly approved. Never applied in the browser, to
  * non-GET calls, or to anything outside the public catalogue (cart, checkout, account, admin stay uncached).
  * Freshness: entries expire after N seconds and can be flushed immediately with revalidateTag("catalogue").
@@ -188,7 +188,7 @@ function parseFaq(value?: string): { question: string; answer: string }[] {
  */
 function publicCacheSeconds(path: string, init?: RequestInit): number {
   if (typeof window !== "undefined" || (init?.method && init.method !== "GET")) return 0;
-  if (!/^\/(catalogue\/(products|categories|brands|sitemap-data)|content\/articles)(?:[/?]|$)/.test(path)) return 0;
+  if (!/^\/(catalogue\/(products|categories|brands|concerns|seo\/redirect|sitemap-data)|content\/articles|homepage\/(featured|best-sellers)|reviews\/product\/[^/?]+(?:\/rating)?)(?:[/?]|$)/.test(path)) return 0;
   const seconds = Number(process.env.PUBLIC_CACHE_SECONDS);
   return Number.isFinite(seconds) && seconds > 0 ? Math.min(seconds, 600) : 0;
 }
@@ -710,7 +710,7 @@ export type ShopDepartment = {
   products: { slug: string; name: string; image: string; priceMillimes: number }[];
 };
 
-const NAV_CACHE: RequestInit = { cache: "force-cache", next: { revalidate: 300 } };
+const NAV_CACHE: RequestInit = { cache: "force-cache", next: { revalidate: 300, tags: ["catalogue"] } };
 
 /**
  * Mega-menu data: the six shop departments resolved against the live
@@ -817,11 +817,11 @@ export async function fetchShopDepartments(): Promise<ShopDepartment[]> {
 }
 
 export async function fetchProductReviews(productId: string): Promise<PublicReview[]> {
-  return (await apiFetch<PublicReview[]>(`/reviews/product/${productId}`, { cache: "no-store" })) ?? [];
+  return (await apiFetch<PublicReview[]>(`/reviews/product/${productId}`, undefined)) ?? [];
 }
 
 export async function fetchProductRating(productId: string): Promise<ProductRating> {
-  return (await apiFetch<ProductRating>(`/reviews/product/${productId}/rating`, { cache: "no-store" })) ?? { average: 0, count: 0 };
+  return (await apiFetch<ProductRating>(`/reviews/product/${productId}/rating`, undefined)) ?? { average: 0, count: 0 };
 }
 
 export async function fetchConcerns(): Promise<{ name: string; slug: string }[]> {

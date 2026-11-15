@@ -215,3 +215,24 @@ Built locally with `PUBLIC_CACHE_SECONDS=60` against the production API and ran 
 - Next.js decides static/dynamic at **build** time, so the flag must be present when the Docker image is built and the API must be reachable during that build (build would otherwise fail on the "critical catalogue" throw). That is a deployment risk to plan for.
 - **Expected benefit is modest** (origin render is 85–213 ms; see section 19). Recommended order: (1) CDN/edge or a closer server for the Malaysia-to-Tunisia latency, (2) defer ad/analytics tags after approval, (3) finish page caching only if still needed.
 - Production is unchanged by this work: production code still has `force-dynamic` on home and product pages (the working tree differs only locally and in git branch `seo/recovery-batch1`; the server tree received only `search-overlay.tsx`).
+
+## 21. Batch 6 (2026-11-15) — commercial categories, infrastructure, tracking, caching
+**Authorized by the user:** categories (creatine, whey-proteine, then others), infrastructure *investigation* (no migration/DNS), tracker optimisation *locally*, caching *locally*, technical SEO. Blocked items unchanged (MK-677/hormonal, 11 held products, machine prices, "stock 100", availability semantics).
+
+**Deployed to production (database content only; no code deployed):**
+- `/creatine` and `/whey-proteine`: original French copy built from catalogue facts only (brands/formats of published+indexable products, no dosage prescription, no medical claim), FAQPage, 6 guide links each, cross-links, authenticity/delivery/returns. Titles 63/56 chars. All 28 internal links verified 200 before applying. Live check: 200, self canonical, one H1, FAQ present. Backup: `_wave_backup_batch6`. Generator `ops/seo/category-content-batch6.py`.
+- `/probiotiques`: descriptive copy, **kept noindex** (0 products in stock). Backup `_wave_backup_batch6b`. `/collagene` unchanged (content live, noindex, 2 in stock). Decision pending: index only when enough verified in-stock products.
+- Rollback: `update "Category" set "seoTitle"=b."seoTitle",... from _wave_backup_batch6 b where slug=b.slug`.
+
+**Infrastructure (analysis only):** `docs/seo/INFRASTRUCTURE_COMPARISON.md`. Verified: server in Kuala Lumpur (202 ms RTT), Cloudflare is **DNS-only** (not proxying), Milan edge at 29 ms, EU data centers 38–48 ms. Cloudflare zone settings unknown (no access). Nothing changed.
+
+**Tracking (local):** `NEXT_PUBLIC_DEFER_TRACKERS=1`, `src/components/analytics/deferred-trackers.tsx`, `ops/seo/tracking-e2e.cjs`, `docs/seo/TRACKING_OPTIMIZATION.md`. Event parity proven for PageView, ViewContent, AddToCart, Purchase, Google conversion; also fixes events lost before the scripts load. Real Purchase not exercised (would create an order).
+
+**Caching (local):** home + product pages ISR, categories data-cached only, private pages forced `private, no-store`, API interceptor + `/api/revalidate` flush, `ops/seo/cache-check.cjs` 40/40 URLs 200, UA parity 10/10, price parity 10/10, flush MISS→HIT. Found and fixed a review-endpoint allow-list bug that returned 500 on cached product pages. See `docs/seo/CACHING_PLAN.md` addendum (deploy checklist + rollback). Observation: production already serves `/panier`, `/checkout`, `/compte` with `s-maxage=300` (static shells, no personal data); the local change makes them private.
+
+**Regression:** `npm run seo:check` 439/439 on production after the content changes. API unit tests for the invalidation interceptor 10/10; API typecheck clean; web build clean.
+
+**Internal linking:** verified existing structure (product → parent category, hub → child categories); added category ↔ guide ↔ sibling links on creatine, whey-proteine.
+
+**Open / needs decision:** approve Cloudflare proxy (option A) or EU VPS; approve tracker deferral and caching rollout after Events Manager / Tag Assistant verification; probiotiques/collagène indexation; re-run `weekly_report.py` and URL Inspection in 7–14 days; manual GSC indexing requests (list in §18, now plus `/creatine`).
+

@@ -35,6 +35,15 @@ function hasDistinctSeoContent(description: string, seoContent?: string | null):
 }
 
 
+/**
+ * No product is pre-rendered at build time (the catalogue has thousands). An empty list lets Next render a product on its
+ * first request and then serve it from the full-route cache (ISR) when PUBLIC_CACHE_SECONDS > 0. With the variable unset,
+ * every request is rendered fresh as before.
+ */
+export async function generateStaticParams() {
+  return [];
+}
+
 export async function generateMetadata({
   params,
 }: {

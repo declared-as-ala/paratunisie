@@ -54,6 +54,15 @@ const nextConfig: NextConfig = {
           },
         ],
       },
+      {
+        // Session-bound or customer-specific pages: never stored by a shared cache / CDN, whatever the rendering mode.
+        source: "/:path(panier|checkout|paiement|compte|favoris|fidelite|le-cercle)/:rest*",
+        headers: [{ key: "Cache-Control", value: "private, no-store, max-age=0" }],
+      },
+      {
+        source: "/:path(panier|checkout|paiement|compte|favoris|fidelite|le-cercle)",
+        headers: [{ key: "Cache-Control", value: "private, no-store, max-age=0" }],
+      },
     ];
   },
   async redirects() {

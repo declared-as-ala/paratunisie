@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Archivo, Inter } from "next/font/google";
 import Script from "next/script";
+import { DeferredTrackers } from "@/components/analytics/deferred-trackers";
 import "./globals.css";
 import { SiteHeader } from "@/components/layout/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -86,6 +87,7 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const departments = await fetchShopDepartments();
+  const deferTrackers = process.env.NEXT_PUBLIC_DEFER_TRACKERS === "1";
 
   return (
     <html
@@ -98,6 +100,18 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(storeJsonLd) }}
         />
+        {deferTrackers ? (
+          <>
+            {/* Stubs only: events are queued now, gtag.js / fbevents.js are fetched later by <DeferredTrackers /> */}
+            <script
+              id="tracker-stubs"
+              dangerouslySetInnerHTML={{
+                __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=gtag;gtag('js',new Date());gtag('config','AW-18415809993');!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];}(window,document);fbq('init','2900022603691735');fbq('track','PageView');`,
+              }}
+            />
+          </>
+        ) : (
+          <>
         {/* Google tag (gtag.js) - Google Ads: AW-18415809993 */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=AW-18415809993"
@@ -126,6 +140,8 @@ export default async function RootLayout({
             fbq('track', 'PageView');
           `}
         </Script>
+          </>
+        )}
         <noscript>
           <img
             height="1"
@@ -137,6 +153,7 @@ export default async function RootLayout({
         </noscript>
       </head>
       <body className="flex min-h-full max-w-[100vw] overflow-x-hidden flex-col bg-background pb-[calc(4.5rem+env(safe-area-inset-bottom))] text-foreground lg:pb-0">
+        {deferTrackers ? <DeferredTrackers /> : null}
         <AnalyticsTracker />
         <a
           href="#contenu-principal"

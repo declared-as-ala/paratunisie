@@ -34,3 +34,38 @@ No database migration is involved.
 
 ## Expected effect
 Cached hits should drop from ~0.9 s to tens of milliseconds and reduce API load. Not claimed until measured.
+
+---
+
+## Batch 6 addendum — implementation status (local only, NOT deployed)
+
+**What exists in the code (all off by default):**
+| Piece | File | Behaviour |
+|---|---|---|
+| Opt-in public cache | `src/lib/api/client.ts` `publicCacheSeconds()` | Only when `PUBLIC_CACHE_SECONDS` (max 600) is set at build **and** run time; server-side GET only; allow-list = catalogue products/categories/brands/concerns/redirect/sitemap-data, content articles, homepage featured/best-sellers, public reviews + rating; all tagged `catalogue`. The header mega-menu (5 min cache already in production) now carries the same tag. |
+| ISR for home + product pages | `src/app/page.tsx`, `src/app/produits/[slug]/page.tsx` | `force-dynamic` removed; product page has an empty `generateStaticParams()` so each product is rendered on first request then cached. Category pages remain dynamic (they read `searchParams`); only their data fetches are cached. |
+| Private pages | `next.config.ts` headers | `/panier`, `/checkout`, `/paiement`, `/compte/*`, `/favoris`, `/fidelite`, `/le-cercle` always `Cache-Control: private, no-store, max-age=0`. (Production today serves these static shells with `s-maxage=300`; no personal data is in them, but they should never sit in a shared cache.) |
+| Flush endpoint | `src/app/api/revalidate/route.ts` | POST, `x-revalidate-secret`, allow-listed tag, immediate expiry. 503 when no secret is configured. |
+| Automatic invalidation | `apps/api/src/common/web-cache-invalidation.interceptor.ts` (+10 unit tests) | After any successful POST/PUT/PATCH/DELETE (except tracking/analytics/auth/wishlist/diagnostic/notifications/product-requests), one debounced (1.5 s) call to `WEB_REVALIDATE_URL`. Inactive unless both `WEB_REVALIDATE_URL` and `REVALIDATE_SECRET` are set. |
+| Writes outside HTTP | – | CLI imports, sync cron and manual SQL do not trigger a flush; the TTL (60 s) bounds staleness. After a bulk SQL edit call the flush endpoint by hand. |
+
+**Why a runtime bug was found only by testing:** a review endpoint outside the allow-list turned a cached product page into a 500 ("Page changed from static to dynamic"). Any future page fetch added to a cached route must be added to the allow-list; `ops/seo/cache-check.cjs` samples 40 product URLs and fails on any non-200.
+
+**Local results (production API as data source, Next 16 build, `PUBLIC_CACHE_SECONDS=60`):**
+- `/` and `/produits/*`: `x-nextjs-cache: MISS` then `HIT`, `Cache-Control: s-maxage=60, stale-while-revalidate=…`.
+- `/creatine` (category): still `private, no-cache, no-store`.
+- Private pages: `private, no-store, max-age=0` (verified for 8 paths).
+- `ops/seo/cache-check.cjs`: 40/40 product URLs 200; Googlebot and mobile-visitor HTML identical (10/10); schema price equals live API price (10/10); `POST /api/revalidate` → next request MISS then HIT.
+- Revalidate endpoint: GET 405, no/wrong secret 401, unknown tag 400, valid 200.
+
+**Build-time vs run-time (important):** static and ISR routes are prerendered by `next build`, so `PUBLIC_CACHE_SECONDS` (and `NEXT_PUBLIC_DEFER_TRACKERS`) must be present when the Docker image is built, and the API must be reachable during the build. This is why the flag is not a hot toggle.
+
+**Deployment checklist (when approved):**
+1. Set `REVALIDATE_SECRET` (web + API) and `WEB_REVALIDATE_URL=http://paratunisie-web:3000/api/revalidate` (API) in `docker-compose.prod.yml` / `.env`; `PUBLIC_CACHE_SECONDS=60` as a web build arg + env.
+2. Tag the current images (`pre-batch6`), back up the compose file.
+3. Build web + API, deploy API first, then web.
+4. Run `node ops/seo/cache-check.cjs https://paratunisie.com <secret>` and `npm run seo:check`; compare 10 product prices with the admin.
+5. Watch for 5xx in `docker logs paratunisie-web` for 30 minutes.
+
+**Rollback (< 2 minutes):** `docker tag paratunisie-prod-paratunisie-web:pre-batch6 paratunisie-prod-paratunisie-web:latest` (same for api) and `docker compose -f docker-compose.prod.yml up -d --no-deps paratunisie-web paratunisie-api`. No database migration involved. Emergency without redeploy: unset `PUBLIC_CACHE_SECONDS` is NOT enough (it is baked at build); use the image rollback, or call the flush endpoint if only stale data is the problem.
+

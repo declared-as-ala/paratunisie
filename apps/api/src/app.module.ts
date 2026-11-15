@@ -1,4 +1,6 @@
 import { Module } from "@nestjs/common";
+import { APP_INTERCEPTOR } from "@nestjs/core";
+import { WebCacheInvalidationInterceptor } from "./common/web-cache-invalidation.interceptor";
 import { PrismaModule } from "./prisma/prisma.module";
 import { CatalogueModule } from "./catalogue/catalogue.module";
 import { OrdersModule } from "./orders/orders.module";
@@ -55,5 +57,6 @@ import { AbandonedCheckoutsModule } from "./abandoned-checkouts/abandoned-checko
     AnalyticsModule,
     AbandonedCheckoutsModule,
   ],
+  providers: [{ provide: APP_INTERCEPTOR, useClass: WebCacheInvalidationInterceptor }],
 })
 export class AppModule {}
