@@ -559,7 +559,7 @@ export const articles: Article[] = [
       "complements-musculation-debutant",
     ],
     relatedCategories: [
-      { name: "Gainers", url: "/gainers" },
+      { name: "Gainers", url: "/gainers-proteines" },
       { name: "Whey Protéine", url: "/whey-proteine" },
     ],
   },
@@ -670,7 +670,7 @@ export const articles: Article[] = [
       "complements-musculation-debutant",
     ],
     relatedCategories: [
-      { name: "Gainers", url: "/gainers" },
+      { name: "Gainers", url: "/gainers-proteines" },
       { name: "Whey Protéine", url: "/whey-proteine" },
       { name: "Créatine", url: "/creatine" },
     ],

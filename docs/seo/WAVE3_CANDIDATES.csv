@@ -1,0 +1,401 @@
+rank,slug,brand,category,in_stock,price_dt,gsc_impr_90d,gsc_clicks_90d,score,tier
+1,protein-shaker-450ml,Autres marques,accessoires,1,19.0,0,0,60.0,TIER3_hold_no_demand
+2,optimum-nutrition-gold-standard-100-whey-protein-double-rich-chocolate-2-29-kg,Optimum Nutrition,whey-proteine,0,587.0,29,0,24.4,HELD_price_discrepancy
+3,optimum-nutrition-gold-standard-100-whey-protein-delicious-strawberry-2-26-kg,Optimum Nutrition,whey-proteine,0,587.0,26,0,23.9,HELD_price_discrepancy
+4,whey-gold-standard-908g,Optimum Nutrition,whey-proteine,0,155.0,24,0,23.6,HELD_price_discrepancy
+5,optimum-nutrition-gold-standard-100-whey-chocolate-mint-2-24-kg,Optimum Nutrition,whey-proteine,0,587.0,19,0,22.9,HELD_price_discrepancy
+6,optimum-nutrition-gold-standard-100-whey-protein-double-rich-chocolate-899-g,Optimum Nutrition,whey-proteine,0,332.0,16,0,22.4,HELD_price_discrepancy
+7,optimum-nutrition-micronized-creatine-powder-sans-arome-300-g,Optimum Nutrition,creatine,0,102.0,15,0,22.2,WAVE3_INDEXED
+8,source-naturals-magnesium-bis-glycinate-120-comprimes,Source Naturals,magnesium,0,81.0,11,0,21.6,WAVE3_INDEXED
+9,solgar-vitamin-d3-cholecalciferol-120-capsules-molles,Solgar,vitamines,0,75.0,7,0,21.1,WAVE3_INDEXED
+10,nature-s-bounty-vitamin-c-100-comprimes,Nature's Bounty,vitamines,0,35.0,7,0,21.1,WAVE3_INDEXED
+11,doctor-s-best-high-absorption-magnesium-lysinate-glycinate-chelated-albion-traacs-240-comprimes,Doctor's Best,magnesium,0,123.0,6,0,20.9,WAVE3_INDEXED
+12,iso-sensation-93-2-27kg,Ultimate Nutrition,whey-isolate,0,359.0,6,0,20.9,WAVE3_INDEXED
+13,gain-bolic-6000-6-8-kg,OLIMP SPORT NUTRITION,gainers-proteines,0,245.0,4,0,20.6,WAVE3_INDEXED
+14,optimum-nutrition-gold-standard-100-whey-chocolate-malt-2-27-kg,Optimum Nutrition,whey-proteine,0,587.0,4,0,20.6,HELD_price_discrepancy
+15,pure-whey-isolate-95-2-2kg,OLIMP SPORT NUTRITION,whey-isolate,0,299.0,4,0,20.6,WAVE3_INDEXED
+16,california-gold-nutrition-vitamin-d3-k2-as-mk4-30-ml,California Gold Nutrition,vitamines,0,113.0,3,0,20.4,WAVE3_INDEXED
+17,gsn-creatine-monohydrate-200g,GSN Great Sport Nutrition,creatine,0,59.0,3,0,20.4,WAVE3_INDEXED
+18,naturelo-bariatric-multivitamin-with-iron-60-gelules-vegetales,NATURELO,vitamines,0,118.0,2,0,20.3,HELD_regulatory_review
+19,optimum-nutrition-gold-standard-100-whey-banana-cream-2-27-kg,Optimum Nutrition,whey-proteine,0,587.0,2,0,20.3,HELD_price_discrepancy
+20,swanson-vitamins-vinpocetine-90-gelules,Swanson Vitamins,vitamines,0,59.0,2,0,20.3,HELD_regulatory_review
+21,thorne-vitamin-b12-60-gelules,Thorne,vitamines,0,123.0,2,0,20.3,WAVE3_INDEXED
+22,naturesplus-water-dispersible-vitamin-a-90-comprimes,NaturesPlus,vitamines,0,48.0,2,0,20.3,WAVE3_INDEXED
+23,nb-pure-methyl-folate-spray-1-fl-oz,NB Pure,vitamines,0,102.0,2,0,20.3,WAVE3_INDEXED
+24,california-gold-nutrition-pure-vitamin-c-quali-c-powder-250-g,California Gold Nutrition,vitamines,0,134.0,2,0,20.3,WAVE3_INDEXED
+25,optimum-nutrition-gold-standard-100-whey-protein-extreme-milk-chocolate-2-27-kg,Optimum Nutrition,whey-proteine,0,587.0,2,0,20.3,HELD_price_discrepancy
+26,pure-creatine-300-gr,Quamtrax,creatine,0,159.0,2,0,20.3,WAVE3_INDEXED
+27,thorne-magnesium-glycinate-90-gelules,Thorne,magnesium,0,133.0,2,0,20.3,WAVE3_INDEXED
+28,nature-s-life-glycine-powder-400-g,Nature's Life,acides-amines,0,115.0,2,0,20.3,WAVE3_INDEXED
+29,creatine-monohydrate-500gr-hx-nutrition,HX NUTRITION,creatine,0,149.0,2,0,20.3,WAVE3_INDEXED
+30,natural-factors-biocgel-buffered-vitamin-c-with-berryrich-90-capsules-molles,Natural Factors,vitamines,0,72.0,1,0,20.1,TIER2_next_wave
+31,gold-isolate-2kg-v-shape-supps,MR.X  V-Shape Supps,whey-isolate,0,299.0,1,0,20.1,TIER2_next_wave
+32,thorne-zinc-picolinate-180-gelules,Thorne,zinc,0,210.0,1,0,20.1,TIER2_next_wave
+33,source-naturals-l-lysine-powder-100-g,Source Naturals,acides-amines,0,26.0,1,0,20.1,TIER2_next_wave
+34,naturesplus-source-of-life-original-tablets-multivitamin-mineral-supplement-90-comprimes,NaturesPlus,vitamines,0,206.0,1,0,20.1,TIER2_next_wave
+35,fit-lean-my-lean-creatine-sans-arome-205-g,Fit & Lean,creatine,0,132.0,1,0,20.1,TIER2_next_wave
+36,opti-men-150tabs,Optimum Nutrition,vitamines,0,180.0,1,0,20.1,TIER2_next_wave
+37,source-naturals-vitamin-d-3-118-28-ml,Source Naturals,vitamines,0,90.0,1,0,20.1,TIER2_next_wave
+38,now-foods-omega-3-fish-oil-180-capsules-molles,NOW Foods,omega-3,0,94.0,1,0,20.1,TIER2_next_wave
+39,trace-liquid-multi-vitamin-mineral-for-men-women-orange-mango-887-ml,Trace,vitamines,0,215.0,1,0,20.1,TIER2_next_wave
+40,nature-s-craft-n-o-rush-nitric-oxide-support-60-gelules,Nature's Craft,pre-workout,0,53.0,1,0,20.1,TIER2_next_wave
+41,omega-3-6-9-90-gelules,Real Pharm,omega-3,0,99.0,1,0,20.1,TIER2_next_wave
+42,thorne-multi-vitamin-elite-a-m-p-m-90-gelules,Thorne,vitamines,0,388.0,1,0,20.1,TIER2_next_wave
+43,swanson-vitamins-ear-essentials-60-gelules,Swanson Vitamins,vitamines,0,92.0,1,0,20.1,TIER2_next_wave
+44,now-foods-magnesium-calcium-with-zinc-and-vitamin-d-3-100-comprimes,NOW Foods,zinc,0,63.0,1,0,20.1,TIER2_next_wave
+45,iso-hd-2-2kg-bpi-sports,BPI SPORTS,whey-isolate,0,359.0,1,0,20.1,TIER2_next_wave
+46,seeking-health-optimal-magnesium-90-gelules-vegetales,Seeking Health,magnesium,0,113.0,1,0,20.1,TIER2_next_wave
+47,nature-s-life-vitamin-a-100-gelules,Nature's Life,vitamines,0,44.0,1,0,20.1,TIER2_next_wave
+48,carlson-zinc-ease-soothing-lozenge-180-vegetarian-lozenges-10-mg-per-lozenge-natural-lemon,Carlson,zinc,0,110.0,1,0,20.1,TIER2_next_wave
+49,terra-origin-healthy-gut-capsules-with-vitamin-d-60-gelules,Terra Origin,vitamines,0,128.0,1,0,20.1,TIER2_next_wave
+50,childlife-clinicals-liquid-calcium-magnesium-formula-with-vitamin-d3-vitamin-k2-natural-orange-473-ml,ChildLife Clinicals,magnesium,0,154.0,1,0,20.1,TIER2_next_wave
+51,trace-ionic-vitamin-c-zinc-liquid-mineral-supplement-59-ml,Trace,zinc,0,103.0,1,0,20.1,TIER2_next_wave
+52,megafood-women-s-one-daily-multivitamin-90-comprimes,MegaFood,vitamines,0,240.0,1,0,20.1,TIER2_next_wave
+53,metabolic-maintenance-vitamin-d-3-90-gelules-vegetales,Metabolic Maintenance,vitamines,0,128.0,1,0,20.1,TIER2_next_wave
+54,seeking-health-vitamin-a-drops-30-ml,Seeking Health,vitamines,0,138.0,1,0,20.1,TIER2_next_wave
+55,megafood-calcium-magnesium-90-comprimes,MegaFood,magnesium,0,169.0,1,0,20.1,TIER2_next_wave
+56,naturesplus-source-of-life-liquid-multivitamin-mineral-supplement-tropical-fruit-887-1-ml,NaturesPlus,vitamines,0,213.0,1,0,20.1,TIER2_next_wave
+57,thorne-zinc-bisglycinate-60-gelules-2,Thorne,zinc,0,103.0,1,0,20.1,TIER2_next_wave
+58,trace-complete-calcium-magnesium-1-1-120-comprimes,Trace,magnesium,0,103.0,1,0,20.1,TIER2_next_wave
+59,gat-sport-essentials-creatine-powder-sans-arome-150-g,GAT,creatine,0,51.0,1,0,20.1,TIER2_next_wave
+60,megafood-one-daily-multivitamin-for-men-60-comprimes,MegaFood,vitamines,0,194.0,1,0,20.1,TIER2_next_wave
+61,carlson-chelated-zinc-250-comprimes,Carlson,zinc,0,98.0,1,0,20.1,TIER2_next_wave
+62,carlson-zinc-250-comprimes,Carlson,zinc,0,76.0,1,0,20.1,TIER2_next_wave
+63,davinci-laboratories-l-lysine-capsules-90-gelules,DaVinci Laboratories,acides-amines,0,99.0,1,0,20.1,TIER2_next_wave
+64,now-foods-krill-oil-120-capsules-molles,NOW Foods,omega-3,0,204.0,1,0,20.1,TIER2_next_wave
+65,real-whey-100-2-250-gr,Real Pharm,whey-proteine,0,229.0,0,0,20.0,TIER3_hold_no_demand
+66,mhp-eaa-strong-blue-raspberry-308-1-g,MHP,eaa,0,133.0,0,0,20.0,TIER3_hold_no_demand
+67,doctor-s-best-fully-active-folate-800-60-gelules-vegetales,Doctor's Best,vitamines,0,51.0,0,0,20.0,TIER3_hold_no_demand
+68,carlson-vitamin-d3-360-capsules-molles,Carlson,vitamines,0,107.0,0,0,20.0,TIER3_hold_no_demand
+69,superior-source-vitamin-k-2-100-g,Superior Source,vitamines,0,92.0,0,0,20.0,TIER3_hold_no_demand
+70,bodybio-calcium-magnesium-butyrate-100-gelules,BodyBio,magnesium,0,189.0,0,0,20.0,TIER3_hold_no_demand
+71,carlson-taurine-powder-100-g,Carlson,acides-amines,0,43.0,0,0,20.0,TIER3_hold_no_demand
+72,replesta-nx-cholecalciferol-once-weekly-vitamin-d-14-000-iu-8-chewable-wafers-natural-orange,Replesta,vitamines,0,92.0,0,0,20.0,TIER3_hold_no_demand
+73,carlson-folic-acid-400-g,Carlson,vitamines,0,65.0,0,0,20.0,TIER3_hold_no_demand
+74,now-foods-special-two-multi-vitamin-240-gelules-vegetales,NOW Foods,vitamines,0,175.0,0,0,20.0,TIER3_hold_no_demand
+75,lifetime-vitamins-bone-support-orange-vanilla-473-ml,LifeTime Vitamins,vitamines,0,91.0,0,0,20.0,TIER3_hold_no_demand
+76,naturelo-vitamin-d3-125-g,NATURELO,vitamines,0,158.0,0,0,20.0,TIER3_hold_no_demand
+77,naturesplus-source-of-life-original-mini-tabs-multivitamin-mineral-supplement-iron-free-90-comprimes,NaturesPlus,vitamines,0,115.0,0,0,20.0,TIER3_hold_no_demand
+78,venture-pal-vitamin-d3-k2-lemon-lime-60-ml,Venture Pal,vitamines,0,87.0,0,0,20.0,TIER3_hold_no_demand
+79,naturesplus-vitamin-b2-sustained-release-60-comprimes,NaturesPlus,vitamines,0,87.0,0,0,20.0,TIER3_hold_no_demand
+80,solgar-vitamin-d3-cholecalciferol-125-g,Solgar,vitamines,0,146.0,0,0,20.0,TIER3_hold_no_demand
+81,now-foods-adam-superior-men-s-multi-180-capsules-molles,NOW Foods,vitamines,0,241.0,0,0,20.0,TIER3_hold_no_demand
+82,nature-s-life-cal-mag-zinc-complex-250-comprimes,Nature's Life,zinc,0,126.0,0,0,20.0,TIER3_hold_no_demand
+83,protocol-for-life-balance-liquid-vitamin-d3-59-ml,Protocol for Life Balance,vitamines,0,57.0,0,0,20.0,TIER3_hold_no_demand
+84,carlson-cardio-complete-advanced-cardiovascular-multi-90-comprimes,Carlson,vitamines,0,152.0,0,0,20.0,TIER3_hold_no_demand
+85,plantfusion-vegan-whole-food-natural-berry-60-pastilles,PlantFusion,vitamines,0,119.0,0,0,20.0,TIER3_hold_no_demand
+86,nutricology-buffered-vitamin-c-with-calcium-and-magnesium-120-gelules-vegetales,Nutricology,magnesium,0,94.0,0,0,20.0,TIER3_hold_no_demand
+87,now-foods-sports-whey-protein-isolate-sans-arome-544-g,NOW Foods,whey-isolate,0,188.0,0,0,20.0,TIER3_hold_no_demand
+88,optimum-nutrition-gold-standard-100-whey-vanilla-ice-cream-2-26-kg,Optimum Nutrition,whey-proteine,0,587.0,0,0,20.0,HELD_price_discrepancy
+89,source-naturals-taurine-1000-120-gelules,Source Naturals,acides-amines,0,55.0,0,0,20.0,TIER3_hold_no_demand
+90,country-life-natural-vitamin-e-complex-with-mixed-tocopherols-90-capsules-molles,Country Life,vitamines,0,165.0,0,0,20.0,TIER3_hold_no_demand
+91,codeage-men-s-multivitamin-50-90-vegetable-capsules,Codeage,vitamines,0,220.0,0,0,20.0,TIER3_hold_no_demand
+92,mrm-nutrition-creatine-dry-scoop-blue-raspberry-90-g,MRM Nutrition,creatine,0,58.0,0,0,20.0,TIER3_hold_no_demand
+93,carlson-vitamin-a-d-250-capsules-molles,Carlson,vitamines,0,102.0,0,0,20.0,TIER3_hold_no_demand
+94,naturesplus-source-of-life-original-mini-tabs-multivitamin-mineral-supplement-with-concentrated-whole-foods-180-comprimes,NaturesPlus,vitamines,0,211.0,0,0,20.0,TIER3_hold_no_demand
+95,nutrex-research-eaa-hydration-maui-twist-390-g,NUTREX RESEARCH,eaa,0,154.0,0,0,20.0,TIER3_hold_no_demand
+96,vplab-ultra-women-s-multivitamin-formula-90-caplets,VPLab,vitamines,0,103.0,0,0,20.0,TIER3_hold_no_demand
+97,source-naturals-magnesium-ascorbate-226-8-g,Source Naturals,magnesium,0,91.0,0,0,20.0,TIER3_hold_no_demand
+98,starwest-botanicals-organic-ashwagandha-root-c-s-453-6-g,Starwest Botanicals,ashwagandha,0,103.0,0,0,20.0,TIER3_hold_no_demand
+99,naturesplus-liquid-vitamin-c-with-lemon-bioflavonoids-natural-orange-liquid-vitamin-c-with-lemon-bioflavonoids-887-1-ml,NaturesPlus,vitamines,0,117.0,0,0,20.0,TIER3_hold_no_demand
+100,carlson-folic-acid-800-g,Carlson,vitamines,0,65.0,0,0,20.0,TIER3_hold_no_demand
+101,nutrex-research-bcaa-6000-recovery-fruit-punch-231-g,NUTREX RESEARCH,bcaa,0,106.0,0,0,20.0,TIER3_hold_no_demand
+102,naturesplus-vitamin-d3-180-capsules-molles,NaturesPlus,vitamines,0,91.0,0,0,20.0,TIER3_hold_no_demand
+103,delicious-gainer-4-5kg,OstroVit,gainers-proteines,0,249.0,0,0,20.0,TIER3_hold_no_demand
+104,trace-vitamin-d3-k2-gummies-strawberry-2-gommes,Trace,vitamines,0,103.0,0,0,20.0,TIER3_hold_no_demand
+105,superior-source-methyl-folate-1000-g,Superior Source,vitamines,0,82.0,0,0,20.0,TIER3_hold_no_demand
+106,megafood-one-daily-multivitamin-180-comprimes,MegaFood,vitamines,0,424.0,0,0,20.0,TIER3_hold_no_demand
+107,source-naturals-vitamin-b-12-100-pastilles,Source Naturals,vitamines,0,73.0,0,0,20.0,TIER3_hold_no_demand
+108,creatine-monohydrate-500g-v-shape-supps,MR.X  V-Shape Supps,creatine,0,149.0,0,0,20.0,TIER3_hold_no_demand
+109,dynamic-health-liquid-vitamin-c-473-ml,Dynamic Health,vitamines,0,69.0,0,0,20.0,TIER3_hold_no_demand
+110,jarrow-formulas-vitamin-d3-100-capsules-molles,Jarrow Formulas,vitamines,0,71.0,0,0,20.0,TIER3_hold_no_demand
+111,naturesplus-liquid-sunshine-tropical-citrus-473-18-ml,NaturesPlus,vitamines,0,87.0,0,0,20.0,TIER3_hold_no_demand
+112,lifetime-vitamins-bone-support-high-potency-wild-berry-480-ml,LifeTime Vitamins,vitamines,0,109.0,0,0,20.0,TIER3_hold_no_demand
+113,rainbow-light-gummy-vitamin-c-slices-plus-vitamin-e-tangy-orange-90-gommes,Rainbow Light,vitamines,0,87.0,0,0,20.0,TIER3_hold_no_demand
+114,nature-s-craft-vitamin-d3-gummies-mango-strawberry-peach-3-gommes,Nature's Craft,vitamines,0,82.0,0,0,20.0,TIER3_hold_no_demand
+115,bcaa-zero-360g-biotech-usa,BIOTECH USA,bcaa,0,139.0,0,0,20.0,TIER3_hold_no_demand
+116,now-foods-mk-7-vitamin-k-2-60-gelules-vegetales,NOW Foods,vitamines,0,69.0,0,0,20.0,TIER3_hold_no_demand
+117,micro-ingredients-vitamin-d3-k2-240-capsules-molles,Micro Ingredients,vitamines,0,103.0,0,0,20.0,TIER3_hold_no_demand
+118,big-ramy-labs-bcaa-300g,BIG RAMY LABS,bcaa,0,119.0,0,0,20.0,TIER3_hold_no_demand
+119,now-foods-flax-oil-with-essential-omega-3-s-250-capsules-molles,NOW Foods,omega-3,0,94.0,0,0,20.0,TIER3_hold_no_demand
+120,snap-supplements-bcaas-pomegranate-watermelon-277-g,Snap Supplements,bcaa,0,153.0,0,0,20.0,TIER3_hold_no_demand
+121,animal-pak-44-scoops-powder,Universal Nutrition,vitamines,0,199.0,0,0,20.0,TIER3_hold_no_demand
+122,nature-s-life-energizing-vitamin-b-2-50-comprimes,Nature's Life,vitamines,0,55.0,0,0,20.0,TIER3_hold_no_demand
+123,carlson-vitamin-d3-100-capsules-molles,Carlson,vitamines,0,36.0,0,0,20.0,TIER3_hold_no_demand
+124,muscle-on-1kg-real-pharm,Real Pharm,gainers-proteines,0,119.0,0,0,20.0,TIER3_hold_no_demand
+125,animal-nitro-eaa-complete-spectrum-of-essential-amino-acids-44-packs,Animal,eaa,0,285.0,0,0,20.0,TIER3_hold_no_demand
+126,optimum-nutrition-gold-standard-100-whey-protein-extreme-milk-chocolate-907-g,Optimum Nutrition,whey-proteine,0,332.0,0,0,20.0,HELD_price_discrepancy
+127,now-foods-chewable-vitamin-d-3-5-000-iu-120-chewables-mint,NOW Foods,vitamines,0,47.0,0,0,20.0,TIER3_hold_no_demand
+128,nature-s-bounty-vitamin-d3-25-g,Nature's Bounty,vitamines,0,63.0,0,0,20.0,TIER3_hold_no_demand
+129,optimum-nutrition-opti-women-multivitamin-for-active-women-120-gelules,Optimum Nutrition,vitamines,0,170.0,0,0,20.0,TIER3_hold_no_demand
+130,animal-whey-isolate-loaded-2-27kg,Universal Nutrition,whey-proteine,0,190.0,0,0,20.0,TIER3_hold_no_demand
+131,plantfusion-organic-vegan-vitamin-d3-k2-120-organic-vegcaps,PlantFusion,vitamines,0,222.0,0,0,20.0,TIER3_hold_no_demand
+132,deva-vegan-multivitamin-mineral-supplement-one-daily-90-coated-tablets,Deva,vitamines,0,63.0,0,0,20.0,TIER3_hold_no_demand
+133,life-extension-neuro-mag-magnesium-l-threonate-90-gelules-vegetales,Life Extension,magnesium,0,161.0,0,0,20.0,TIER3_hold_no_demand
+134,carlson-black-elderberry-gummies-vitamin-c-zinc-natural-berry-120-vegetarian-gummies-black-elderberry-gummies-vitamin-c-zinc,Carlson,zinc,0,177.0,0,0,20.0,TIER3_hold_no_demand
+135,maryruth-s-women-s-multivitamin-gummies-strawberry-60-gommes,MaryRuth's,vitamines,0,128.0,0,0,20.0,TIER3_hold_no_demand
+136,pure-essence-lonic-fizz-magnesium-plus-raspberry-lemonade-342-g,Pure Essence,magnesium,0,208.0,0,0,20.0,TIER3_hold_no_demand
+137,nature-s-bounty-vitamin-c-250-comprimes,Nature's Bounty,vitamines,0,74.0,0,0,20.0,TIER3_hold_no_demand
+138,superior-source-b-12-b-6-folic-acid-30-microlingual-instant-dissolve-tablets,Superior Source,vitamines,0,148.0,0,0,20.0,TIER3_hold_no_demand
+139,nature-s-answer-ashwagandha-root-fluid-extract-alcohol-free-60-ml,Nature's Answer,ashwagandha,0,100.0,0,0,20.0,TIER3_hold_no_demand
+140,now-foods-chewable-vitamin-d-3-fruit-25-g,NOW Foods,vitamines,0,38.0,0,0,20.0,TIER3_hold_no_demand
+141,ashwagandha-90-tabs,OstroVit,ashwagandha,0,75.0,0,0,20.0,TIER3_hold_no_demand
+142,naturesplus-adult-s-chewable-multivitamin-mineral-pineapple-90-comprimes,NaturesPlus,vitamines,0,150.0,0,0,20.0,TIER3_hold_no_demand
+143,bcaa-12-000-457-g,SCENIT NUTRITION,bcaa,0,135.0,0,0,20.0,TIER3_hold_no_demand
+144,gold-iso-2-kg-kevin-levrone,KEVIN LEVRONE,whey-isolate,0,299.0,0,0,20.0,TIER3_hold_no_demand
+145,megafood-one-daily-multivitamin-for-men-30-comprimes,MegaFood,vitamines,0,113.0,0,0,20.0,TIER3_hold_no_demand
+146,healthforce-superfoods-vitamineral-green-400-vegancaps,HealthForce Superfoods,vitamines,0,424.0,0,0,20.0,TIER3_hold_no_demand
+147,naturesplus-immune-zinc-lozenge-berry-60-pastilles,NaturesPlus,zinc,0,39.0,0,0,20.0,TIER3_hold_no_demand
+148,carlson-l-lysine-100-gelules,Carlson,acides-amines,0,55.0,0,0,20.0,TIER3_hold_no_demand
+149,doctor-s-best-women-s-multi-vitamin-120-comprimes,Doctor's Best,vitamines,0,77.0,0,0,20.0,TIER3_hold_no_demand
+150,swanson-vitamins-menogest-progesterone-cream-menogest-progesterone-cream-59-ml,Swanson Vitamins,vitamines,0,49.0,0,0,20.0,TIER3_hold_no_demand
+151,oregon-s-wild-harvest-organic-ashwagandha-90-organic-vegan-capsules-400-mg-per-capsule,Oregon's Wild Harvest,ashwagandha,0,123.0,0,0,20.0,TIER3_hold_no_demand
+152,source-naturals-wellness-zinc-lozenges-peach-raspberry-120-pastilles,Source Naturals,zinc,0,92.0,0,0,20.0,TIER3_hold_no_demand
+153,carlson-vitamin-d3-120-capsules-molles,Carlson,vitamines,0,56.0,0,0,20.0,TIER3_hold_no_demand
+154,carlson-magnesium-gels-250-capsules-molles,Carlson,magnesium,0,130.0,0,0,20.0,TIER3_hold_no_demand
+155,nutrex-research-eaa-hydration-apple-pear-390-g,NUTREX RESEARCH,eaa,0,154.0,0,0,20.0,TIER3_hold_no_demand
+156,now-foods-ecogreen-multi-iron-free-180-gelules-vegetales,NOW Foods,vitamines,0,150.0,0,0,20.0,TIER3_hold_no_demand
+157,superior-source-vitamin-b-12-b-6-folic-acid-60-microlingual-instant-dissolve-tablets,Superior Source,vitamines,0,51.0,0,0,20.0,TIER3_hold_no_demand
+158,source-naturals-taurine-120-comprimes,Source Naturals,acides-amines,0,46.0,0,0,20.0,TIER3_hold_no_demand
+159,nature-s-life-protecting-zinc-plus-copper-250-gelules,Nature's Life,zinc,0,124.0,0,0,20.0,TIER3_hold_no_demand
+160,zhou-nutrition-muscle-bcaa-tropical-punch-257-g,Zhou Nutrition,bcaa,0,143.0,0,0,20.0,TIER3_hold_no_demand
+161,nature-s-bounty-vitamin-b-6-100-comprimes,Nature's Bounty,vitamines,0,42.0,0,0,20.0,TIER3_hold_no_demand
+162,snap-supplements-nitric-oxide-mixed-berry-8-1-g,Snap Supplements,pre-workout,0,102.0,0,0,20.0,TIER3_hold_no_demand
+163,irwin-naturals-only-one-liquid-gel-multi-without-iron-60-liquid-soft-gels,Irwin Naturals,vitamines,0,113.0,0,0,20.0,TIER3_hold_no_demand
+164,source-naturals-l-ornithine-powder-100-g,Source Naturals,acides-amines,0,87.0,0,0,20.0,TIER3_hold_no_demand
+165,nutrachamps-elderberry-enhanced-with-vitamin-c-zinc-natural-berry-elderberry-120-ml,NutraChamps,zinc,0,113.0,0,0,20.0,TIER3_hold_no_demand
+166,codeage-liposomal-glycine-180-vegetable-capsules-500-mg-per-capsule,Codeage,acides-amines,0,205.0,0,0,20.0,TIER3_hold_no_demand
+167,solgar-folate-1333-g,Solgar,vitamines,0,83.0,0,0,20.0,TIER3_hold_no_demand
+168,ancient-nutrition-magnesium-90-gelules,Ancient Nutrition,magnesium,0,130.0,0,0,20.0,TIER3_hold_no_demand
+169,nature-s-life-preserving-vitamin-e-50-capsules-molles,Nature's Life,vitamines,0,183.0,0,0,20.0,TIER3_hold_no_demand
+170,nature-s-bounty-folic-acid-250-comprimes,Nature's Bounty,vitamines,0,35.0,0,0,20.0,TIER3_hold_no_demand
+171,naturesplus-water-dispersible-vitamin-d3-90-comprimes,NaturesPlus,vitamines,0,35.0,0,0,20.0,TIER3_hold_no_demand
+172,codeage-liposomal-magnesium-l-threonate-90-vegetable-capsules,Codeage,magnesium,0,230.0,0,0,20.0,TIER3_hold_no_demand
+173,optimum-nutrition-gold-standard-100-whey-strawberry-banana-2-27-kg,Optimum Nutrition,whey-proteine,0,587.0,0,0,20.0,HELD_price_discrepancy
+174,california-gold-nutrition-magnesium-powder-beverage-sans-arome-283-g,California Gold Nutrition,magnesium,0,116.0,0,0,20.0,TIER3_hold_no_demand
+175,new-chapter-women-s-advanced-multivitamin-40-96-vegetarian-tablets,New Chapter,vitamines,0,255.0,0,0,20.0,TIER3_hold_no_demand
+176,planetary-herbals-full-spectrum-ashwagandha-60-comprimes,Planetary Herbals,ashwagandha,0,38.0,0,0,20.0,TIER3_hold_no_demand
+177,snap-supplements-nitric-oxide-apple-250-g,Snap Supplements,pre-workout,0,204.0,0,0,20.0,TIER3_hold_no_demand
+178,nature-s-bounty-vitamin-b-2-100-mg,Nature's Bounty,vitamines,0,45.0,0,0,20.0,TIER3_hold_no_demand
+179,bluebonnet-nutrition-men-s-one-whole-food-based-multiple-90-vegetable-capsules,Bluebonnet Nutrition,vitamines,0,227.0,0,0,20.0,TIER3_hold_no_demand
+180,naturesplus-source-of-life-gold-the-ultimate-multivitamin-supplement-180-comprimes,NaturesPlus,vitamines,0,499.0,0,0,20.0,TIER3_hold_no_demand
+181,carlson-vitamin-b-2-250-vegetarian-tablets,Carlson,vitamines,0,97.0,0,0,20.0,TIER3_hold_no_demand
+182,naturesplus-adult-s-chewable-multivitamin-mineral-pineapple-180-comprimes,NaturesPlus,vitamines,0,280.0,0,0,20.0,TIER3_hold_no_demand
+183,maryruth-s-megadose-vitamin-d3-organic-liquid-drops-pineapple-30-ml,MaryRuth's,vitamines,0,128.0,0,0,20.0,TIER3_hold_no_demand
+184,doctor-s-best-high-absorption-vitamin-c-60-comprimes,Doctor's Best,vitamines,0,51.0,0,0,20.0,TIER3_hold_no_demand
+185,naturesplus-chewable-love-buffs-vitamin-c-natural-orange-90-comprimes,NaturesPlus,vitamines,0,126.0,0,0,20.0,TIER3_hold_no_demand
+186,nutricology-vitamin-e-100-gelules-vegetales,Nutricology,vitamines,0,254.0,0,0,20.0,TIER3_hold_no_demand
+187,naturesplus-adult-s-chewable-multivitamin-mineral-exotic-red-berry-90-comprimes,NaturesPlus,vitamines,0,150.0,0,0,20.0,TIER3_hold_no_demand
+188,superior-source-b-12-b-6-folic-acid-60-microlingual-instant-dissolve-tablets,Superior Source,vitamines,0,159.0,0,0,20.0,TIER3_hold_no_demand
+189,revive-vitamin-k2-d3-60-gelules,Revive,vitamines,0,123.0,0,0,20.0,TIER3_hold_no_demand
+190,nature-s-way-alive-adult-complete-multivitamin-60-comprimes,Nature's Way,vitamines,0,57.0,0,0,20.0,TIER3_hold_no_demand
+191,carlson-vitamin-d3-250-capsules-molles,Carlson,vitamines,0,78.0,0,0,20.0,TIER3_hold_no_demand
+192,codeage-amen-vitamin-d-k2-zinc-60-vegetable-capsules,Codeage,zinc,0,138.0,0,0,20.0,TIER3_hold_no_demand
+193,carlson-magnesium-gels-100-capsules-molles,Carlson,magnesium,0,65.0,0,0,20.0,TIER3_hold_no_demand
+194,now-foods-super-omega-3-6-9-180-capsules-molles,NOW Foods,omega-3,0,125.0,0,0,20.0,TIER3_hold_no_demand
+195,now-foods-5-htp-with-glycine-taurine-inositol-120-gelules-vegetales,NOW Foods,acides-amines,0,175.0,0,0,20.0,TIER3_hold_no_demand
+196,sunwarrior-active-creatine-monohydrate-sans-arome-5-g,Sunwarrior,creatine,0,102.0,0,0,20.0,TIER3_hold_no_demand
+197,seeking-health-zinc-lozenge-60-pastilles,Seeking Health,zinc,0,97.0,0,0,20.0,TIER3_hold_no_demand
+198,eaa-complex-300gr-yava-labs,YAVA LABS,eaa,0,139.0,0,0,20.0,TIER3_hold_no_demand
+199,pure-synergy-zinc-complex-60-gelules,Pure Synergy,zinc,0,151.0,0,0,20.0,TIER3_hold_no_demand
+200,superior-source-vitamin-k-2-500-g,Superior Source,vitamines,0,101.0,0,0,20.0,TIER3_hold_no_demand
+201,naturesplus-chewable-orange-juice-jr-vitamin-c-natural-orange-chewable-orange-juice-jr-180-comprimes,NaturesPlus,vitamines,0,72.0,0,0,20.0,TIER3_hold_no_demand
+202,megafood-vitamin-d3-125-g,MegaFood,vitamines,0,113.0,0,0,20.0,TIER3_hold_no_demand
+203,trace-liquid-mineral-supplement-cal-mag-zinc-strawberry-887-ml,Trace,zinc,0,194.0,0,0,20.0,TIER3_hold_no_demand
+204,nutribiotic-immunity-hypo-aller-c-vitamin-c-with-calcium-magnesium-potassium-zinc-454-g,NutriBiotic,zinc,0,98.0,0,0,20.0,TIER3_hold_no_demand
+205,nature-s-life-calcium-magnesium-natural-orange-473-ml,Nature's Life,magnesium,0,85.0,0,0,20.0,TIER3_hold_no_demand
+206,nutra-biogenesis-vitamin-d-5000-90-capsules-molles,Nutra BioGenesis,vitamines,0,92.0,0,0,20.0,TIER3_hold_no_demand
+207,dr-mercola-whole-food-complex-with-added-multivitamin-plus-vital-minerals-240-comprimes,Dr. Mercola,vitamines,0,270.0,0,0,20.0,TIER3_hold_no_demand
+208,nature-s-life-preserving-vitamin-e-100-capsules-molles,Nature's Life,vitamines,0,326.0,0,0,20.0,TIER3_hold_no_demand
+209,deva-vegan-multivitamin-mineral-supplement-iron-free-90-tiny-tablets,Deva,vitamines,0,41.0,0,0,20.0,TIER3_hold_no_demand
+210,bluebonnet-nutrition-ladies-one-whole-food-based-multiple-60-vegetables-capsules,Bluebonnet Nutrition,vitamines,0,151.0,0,0,20.0,TIER3_hold_no_demand
+211,source-naturals-taurine-1000-240-gelules,Source Naturals,acides-amines,0,105.0,0,0,20.0,TIER3_hold_no_demand
+212,now-foods-omega-3-fish-oil-200-capsules-molles,NOW Foods,omega-3,0,75.0,0,0,20.0,TIER3_hold_no_demand
+213,megafood-magnesium-90-comprimes,MegaFood,magnesium,0,133.0,0,0,20.0,TIER3_hold_no_demand
+214,deva-vegan-multivitamin-mineral-supplement-with-greens-iron-free-90-coated-tablets,Deva,vitamines,0,63.0,0,0,20.0,TIER3_hold_no_demand
+215,megafood-one-daily-multivitamin-90-comprimes,MegaFood,vitamines,0,240.0,0,0,20.0,TIER3_hold_no_demand
+216,naturesplus-zinc-90-comprimes,NaturesPlus,zinc,0,70.0,0,0,20.0,TIER3_hold_no_demand
+217,sunwarrior-active-creatine-monohydrate-lemonade-350-g,Sunwarrior,creatine,0,153.0,0,0,20.0,TIER3_hold_no_demand
+218,nature-s-life-mighty-mini-vite-daily-multivitamin-240-micro-tablets,Nature's Life,vitamines,0,99.0,0,0,20.0,TIER3_hold_no_demand
+219,max-mass-3xl-6kg,OLIMP SPORT NUTRITION,gainers-proteines,0,239.0,0,0,20.0,TIER3_hold_no_demand
+220,futurebiotics-folic-acid-from-lemon-peel-folic-acid-from-lemon-peel-800-g,Futurebiotics,vitamines,0,46.0,0,0,20.0,TIER3_hold_no_demand
+221,nutricology-magnesium-chloride-liquid-236-ml,Nutricology,magnesium,0,100.0,0,0,20.0,TIER3_hold_no_demand
+222,havasu-nutrition-multivitamin-gummies-strawberry-cherry-orange-60-gommes,Havasu Nutrition,vitamines,0,100.0,0,0,20.0,TIER3_hold_no_demand
+223,doctor-s-best-vitamin-d3-180-capsules-molles,Doctor's Best,vitamines,0,51.0,0,0,20.0,TIER3_hold_no_demand
+224,futurebiotics-hi-energy-multi-for-men-120-comprimes,Futurebiotics,vitamines,0,143.0,0,0,20.0,TIER3_hold_no_demand
+225,planetary-herbals-ayurvedics-full-spectrum-ashwagandha-120-comprimes,Planetary Herbals,ashwagandha,0,68.0,0,0,20.0,TIER3_hold_no_demand
+226,olympian-labs-vitamin-k2-d3-60-gelules,Olympian Labs,vitamines,0,71.0,0,0,20.0,TIER3_hold_no_demand
+227,naturesplus-source-of-life-garden-organic-women-s-once-daily-multi-30-vegan-tablets,NaturesPlus,vitamines,0,161.0,0,0,20.0,TIER3_hold_no_demand
+228,new-chapter-one-daily-every-woman-s-multivitamin-72-vegetarian-tablets,New Chapter,vitamines,0,194.0,0,0,20.0,TIER3_hold_no_demand
+229,carlson-vitamin-a-300-capsules-molles,Carlson,vitamines,0,130.0,0,0,20.0,TIER3_hold_no_demand
+230,massive-gainer-7kg,HX NUTRITION,gainers-proteines,0,239.0,0,0,20.0,TIER3_hold_no_demand
+231,carlson-mini-multi-90-mini-tablets,Carlson,vitamines,0,107.0,0,0,20.0,TIER3_hold_no_demand
+232,source-naturals-calcium-magnesium-250-comprimes,Source Naturals,magnesium,0,134.0,0,0,20.0,TIER3_hold_no_demand
+233,deva-vegan-quercetin-zinc-90-comprimes,Deva,zinc,0,123.0,0,0,20.0,TIER3_hold_no_demand
+234,trace-multi-vitamin-mineral-for-men-women-tropical-mixed-berry-887-ml,Trace,vitamines,0,215.0,0,0,20.0,TIER3_hold_no_demand
+235,nature-s-life-fortifying-vitamin-c-100-gelules,Nature's Life,vitamines,0,56.0,0,0,20.0,TIER3_hold_no_demand
+236,carlson-mild-c-buffered-vitamin-c-250-gelules,Carlson,vitamines,0,181.0,0,0,20.0,TIER3_hold_no_demand
+237,carlson-tri-b-with-b-6-360-comprimes,Carlson,vitamines,0,123.0,0,0,20.0,TIER3_hold_no_demand
+238,bob-s-red-mill-whey-protein-powder-340-g,Bob's Red Mill,whey-proteine,0,96.0,0,0,20.0,TIER3_hold_no_demand
+239,superior-source-methylcobalamin-b-12-folic-acid-60-microlingual-instant-dissolve-tablets,Superior Source,vitamines,0,65.0,0,0,20.0,TIER3_hold_no_demand
+240,bioschwartz-elderberry-gummies-with-zinc-vitamin-c-elderberry-gummies-with-zinc-vitamin-c-60-gommes,BioSchwartz,zinc,0,72.0,0,0,20.0,TIER3_hold_no_demand
+241,dr-mercola-antarctic-krill-oil-for-women-90-gelules,Dr. Mercola,omega-3,0,197.0,0,0,20.0,TIER3_hold_no_demand
+242,new-chapter-one-daily-every-man-s-multivitamin-72-vegetarian-tablets,New Chapter,vitamines,0,194.0,0,0,20.0,TIER3_hold_no_demand
+243,nb-pure-vitamin-d3-spray-2-fl-oz,NB Pure,vitamines,0,102.0,0,0,20.0,TIER3_hold_no_demand
+244,jacked-factory-essential-series-creatine-monohydrate-sans-arome-425-g,Jacked Factory,creatine,0,103.0,0,0,20.0,TIER3_hold_no_demand
+245,barlean-s-seriously-delicious-pink-lemonade-159-g,Barlean's,vitamines,0,82.0,0,0,20.0,TIER3_hold_no_demand
+246,nutrex-research-creatine-for-women-pink-lemonade-323-98-g,NUTREX RESEARCH,creatine,0,179.0,0,0,20.0,TIER3_hold_no_demand
+247,prosupps-hydro-bcaa-essentials-watermelon-414-g,ProSupps,bcaa,0,154.0,0,0,20.0,TIER3_hold_no_demand
+248,iso-big-2-1kg-big-ramy-labs,BIG RAMY LABS,whey-isolate,0,299.0,0,0,20.0,TIER3_hold_no_demand
+249,source-naturals-l-lysine-200-gelules,Source Naturals,acides-amines,0,69.0,0,0,20.0,TIER3_hold_no_demand
+250,nutricology-super-b-vitamins-120-gelules-vegetales,Nutricology,vitamines,0,127.0,0,0,20.0,TIER3_hold_no_demand
+251,nutramedix-vitamin-c-1000-mg,NutraMedix,vitamines,0,118.0,0,0,20.0,TIER3_hold_no_demand
+252,nature-s-bounty-cranberry-with-vitamin-c-250-rapid-release-softgels-cranberry-with-vitamin-c,Nature's Bounty,vitamines,0,115.0,0,0,20.0,TIER3_hold_no_demand
+253,nature-s-life-renewing-magnesium-250-gelules,Nature's Life,magnesium,0,149.0,0,0,20.0,TIER3_hold_no_demand
+254,megafood-vitamin-d3-90-comprimes,MegaFood,vitamines,0,174.0,0,0,20.0,TIER3_hold_no_demand
+255,hyalogic-hylavision-hyaluronic-acid-lutein-zeaxathin-vitamins-120-gelules,Hyalogic,vitamines,0,102.0,0,0,20.0,TIER3_hold_no_demand
+256,nutrex-research-bcaa-6000-recovery-green-apple-237-g,NUTREX RESEARCH,bcaa,0,106.0,0,0,20.0,TIER3_hold_no_demand
+257,whey-protein-hd-1-9-kg,BPI SPORTS,whey-proteine,0,239.0,0,0,20.0,TIER3_hold_no_demand
+258,source-naturals-magnesium-malate-200-gelules,Source Naturals,magnesium,0,84.0,0,0,20.0,TIER3_hold_no_demand
+259,nature-s-life-protecting-zinc-50-gelules,Nature's Life,zinc,0,36.0,0,0,20.0,TIER3_hold_no_demand
+260,barker-wellness-co-relax-magnesium-gummies-tropical-mango-60-gommes,Barker Wellness,magnesium,0,154.0,0,0,20.0,TIER3_hold_no_demand
+261,carlson-tocotrienols-with-vitamin-e-180-capsules-molles,Carlson,vitamines,0,415.0,0,0,20.0,TIER3_hold_no_demand
+262,mrm-nutrition-reload-bcaa-g-post-workout-recovery-watermelon-330-g,MRM Nutrition,bcaa,0,118.0,0,0,20.0,TIER3_hold_no_demand
+263,nordic-naturals-vitamin-d3-1000-orange-25-g,Nordic Naturals,vitamines,0,78.0,0,0,20.0,TIER3_hold_no_demand
+264,maxi-health-maxi-potassium-magnesium-90-maxicaps,Maxi Health,magnesium,0,82.0,0,0,20.0,TIER3_hold_no_demand
+265,nature-s-life-revitalizing-vitamin-k-1000-g,Nature's Life,vitamines,0,48.0,0,0,20.0,TIER3_hold_no_demand
+266,real-whey-2-kg-hx-nutrition,HX NUTRITION,whey-proteine,0,229.0,0,0,20.0,TIER3_hold_no_demand
+267,naturesplus-mega-zinc-sustained-release-90-comprimes,NaturesPlus,zinc,0,122.0,0,0,20.0,TIER3_hold_no_demand
+268,codeage-lungs-vitamins-90-vegetable-capsules,Codeage,vitamines,0,179.0,0,0,20.0,TIER3_hold_no_demand
+269,trace-liquid-cal-mag-zinc-pina-colada-887-ml,Trace,zinc,0,194.0,0,0,20.0,TIER3_hold_no_demand
+270,nutrex-research-eaa-hydration-strawberry-watermelon-390-g,NUTREX RESEARCH,eaa,0,154.0,0,0,20.0,TIER3_hold_no_demand
+271,dr-murray-s-organic-ksm-66-plus-60-gelules-veganes,Dr. Murray's,ashwagandha,0,133.0,0,0,20.0,TIER3_hold_no_demand
+272,naturesplus-source-of-life-original-chewable-multivitamin-mineral-supplement-90-wafers-delicious-apple-cinnamon,NaturesPlus,vitamines,0,150.0,0,0,20.0,TIER3_hold_no_demand
+273,thorne-magnesium-citramate-90-gelules,Thorne,magnesium,0,113.0,0,0,20.0,TIER3_hold_no_demand
+274,now-foods-sports-egg-white-protein-with-bcaas-creamy-chocolate-680-g,NOW Foods,bcaa,0,226.0,0,0,20.0,TIER3_hold_no_demand
+275,prosupps-hydro-bcaa-essentials-blue-raspberry-414-g,ProSupps,bcaa,0,154.0,0,0,20.0,TIER3_hold_no_demand
+276,source-naturals-l-methionine-powder-100-g,Source Naturals,acides-amines,0,82.0,0,0,20.0,TIER3_hold_no_demand
+277,optimum-nutrition-gold-standard-100-whey-protein-delicious-strawberry-907-g,Optimum Nutrition,whey-proteine,0,332.0,0,0,20.0,HELD_price_discrepancy
+278,superior-source-cyanocobalamin-b-12-b-6-folic-acid-100-microlingual-instant-dissolve-tablets,Superior Source,vitamines,0,67.0,0,0,20.0,TIER3_hold_no_demand
+279,deva-vegan-vitamin-e-with-mixed-tocopherols-90-gelules-veganes,Deva,vitamines,0,115.0,0,0,20.0,TIER3_hold_no_demand
+280,codeage-a-d-k-vitamins-180-vegetable-capsules,Codeage,vitamines,0,230.0,0,0,20.0,TIER3_hold_no_demand
+281,futurebiotics-multi-vitamin-energy-plus-120-comprimes,Futurebiotics,vitamines,0,84.0,0,0,20.0,TIER3_hold_no_demand
+282,carlson-calcium-magnesium-gels-with-vitamin-d3-250-capsules-molles,Carlson,magnesium,0,202.0,0,0,20.0,TIER3_hold_no_demand
+283,saltstick-fastchews-chewable-electrolytes-multi-flavor-pack-8-sachets,SaltStick,vitamines,0,156.0,0,0,20.0,TIER3_hold_no_demand
+284,nature-s-craft-l-lysine-100-comprimes,Nature's Craft,acides-amines,0,57.0,0,0,20.0,TIER3_hold_no_demand
+285,megafood-vitamin-d3-60-comprimes,MegaFood,vitamines,0,108.0,0,0,20.0,TIER3_hold_no_demand
+286,naturesplus-magnesium-90-comprimes,NaturesPlus,magnesium,0,76.0,0,0,20.0,TIER3_hold_no_demand
+287,mr-x-igf-1-anabolic-mass,MR.X  V-Shape Supps,gainers-proteines,0,279.0,0,0,20.0,TIER3_hold_no_demand
+288,california-gold-nutrition-magnesium-powder-beverage-orange-380-g,California Gold Nutrition,magnesium,0,168.0,0,0,20.0,TIER3_hold_no_demand
+289,gold-power-core-multivitamin-120-tablets,KEVIN LEVRONE,vitamines,0,99.0,0,0,20.0,TIER3_hold_no_demand
+290,gsn-nitro-whey-2kg,GSN Great Sport Nutrition,whey-proteine,0,189.0,0,0,20.0,TIER3_hold_no_demand
+291,doctor-s-best-natural-vitamin-k2-mk-7-60-gelules-vegetales,Doctor's Best,vitamines,0,51.0,0,0,20.0,TIER3_hold_no_demand
+292,california-gold-nutrition-buffered-gold-c-non-acidic-vitamin-c-powder-sodium-ascorbate-1-kg,California Gold Nutrition,vitamines,0,242.0,0,0,20.0,TIER3_hold_no_demand
+293,carlson-glycine-powder-free-form-amino-acid-100-g,Carlson,acides-amines,0,55.0,0,0,20.0,TIER3_hold_no_demand
+294,doctor-s-best-vitamin-d3-125-g,Doctor's Best,vitamines,0,67.0,0,0,20.0,TIER3_hold_no_demand
+295,snap-supplements-bcaas-peach-mango-277-g,Snap Supplements,bcaa,0,153.0,0,0,20.0,TIER3_hold_no_demand
+296,naturelo-iron-with-vitamin-c-90-gelules-vegetales,NATURELO,vitamines,0,113.0,0,0,20.0,TIER3_hold_no_demand
+297,pure-synergy-vita-min-vitality-60-comprimes,Pure Synergy,vitamines,0,251.0,0,0,20.0,TIER3_hold_no_demand
+298,megafood-zinc-120-comprimes,MegaFood,zinc,0,143.0,0,0,20.0,TIER3_hold_no_demand
+299,california-gold-nutrition-high-potency-vitamin-b-complex-with-methyl-folate-methyl-b12-30-gelules-vegetales,California Gold Nutrition,vitamines,0,46.0,0,0,20.0,TIER3_hold_no_demand
+300,gold-whey-2kg-v-shape-supps,MR.X  V-Shape Supps,whey-proteine,0,259.0,0,0,20.0,TIER3_hold_no_demand
+301,21st-century-arthri-flex-advantage-vitamin-d3-120-coated-tablets,21st Century,vitamines,0,118.0,0,0,20.0,TIER3_hold_no_demand
+302,carlson-vitamin-a-100-capsules-molles,Carlson,vitamines,0,50.0,0,0,20.0,TIER3_hold_no_demand
+303,bluebonnet-nutrition-liquid-vitamin-d3-drops-citrus-30-ml,Bluebonnet Nutrition,vitamines,0,106.0,0,0,20.0,TIER3_hold_no_demand
+304,nature-s-life-revitalizing-vitamin-k-2-natural-59-ml,Nature's Life,vitamines,0,109.0,0,0,20.0,TIER3_hold_no_demand
+305,trace-liquid-magnesium-tangerine-473-ml,Trace,magnesium,0,118.0,0,0,20.0,TIER3_hold_no_demand
+306,nutramedix-vitamins-d3-k2-90-vegetable-capsules,NutraMedix,vitamines,0,184.0,0,0,20.0,TIER3_hold_no_demand
+307,ener-c-bubbly-multivitamin-drink-mix-mixed-berry-5-46-g,Ener-C,vitamines,0,85.0,0,0,20.0,TIER3_hold_no_demand
+308,source-naturals-magnesium-chelate-complex-250-comprimes,Source Naturals,magnesium,0,77.0,0,0,20.0,TIER3_hold_no_demand
+309,now-foods-super-omega-epa-fish-oil-120-capsules-molles,NOW Foods,omega-3,0,79.0,0,0,20.0,TIER3_hold_no_demand
+310,source-naturals-magnesium-chelate-complex-100-comprimes,Source Naturals,magnesium,0,32.0,0,0,20.0,TIER3_hold_no_demand
+311,sunwarrior-active-creatine-monohydrate-raspberry-350-g,Sunwarrior,creatine,0,153.0,0,0,20.0,TIER3_hold_no_demand
+312,doctor-s-best-vitamin-d3-180-capsules-molles-2,Doctor's Best,vitamines,0,51.0,0,0,20.0,TIER3_hold_no_demand
+313,source-naturals-folic-acid-500-comprimes,Source Naturals,vitamines,0,72.0,0,0,20.0,TIER3_hold_no_demand
+314,naturesplus-source-of-life-original-liquid-multivitamin-mineral-supplement-delicious-tropical-fruit-236-56-ml,NaturesPlus,vitamines,0,72.0,0,0,20.0,TIER3_hold_no_demand
+315,nature-s-way-osteoprime-plus-calcium-magnesium-120-comprimes,Nature's Way,magnesium,0,105.0,0,0,20.0,TIER3_hold_no_demand
+316,mrm-nutrition-bcaa-g-6000-150-gelules,MRM Nutrition,bcaa,0,138.0,0,0,20.0,TIER3_hold_no_demand
+317,source-naturals-l-lysine-200-comprimes,Source Naturals,acides-amines,0,88.0,0,0,20.0,TIER3_hold_no_demand
+318,zero-isolate-2-kg-hx-nutrition,HX NUTRITION,whey-isolate,0,289.0,0,0,20.0,TIER3_hold_no_demand
+319,source-naturals-l-lysine-100-comprimes,Source Naturals,acides-amines,0,48.0,0,0,20.0,TIER3_hold_no_demand
+320,naturesplus-chewable-orange-juice-vitamin-c-natural-orange-chewable-orange-juice-180-comprimes,NaturesPlus,vitamines,0,178.0,0,0,20.0,TIER3_hold_no_demand
+321,snap-supplements-pre-workout-mixed-berry-250-g,Snap Supplements,pre-workout,0,204.0,0,0,20.0,TIER3_hold_no_demand
+322,animal-pre-workout-pump-pill-packs-30-packs,Animal,pre-workout,0,270.0,0,0,20.0,TIER3_hold_no_demand
+323,sunwarrior-active-creatine-monohydrate-raspberry-7-g,Sunwarrior,creatine,0,102.0,0,0,20.0,TIER3_hold_no_demand
+324,new-chapter-tiny-tabs-multivitamin-192-vegetarian-tablets,New Chapter,vitamines,0,153.0,0,0,20.0,TIER3_hold_no_demand
+325,swanson-vitamins-cinnamon-chromium-cinnamon-chromium-60-gelules-veganes,Swanson Vitamins,vitamines,0,51.0,0,0,20.0,TIER3_hold_no_demand
+326,100-whey-protein-2kg-ostrovit,OstroVit,whey-proteine,0,229.0,0,0,20.0,TIER3_hold_no_demand
+327,nature-s-life-protecting-zinc-250-comprimes,Nature's Life,zinc,0,78.0,0,0,20.0,TIER3_hold_no_demand
+328,solgar-vitamin-d3-cholecalciferol-100-capsules-molles,Solgar,vitamines,0,68.0,0,0,20.0,TIER3_hold_no_demand
+329,now-foods-taurine-250-gelules-vegetales,NOW Foods,acides-amines,0,94.0,0,0,20.0,TIER3_hold_no_demand
+330,organic-india-ashwagandha-root-powder-454-g,Organic India,ashwagandha,0,128.0,0,0,20.0,TIER3_hold_no_demand
+331,vital-earth-minerals-super-multi-natural-tropical-passion-fruit-946-ml,Vital Earth Minerals,vitamines,0,199.0,0,0,20.0,TIER3_hold_no_demand
+332,mrm-nutrition-driven-pre-workout-boost-mixed-berries-350-g,MRM Nutrition,pre-workout,0,118.0,0,0,20.0,TIER3_hold_no_demand
+333,amino-energy-270-g,Optimum Nutrition,pre-workout,0,135.0,0,0,20.0,TIER3_hold_no_demand
+334,21st-century-mega-multi-for-men-90-comprimes,21st Century,vitamines,0,72.0,0,0,20.0,TIER3_hold_no_demand
+335,nature-s-life-renewing-magnesium-malate-250-comprimes,Nature's Life,magnesium,0,143.0,0,0,20.0,TIER3_hold_no_demand
+336,source-naturals-taurine-powder-100-g,Source Naturals,acides-amines,0,36.0,0,0,20.0,TIER3_hold_no_demand
+337,nature-s-answer-liquid-magnesium-malate-and-glycinate-480-ml,Nature's Answer,magnesium,0,85.0,0,0,20.0,TIER3_hold_no_demand
+338,pure-essence-lonic-fizz-magnesium-plus-mixed-berry-342-g,Pure Essence,magnesium,0,208.0,0,0,20.0,TIER3_hold_no_demand
+339,nutrachamps-vitamin-c-120-gelules-veganes,NutraChamps,vitamines,0,77.0,0,0,20.0,TIER3_hold_no_demand
+340,swanson-vitamins-same-60-comprimes,Swanson Vitamins,vitamines,0,145.0,0,0,20.0,TIER3_hold_no_demand
+341,carlson-vitamin-d3-360-capsules-molles-3,Carlson,vitamines,0,130.0,0,0,20.0,TIER3_hold_no_demand
+342,source-naturals-women-s-life-force-multiple-180-comprimes,Source Naturals,vitamines,0,240.0,0,0,20.0,TIER3_hold_no_demand
+343,bluebonnet-nutrition-liquid-vitamin-d3-drops-citrus-30-ml-2,Bluebonnet Nutrition,vitamines,0,86.0,0,0,20.0,TIER3_hold_no_demand
+344,source-naturals-super-amino-night-240-comprimes,Source Naturals,acides-amines,0,168.0,0,0,20.0,TIER3_hold_no_demand
+345,naturesplus-magnesium-180-comprimes,NaturesPlus,magnesium,0,130.0,0,0,20.0,TIER3_hold_no_demand
+346,bariatricpal-multivitamin-one-with-iron-30-gelules,BariatricPal,vitamines,0,77.0,0,0,20.0,HELD_regulatory_review
+347,carlson-b-50-gel-vitamin-b-complex-200-capsules-molles,Carlson,vitamines,0,247.0,0,0,20.0,TIER3_hold_no_demand
+348,naturesplus-chewable-orange-juice-vitamin-c-natural-orange-chewable-orange-juice-60-comprimes,NaturesPlus,vitamines,0,122.0,0,0,20.0,TIER3_hold_no_demand
+349,now-foods-magnesium-potassium-aspartate-with-taurine-120-gelules-vegetales,NOW Foods,acides-amines,0,69.0,0,0,20.0,TIER3_hold_no_demand
+350,carlson-vitamin-a-240-capsules-molles,Carlson,vitamines,0,83.0,0,0,20.0,TIER3_hold_no_demand
+351,superior-source-triple-b-12-b-6-folic-acid-60-microlingual-instant-dissolve-tablets,Superior Source,vitamines,0,129.0,0,0,20.0,TIER3_hold_no_demand
+352,optimum-nutrition-instantized-bcaa-5000-powder-sans-arome-345-g,Optimum Nutrition,bcaa,0,210.0,0,0,20.0,TIER3_hold_no_demand
+353,codeage-men-s-multivitamin-30-vegetable-capsules,Codeage,vitamines,0,128.0,0,0,20.0,TIER3_hold_no_demand
+354,kirkman-labs-l-carnosine-90-gelules,Kirkman Labs,acides-amines,0,228.0,0,0,20.0,TIER3_hold_no_demand
+355,nature-s-life-defending-vitamin-c-with-bio-rose-blend-250-vegcaps,Nature's Life,vitamines,0,162.0,0,0,20.0,TIER3_hold_no_demand
+356,source-naturals-l-carnosine-60-comprimes,Source Naturals,acides-amines,0,143.0,0,0,20.0,TIER3_hold_no_demand
+357,naturesplus-chewable-cal-mag-vit-d3-with-vitamin-k2-60-chewable-tablets-vanilla,NaturesPlus,vitamines,0,85.0,0,0,20.0,TIER3_hold_no_demand
+358,animal-omega-30packs,Universal Nutrition,omega-3,0,179.0,0,0,20.0,TIER3_hold_no_demand
+359,megafood-magnesium-citrate-malate-30-individually-wrapped-soft-chews-125-mg-per-chew-grape,MegaFood,magnesium,0,72.0,0,0,20.0,TIER3_hold_no_demand
+360,nature-made-multi-with-iron-130-comprimes,Nature Made,vitamines,0,66.0,0,0,20.0,TIER3_hold_no_demand
+361,cymbiotika-liposomal-vitamin-c-orange-vanilla-15-ml,Cymbiotika,vitamines,0,317.0,0,0,20.0,TIER3_hold_no_demand
+362,carlson-vitamin-k2-180-gelules,Carlson,vitamines,0,300.0,0,0,20.0,TIER3_hold_no_demand
+363,healthforce-superfoods-truly-natural-vitamin-c-400-g,HealthForce Superfoods,vitamines,0,306.0,0,0,20.0,TIER3_hold_no_demand
+364,carlson-mini-multi-vitamins-minerals-180-mini-tablets,Carlson,vitamines,0,150.0,0,0,20.0,TIER3_hold_no_demand
+365,carlson-vitamin-a-250-capsules-molles-2,Carlson,vitamines,0,104.0,0,0,20.0,TIER3_hold_no_demand
+366,nutramedix-magnesium-malate-120-vegetable-capsules-100-mg-per-capsule,NutraMedix,magnesium,0,113.0,0,0,20.0,TIER3_hold_no_demand
+367,fitcode-magnesium-citrate-60-gelules-vegetales,fitcode,magnesium,0,48.0,0,0,20.0,TIER3_hold_no_demand
+368,bodybio-calcium-magnesium-butyrate-250-gelules,BodyBio,magnesium,0,388.0,0,0,20.0,TIER3_hold_no_demand
+369,protocol-for-life-balance-vitamin-d3-120-capsules-molles,Protocol for Life Balance,vitamines,0,52.0,0,0,20.0,TIER3_hold_no_demand
+370,deva-vegan-vitamin-d3-90-comprimes,Deva,vitamines,0,51.0,0,0,20.0,TIER3_hold_no_demand
+371,nbi-supreme-multivitamin-120-gelules,NBI,vitamines,0,209.0,0,0,20.0,TIER3_hold_no_demand
+372,deva-vegan-vitamin-d2-90-comprimes,Deva,vitamines,0,31.0,0,0,20.0,TIER3_hold_no_demand
+373,lifetime-vitamins-vitaliquids-bone-support-strawberry-473-ml,LifeTime Vitamins,vitamines,0,91.0,0,0,20.0,TIER3_hold_no_demand
+374,source-naturals-proline-lysine-60-comprimes,Source Naturals,acides-amines,0,44.0,0,0,20.0,TIER3_hold_no_demand
+375,rainbow-light-certified-men-s-multivitamin-120-gelules,Rainbow Light,vitamines,0,209.0,0,0,20.0,TIER3_hold_no_demand
+376,thorne-ashwagandha-30-gelules,Thorne,ashwagandha,0,113.0,0,0,20.0,TIER3_hold_no_demand
+377,new-chapter-perfect-calm-multivitamin-144-vegetarian-tablets,New Chapter,vitamines,0,279.0,0,0,20.0,TIER3_hold_no_demand
+378,replesta-cholecalciferol-natural-orange-3-g,Replesta,vitamines,0,77.0,0,0,20.0,TIER3_hold_no_demand
+379,nature-s-bounty-magnesium-high-potency-500-mg,Nature's Bounty,magnesium,0,41.0,0,0,20.0,TIER3_hold_no_demand
+380,megafood-one-daily-multivitamin-for-women-60-comprimes,MegaFood,vitamines,0,194.0,0,0,20.0,TIER3_hold_no_demand
+381,source-naturals-vitamin-b-1-high-potency-100-comprimes,Source Naturals,vitamines,0,84.0,0,0,20.0,TIER3_hold_no_demand
+382,megafood-women-s-one-daily-multivitamin-30-comprimes,MegaFood,vitamines,0,113.0,0,0,20.0,TIER3_hold_no_demand
+383,barlean-s-seriously-delicious-liquid-multivitamin-tropical-473-ml,Barlean's,vitamines,0,141.0,0,0,20.0,TIER3_hold_no_demand
+384,source-naturals-vegan-true-120-gelules-veganes,Source Naturals,vitamines,0,179.0,0,0,20.0,TIER3_hold_no_demand
+385,megafood-zinc-60-comprimes,MegaFood,zinc,0,92.0,0,0,20.0,TIER3_hold_no_demand
+386,rainbow-light-certified-women-s-multivitamin-120-gelules,Rainbow Light,vitamines,0,209.0,0,0,20.0,TIER3_hold_no_demand
+387,source-naturals-proline-lysine-120-comprimes,Source Naturals,acides-amines,0,81.0,0,0,20.0,TIER3_hold_no_demand
+388,21st-century-vitamin-d3-110-comprimes,21st Century,vitamines,0,54.0,0,0,20.0,TIER3_hold_no_demand
+389,nature-s-bounty-vitamin-b-12-cherry-500-g,Nature's Bounty,vitamines,0,42.0,0,0,20.0,TIER3_hold_no_demand
+390,carlson-e-gems-elite-vitamin-e-with-tocopherols-tocotrienols-240-capsules-molles,Carlson,vitamines,0,651.0,0,0,20.0,TIER3_hold_no_demand
+391,arthur-andrew-medical-mag3ultra-magnesium-complex-with-potassium-90-gelules,Arthur Andrew Medical,magnesium,0,92.0,0,0,20.0,TIER3_hold_no_demand
+392,now-foods-omega-3-6-9-250-capsules-molles,NOW Foods,omega-3,0,107.0,0,0,20.0,TIER3_hold_no_demand
+393,megafood-one-daily-multivitamin-iron-free-90-comprimes,MegaFood,vitamines,0,240.0,0,0,20.0,TIER3_hold_no_demand
+394,healthforce-superfoods-vitamineral-green-300-g,HealthForce Superfoods,vitamines,0,306.0,0,0,20.0,TIER3_hold_no_demand
+395,bioschwartz-vitamin-c-complex-with-zinc-bioflavonoids-rose-hips-120-gelules,BioSchwartz,zinc,0,77.0,0,0,20.0,TIER3_hold_no_demand
+396,carlson-vitamins-a-d-300-capsules-molles,Carlson,vitamines,0,87.0,0,0,20.0,TIER3_hold_no_demand
+397,trace-magnesium-gummies-peach-120-gommes,Trace,magnesium,0,143.0,0,0,20.0,TIER3_hold_no_demand
+398,carlson-vitamin-k2-60-gelules,Carlson,vitamines,0,109.0,0,0,20.0,TIER3_hold_no_demand
+399,protocol-for-life-balance-vitamin-d3-high-potency-120-capsules-molles,Protocol for Life Balance,vitamines,0,72.0,0,0,20.0,TIER3_hold_no_demand
+400,premium-whey-gold-2kg-victor-martinez,VICTOR MARTINEZ,whey-proteine,0,249.0,0,0,20.0,TIER3_hold_no_demand

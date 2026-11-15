@@ -62,9 +62,9 @@ async function fetchPublishedArticles(): Promise<Article[]> {
 const COMMERCIAL_HUBS = [
   { name: "Créatine Monohydrate", url: "/creatine", count: "Toutes marques pures" },
   { name: "Whey Protéine", url: "/whey-proteine", count: "Isolate & Concentré" },
-  { name: "Mass Gainers", url: "/gainers", count: "Prise de masse rapide" },
+  { name: "Mass Gainers", url: "/gainers-proteines", count: "Prise de masse rapide" },
   { name: "Pre-Workout & Boosters", url: "/pre-workout", count: "Énergie & Focus" },
-  { name: "BCAA & Acides Aminés", url: "/bcaa-acides-amines", count: "EAA, BCAA, Citrulline" },
+  { name: "BCAA & Acides Aminés", url: "/bcaa", count: "EAA, BCAA, Citrulline" },
   { name: "Ashwagandha KSM-66", url: "/ashwagandha", count: "Stress & Récupération" },
   { name: "Vitamines & Minéraux", url: "/vitamines", count: "D3+K2, Zinc, Multi" },
   { name: "Brûleurs de Graisse", url: "/bruleurs-de-graisse", count: "Sèche & Minceur" },
