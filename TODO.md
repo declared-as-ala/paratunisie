@@ -53,7 +53,7 @@ Detail per batch: `TASKS.md` (§14–§24) and `docs/seo/`. Rule used everywhere
 ## 2. 🔧 Remaining work (ranked by SEO / commercial impact)
 
 ### A. Needs nothing from you — I can do next
-1. [ ] Lift `/bcaa`, `/pre-workout`, `/gainers-proteines` to flagship depth (live comparison already works for powders). *(`/whey-isolate`, `/vitamines`, `/omega-3` done 2026-11-16: 720–825-word claim-free guides, FAQ, product links, backup `_wave_backup_cat_batch10b`; category check all green)*
+1. [x] `/bcaa`, `/pre-workout`, `/gainers-proteines` deepened 2026-11-16 (720–800 words, comparison table, EFSA caffeine reference, FAQ, links; backup `_wave_backup_cat_batch10c`). *(`/whey-isolate`, `/vitamines`, `/omega-3` done 2026-11-16: 720–825-word claim-free guides, FAQ, product links, backup `_wave_backup_cat_batch10b`; category check all green)*
 2. [ ] **Categories with no original guide (33)**: write guides only where products + demand justify it (candidates: plantes-et-herbes, immunité, sommeil-stress, minéraux, antioxydants, articulations, digestion, accessoires); keep the rest noindex
 3. [ ] **Wave 3b**: 35 Tier-2 products (1 impression each) after Google responds to Wave 3
 4. [ ] **Brand "potential" flag in admin** (e.g. ABE 17 and ALLMAX 29 products: all on order, flavour duplicates, 0 demand — correctly Tier C today; they need a product wave first)
@@ -77,7 +77,7 @@ Detail per batch: `TASKS.md` (§14–§24) and `docs/seo/`. Rule used everywhere
 - [ ] **11 held Wave-2 products** (2 prices, 2 claims, 7 medical-claim reviews)
 - [ ] **~3,300 products with medical wording**: human review (I can prepare a 50-product sample ranked by demand)
 - [ ] **On-order semantics**: keep "Demander ce produit" + schema `OutOfStock`, or define real BackOrder with dates?
-- [ ] **`protein.tn` (Sobitas, Sousse)** ranks for the same keywords with a near-identical page template and was once Google's canonical for one of our pages. Is it a sister business? If yes: decide a consolidation/cross-link strategy; if not, it is the main direct competitor
+- [x] **`protein.tn`**: decided by owner 2026-11-16 — separate site, independent SEO, no merge/canonical consolidation/copied content. URL Inspection (11-16) shows Google canonical = our own URL for /acides-amines, /eaa, /whey-isolate (`docs/seo/GOOGLE_INDEXING_RECOVERY.md`)
 - [ ] **`/probiotiques`**: stays noindex until at least one product is really in stock
 - [ ] Variant labels that contradict names (`6l` on 90 tablets, `2 g` on 90 softgels): data fix by you or a supplier file
 
