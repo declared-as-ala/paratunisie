@@ -129,6 +129,16 @@ export function plainDescription(value: string): string {
   return `${cut.slice(0, Math.max(cut.lastIndexOf(". "), cut.lastIndexOf(" ")) + 1).trim()}`;
 }
 
+/** Emits gtin8/12/13/14 only for a structurally valid, human-entered GTIN. Never invents one. */
+export function gtinProperty(value?: string | null): Record<string, string> {
+  if (!value || !/^\d+$/.test(value) || ![8, 12, 13, 14].includes(value.length)) return {};
+  const digits = value.split("").map(Number);
+  const check = digits.pop() as number;
+  const sum = digits.reverse().reduce((acc, d, i) => acc + d * (i % 2 === 0 ? 3 : 1), 0);
+  if ((10 - (sum % 10)) % 10 !== check) return {};
+  return { [`gtin${value.length}`]: value };
+}
+
 export interface ProductSchemaInput {
   name: string;
   slug: string;
@@ -136,6 +146,8 @@ export interface ProductSchemaInput {
   description?: string | null;
   brandName?: string | null;
   sku?: string | null;
+  gtin?: string | null;
+  mpn?: string | null;
   priceTnd: number;
   rating?: { average: number; count: number };
   reviews?: ProductSchemaReview[];
@@ -200,6 +212,8 @@ export function buildProductSchema(product: ProductSchemaInput) {
     ...(validReviews.length > 0 ? { review: validReviews } : {}),
     description: plainDescription(product.description || product.name),
     ...(product.sku ? { sku: product.sku } : {}),
+    ...gtinProperty(product.gtin),
+    ...(product.mpn ? { mpn: product.mpn } : {}),
     url: productUrl,
     ...(product.brandName && !/non renseign|unknown/i.test(product.brandName)
       ? {

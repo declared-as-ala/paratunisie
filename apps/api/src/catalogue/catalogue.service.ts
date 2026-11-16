@@ -7,6 +7,7 @@ import * as path from "path";
 import * as crypto from "crypto";
 import { categoryTreeIds } from "./category-tree";
 import { evaluateProductSeoQuality } from "./product-seo-quality";
+import { normalizeGtin, normalizeMpn } from "./product-identifiers";
 
 export const fallbackProducts = [
   {
@@ -365,16 +366,25 @@ export class CatalogueService {
         brandId: brand.id, categoryId: category.id, publishState: data.status === "ACTIVE" ? "PUBLISHED" : "DRAFT",
         ...this.productSeoWriteData(data),
         indexable: false,
-        variants: { create: { label: data.size || data.name, sku: data.sku || null, priceMillimes: Math.round(Number(data.price || 0) * 1000), stock: Number(data.stock || 0) } },
+        variants: { create: { label: data.size || data.name, sku: data.sku || null, ...this.identifierData(data), priceMillimes: Math.round(Number(data.price || 0) * 1000), stock: Number(data.stock || 0) } },
       },
       include: { brand: true, category: true, variants: true, images: true },
     });
     return this.applyProductSeoGate(created.id, data.indexable !== false);
   }
 
+  /** Validated optional identifiers; throws 400 on an invalid GTIN/MPN, returns only the fields the request actually carries. */
+  private identifierData(data: { gtin?: unknown; mpn?: unknown }): { gtin?: string | null; mpn?: string | null } {
+    const out: { gtin?: string | null; mpn?: string | null } = {};
+    if (data.gtin !== undefined) { const r = normalizeGtin(data.gtin); if (!r.ok) throw new BadRequestException(r.error); out.gtin = r.value; }
+    if (data.mpn !== undefined) { const r = normalizeMpn(data.mpn); if (!r.ok) throw new BadRequestException(r.error); out.mpn = r.value; }
+    return out;
+  }
+
   async updateProduct(id: string, data: any) {
     const existing = await this.prisma.product.findUnique({ where: { id }, include: { variants: { take: 1 } } });
     if (!existing) throw new NotFoundException("Produit introuvable");
+    const identifiers = this.identifierData(data); // validate before any write so an invalid GTIN cannot leave a half-applied update
 
     const brandQuery = (data.brandId || data.brand || "").trim();
     const categoryQuery = (data.categoryId || data.category || "").trim();
@@ -415,8 +425,8 @@ export class CatalogueService {
       },
       include: { brand: true, category: true, variants: true, images: true },
     });
-    if (existing.variants[0] && (data.price !== undefined || data.stock !== undefined || data.sku !== undefined)) {
-      await this.prisma.productVariant.update({ where: { id: existing.variants[0].id }, data: { priceMillimes: data.price === undefined ? undefined : Math.round(Number(data.price) * 1000), stock: data.stock === undefined ? undefined : Number(data.stock), sku: data.sku === undefined ? undefined : data.sku || null } });
+    if (existing.variants[0] && (data.price !== undefined || data.stock !== undefined || data.sku !== undefined || data.gtin !== undefined || data.mpn !== undefined)) {
+      await this.prisma.productVariant.update({ where: { id: existing.variants[0].id }, data: { priceMillimes: data.price === undefined ? undefined : Math.round(Number(data.price) * 1000), stock: data.stock === undefined ? undefined : Number(data.stock), sku: data.sku === undefined ? undefined : data.sku || null, ...identifiers } });
     }
     await this.recordSlugRedirect(`/produits/${existing.slug}`, `/produits/${slug}`);
     return this.applyProductSeoGate(updated.id, data.indexable !== false);

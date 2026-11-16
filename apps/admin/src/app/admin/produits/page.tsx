@@ -334,6 +334,8 @@ function ChecklistPage({ onVisibleIds }: { onVisibleIds?: (ids: string[]) => voi
           price: p.variants?.[0]?.priceMillimes ? p.variants[0].priceMillimes / 1000 : 0,
           costPrice: 0,
           sku: p.variants?.[0]?.sku || p.slug?.toUpperCase() || `SKU-${i}`,
+          gtin: p.variants?.[0]?.gtin ?? undefined,
+          mpn: p.variants?.[0]?.mpn ?? undefined,
           stock: p.variants?.[0]?.stock ?? 50,
           status: p.publishState === "PUBLISHED" ? "ACTIVE" : p.publishState === "NOINDEX" ? "ARCHIVED" : "DRAFT",
           image: p.image || "/assets/product-tube.webp",

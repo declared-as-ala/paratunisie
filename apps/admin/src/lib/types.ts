@@ -87,6 +87,9 @@ export interface Product {
   supplierId?: string;
   sku: string;
   barcode?: string;
+  /** Optional, human-verified identifiers (never auto-generated). */
+  gtin?: string;
+  mpn?: string;
   stock: number;
   reorderThreshold?: number;
   status: "ACTIVE" | "DRAFT" | "ARCHIVED";

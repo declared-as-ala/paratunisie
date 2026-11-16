@@ -74,7 +74,7 @@ export type ProductRating = { average: number; count: number };
 export type RawBrand = { id: string; name: string; slug: string; tagline?: string | null; description?: string | null };
 export type RawCategory = { id: string; name: string; slug: string };
 export type RawConcern = { id: string; name: string; slug: string };
-export type RawVariant = { id: string; label: string; priceMillimes: number; stock: number; sku?: string | null };
+export type RawVariant = { id: string; label: string; priceMillimes: number; stock: number; sku?: string | null; gtin?: string | null; mpn?: string | null };
 export type RawProductImage = { id: string; url: string; alt?: string | null; position: number };
 
 export type RawProduct = {
@@ -118,6 +118,8 @@ function transformProduct(raw: RawProduct): ProductSummary {
   return {
     id: raw.id,
     sku: raw.variants?.[0]?.sku || raw.id,
+    gtin: raw.variants?.[0]?.gtin || undefined,
+    mpn: raw.variants?.[0]?.mpn || undefined,
     slug: raw.slug,
     brand: raw.brand?.name || "ParaTunisie",
     brandSlug: raw.brand?.slug,

@@ -1,7 +1,7 @@
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { buildCategoryMetadata, buildPageMetadata, buildProductMetadata } from './metadata';
-import { buildProductSchema } from './schema';
+import { buildProductSchema, gtinProperty } from './schema';
 
 describe('social image ownership', () => {
   it('never exposes a third-party og:image and falls back to the product image', () => {
@@ -100,5 +100,16 @@ describe('product structured data integrity', () => {
     const out = buildProductSchema({ ...base, description: 'x', rating: { average: 0, count: 0 }, reviews: [] });
     assert.equal('aggregateRating' in out, false);
     assert.equal('review' in out, false);
+  });
+});
+
+describe('gtinProperty', () => {
+  it('emits only structurally valid GTINs and never invents one', () => {
+    assert.deepEqual(gtinProperty('4006381333931'), { gtin13: '4006381333931' });
+    assert.deepEqual(gtinProperty('96385074'), { gtin8: '96385074' });
+    assert.deepEqual(gtinProperty('4006381333932'), {});
+    assert.deepEqual(gtinProperty('123'), {});
+    assert.deepEqual(gtinProperty(null), {});
+    assert.deepEqual(gtinProperty(undefined), {});
   });
 });

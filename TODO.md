@@ -44,6 +44,8 @@ Detail per batch: `TASKS.md` (§14–§24) and `docs/seo/`. Rule used everywhere
 - [x] Category scoring evidence fixed (9 of 20 checks were unreachable) + gap-filling category optimizer (46 categories completed)
 - [x] Product JSON-LD fixed: plain-text description (was Markdown on 312/312 pages), no slug-as-SKU, **no fabricated review text/author**
 - [x] **Order-price vulnerability fixed and proven** (server-authoritative pricing, stock and quantity checks, shipping computed server-side)
+- [x] Guides/rewrites 2026-11-16: `/ashwagandha` (replaced unsupported health claims), `/accessoires` (was a 437-char stub), `/whey-hydrolysee` (new, now indexable: 3 products in stock)
+- [x] `docs/seo/RANKING_BASELINE.md` (Search Console baseline by keyword group), `MEDICAL_CLAIMS_SAMPLE.md` (45 flagged high-demand products), `GOOGLE_INDEXING_RECOVERY.md`
 - [x] Guides for `/whey-isolate`, `/vitamines`, `/omega-3` (claim-free, label reading, cost per day, precautions)
 - [x] Review collection system: private per-order-line links, verified flag only through them, spam screening, moderation history, public form `/avis/<token>` (noindex), staff panel; legacy open endpoint can no longer grant "verified"
 
@@ -56,9 +58,9 @@ Detail per batch: `TASKS.md` (§14–§24) and `docs/seo/`. Rule used everywhere
 1. [x] `/bcaa`, `/pre-workout`, `/gainers-proteines` deepened 2026-11-16 (720–800 words, comparison table, EFSA caffeine reference, FAQ, links; backup `_wave_backup_cat_batch10c`). *(`/whey-isolate`, `/vitamines`, `/omega-3` done 2026-11-16: 720–825-word claim-free guides, FAQ, product links, backup `_wave_backup_cat_batch10b`; category check all green)*
 2. [ ] **Categories with no original guide (33)**: write guides only where products + demand justify it (candidates: plantes-et-herbes, immunité, sommeil-stress, minéraux, antioxydants, articulations, digestion, accessoires); keep the rest noindex
 3. [ ] **Wave 3b**: 35 Tier-2 products (1 impression each) after Google responds to Wave 3
-4. [ ] **Brand "potential" flag in admin** (e.g. ABE 17 and ALLMAX 29 products: all on order, flavour duplicates, 0 demand — correctly Tier C today; they need a product wave first)
+4. [ ] (list of the 21 logo-less brands now in `docs/seo/BRAND_LOGOS_MISSING.md`) **Brand "potential" flag in admin** (e.g. ABE 17 and ALLMAX 29 products: all on order, flavour duplicates, 0 demand — correctly Tier C today; they need a product wave first)
 5. [ ] **Category/brand/homepage internal links**: add `/creatine`, `/whey-proteine` flagship links from related hubs and guides; link brands from category pages
-6. [ ] **GTIN/EAN/MPN**: add optional fields (DB + admin form + JSON-LD) so identifiers can be filled when verified
+6. [x] **GTIN/EAN/MPN** optional fields built and deployed 2026-11-16 (DB columns, GS1 check-digit validation, admin form, JSON-LD `gtin8/12/13/14` + `mpn` only when valid). All 312 pages still have none: values must be entered by a human from the packaging/supplier
 7. [ ] Weekly report + URL Inspection **7–14 days after the last deploy** (compare equal windows; baseline in `docs/seo/CATEGORY_BASELINE.json`)
 8. [ ] Refresh competitor snapshots monthly (`serp_snapshot.py`); add magnésium / vitamines / BCAA snapshots
 9. [ ] Click-through test of the admin UI (login required) — builds, typechecks and endpoints are verified, the screens were not clicked

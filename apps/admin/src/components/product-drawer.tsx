@@ -228,11 +228,24 @@ export function ProductDrawer({
                   className="field-input font-mono"
                 />
               </Field>
-              <Field label="Code-barres">
+              <Field label="GTIN / EAN (code-barres)">
                 <input
                   type="text"
-                  value={form.barcode ?? ""}
-                  onChange={(e) => update("barcode", e.target.value)}
+                  inputMode="numeric"
+                  value={form.gtin ?? ""}
+                  onChange={(e) => update("gtin", e.target.value)}
+                  placeholder="Optionnel : 8, 12, 13 ou 14 chiffres"
+                  className="field-input font-mono"
+                />
+                <p className="mt-1 text-[0.6875rem] text-slate-500">À renseigner uniquement s'il est vérifié sur l'emballage ou chez le fabricant : jamais deviné.</p>
+              </Field>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="MPN (référence fabricant)">
+                <input
+                  type="text"
+                  value={form.mpn ?? ""}
+                  onChange={(e) => update("mpn", e.target.value)}
                   placeholder="Optionnel"
                   className="field-input font-mono"
                 />

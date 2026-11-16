@@ -6,6 +6,8 @@ export type ProductSize = {
 export type ProductSummary = {
   id: string;
   sku?: string;
+  gtin?: string;
+  mpn?: string;
   slug: string;
   brand: string;
   brandSlug?: string;

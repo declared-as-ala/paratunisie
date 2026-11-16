@@ -79,6 +79,8 @@ function productSchemas(product: ProductSummary, rating: ProductRating, reviews:
     description: product.description,
     brandName: product.brand,
     sku: product.sku && product.sku !== product.id ? product.sku : undefined, // never publish an internal id or a slug as SKU
+    gtin: product.gtin,
+    mpn: product.mpn,
     priceTnd: product.priceMillimes / 1000,
     inStock: Boolean(product.inStock),
     categoryName: product.category,
