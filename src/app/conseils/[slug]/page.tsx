@@ -88,10 +88,19 @@ async function fetchArticleBySlug(slug: string): Promise<Article | null> {
         let blocks: { type?: string; text?: string }[] = [];
         try { blocks = JSON.parse(data.content || "[]"); } catch {}
         const sections: Article['sections'] = [];
+        // Structured editorial blocks stored in the same JSON: sources, key takeaways and related links (rendered by the dedicated components).
+        const blockSources: Article['sources'] = [];
+        const blockTakeaways: string[] = [];
+        const blockCategories: Article['relatedCategories'] = [];
+        const blockRelated: string[] = [];
         const catalogueResponse = await fetch(`${API_URL}/catalogue/sitemap-data`, { cache: 'no-store' });
         const catalogue = catalogueResponse.ok ? await catalogueResponse.json() : { products: [] };
         const productPaths = new Set((catalogue.products || []).map((product: { slug: string }) => `/produits/${product.slug}`));
         for (const block of Array.isArray(blocks) ? blocks : []) {
+          const typed = block as { type?: string; items?: { title?: string; url?: string; org?: string }[] | string[]; categories?: { name: string; url: string }[]; articles?: string[] };
+          if (typed.type === 'sources' && Array.isArray(typed.items)) { for (const it of typed.items as { title?: string; url?: string; org?: string }[]) if (it?.title && it?.url && /^https:\/\//.test(it.url)) blockSources.push({ title: it.title, url: it.url, org: it.org }); continue; }
+          if (typed.type === 'takeaways' && Array.isArray(typed.items)) { for (const it of typed.items as string[]) if (typeof it === 'string' && it.trim()) blockTakeaways.push(it); continue; }
+          if (typed.type === 'related') { for (const c of typed.categories || []) if (c?.name && c?.url?.startsWith('/')) blockCategories.push(c); for (const a of typed.articles || []) if (typeof a === 'string') blockRelated.push(a); continue; }
           if (!block.text) continue;
           if (block.type === 'heading' || !sections.length) sections.push({ title: block.type === 'heading' ? block.text : data.title, anchor: `section-${sections.length + 1}`, content: [] });
           if (block.type !== 'heading') sections[sections.length - 1].content.push(block.text.replace(/\[([^\]]+)\]\((\/produits\/[^)]+)\)/g, (match, label, path) => productPaths.has(path) ? match : label));
@@ -105,7 +114,7 @@ async function fetchArticleBySlug(slug: string): Promise<Article | null> {
           secondaryKeywords: (data.targetKeyword || "").split(",").slice(1).map((value: string) => value.trim()),
           imageAlt: data.title,
           sections,
-          takeaways: local?.takeaways || [], sources: local?.sources || [], relatedSlugs: local?.relatedSlugs || [], relatedCategories: local?.relatedCategories || [],
+          takeaways: local?.takeaways?.length ? local.takeaways : blockTakeaways, sources: local?.sources?.length ? local.sources : blockSources, relatedSlugs: local?.relatedSlugs?.length ? local.relatedSlugs : blockRelated, relatedCategories: local?.relatedCategories?.length ? local.relatedCategories : blockCategories,
           products: (data.products || []).map((item: { product?: { slug: string; name: string }; rationale?: string }) => ({ productSlug: item.product?.slug, productName: item.product?.name, rationale: item.rationale })),
           featuredImage: getArticleImage(slug, data.featuredImage || local?.featuredImage),
         };
@@ -290,11 +299,6 @@ export default async function ArticleDetailPage({
                     className="object-cover"
                   />
                 </div>
-                {article.imageAlt && (
-                  <figcaption className="p-3 text-center text-[11px] italic text-ink-muted">
-                    {article.imageAlt}
-                  </figcaption>
-                )}
               </figure>
             )}
 
