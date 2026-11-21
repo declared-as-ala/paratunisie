@@ -106,11 +106,11 @@ export class CatalogueController {
     @Query("seoMin") seoMin?: string,
     @Query("seoMax") seoMax?: string,
   ) {
-    // Admin filters on score / availability / indexability run in SQL on persisted columns.
-    if (stock || indexable || seoMin !== undefined || seoMax !== undefined || sort === "seo_asc" || sort === "seo_desc") {
+    // Admin product list must always return full SEO & copy fields (never strip via toPublicListingProduct).
+    if (!concern) {
       return this.seoScoreService.adminList({ page, limit, q: search || q, brand, category, status, stock, indexable, seoMin, seoMax, sort });
     }
-    return this.catalogueService.findAllProducts({ page, limit, search: search || q, brand, category, concern, status, sort });
+    return this.catalogueService.findAllProducts({ page, limit, search: search || q, brand, category, concern, status, sort, includeFullFields: true });
   }
 
   @Get("admin/stock-stats")

@@ -98,6 +98,7 @@ export class CatalogueService {
     concern?: string;
     status?: string;
     sort?: string;
+    includeFullFields?: boolean;
   }) {
     const page = Math.max(1, Math.floor(Number(params?.page) || 1));
     const limit = Math.max(1, Math.min(100, Math.floor(Number(params?.limit) || 24)));
@@ -129,7 +130,7 @@ export class CatalogueService {
         const total = searchResult.estimatedTotalHits;
         const totalPages = Math.ceil(total / limit) || 1;
         return {
-          data: ordered.map((product) => this.toPublicListingProduct(product)),
+          data: params?.includeFullFields ? ordered : ordered.map((product) => this.toPublicListingProduct(product)),
           meta: { page, limit, total, totalPages, hasNextPage: page < totalPages, hasPreviousPage: page > 1 },
         };
       }
@@ -247,7 +248,9 @@ export class CatalogueService {
       return {
         data: params?.status
           ? dbProducts
-          : dbProducts.map((product) => this.toPublicListingProduct(product)),
+          : params?.includeFullFields
+            ? dbProducts
+            : dbProducts.map((product) => this.toPublicListingProduct(product)),
         meta: {
           page,
           limit,
