@@ -375,9 +375,12 @@ export function buildArticleSchema(article: ArticleSchemaInput) {
       : `${COMPANY_CONFIG.siteUrl}${article.image.startsWith("/") ? "" : "/"}${article.image}`
     : COMPANY_CONFIG.logoUrl;
 
+  const isArabic = /[\u0600-\u06FF]/.test(article.title);
+
   return {
     "@context": "https://schema.org",
     "@type": "Article",
+    inLanguage: isArabic ? "ar-TN" : "fr-TN",
     headline: article.title,
     description: article.description || article.title,
     image: [imageUrl],

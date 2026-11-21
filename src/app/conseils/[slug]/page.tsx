@@ -236,6 +236,8 @@ export default async function ArticleDetailPage({
       ? buildFaqSchema(article.faqs)
       : null;
 
+  const isArabic = /[\u0600-\u06FF]/.test(article.h1 || article.title);
+
   return (
     <>
       <script
@@ -287,7 +289,7 @@ export default async function ArticleDetailPage({
         {/* Two-Column Responsive Layout */}
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_320px] xl:gap-14">
           {/* Main Editorial Content */}
-          <article className="min-w-0 max-w-[800px]">
+          <article dir={isArabic ? "rtl" : undefined} lang={isArabic ? "ar-TN" : undefined} className="min-w-0 max-w-[800px]">
             {/* Header Meta */}
             <header className="mb-8">
               <div className="flex flex-wrap items-center gap-2.5 mb-4">

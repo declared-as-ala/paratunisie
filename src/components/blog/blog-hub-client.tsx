@@ -13,10 +13,17 @@ interface BlogHubClientProps {
 
 export function BlogHubClient({ initialArticles, categories }: BlogHubClientProps) {
   const [selectedCategory, setSelectedCategory] = React.useState<string>("ALL");
+  const [langFilter, setLangFilter] = React.useState<"ALL" | "FR" | "AR">("ALL");
   const [searchQuery, setSearchQuery] = React.useState<string>("");
 
   const filteredArticles = React.useMemo(() => {
     let list = initialArticles;
+
+    if (langFilter === "AR") {
+      list = list.filter((a) => /[\u0600-\u06FF]/.test(a.title));
+    } else if (langFilter === "FR") {
+      list = list.filter((a) => !/[\u0600-\u06FF]/.test(a.title));
+    }
 
     if (selectedCategory !== "ALL") {
       list = list.filter((a) => a.category === selectedCategory);
@@ -34,7 +41,7 @@ export function BlogHubClient({ initialArticles, categories }: BlogHubClientProp
     }
 
     return list;
-  }, [initialArticles, selectedCategory, searchQuery]);
+  }, [initialArticles, selectedCategory, langFilter, searchQuery]);
 
   const allCategories = ["ALL", ...categories];
 
@@ -56,8 +63,31 @@ export function BlogHubClient({ initialArticles, categories }: BlogHubClientProp
         </p>
       </div>
 
-      {/* ── 2. Category Filter Bar (Matching Screenshot) ── */}
-      <div className="bg-white rounded-2xl p-2.5 sm:p-3 border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+      {/* ── 2. Language & Category Filter Bar ── */}
+      <div className="space-y-3">
+        <div className="flex flex-wrap items-center gap-2">
+          {(
+            [
+              ["ALL", "Toutes les langues"],
+              ["FR", "Français"],
+              ["AR", "🇹🇳 بالدارجة التونسية"],
+            ] as const
+          ).map(([code, label]) => (
+            <button
+              key={code}
+              type="button"
+              onClick={() => setLangFilter(code)}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-all cursor-pointer border ${
+                langFilter === code
+                  ? "bg-slate-900 text-white border-slate-900 shadow-xs"
+                  : "bg-white text-slate-700 border-slate-200 hover:border-slate-300"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+        <div className="bg-white rounded-2xl p-2.5 sm:p-3 border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
           <button
             type="button"
@@ -100,6 +130,7 @@ export function BlogHubClient({ initialArticles, categories }: BlogHubClientProp
             className="w-full pl-9 pr-3 py-1.5 text-xs sm:text-sm bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
           />
         </div>
+      </div>
       </div>
 
       {/* ── 3. Publications Header Section ── */}
@@ -176,7 +207,10 @@ export function BlogHubClient({ initialArticles, categories }: BlogHubClientProp
                 </Link>
 
                 {/* Body Content */}
-                <div className="p-5 flex flex-col flex-1 justify-between">
+                <div
+                  dir={/[\u0600-\u06FF]/.test(article.title) ? "rtl" : undefined}
+                  className="p-5 flex flex-col flex-1 justify-between"
+                >
                   <div className="space-y-2.5">
                     <Link href={`/conseils/${article.slug}`}>
                       <h3 className="font-bold text-slate-900 text-[1.05rem] leading-snug group-hover:text-primary transition-colors line-clamp-2 min-h-[2.8rem]">
