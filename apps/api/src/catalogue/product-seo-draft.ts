@@ -138,7 +138,12 @@ export function validateDraft(d: ProductSeoFields): string[] {
   for (const key of ["seoTitle", "seoDescription", "seoH1", "seoIntro", "seoContent", "imageAlt"] as const) {
     if (BANNED_CLAIM.test(d[key])) issues.push(`Formulation non vérifiable dans ${key}.`);
   }
-  if ((d.seoTitle + d.seoH1 + d.imageAlt).match(/\btunisie\b/gi)?.length! > 1) issues.push("« Tunisie » répété dans titre/H1/alt.");
+  for (const key of ["seoTitle", "seoH1", "imageAlt"] as const) {
+    if ((d[key].match(/\btunisie\b/gi)?.length ?? 0) > 1) {
+      issues.push("« Tunisie » répété dans titre/H1/alt.");
+      break;
+    }
+  }
   return issues;
 }
 

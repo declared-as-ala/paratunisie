@@ -9,6 +9,7 @@ REMOTE_ROOT = "/root/paratunisie"
 FILES = [
     "apps/api/src/catalogue/catalogue.controller.ts",
     "apps/api/src/catalogue/catalogue.service.ts",
+    "apps/api/src/catalogue/product-seo-draft.ts",
 ]
 
 ssh = paramiko.SSHClient()
