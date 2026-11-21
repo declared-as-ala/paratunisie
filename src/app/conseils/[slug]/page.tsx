@@ -102,8 +102,8 @@ async function fetchArticleBySlug(slug: string): Promise<Article | null> {
           if (typed.type === 'takeaways' && Array.isArray(typed.items)) { for (const it of typed.items as string[]) if (typeof it === 'string' && it.trim()) blockTakeaways.push(it); continue; }
           if (typed.type === 'related') { for (const c of typed.categories || []) if (c?.name && c?.url?.startsWith('/')) blockCategories.push(c); for (const a of typed.articles || []) if (typeof a === 'string') blockRelated.push(a); continue; }
           if (!block.text) continue;
-          if (block.type === 'heading' || !sections.length) sections.push({ title: block.type === 'heading' ? block.text : data.title, anchor: `section-${sections.length + 1}`, content: [] });
-          if (block.type !== 'heading') sections[sections.length - 1].content.push(block.text.replace(/\[([^\]]+)\]\((\/produits\/[^)]+)\)/g, (match, label, path) => productPaths.has(path) ? match : label));
+          if (block.type === 'heading' || block.type === 'heading2' || !sections.length) sections.push({ title: (block.type === 'heading' || block.type === 'heading2') ? block.text : data.title, anchor: `section-${sections.length + 1}`, content: [] });
+          if (block.type !== 'heading' && block.type !== 'heading2') sections[sections.length - 1].content.push(block.text.replace(/\[([^\]]+)\]\((\/produits\/[^)]+)\)/g, (match, label, path) => productPaths.has(path) ? match : label));
         }
         return {
           ...local,
@@ -112,9 +112,12 @@ async function fetchArticleBySlug(slug: string): Promise<Article | null> {
           seoDescription: data.metaDescription || data.excerpt,
           focusKeyword: (data.targetKeyword || "").split(",")[0].trim(),
           secondaryKeywords: (data.targetKeyword || "").split(",").slice(1).map((value: string) => value.trim()),
-          imageAlt: data.title,
-          sections,
-          takeaways: local?.takeaways?.length ? local.takeaways : blockTakeaways, sources: local?.sources?.length ? local.sources : blockSources, relatedSlugs: local?.relatedSlugs?.length ? local.relatedSlugs : blockRelated, relatedCategories: local?.relatedCategories?.length ? local.relatedCategories : blockCategories,
+          imageAlt: data.imageAlt || data.title,
+          sections: sections.length > 0 ? sections : (local?.sections || []),
+          takeaways: blockTakeaways.length ? blockTakeaways : (local?.takeaways || []),
+          sources: blockSources.length ? blockSources : (local?.sources || []),
+          relatedSlugs: blockRelated.length ? blockRelated : (local?.relatedSlugs || []),
+          relatedCategories: blockCategories.length ? blockCategories : (local?.relatedCategories || []),
           products: (data.products || []).map((item: { product?: { slug: string; name: string }; rationale?: string }) => ({ productSlug: item.product?.slug, productName: item.product?.name, rationale: item.rationale })),
           featuredImage: getArticleImage(slug, data.featuredImage || local?.featuredImage),
         };
@@ -171,13 +174,38 @@ export default async function ArticleDetailPage({
   const liveProducts = new Map(linkedProducts.filter((product) => product !== null).map((product) => [product.slug, product]));
   article.products = (article.products || []).filter((item) => item.productSlug && liveProducts.has(item.productSlug));
 
-  // Related articles
-  const relatedArticles = article.relatedSlugs
-    ? (article.relatedSlugs
-        .map((s) => getArticleBySlug(s))
-        .filter((a): a is Article => a !== undefined)
-        .slice(0, 3))
-    : articles.filter((a) => a.category === article.category && a.slug !== article.slug).slice(0, 3);
+  // Related articles (merge DB published articles with static fallback so new DB articles resolve)
+  let relatedArticles: Article[] = [];
+  try {
+    const relRes = await fetch(`${API_URL}/content/articles?status=PUBLISHED`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(4000),
+    });
+    if (relRes.ok) {
+      const allDbArticles: Article[] = await relRes.json();
+      if (Array.isArray(allDbArticles) && allDbArticles.length > 0) {
+        if (article.relatedSlugs && article.relatedSlugs.length > 0) {
+          relatedArticles = article.relatedSlugs
+            .map((s) => allDbArticles.find((a) => a.slug === s) || getArticleBySlug(s))
+            .filter((a): a is Article => Boolean(a))
+            .slice(0, 3);
+        }
+        if (relatedArticles.length === 0) {
+          relatedArticles = allDbArticles
+            .filter((a) => a.category === article.category && a.slug !== article.slug)
+            .slice(0, 3);
+        }
+      }
+    }
+  } catch {}
+  if (relatedArticles.length === 0) {
+    relatedArticles = article.relatedSlugs
+      ? (article.relatedSlugs
+          .map((s) => getArticleBySlug(s))
+          .filter((a): a is Article => a !== undefined)
+          .slice(0, 3))
+      : articles.filter((a) => a.category === article.category && a.slug !== article.slug).slice(0, 3);
+  }
 
   // TOC extracted from sections
   const tocItems = article.sections?.map((sec) => ({

@@ -26,6 +26,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { CategoryProductCard } from "@/components/category/category-product-card";
 import { ProductRichText } from "@/components/product/product-rich-text";
 import { CategoryGuide } from "@/components/category/category-guide";
+import { CategorySupportingGuides } from "@/components/category/category-supporting-guides";
 import { CategoryPriceComparison } from "@/components/category/category-price-comparison";
 import { buildComparison, type ComparableProduct } from "@/lib/category/comparison";
 import type { ProductSummary } from "@/lib/data/products";
@@ -907,6 +908,7 @@ export function CategoryCatalogView({
 
               {/* ── Below-the-Fold Editorial, Brands, FAQ & Discovery ──── */}
               <div className="mt-10 sm:mt-14 pt-8 sm:pt-10 border-t border-border/80 space-y-5 lg:space-y-7">
+                <CategorySupportingGuides categorySlug={categorySlug} categoryName={categoryName} />
                 {seoContent ? (
                   <CategoryGuide
                     content={seoContent}
