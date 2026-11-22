@@ -18,7 +18,26 @@ const SHOWN_PRODUCTS = 8;
  * Loads live catalogue data for a regional page. Nothing is invented: categories, stock, prices and brands come from the API.
  * Failures degrade to an empty selection (the quality gate in the page then marks it noindex).
  */
-export async function loadLocalPageData(cluster: Cluster): Promise<LocalPageData> {
+const CACHE_TTL_MS = 120_000;
+const cache = new Map<Cluster, { at: number; value: Promise<LocalPageData> }>();
+
+/**
+ * Catalogue data is identical for all 24 governorates of a cluster, so it is loaded once and reused for 2 minutes
+ * (shared across requests and in-flight loads). This only caches public catalogue data: cart, checkout and prices
+ * charged at order time are always validated server-side. Stock shown on a page can lag by at most the TTL.
+ */
+export function loadLocalPageData(cluster: Cluster): Promise<LocalPageData> {
+  const hit = cache.get(cluster);
+  if (hit && Date.now() - hit.at < CACHE_TTL_MS) return hit.value;
+  const value = loadUncached(cluster).then((data) => {
+    if (data.categories.length === 0) cache.delete(cluster); // never keep an empty result from a failed load
+    return data;
+  }, (error) => { cache.delete(cluster); throw error; });
+  cache.set(cluster, { at: Date.now(), value });
+  return value;
+}
+
+async function loadUncached(cluster: Cluster): Promise<LocalPageData> {
   const slugs = CLUSTER_CATEGORIES[cluster];
   const rows = await Promise.all(
     slugs.map(async (slug) => {
