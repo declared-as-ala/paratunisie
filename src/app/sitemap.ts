@@ -1,4 +1,6 @@
 import type { MetadataRoute } from "next";
+import { INDEXED_PILOT, CLUSTER_LABEL, type Cluster } from "@/lib/local/governorates";
+import { loadLocalPageData, passesQualityGate } from "@/lib/local/page-data";
 import { getAllConcernSlugs } from "@/lib/data/concerns";
 import { articles as localArticles } from "@/lib/data/articles";
 import { fetchPaginatedProducts } from "@/lib/api/client";
@@ -64,6 +66,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE_URL}/fidelite`, changeFrequency: "monthly", priority: 0.3 },
   ];
 
+  // Regional landing pages: only the indexable pilot, and only while the live catalogue still passes the quality gate.
+  const localUrls: MetadataRoute.Sitemap = [];
+  for (const cluster of Object.keys(INDEXED_PILOT) as Cluster[]) {
+    const ok = passesQualityGate(await loadLocalPageData(cluster));
+    if (ok) for (const slug of INDEXED_PILOT[cluster]) localUrls.push({ url: `${SITE_URL}${CLUSTER_LABEL[cluster].path}/${slug}`, changeFrequency: "weekly", priority: 0.6 });
+  }
+
   const categorySource: { slug: string; updatedAt?: string }[] = data?.categories ?? [];
   const categoryUrls: MetadataRoute.Sitemap = categorySource.map((category) => ({
     url: `${SITE_URL}/${category.slug}`,
@@ -100,5 +109,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.4,
   }));
 
-  return [...staticPages, ...categoryUrls, ...concernUrls, ...brandUrls, ...productUrls, ...articleUrls];
+  return [...staticPages, ...localUrls, ...categoryUrls, ...concernUrls, ...brandUrls, ...productUrls, ...articleUrls];
 }

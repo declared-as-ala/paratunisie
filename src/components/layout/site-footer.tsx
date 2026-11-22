@@ -5,6 +5,8 @@ import { whatsappHref } from "@/lib/contact";
 
 const SERVICES_LINKS = [
   { label: "Livraison & suivi", href: "/livraison" },
+  { label: "Parapharmacie par région", href: "/parapharmacie" },
+  { label: "Protéine par région", href: "/proteine" },
   { label: "Paiement sécurisé", href: "/paiement" },
   { label: "Retours & remboursements", href: "/retours" },
   { label: "FAQ", href: "/aide" },
